@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  logging: {
+    fetches: {
+      fullUrl: false,
+      hmrRefreshes: true
+    }
+  },
   images: {
-    // domains: ['zktcbhhlcksopklpnubj.supabase.co', 'th.bing.com'],
     remotePatterns: [
       {
         protocol: 'https',
