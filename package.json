@@ -2,12 +2,16 @@
   "name": "s-code-control",
   "version": "0.1.0",
   "private": true,
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -97,6 +101,8 @@
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "eslint-plugin-react": "^7.33.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
     "postcss": "^8",
     "prettier": "^3.1.1",
     "supabase": "^1.226.4",

@@ -22,7 +22,7 @@ export default function Register() {
               width={120}
               height={120}
             />
-            CodeControl
+            Grupo Horizonte
           </Link>
           <div className="w-full  overflow-y-auto max-h-screen">
             <CardTitle className="text-2xl font-semibold tracking-tight mb-4 text-balance lg:text-left text-center">

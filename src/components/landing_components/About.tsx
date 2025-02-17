@@ -17,9 +17,9 @@ function AboutAs() {
         </Reveal>
         <Reveal>
           <p>
-            <strong>CodeControl</strong> nace como una empresa dedicada a ayudar a las empresas a gestionar sus recursos
-            de forma eficiente. Nuestra plataforma permite centralizar y mantener actualizada toda la información de tus
-            equipos y empleados, así como sus documentos y archivos.
+            <strong>Grupo Horizonte</strong> nace como una empresa dedicada a ayudar a las empresas a gestionar sus
+            recursos de forma eficiente. Nuestra plataforma permite centralizar y mantener actualizada toda la
+            información de tus equipos y empleados, así como sus documentos y archivos.
           </p>
           <p className="mt-2">
             La gestión documental es un proceso complejo y crítico. Los documentos deben ser precisos, actualizados y

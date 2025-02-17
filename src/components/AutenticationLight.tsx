@@ -17,7 +17,7 @@ function AutenticationLight() {
           width={120}
           height={120}
         />
-        CodeControl
+        Grupo Horizonte
       </Link>
       <div className="relative z-20 mt-auto ">
         <blockquote className="space-y-2">
@@ -25,7 +25,7 @@ function AutenticationLight() {
             Combinamos control de procesos, desarrollo de software y consultoría organizacional para ofrecerte
             soluciones integrales que generan resultados reales.
           </p>
-          <footer className="text-md dark:text-white">CodeControl</footer>
+          <footer className="text-md dark:text-white">Grupo Horizonte</footer>
         </blockquote>
       </div>
     </div>

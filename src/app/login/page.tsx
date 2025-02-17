@@ -21,7 +21,7 @@ export default async function Login() {
               width={120}
               height={120}
             />
-            CodeControl
+            Grupo Horizonte
           </Link>
           <div className="w-full overflow-y-auto ">
             <CardHeader>

@@ -12,7 +12,7 @@ const popinsFont = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'CodeControl',
+  title: 'Grupo Horizonte',
   description: 'Gestión para las empresas',
 };
 

@@ -18,7 +18,7 @@ export default function PasswordRecovery() {
               width={120}
               height={120}
             />
-            CodeControl
+            Grupo Horizonte
           </Link>
           <div className="w-full overflow-y-auto ">
             <CardTitle className="text-3xl font-semibold tracking-tight lg:text-left text-center mb-5 text-balance">

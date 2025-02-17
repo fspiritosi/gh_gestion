@@ -11,7 +11,7 @@ export default async function WelcomeComponent() {
       {/* Hero Section */}
       <section className="text-center space-y-6 pb-12">
         <Badge className="px-4 py-1 rounded-full text-sm" variant="secondary">
-          Bienvenido a CodeControl - Sistema de Control y Gestión
+          Bienvenido a Grupo Horizonte - Sistema de Control y Gestión
         </Badge>
         <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 text-transparent bg-clip-text">
           Gestión Integral de Flotas y Personal

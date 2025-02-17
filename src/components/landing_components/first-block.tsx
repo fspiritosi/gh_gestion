@@ -21,7 +21,7 @@ function FirstBlock() {
           </Reveal>
           <Reveal>
             <p className="text-xs md:text-xl mt-10 ">
-              En CodeControl, nos apasiona ayudar a las empresas a alcanzar sus objetivos. Combinamos{' '}
+              En Grupo Horizonte, nos apasiona ayudar a las empresas a alcanzar sus objetivos. Combinamos{' '}
               <strong>control de procesos, desarrollo de software y consultoría organizacional </strong> para ofrecerte
               soluciones integrales que generan resultados reales.
             </p>
