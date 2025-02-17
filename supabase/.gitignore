@@ -1,0 +1,6 @@
+# Supabase
+.branches
+.temp
+.env
+# SQL
+supabase/seed.sql
