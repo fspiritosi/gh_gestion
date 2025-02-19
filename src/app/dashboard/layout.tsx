@@ -1,5 +1,5 @@
 // import { AlertComponent } from '@/components/AlertComponent'
-import NavBar from '@/components/NavBar';
+import NavbarFeat from '@/features/navbar/NavbarFeat';
 import SidebarFeat from '@/features/sidebar/SidebarFeat';
 import { Inter } from 'next/font/google';
 import '../globals.css';
@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <SidebarFeat />
       </div>
       <div className="border-r border-b border-muted/50">
-        <NavBar />
+        <NavbarFeat />
       </div>
       <div>{children}</div>
     </div>
