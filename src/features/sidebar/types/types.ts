@@ -9,5 +9,5 @@ export type SidebarProps = {
   pathname: string;
   role: string | null;
   userModules?: ModulosEnum[] | null;
-  isActive: boolean;
+  isActive: string | undefined;
 };

@@ -1,16 +1,19 @@
+'use client';
 import { CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useSidebarStore } from '../store/useSidebarStore';
 import { SidebarProps } from '../types/types';
 import { filterNavigationLinks, sortNavigationLinks } from '../utils/sidebar.utils';
 
-export function Sidebar({ pathname, role, userModules, isActive }: SidebarProps) {
+export function Sidebar({ pathname, role, userModules }: SidebarProps) {
   const activeLink = pathname.split('/')[2] || 'dashboard';
   const filteredLinks = sortNavigationLinks(filterNavigationLinks(role, userModules));
+  const { isActiveSidebar } = useSidebarStore();
 
   return (
     <div
-      className={`relative top-0 left-0 h-full bg-white dark:bg-muted/50 transition-width duration-500 ${isActive ? 'w-16' : 'w-60'} sticky top-0 h-screen`}
+      className={`relative top-0 left-0 h-full bg-white dark:bg-muted/50 transition-width duration-500 ${isActiveSidebar ? 'w-16' : 'w-60'} sticky top-0 h-screen`}
     >
       <div className={cn('flex items-center p-2 justify-center')}>
         <span className="text-white text-xl flex items-center gap-2 relative overflow-hidden">

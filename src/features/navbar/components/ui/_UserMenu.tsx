@@ -4,7 +4,7 @@ import { UploadImage } from '@/components/UploadImage';
 import { AlertDialogHeader } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { LogOut, Settings, UserCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { updateProfileAvatar } from '../../actions/actions.navbar';
@@ -34,22 +35,23 @@ export function _UserMenu({ user, onLogout }: UserMenuProps) {
     }
   };
 
+  const initials =
+    user?.fullname
+      ?.split(' ')
+      .map((name) => name[0])
+      .join('')
+      .toUpperCase() || 'U';
+
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className="cursor-pointer" asChild>
-          <Avatar className="size-9">
+        <DropdownMenuTrigger className="cursor-pointer outline-none" asChild>
+          <Avatar className="size-9 hover:opacity-80 transition-opacity">
             <AvatarImage src={user?.avatar || ''} />
-            <AvatarFallback>
-              {user?.fullname
-                ?.split(' ')
-                .map((name) => name[0])
-                .join('')
-                .toUpperCase() || 'U'}
-            </AvatarFallback>
+            <AvatarFallback className="bg-muted">{initials}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">{user?.fullname}</p>
@@ -57,50 +59,71 @@ export function _UserMenu({ user, onLogout }: UserMenuProps) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => setShowProfileDialog(true)}>Editar perfil</DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => setShowProfileDialog(true)}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <Settings className="h-4 w-4" />
+            <span>Editar perfil</span>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Button variant="destructive" className="w-full" onClick={onLogout}>
-              Cerrar Sesión
-            </Button>
+          <DropdownMenuItem
+            className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+            onSelect={onLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Cerrar Sesión</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[425px]">
           <AlertDialogHeader>
-            <DialogTitle>Editar perfil</DialogTitle>
-            <DialogDescription>Aqui se haran cambios en tu perfil</DialogDescription>
+            <DialogTitle className="flex items-center gap-2">
+              <UserCircle2 className="h-5 w-5" />
+              Editar perfil
+            </DialogTitle>
+            <DialogDescription>Aquí podrás actualizar tu imagen de perfil</DialogDescription>
           </AlertDialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="w-[300px] flex gap-2">
-              <FormProvider {...form}>
-                <FormField
-                  control={form.control}
-                  name="company_logo"
-                  render={({ field }) => (
-                    <FormItem className="max-w-[600px] flex flex-col justify-center">
-                      <FormControl>
-                        <div className="flex lg:items-center flex-wrap md:flex-nowrap flex-col lg:flex-row gap-8">
-                          <UploadImage
-                            companyId={user?.id || ''}
-                            labelInput="Avatar"
-                            imageBucket="avatar"
-                            desciption="Sube tu avatar"
-                            style={{ width: '300px' }}
-                            onImageChange={handleAvatarUpdate}
-                            inputStyle={{ width: '150px' }}
-                          />
+
+          <div className="py-6">
+            <FormProvider {...form}>
+              <FormField
+                control={form.control}
+                name="company_logo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="space-y-8">
+                        <div className="flex justify-center">
+                          <Avatar className="size-24">
+                            <AvatarImage src={user?.avatar || ''} />
+                            <AvatarFallback className="bg-muted text-2xl">{initials}</AvatarFallback>
+                          </Avatar>
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </FormProvider>
-            </div>
+                        <UploadImage
+                          companyId={user?.id || ''}
+                          labelInput="Cambiar avatar"
+                          imageBucket="avatar"
+                          desciption="Sube una imagen para tu perfil"
+                          onImageChange={handleAvatarUpdate}
+                          inputStyle={{ width: '100%' }}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </FormProvider>
           </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowProfileDialog(false)}>
+              Cerrar
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

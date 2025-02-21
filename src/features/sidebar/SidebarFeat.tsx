@@ -6,7 +6,7 @@ import { Sidebar } from './components/Sidebar';
 async function SidebarFeat() {
   const pathname = await getCurrentPath();
   const userData = await verifyUserRoleInCompany();
-  const isActive = Boolean(cookies().get('isActive')?.value);
+  const isActive = cookies().get('sidebar_state')?.value;
 
   return (
     <Sidebar

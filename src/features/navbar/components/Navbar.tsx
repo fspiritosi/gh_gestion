@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { NavbarClientProps } from '../types/navbar.types';
 import { _CompanySelector } from './modals/_CompanySelector';
 import { _NotificationsModal } from './modals/_NotificationsModal';
+import { _SidebarToggle } from './ui/_SidebarToggle';
 import { _UserMenu } from './ui/_UserMenu';
 
 export function Navbar({ user, notifications, companies }: NavbarClientProps) {
   return (
-    <nav className="flex flex-shrink items-center justify-end sm:justify-between text-white pr-4 py-4 mb-2 px-7">
-      <div className="items-center hidden sm:flex gap-6">
+    <nav className="flex flex-shrink items-center justify-end sm:justify-between text-foreground pr-4 py-4 mb-2 px-7">
+      <div className="items-center flex gap-6">
+        <_SidebarToggle />
         <_CompanySelector
           sharedCompanies={companies.sharedCompanies}
           allCompanies={companies.allCompanies}

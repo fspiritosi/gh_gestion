@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { Toaster } from '@/components/ui/toaster';
+import { getTheme } from '@/lib/theme';
 import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 
@@ -17,10 +18,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const theme = getTheme();
+
   return (
     <html lang="es">
       <body className={popinsFont.className}>
-        <ThemeProvider attribute="class" defaultTheme="ligth" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme={theme} enableSystem={false} disableTransitionOnChange>
           <Toaster />
           <Sonner richColors={true} />
           <main>{children}</main>

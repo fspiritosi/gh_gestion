@@ -1,6 +1,6 @@
 import { fetchCurrentCompany, fetchUserCompanies } from '@/shared/actions/company.actions';
 import { getCurrentUserProfile, getUserNotifications } from './actions/actions.navbar';
-import { Navbar } from './components/_Navbar';
+import { Navbar } from './components/Navbar';
 
 async function NavbarFeat() {
   const user = await getCurrentUserProfile();
