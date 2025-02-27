@@ -1,6 +1,6 @@
 import React from 'react'
 import CompanyComponent from './ui/CompanyComponent'
-import DangerZoneComponent from './ui/DangerZoneComponent'
+import DangerZoneComponent from './ui/_DangerZoneComponent'
 
 export function Company() {
   return (

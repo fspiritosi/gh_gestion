@@ -1,5 +1,5 @@
-import CompanyComponent from '@/components/CompanyComponent';
-import DangerZoneComponent from '@/components/DangerZoneComponent';
+// import CompanyComponent from '@/components/CompanyComponent';
+// import DangerZoneComponent from '@/components/DangerZoneComponent';
 import DocumentTabComponent from '@/components/DocumentTabComponent';
 import EditCompanyButton from '@/components/EditCompanyButton';
 import { RegisterWithRole } from '@/components/RegisterWithRole';
