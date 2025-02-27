@@ -15,6 +15,7 @@ import TypesDocumentAction from '../../document/documentComponents/TypesDocument
 import Contacts from './contact/Contact';
 import CovenantTreeFile from './covenant/CovenantTreeFile';
 import Customers from './customers/Customers';
+import CompanyFeat from '@/features/company/CompanyFeat';
 export default async function CompanyPage() {
   const coockiesStore = cookies();
   const company_id = coockiesStore.get('actualComp')?.value;
@@ -33,8 +34,9 @@ export default async function CompanyPage() {
           buttonAction: <EditCompanyButton companyId={company_id?.toString() ?? ''} />,
           component: (
             <div>
-              <CompanyComponent />
-              <DangerZoneComponent />
+              {/* <CompanyComponent /> */}
+              <CompanyFeat />
+              {/* <DangerZoneComponent /> */}
             </div>
           ),
         },
