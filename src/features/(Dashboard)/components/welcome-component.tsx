@@ -1,8 +1,8 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { fetchCurrentCompany } from '@/shared/actions/company.actions';
 import { ClipboardCheckIcon, MailIcon, MapPinIcon, PhoneIcon, TruckIcon, UsersIcon } from 'lucide-react';
 import Link from 'next/link';
-import { fetchCurrentCompany } from '../server/GET/actions';
 
 export default async function WelcomeComponent() {
   const currentCompany = await fetchCurrentCompany();

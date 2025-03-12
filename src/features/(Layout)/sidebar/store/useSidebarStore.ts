@@ -1,10 +1,11 @@
 'use client';
 
-import { useNavbarStore } from '@/features/navbar/store/navbarStore';
+import { useNavbarStore } from '@/features/(Layout)/navbar/store/navbarStore';
 import { create } from 'zustand';
 
 type SidebarStore = {
   isActiveSidebar: boolean;
+  setIsActiveSidebar: (newState: boolean) => void;
 };
 
 export const useSidebarStore = create<SidebarStore>((set) => {
@@ -16,5 +17,10 @@ export const useSidebarStore = create<SidebarStore>((set) => {
 
   return {
     isActiveSidebar: useNavbarStore.getState().isActiveSidebar,
+    setIsActiveSidebar: (newState: boolean) => {
+      set({
+        isActiveSidebar: newState,
+      });
+    },
   };
 });

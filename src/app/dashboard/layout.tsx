@@ -1,6 +1,6 @@
 // import { AlertComponent } from '@/components/AlertComponent'
-import NavbarFeat from '@/features/navbar/NavbarFeat';
-import SidebarFeat from '@/features/sidebar/SidebarFeat';
+import NavbarFeat from '@/features/(Layout)/navbar/NavbarFeat';
+import SidebarFeat from '@/features/(Layout)/sidebar/SidebarFeat';
 import { Inter } from 'next/font/google';
 import '../globals.css';
 const font = Inter({ subsets: ['latin'] });

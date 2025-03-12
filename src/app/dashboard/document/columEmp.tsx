@@ -40,6 +40,7 @@ import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { cn } from '@/lib/utils';
 import { saveAs } from 'file-saver';
 
+import { handleSupabaseError } from '@/lib/errorHandler';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
@@ -50,8 +51,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../../../supabase/supabase';
-import { handleSupabaseError } from '@/lib/errorHandler';
+import { supabase } from '../../../../../supabase/supabase';
 
 const formSchema = z.object({
   reason_for_termination: z.string({
@@ -95,7 +95,6 @@ export const columEmp: ColumnDef<Colum>[] = [
       const equipment = row.original;
       const document = row.original;
       const handleDownload = async (path: string, fileName: string, resourceName: string) => {
-
         toast.promise(
           async () => {
             const { data, error } = await supabase.storage.from('document_files').download(path);
@@ -213,10 +212,7 @@ export const columEmp: ColumnDef<Colum>[] = [
           }
         } catch (error: any) {
           const message = await errorTranslate(error?.message);
-          toast(
-           'Error al reintegrar el equipo',
-           { description: message,}
-          );
+          toast('Error al reintegrar el equipo', { description: message });
         }
       }
       useEffect(() => {
@@ -376,7 +372,7 @@ export const columEmp: ColumnDef<Colum>[] = [
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleOpenViewModal(domain)}>Historial de modificaciones</DropdownMenuItem>
             <DropdownMenuItem
-             disabled={row.original.state === 'pendiente'}
+              disabled={row.original.state === 'pendiente'}
               onClick={() =>
                 handleDownload(row.original.document_url, row.original.documentName, row.original.resource)
               }

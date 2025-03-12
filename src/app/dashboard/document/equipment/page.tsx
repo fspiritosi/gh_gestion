@@ -2,9 +2,9 @@
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLoggedUserStore } from '@/store/loggedUser';
-import { ExpiredColums } from '../../colums';
-import { ColumnsMonthly } from '../../columsMonthly';
-import { ExpiredDataTable } from '../../data-table';
+import { ExpiredColums } from '../../../../shared/components/colums';
+import { ColumnsMonthly } from '../../../../shared/components/columsMonthly';
+import { ExpiredDataTable } from '../../../../shared/components/data-table';
 
 function page() {
   const { allDocumentsToShow } = useLoggedUserStore();

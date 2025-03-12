@@ -2,9 +2,9 @@ import { fetchEmployeeMonthlyDocuments, fetchEmployeePermanentDocuments } from '
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatEmployeeDocuments } from '@/lib/utils';
-import { ExpiredColums } from '../../colums';
-import { ColumnsMonthly } from '../../columsMonthly';
-import { ExpiredDataTable } from '../../data-table';
+import { ExpiredColums } from '../../../../shared/components/colums';
+import { ColumnsMonthly } from '../../../../shared/components/columsMonthly';
+import { ExpiredDataTable } from '../../../../shared/components/data-table';
 
 async function EmployeeDocumentsTabs() {
   const monthlyDocuments = (await fetchEmployeeMonthlyDocuments()).map(formatEmployeeDocuments);

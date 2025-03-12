@@ -50,7 +50,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../../../../../supabase/supabase';
+import { supabase } from '../../../../../../../supabase/supabase';
 
 const editGuildSchema = z.object({
   guild: z.string().nonempty('El nombre del sindicato es requerido.'),

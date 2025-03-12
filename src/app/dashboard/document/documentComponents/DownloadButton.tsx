@@ -4,7 +4,7 @@ import { handleSupabaseError } from '@/lib/errorHandler';
 import { DownloadIcon } from '@radix-ui/react-icons';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
-import { supabase } from '../../../../../supabase/supabase';
+import { supabase } from '../../../../../../supabase/supabase';
 function DownloadButton({ path, fileName }: { path: string; fileName: string }) {
   const handleDownload = async (path: string, fileName: string) => {
     toast.promise(
@@ -33,7 +33,7 @@ function DownloadButton({ path, fileName }: { path: string; fileName: string }) 
   };
 
   return (
-    <Button  onClick={() => handleDownload(path, fileName)}>
+    <Button onClick={() => handleDownload(path, fileName)}>
       <DownloadIcon className="size-5 mr-2" />
       Descargar
     </Button>

@@ -50,7 +50,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../../../../../supabase/supabase';
+import { supabase } from '../../../../../../../supabase/supabase';
 
 const editCovenantSchema = z.object({
   covenant: z.string().nonempty('El nombre del convenio es requerido.'),

@@ -8,9 +8,9 @@ import DocumentNav from '@/components/DocumentNav';
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatEmployeeDocuments } from '@/lib/utils';
-import { ExpiredColums } from '../colums';
-import { ColumnsMonthly } from '../columsMonthly';
-import { ExpiredDataTable } from '../data-table';
+import { ExpiredColums } from '../../../shared/components/colums';
+import { ColumnsMonthly } from '../../../shared/components/columsMonthly';
+import { ExpiredDataTable } from '../../../shared/components/data-table';
 
 type Props = { employee_id: string; role: string };
 
@@ -30,9 +30,7 @@ export default async function DocumentTable({ employee_id, role }: Props) {
           <TabsTrigger value="permanentes">Documentos permanentes</TabsTrigger>
           <TabsTrigger value="mensuales">Documentos mensuales</TabsTrigger>
         </TabsList>
-        {role !== 'Invitado' && (
-          <DocumentNav id_user={employee_id} onlyEmployees onlyNoMultiresource />
-        )}
+        {role !== 'Invitado' && <DocumentNav id_user={employee_id} onlyEmployees onlyNoMultiresource />}
       </CardContent>
       <TabsContent value="permanentes">
         <ExpiredDataTable

@@ -83,7 +83,6 @@ const periodRangeFilter: FilterFn<Colum> = (
   filterValue: any,
   addMeta: (meta: any) => void
 ) => {
-  
   const startDateInput = document.getElementById('date-from') as HTMLInputElement;
   const endDateInput = document.getElementById('date-limit') as HTMLInputElement;
   const startDateValue = startDateInput?.value ? new Date(startDateInput?.value) : null;

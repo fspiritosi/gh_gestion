@@ -20,10 +20,10 @@ function ShowCompanyDocument({
   resource,
   id,
   documentName,
-  documentUrl
+  documentUrl,
 }: {
   documents_employees: CompanyDocumentWithType[];
-  role: string | never[] | null
+  role: string | never[] | null;
   resource: string;
   id: string;
   documentName: string;
@@ -87,7 +87,7 @@ function ShowCompanyDocument({
                 <TabsTrigger className={cn('hover:bg-white/30', resource === 'company' && 'hidden')} value="Empresa">
                   Empresa
                 </TabsTrigger>
-              
+
                 <TabsTrigger className="hover:bg-white/30" value="Documento">
                   Documento
                 </TabsTrigger>

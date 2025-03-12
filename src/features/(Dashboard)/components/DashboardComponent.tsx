@@ -1,23 +1,10 @@
-import CardsGrid from '@/app/dashboard/componentDashboard/CardsGrid';
-import DocumentsTable from '@/app/dashboard/componentDashboard/DocumentsTable';
-import EmployeesTable from '@/app/dashboard/componentDashboard/EmployeesTable';
-import {
-  fetchAllEmployeesJUSTEXAMPLE,
-  fetchAllEquipmentJUSTEXAMPLE,
-  fetchAllRepairsJUSTEXAMPLE,
-} from '@/app/server/GET/actions';
-import { ResoursesChart } from '@/components/Graficos/ResousrsesChart';
-import { MissingDocumentList } from '@/components/MissingDocumentList';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TotalDeVisitores } from './EmployeesDashboard';
-import { Employeesnoq } from './EmployeesDashboard2';
-import { ComponentContract } from './EmployeesDashboard2 copy';
-import { ComponentStatus } from './EmployeesDashboard2copy2';
-import { ComponentStatusEquipment } from './EquipmentStatusChart';
-import { EquipemtTypesChart } from './TyposDeEquipos';
-import { EquipmentSolicitudes } from './EquipmentSolicitudes';
-import { EquipmentSolicitudesDates } from './EquipmentsSolicitudesDates';
+import CardsGrid from '@/features/(Dashboard)/components/CardsGrid';
+import { MissingDocumentList } from '@/features/(Dashboard)/components/MissingDocumentList';
+import { ResoursesChart } from '@/features/(Dashboard)/components/charts/ResousrsesChart';
+import DocumentsTable from '@/features/(Dashboard)/components/tables/DocumentsTable';
+import EmployeesTable from '@/features/(Dashboard)/components/tables/EmployeesTable';
 
 export default async function DashboardComponent() {
   // const data = await fetchAllEmployeesJUSTEXAMPLE();

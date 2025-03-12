@@ -47,7 +47,6 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-
 const formSchema = z.object({
   reason_for_termination: z.string({
     required_error: 'La razón de la baja es requerida.',
@@ -442,4 +441,3 @@ export function DataTableOptions({ row }: any) {
     </DropdownMenu>
   );
 }
-

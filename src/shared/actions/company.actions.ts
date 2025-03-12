@@ -1,6 +1,6 @@
 'use server';
 
-import { DbCompany } from '@/features/navbar/types/navbar.types';
+import { DbCompany } from '@/features/(Layout)/navbar/types/navbar.types';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 

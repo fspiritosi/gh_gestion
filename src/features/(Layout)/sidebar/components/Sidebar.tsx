@@ -9,7 +9,7 @@ import { filterNavigationLinks, sortNavigationLinks } from '../utils/sidebar.uti
 export function Sidebar({ pathname, role, userModules }: SidebarProps) {
   const activeLink = pathname.split('/')[2] || 'dashboard';
   const filteredLinks = sortNavigationLinks(filterNavigationLinks(role, userModules));
-  const { isActiveSidebar } = useSidebarStore();
+  const isActiveSidebar = useSidebarStore((state) => state.isActiveSidebar);
 
   return (
     <div

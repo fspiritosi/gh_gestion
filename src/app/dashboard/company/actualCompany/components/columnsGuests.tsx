@@ -20,10 +20,10 @@ import { SharedUser } from '@/zodSchemas/schemas';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatRelative } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { toast } from 'sonner';
-import { supabase } from '../../../../../../supabase/supabase';
-import { DataTableColumnHeader } from './data-table-column-header';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { supabase } from '../../../../../../../supabase/supabase';
+import { DataTableColumnHeader } from './data-table-column-header';
 
 export const columnsGuests: ColumnDef<SharedUser>[] = [
   {
@@ -183,7 +183,7 @@ export const columnsGuests: ColumnDef<SharedUser>[] = [
             },
           }
         );
-        router.refresh()
+        router.refresh();
       };
       return (
         <AlertDialog>

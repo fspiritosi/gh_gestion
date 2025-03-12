@@ -7,8 +7,8 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CarIcon } from 'lucide-react';
 import Link from 'next/link';
-import { Badge } from './ui/badge';
-import { buttonVariants } from './ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { buttonVariants } from '../../../components/ui/button';
 export const MissingDocumentList = () => {
   const allValuesToShow = [useLoggedUserStore((state) => state.allDocumentsToShow)].reduce(
     (acc: { employees: Document[][]; vehicles: Document[][] }, current) => {

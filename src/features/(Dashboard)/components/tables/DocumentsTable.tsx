@@ -1,9 +1,8 @@
 // 'use client';
 import { getNextMonthExpiringDocumentsVehicles } from '@/app/server/GET/actions';
 import { formatVehiculesDocuments } from '@/lib/utils';
-import { ExpiringDocumentTable } from './table/data-table-expiring-document';
-import { ExpiredDocumentColums } from './table/expiringDocumentColumns';
-import { ExpiredDocumentColumsEquipment } from './table/ExpiredDocumentColumsEquipment';
+import { ExpiredDocumentColumsEquipment } from './ExpiredDocumentColumsEquipment';
+import { ExpiringDocumentTable } from './data-table-expiring-document';
 
 async function DocumentsTable() {
   // const documentsToShow = useLoggedUserStore((state) => state.documentsToShow);

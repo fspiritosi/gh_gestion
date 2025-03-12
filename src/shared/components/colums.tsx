@@ -539,7 +539,7 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
   },
   {
     accessorKey: 'documentName',
-    header: 'Documento'
+    header: 'Documento',
   },
   {
     accessorKey: 'intern_number',

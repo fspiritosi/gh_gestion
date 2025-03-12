@@ -6,13 +6,13 @@ import { CompanyDocumentsType, useLoggedUserStore } from '@/store/loggedUser';
 import cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { ExpiredColums } from '../../colums';
-import { ColumnsMonthly } from '../../columsMonthly';
+import { ExpiredColums } from '../../../../shared/components/colums';
+import { ColumnsMonthly } from '../../../../shared/components/columsMonthly';
+import { ExpiredDataTable } from '../../../../shared/components/data-table';
 import { DataTable } from '../../company/actualCompany/components/data-table';
 import { columnsDocuments } from '../../company/actualCompany/components/document-colums';
-import { ExpiredDataTable } from '../../data-table';
-import TypesDocumentsView from './TypesDocumentsView';
 import EquipmentDocumentsTable from './EquipmentDocumentsTable';
+import TypesDocumentsView from './TypesDocumentsView';
 
 interface Document {
   date: string;
@@ -233,7 +233,6 @@ function TabsDocuments({
         </Card>
       </TabsContent>
       <TabsContent value="Documentos de equipos">
-        
         <Card>
           <CardHeader className=" mb-4  w-full bg-muted dark:bg-muted/50 border-b-2">
             <div className="flex flex-row gap-4 justify-between items-center flex-wrap">
@@ -246,7 +245,7 @@ function TabsDocuments({
               <div className="flex gap-4 flex-wrap pl-6">{role !== 'Invitado' && <DocumentNav />}</div>
             </div>
           </CardHeader>
-          <EquipmentDocumentsTable AllvaluesToShow={AllvaluesToShow} clientData={clientData}/>
+          <EquipmentDocumentsTable AllvaluesToShow={AllvaluesToShow} clientData={clientData} />
           {/* <Tabs defaultValue="permanentes">
             <CardContent>
               <TabsList>

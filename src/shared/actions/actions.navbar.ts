@@ -1,7 +1,7 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { cleanPath } from '../../features/sidebar/utils/utils.sidebar';
+import { cleanPath } from '../../features/(Layout)/sidebar/utils/utils.sidebar';
 
 export async function getCurrentPath() {
   const headersList = headers();

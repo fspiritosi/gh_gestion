@@ -1,4 +1,4 @@
-import DocumentTable from '@/app/dashboard/document/DocumentTable';
+import DocumentTable from '@/app/(routes)/dashboard/document/DocumentTable';
 import {
   fetchDiagramsByEmployeeId,
   fetchDiagramsHistoryByEmployeeId,
@@ -19,7 +19,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   //   .select('*,applies(*),id_document_types(*)')
   //   .eq('applies.document_number', searchParams.document)
   //   .not('applies', 'is', null)
-  const role = await getRole()
+  const role = await getRole();
 
   const supabase = supabaseServer();
   const user = await supabase.auth.getUser();
@@ -116,7 +116,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
     modifiedAt: moment(item.created_at).local().format('DD/MM/YYYY HH:mm'), // Formatear a la hora local
     type: item.prev_state ? 'modified' : 'created',
   }));
-  
+
   const diagrams2 = await fetchDiagramsByEmployeeId(searchParams.employee_id);
   const diagrams_types2 = await fetchDiagramsTypes();
   return (

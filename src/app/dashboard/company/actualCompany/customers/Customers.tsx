@@ -1,11 +1,9 @@
-
-import { supabase } from '../../../../../../supabase/supabase';
+import { cookies } from 'next/headers';
+import { supabase } from '../../../../../../../supabase/supabase';
 import { columns } from './columns';
 import { DataCustomers } from './data-table';
-import { cookies } from 'next/headers';
 
 export default async function Customers() {
-
   const coockiesStore = cookies();
   const actualCompany = coockiesStore.get('actualComp')?.value;
 
@@ -14,16 +12,11 @@ export default async function Customers() {
   if (error) {
     console.error('Error al obtener los contratistas:', error);
   }
-  const contractorCompanies = customers?.filter((company: any) => company.company_id.toString() === actualCompany)
+  const contractorCompanies = customers?.filter((company: any) => company.company_id.toString() === actualCompany);
 
   return (
     <div>
-      <DataCustomers
-        columns={columns}
-        data={contractorCompanies || []}
-        localStorageName="customersColumns"
-      />
-    
+      <DataCustomers columns={columns} data={contractorCompanies || []} localStorageName="customersColumns" />
     </div>
   );
 }
