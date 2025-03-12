@@ -17,7 +17,7 @@ export default async function WelcomeComponent() {
           Gestión Integral de Flotas y Personal
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Ingresaste como usuario invitado de la empresa <strong>{currentCompany[0].company_name}</strong>
+          Ingresaste como usuario invitado de la empresa <strong>{currentCompany[0]?.company_name}</strong>
         </p>
         {/* <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Mantén el control total de tus operaciones: personal, vehículos, documentación y mantenimientos, 

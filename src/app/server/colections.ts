@@ -239,6 +239,10 @@ declare global {
     id_document_types: DocumentTypes; // Anteriormente: TypeOfDocuments
     applies: VehicleWithCompany; // Anteriormente: VehiclestWithRelationsWithCompany
   }
+  interface SharedCompanyWithCompany extends Omit<ShareCompanyUsers, 'company_id'> {
+    // Anteriormente: DocumentEquipmentWithRelationsIncludesCompany
+    company_id: Company; // Anteriormente: CompanyWithRelations
+  }
 
   // Relaciones de ShareCompanyUsers
   interface ShareCompanyUsersWithRelations extends Omit<ShareCompanyUsers, 'customer_id'> {

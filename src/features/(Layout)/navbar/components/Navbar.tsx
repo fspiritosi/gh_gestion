@@ -15,7 +15,7 @@ export function Navbar({ user, notifications, companies }: NavbarClientProps) {
         <_CompanySelector
           sharedCompanies={companies.sharedCompanies}
           allCompanies={companies.allCompanies}
-          currentCompany={companies.currentCompany}
+          currentCompany={companies.currentCompany ?? []}
         />
       </div>
 

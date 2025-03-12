@@ -13,14 +13,14 @@ export type NavbarClientProps = {
   companies: {
     sharedCompanies: Company[];
     allCompanies: Company[];
-    currentCompany: Company | null;
+    currentCompany: Company[] | null;
   };
 };
 
 export type CompanySelectorProps = {
   sharedCompanies: Company[];
   allCompanies: Company[];
-  currentCompany: Company | null;
+  currentCompany: Company[];
 };
 export type NotificationsModalProps = {
   notifications: FormattedNotifications[];

@@ -1,6 +1,5 @@
 'use server';
 
-import { DbCompany } from '@/features/(Layout)/navbar/types/navbar.types';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
@@ -8,15 +7,15 @@ export const fetchCurrentCompany = async () => {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
-  if (!company_id) return null;
+  if (!company_id) return [];
 
-  const { data, error } = await supabase.from('company').select('*').eq('id', company_id).single();
+  const { data, error } = await supabase.from('company').select('*').eq('id', company_id);
 
   if (error) {
     console.error('Error fetching company:', error);
-    return null;
+    return [];
   }
-  return data as DbCompany;
+  return data;
 };
 
 export const fetchUserCompanies = async (userId: string) => {
@@ -26,7 +25,8 @@ export const fetchUserCompanies = async (userId: string) => {
   const { data: sharedCompanies, error: sharedError } = await supabase
     .from('share_company_users')
     .select('company_id (*)')
-    .eq('profile_id', userId);
+    .eq('profile_id', userId)
+    .returns<SharedCompanyWithCompany[]>();
 
   if (sharedError) {
     console.error('Error fetching shared companies:', sharedError);
@@ -42,7 +42,7 @@ export const fetchUserCompanies = async (userId: string) => {
   }
 
   return {
-    sharedCompanies: (sharedCompanies?.map((sc) => sc.company_id) || []) as DbCompany[],
-    allCompanies: (allCompanies || []) as DbCompany[],
+    sharedCompanies: sharedCompanies?.map((sc) => sc.company_id) as Company[],
+    allCompanies: allCompanies || [],
   };
 };

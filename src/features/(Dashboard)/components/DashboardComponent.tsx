@@ -5,11 +5,12 @@ import { MissingDocumentList } from '@/features/(Dashboard)/components/MissingDo
 import { ResoursesChart } from '@/features/(Dashboard)/components/charts/ResousrsesChart';
 import DocumentsTable from '@/features/(Dashboard)/components/tables/DocumentsTable';
 import EmployeesTable from '@/features/(Dashboard)/components/tables/EmployeesTable';
+import { fetchAllEmployees } from '@/shared/actions/employees.actions';
+import { fetchAllEquipment } from '@/shared/actions/equipment.actions';
 
 export default async function DashboardComponent() {
-  // const data = await fetchAllEmployeesJUSTEXAMPLE();
-  // const data2 = await fetchAllEquipmentJUSTEXAMPLE();
-  // const data3 = await fetchAllRepairsJUSTEXAMPLE();
+  const employees = await fetchAllEmployees();
+  const equipments = await fetchAllEquipment();
   return (
     <div className="">
       <section className="grid sm:grid-cols-2 grid-cols-1 gap-6 mx-7">
@@ -25,7 +26,7 @@ export default async function DashboardComponent() {
         <TabsContent className="w-full" value="Principal">
           <section className="md:mx-7 grid grid-cols-1 mt-6 xl:grid-cols-4 gap-3 mb-4 ">
             <section className="flex flex-col gap-4 w-full">
-              <ResoursesChart />
+              <ResoursesChart employees={employees} equipments={equipments} />
               <MissingDocumentList />
             </section>
             <Card className="col-span-3 flex flex-col justify-between overflow-hidden">

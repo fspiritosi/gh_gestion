@@ -1,15 +1,14 @@
+import { fetchAllEmployees } from '@/app/server/GET/actions';
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { setEmployeesToShow } from '@/lib/utils/utils';
-import { EmployeesListColumns } from '../../employee/columns';
-import { EmployeesTable } from '../../employee/data-table';
-import { fetchAllEmployees } from '@/app/server/GET/actions';
 import { getRole } from '@/lib/utils/getRole';
+import { setEmployeesToShow } from '@/lib/utils/utils';
+import { EmployeesListColumns } from '../../../../features/(Employees)/components/tables/columns';
+import { EmployeesTable } from '../../../../features/(Employees)/components/tables/data-table';
 
 async function EmployeeListTabs({ inactives, actives }: { inactives?: boolean; actives?: boolean }) {
- 
-  const role = await getRole()
-  const employees = await fetchAllEmployees( role );
+  const role = await getRole();
+  const employees = await fetchAllEmployees(role);
 
   const activeEmploees = setEmployeesToShow(employees?.filter((e) => e.is_active));
   const inactiveEmploees = setEmployeesToShow(employees?.filter((e: any) => !e.is_active));

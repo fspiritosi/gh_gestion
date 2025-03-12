@@ -24,7 +24,7 @@ import { CompanySelectorProps } from '../../types/navbar.types';
 export function _CompanySelector({ sharedCompanies, allCompanies, currentCompany }: CompanySelectorProps) {
   const [open, setOpen] = useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(currentCompany);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(currentCompany?.[0]);
 
   // Si no hay compañía seleccionada y hay compañías disponibles, seleccionar la primera
   useEffect(() => {

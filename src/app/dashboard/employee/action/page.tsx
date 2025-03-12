@@ -1,4 +1,3 @@
-import DocumentTable from '@/app/(routes)/dashboard/document/DocumentTable';
 import {
   fetchDiagramsByEmployeeId,
   fetchDiagramsHistoryByEmployeeId,
@@ -12,6 +11,7 @@ import { getRole } from '@/lib/utils/getRole';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import moment from 'moment';
 import { cookies } from 'next/headers';
+import DocumentTable from '../../document/DocumentTable';
 export default async function EmployeeFormAction({ searchParams }: { searchParams: any }) {
   // const { data } = await supabase
 
