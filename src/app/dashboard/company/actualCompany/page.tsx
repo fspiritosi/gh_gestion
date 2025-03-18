@@ -1,11 +1,15 @@
 // import CompanyComponent from '@/components/CompanyComponent';
 // import DangerZoneComponent from '@/components/DangerZoneComponent';
 import DocumentTabComponent from '@/components/DocumentTabComponent';
-import EditCompanyButton from '@/components/EditCompanyButton';
-import { RegisterWithRole } from '@/components/RegisterWithRole';
+// import EditCompanyButton from '@/components/EditCompanyButton';
+import _EditCompanyButton from '@/features/company/components/ui/_EditCompanyButton';
+// import { RegisterWithRole } from '@/components/RegisterWithRole';
+import {RegisterWithRole} from '@/features/company/modules/users/components/ui/RegisterWithRole';
+// import CreatedForm from '@/components/CreatedForm';
 import ServiceComponent from '@/components/Services/ServiceComponent';
 import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
-import UsersTabComponent from '@/components/UsersTabComponent';
+// import UsersTabComponent from '@/components/UsersTabComponent';
+import UsersTabComponent from '@/features/company/modules/users/components/ui/UsersTabComponent'; 
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
 import { cookies } from 'next/headers';
@@ -31,7 +35,7 @@ export default async function CompanyPage() {
           title: 'Datos generales de la empresa',
           description: 'Información de la empresa',
           buttonActioRestricted: [''],
-          buttonAction: <EditCompanyButton companyId={company_id?.toString() ?? ''} />,
+          buttonAction: <_EditCompanyButton companyId={company_id?.toString() ?? ''} />,
           component: (
             <div>
               {/* <CompanyComponent /> */}

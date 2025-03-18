@@ -968,3 +968,39 @@ export const fetchDiagramsTypes = async () => {
   }
   return data;
 };
+export const fetchContacts = async () => {
+  const supabase = supabaseServer();
+  const cookiesStore = cookies();
+  const company_id = cookiesStore.get('actualComp')?.value as string;
+  console.log(company_id)
+  if (!company_id) return [];
+  const { data, error } = await supabase
+    .from('contacts')
+    .select('*, customers(id, name)')
+    .eq('company_id', company_id || '');
+
+  if (error) {
+    console.error('Error fetching contacts:', error);
+    return [];
+  }
+
+  return data;
+}
+
+export const fetchCustomers = async () => {
+  const supabase = supabaseServer();
+  const cookiesStore = cookies();
+  const company_id = cookiesStore.get('actualComp')?.value as string;
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('is_active', true)
+    .eq('company_id', company_id || '');
+
+  if (error) {
+    console.error('Error fetching customers:', error);
+    return [];
+  }
+
+  return data;
+}

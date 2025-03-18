@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
 export default async function Contact() {
   const coockiesStore = cookies();
   const actualCompany = coockiesStore.get('actualComp')?.value;
+  console.log(actualCompany)
   const { data: contacts, error } = await supabase //pasar a api
     .from('contacts')
     .select('*, customers(id, name)')
