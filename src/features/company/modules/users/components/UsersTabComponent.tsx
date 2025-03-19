@@ -1,7 +1,7 @@
 //'use client';
-import { columns } from '@/app/dashboard/company/actualCompany/components/columns';
-import { columnsGuests } from '@/app/dashboard/company/actualCompany/components/columnsGuests';
-import { DataTable } from '@/app/dashboard/company/actualCompany/components/data-table';
+import { columns } from '../components/ui/columns';
+import { columnsGuests } from '../components/ui/columnsGuests';
+import { DataTable } from '../components/ui/data-table';
 import { getAllUsers, getOwnerUser } from '@/app/server/GET/actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 

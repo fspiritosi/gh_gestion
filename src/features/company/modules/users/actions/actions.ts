@@ -1,4 +1,4 @@
-import { supabase } from '../../../../../../../../supabase/supabase';
+import { supabase } from '../../../../../../supabase/supabase';
 import { handleSupabaseError } from '@/lib/errorHandler';
 
 export const createUserWithRole = async (values: any, companyId: string, activeTab: string) => {

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Toggle } from '@/components/ui/toggle';
-import { createUserWithRole } from '@/features/company/modules/users/components/ui/actions/actions';
+import { createUserWithRole } from '@/features/company/modules/users/actions/actions';
 import { registerSchemaWithRole } from '@/features/company/modules/users/schemas/schemas';
 import { useCompanyStore } from '@/features/company/store/companyStore';
 import { useLoggedUserStore } from '@/store/loggedUser';
@@ -26,7 +26,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../../../../../../supabase/supabase';
+import { supabase } from '../../../../../../supabase/supabase';
 export const RegisterWithRole = () => {
   const [showPasswords, setShowPasswords] = useState(false);
   const [open, setOpen] = useState(false);
