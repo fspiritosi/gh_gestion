@@ -13,9 +13,10 @@ export default async function Customers() {
   console.log(customers)
   if (error) {
     console.error('Error al obtener los contratistas:', error);
+    return [];
   }
   const contractorCompanies = customers?.filter((company: any) => company.company_id.toString() === actualCompany)
-
+  console.log(contractorCompanies)
   return (
     <div>
       <DataCustomers

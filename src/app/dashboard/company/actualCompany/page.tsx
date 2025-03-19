@@ -18,7 +18,8 @@ import { Suspense } from 'react';
 import TypesDocumentAction from '../../document/documentComponents/TypesDocumentAction';
 import Contacts from './contact/Contact';
 import CovenantTreeFile from './covenant/CovenantTreeFile';
-import Customers from './customers/Customers';
+// import Customers from './customers/Customers';
+import Customers from '@/features/company/modules/customers/components/Customers';
 import CompanyFeat from '@/features/company/CompanyFeat';
 export default async function CompanyPage() {
   const coockiesStore = cookies();

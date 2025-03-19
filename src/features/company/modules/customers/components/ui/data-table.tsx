@@ -185,7 +185,7 @@ export function DataCustomers<TData, TValue>({
                     }
                     if (column.id === 'showUnavaliableContacts') {
                       return (
-                        <>
+                        // <>
                           <DropdownMenuCheckboxItem
                             key={column.id}
                             className="capitalize  text-red-400"
@@ -197,7 +197,7 @@ export function DataCustomers<TData, TValue>({
                           >
                             {column.columnDef.header}
                           </DropdownMenuCheckboxItem>
-                        </>
+                        // </>
                       );
                     }
 

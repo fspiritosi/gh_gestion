@@ -47,8 +47,12 @@ import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { supabase } from '../../../../../../supabase/supabase';
+import { useCompanyStore } from '@/features/company/store/companyStore';
+import { fetchInactiveCustomer } from '@/features/company/modules/customers/actions/actions';
+import { reintegerCustomer, deactivateCustomer } from '@/features/company/modules/customers/actions/actions';
+
 const formSchema = z.object({
   reason_for_termination: z.string({
     required_error: 'La razón de la baja es requerida.',
@@ -91,30 +95,32 @@ export const columns: ColumnDef<Colum>[] = [
       const [showInactive, setShowInactive] = useState<boolean>(false);
       const [showDeletedCustomer, setShowDeletedCustomer] = useState(false);
       const customers = row.original;
-
+      const router = useRouter();
       const handleOpenModal = (id: string) => {
         setCuit(cuit);
         setShowModal(!showModal);
       };
-      const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+     
+      const actualCompany = useCompanyStore();
+      
+     
+      //   try {
+      //     const { data, error } = await supabase
+      //       .from('customers')
+      //       .select('*')
+      //       //.eq('is_active', false)
+      //       .eq('company_id', actualCompany?.currentCompanyId);
 
-      const fetchInactiveCustomer = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('customers')
-            .select('*')
-            //.eq('is_active', false)
-            .eq('company_id', actualCompany?.id);
-
-          if (error) {
-            console.error(error);
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
+      //     if (error) {
+      //       console.error(error);
+      //     }
+      //   } catch (error) {
+      //     console.error(error);
+      //   }
+      // };
+ 
       useEffect(() => {
-        fetchInactiveCustomer();
+        fetchInactiveCustomer(actualCompany?.currentCompanyId as string || '');
       }, []);
       const handleOpenIntegerModal = (id: string) => {
         setCuit(cuit);
@@ -130,118 +136,104 @@ export const columns: ColumnDef<Colum>[] = [
         },
       });
 
-      async function reintegerCustomer() {
+      
+      // async function onSubmit(values: z.infer<typeof formSchema>) {
+      //   const data = {
+      //     ...values,
+      //     termination_date: format(values.termination_date, 'yyyy-MM-dd'),
+      //   };
+
+      //   try {
+      //     await supabase
+      //       .from('customers')
+      //       .update({
+      //         is_active: false,
+      //         termination_date: data.termination_date,
+      //         reason_for_termination: data.reason_for_termination,
+      //       })
+      //       .eq('id', customers.id)
+      //       .eq('company_id', actualCompany?.currentCompanyId)
+      //       .select();
+
+      //     setShowModal(!showModal);
+
+      //     toast('Cliente eliminado');
+      //   } catch (error: any) {
+      //     const message = await errorTranslate(error?.message);
+      //     toast('Error al dar de baja el cliente', { description: message });
+      //   }
+
+      //   try {
+      //     await supabase
+      //       .from('contacts')
+      //       .update({
+      //         is_active: false,
+      //         // termination_date: data.termination_date,
+      //         // reason_for_termination: data.reason_for_termination,
+      //       })
+      //       .eq('customer_id', customers.id)
+      //       .eq('company_id', actualCompany?.currentCompanyId)
+      //       .select();
+
+      //     setShowModal(!showModal);
+
+      //     toast('Contacto eliminado');
+      //   } catch (error: any) {
+      //     const message = await errorTranslate(error?.message);
+      //     toast('Error al dar de baja el contacto', { description: message });
+      //   }
+      //   const updatedEmployeesPromises = employ?.map((employee: any) => {
+      //     const updatedAllocatedTo = employee.allocated_to?.filter((clientId: string) => clientId !== customers.id);
+      //     return supabase.from('employees').update({ allocated_to: updatedAllocatedTo }).eq('id', employee.id);
+      //   });
+
+      //   // Esperar a que todas las actualizaciones de empleados se completen
+      //   await Promise.all(updatedEmployeesPromises);
+
+      //   toast('Empleados actualizados', { description: `Los empleados afectados han sido actualizados` });
+
+      //   const updatedEquipmentPromises = equip.map((equipment: any) => {
+      //     const updatedAllocatedTo = equipment.allocated_to?.filter((clientId: string) => clientId !== customers.id);
+      //     return supabase.from('vehicles').update({ allocated_to: updatedAllocatedTo }).eq('id', equipment.id);
+      //   });
+
+      //   // Esperar a que todas las actualizaciones de empleados se completen
+      //   await Promise.all(updatedEquipmentPromises);
+
+      //   toast('Equipos actualizados', { description: `Los equipos afectados han sido actualizados` });
+      // }
+      const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-          const { data, error } = await supabase
-            .from('customers')
-            .update({
-              is_active: true,
-              // termination_date: null,
-              // reason_for_termination: null,
-            })
-            .eq('id', customers.id)
-            .eq('company_id', actualCompany?.id)
-            .select();
-
-          setIntegerModal(!integerModal);
-          //setInactive(data as any)
-          setShowDeletedCustomer(false);
-          toast('Cliente reintegrado', { description: `El cliente ${customers?.name} ha sido reintegrado` });
-        } catch (error: any) {
-          const message = await errorTranslate(error?.message);
-          toast('Error al reintegrar el cliente', { description: message });
+          await deactivateCustomer(
+            values,
+            customers?.id,
+            actualCompany?.currentCompanyId || '',
+            employ || [], // Pasar un array vacío si employ es null o undefined
+            equip || [] // Pasar un array vacío si equip es null o undefined
+          );
+          setShowModal(false); // Cerrar el modal después de dar de baja al cliente
+          router.refresh(); // Recargar la página o actualizar los datos
+        } catch (error) {
+          toast.error('Error al dar de baja el cliente');
+          console.error('Error al dar de baja el cliente:', error);
         }
-
+      };
+      const handleReinteger = async () => {
         try {
-          const { data, error } = await supabase
-            .from('contacts')
-            .update({
-              is_active: true,
-              // termination_date: null,
-              // reason_for_termination: null,
-            })
-            .eq('customer_id', customers.id)
-            .eq('company_id', actualCompany?.id)
-            .select();
-
-          setIntegerModal(!integerModal);
-          //setInactive(data as any)
-          setShowDeletedCustomer(false);
-          toast('Contacto reintegrado');
-        } catch (error: any) {
-          const message = await errorTranslate(error?.message);
-          toast('Error al reintegrar el contacto', { description: message });
+          const result = await reintegerCustomer(customers?.id, actualCompany?.currentCompanyId);
+      
+          if (result && result.success) {
+            setIntegerModal(false);
+            setShowDeletedCustomer(false);
+            toast.success(result.message); // Opcional: mostrar un mensaje de éxito
+            router.refresh(); // Recargar la página o actualizar los datos
+          } else {
+            toast.error(result?.message || 'Error al reintegrar el cliente'); // Opcional: mostrar un mensaje de error
+          }
+        } catch (error) {
+          console.error('Error en handleReinteger:', error);
+          toast.error('Ocurrió un error inesperado'); // Opcional: mostrar un mensaje de error
         }
-      }
-
-      async function onSubmit(values: z.infer<typeof formSchema>) {
-        const data = {
-          ...values,
-          termination_date: format(values.termination_date, 'yyyy-MM-dd'),
-        };
-
-        try {
-          await supabase
-            .from('customers')
-            .update({
-              is_active: false,
-              termination_date: data.termination_date,
-              reason_for_termination: data.reason_for_termination,
-            })
-            .eq('id', customers.id)
-            .eq('company_id', actualCompany?.id)
-            .select();
-
-          setShowModal(!showModal);
-
-          toast('Cliente eliminado');
-        } catch (error: any) {
-          const message = await errorTranslate(error?.message);
-          toast('Error al dar de baja el cliente', { description: message });
-        }
-
-        try {
-          await supabase
-            .from('contacts')
-            .update({
-              is_active: false,
-              // termination_date: data.termination_date,
-              // reason_for_termination: data.reason_for_termination,
-            })
-            .eq('customer_id', customers.id)
-            .eq('company_id', actualCompany?.id)
-            .select();
-
-          setShowModal(!showModal);
-
-          toast('Contacto eliminado');
-        } catch (error: any) {
-          const message = await errorTranslate(error?.message);
-          toast('Error al dar de baja el contacto', { description: message });
-        }
-        const updatedEmployeesPromises = employ.map((employee: any) => {
-          const updatedAllocatedTo = employee.allocated_to?.filter((clientId: string) => clientId !== customers.id);
-          return supabase.from('employees').update({ allocated_to: updatedAllocatedTo }).eq('id', employee.id);
-        });
-
-        // Esperar a que todas las actualizaciones de empleados se completen
-        await Promise.all(updatedEmployeesPromises);
-
-        toast('Empleados actualizados', { description: `Los empleados afectados han sido actualizados` });
-
-        const updatedEquipmentPromises = equip.map((equipment: any) => {
-          const updatedAllocatedTo = equipment.allocated_to?.filter((clientId: string) => clientId !== customers.id);
-          return supabase.from('vehicles').update({ allocated_to: updatedAllocatedTo }).eq('id', equipment.id);
-        });
-
-        // Esperar a que todas las actualizaciones de empleados se completen
-        await Promise.all(updatedEquipmentPromises);
-
-        toast('Equipos actualizados', { description: `Los equipos afectados han sido actualizados` });
-      }
-
-      const handleToggleInactive = () => {
-        setShowInactive(!showInactive);
       };
 
       return (
@@ -257,7 +249,7 @@ export const columns: ColumnDef<Colum>[] = [
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => reintegerCustomer()}>Continuar</AlertDialogAction>
+                  <AlertDialogAction onClick={() => handleReinteger()}>Continuar</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

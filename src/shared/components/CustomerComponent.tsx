@@ -3,7 +3,7 @@
 import { columnsGuests } from '@/app/dashboard/company/actualCompany/components/columnsGuests';
 import { DataTable as DataTableInvited } from '@/app/dashboard/company/actualCompany/components/data-table';
 // import { createdCustomer, updateCustomer } from '@/app/dashboard/company/actualCompany/customers/action/create';
-import { createdCustomer, updateCustomer } from '@/features/company/modules/customers/actions/create';
+import { createdCustomer, updateCustomer } from '@/features/company/modules/customers/actions/actions';
 import { EquipmentTable } from '@/app/dashboard/equipment/data-equipment';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
@@ -13,14 +13,14 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useLoggedUserStore } from '@/store/loggedUser';
-import { customersSchema } from '@/zodSchemas/schemas';
+import { customersSchema } from '@/features/company/modules/customers/schemas/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Toaster, toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../../../../../supabase/supabase';
+import { supabase } from '../../../supabase/supabase';
 // import { columns } from '../app/dashboard/company/customers/action/columnsCustomers';
 import { EmployeesListColumns } from '@/app/dashboard/employee/columns';
 import { EmployeesTable } from '@/app/dashboard/employee/data-table';
@@ -190,13 +190,13 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
     try {
       const response = await functionAction(data);
 
-      if (response.status === 201) {
+      if (response?.status === 201) {
         toast.dismiss();
         toast.success('Cliente creado satisfactoriamente!');
         router.push('/dashboard/company/actualCompany');
       } else {
         toast.dismiss();
-        toast.error(response.body);
+        toast.error(response?.body || 'Error al crear el cliente');
       }
     } catch (errors) {
       // console.error('Error submitting form:', error);

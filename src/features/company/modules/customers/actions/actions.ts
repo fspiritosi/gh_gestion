@@ -6,6 +6,11 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { fetchCurrentUser,getOwnerUser } from '@/app/server/GET/actions';
+// import { toast } from 'sonner';
+// import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
+import { format } from 'date-fns';
+// import { errorTranslate }
+const supabase = supabaseServer();
 
 export async function createdCustomer(formData: FormData) {
   const supabase = supabaseServer();
@@ -79,7 +84,7 @@ export async function createdCustomer(formData: FormData) {
     console.error(error);
     return { status: 500, body: 'Internal Server Error' };
   }
-  redirect('/dashboard/company/actualCompany');
+  // redirect('/dashboard/company/actualCompany');
 }
 
 export async function updateCustomer(formData: FormData) {
@@ -134,5 +139,126 @@ export async function updateCustomer(formData: FormData) {
     return { status: 500, body: 'Internal Server Error' };
   }
 
-  redirect('/dashboard/company/actualCompany');
+  // redirect('/dashboard/company/actualCompany');
+}
+
+export const fetchInactiveCustomer = async (companyId: string | undefined) => {
+  try {
+    if (!companyId) {
+      throw new Error('No se proporcionó un ID de empresa');
+    }
+
+    const { data, error } = await supabaseServer()
+      .from('customers')
+      .select('*')
+      //.eq('is_active', false) // Descomenta si necesitas filtrar por is_active
+      .eq('company_id', companyId);
+
+    if (error) {
+      console.error(error);
+      throw error;
+    }
+
+    return data; // Devuelve los datos obtenidos
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export async function reintegerCustomer(customers: any, actualCompany: any) {
+  try {
+    const { data, error } = await supabaseServer()
+      .from('customers')
+      .update({ is_active: true })
+      .eq('id', customers)
+      .eq('company_id', actualCompany)
+      .select();
+
+    if (error) throw error;
+
+    return { success: true, message: 'Cliente reintegrado correctamente' };
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+}
+
+export async function deactivateCustomer(
+  values: any,
+  customerId: string,
+  companyId: string,
+  employ: any[] = [], // Inicializar como array vacío si es undefined
+  equip: any[] = [] // Inicializar como array vacío si es undefined
+) {
+  const supabase = supabaseServer();
+
+  const data = {
+    ...values,
+    termination_date: format(values.termination_date, 'yyyy-MM-dd'),
+  };
+
+  try {
+    // Actualizar el cliente en la tabla 'customers'
+    await supabase
+      .from('customers')
+      .update({
+        is_active: false,
+        termination_date: data.termination_date,
+        reason_for_termination: data.reason_for_termination,
+      })
+      .eq('id', customerId)
+      .eq('company_id', companyId)
+      .select();
+
+    
+  } catch (error: any) {
+    throw error;
+  }
+
+  try {
+    // Actualizar los contactos asociados al cliente
+    await supabase
+      .from('contacts')
+      .update({
+        is_active: false,
+      })
+      .eq('customer_id', customerId)
+      .eq('company_id', companyId)
+      .select();
+
+    
+  } catch (error: any) {
+    
+    throw error;
+  }
+
+  try {
+    // Actualizar los empleados asignados al cliente
+    if (employ && Array.isArray(employ)) {
+      const updatedEmployeesPromises = employ.map((employee: any) => {
+        const updatedAllocatedTo = employee.allocated_to?.filter((clientId: string) => clientId !== customerId);
+        return supabase.from('employees').update({ allocated_to: updatedAllocatedTo }).eq('id', employee.id);
+      });
+
+      await Promise.all(updatedEmployeesPromises);
+     
+    }
+  } catch (error: any) {
+    throw error;
+  }
+
+  try {
+    // Actualizar los equipos asignados al cliente
+    if (equip && Array.isArray(equip)) {
+      const updatedEquipmentPromises = equip.map((equipment: any) => {
+        const updatedAllocatedTo = equipment.allocated_to?.filter((clientId: string) => clientId !== customerId);
+        return supabase.from('vehicles').update({ allocated_to: updatedAllocatedTo }).eq('id', equipment.id);
+      });
+
+      await Promise.all(updatedEquipmentPromises);
+     
+    }
+  } catch (error: any) {
+    throw error;
+  }
 }
