@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Toaster, toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../../supabase/supabase';
+import { supabase } from '../../../../../../supabase/supabase';
 // import { columns } from '../app/dashboard/company/customers/action/columnsCustomers';
 import { EmployeesListColumns } from '@/app/dashboard/employee/columns';
 import { EmployeesTable } from '@/app/dashboard/employee/data-table';
@@ -175,7 +175,7 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
       fetchCustomerData();
     }
   }, [action, id, setValue]);
-
+  console.log('filteredCustomersActiveEmployees', filteredCustomersActiveEmployees);
   const onSubmit = async (formData: z.infer<typeof customersSchema>) => {
     const data = new FormData();
     data.append('id', id);
@@ -345,7 +345,7 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
     setItemsPerPage(value);
     setCurrentPage(1); // Reset to first page when items per page changes
   };
-
+  
   //console.log(filteredItems)
   return (
     <section className={cn('md:mx-7 max-w-full')}>

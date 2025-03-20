@@ -461,6 +461,7 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
   },
 
   {
+    id: 'full_name',
     accessorKey: 'full_name',
     header: ({ column }: { column: any }) => {
       return (

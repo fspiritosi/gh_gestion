@@ -16,7 +16,9 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import TypesDocumentAction from '../../document/documentComponents/TypesDocumentAction';
-import Contacts from './contact/Contact';
+// import Contacts from './contact/Contact';
+import Contacts from '@/features/company/modules/contacts/components/Contact';
+// import CovenantRegister from './covenant/CovenantRegister';
 import CovenantTreeFile from './covenant/CovenantTreeFile';
 // import Customers from './customers/Customers';
 import Customers from '@/features/company/modules/customers/components/Customers';
@@ -103,7 +105,7 @@ export default async function CompanyPage() {
           buttonActioRestricted: [''],
           buttonAction: (
             <Link
-              href={'/dashboard/company/contact/action?action=new'}
+              href={'/dashboard/company/actualCompany/contact/action?action=new'}
               className={buttonVariants({ variant: 'default' })}
             >
               Registrar Contacto
