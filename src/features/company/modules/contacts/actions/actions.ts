@@ -221,9 +221,9 @@ export async function reintegerContact(contactId: string) {
 }
 
 export async function deactivateContact(
-  values: any, // Los valores del formulario
-  contactId: string, // El ID del contacto a desactivar
-  companyId: string // El ID de la empresa
+  values: any, 
+  contactId: string, 
+  companyId: string 
 ) {
   const supabase = supabaseServer();
 

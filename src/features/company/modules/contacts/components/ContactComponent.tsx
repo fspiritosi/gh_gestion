@@ -4,9 +4,9 @@ import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useCompanyStore } from '@/features/company/store/companyStore';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { cn } from '@/lib/utils';
-import { useLoggedUserStore } from '@/store/loggedUser';
 import { contactSchema } from '@/zodSchemas/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -14,8 +14,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Toaster, toast } from 'sonner';
 import { z } from 'zod';
-import { createdContact, updateContact, fetchCustomers, fetchContact } from '../actions/actions';
-import { useCompanyStore } from '@/features/company/store/companyStore';
+import { createdContact, fetchContact, fetchCustomers, updateContact } from '../actions/actions';
 type Action = 'view' | 'edit' | null;
 
 type ContactFormValues = z.infer<typeof contactSchema>;
@@ -49,57 +48,6 @@ export default function ContactRegister({ id }: { id: string }) {
     formState: { errors: formErrors },
   } = form;
 
-  // useEffect(() => {
-  //   const id = searchParams.get('id');
-  //   if (action === 'view') {
-  //     setReadOnly(true);
-  //   }
-  //   if (action === 'edit') {
-  //     setReadOnly(false);
-  //   }
-  //   if (!id) {
-  //     setReadOnly(false);
-  //   }
-
-  //   const fetchCustomers = async () => {
-  //     const { data, error } = await supabase
-  //       .from('customers')
-  //       .select('*')
-  //       .eq('is_active', true)
-  //       .eq('company_id', actualCompany?.currentCompanyId || '');
-  //     if (error) {
-  //       console.error('Error fetching customers:', error);
-  //     } else {
-  //       setClientData(data);
-  //     }
-  //   };
-
-  //   const fetchContact = async () => {
-  //     if (id) {
-  //       const { data, error } = await supabase.from('contacts').select('*').eq('id', id);
-
-  //       if (error) {
-  //         console.error('Error fetching contact:', error);
-  //       } else {
-  //         if (data && data.length > 0) {
-  //           const contact = data[0];
-  //           setContactData(contact);
-  //           setValue('contact_name', contact.contact_name || '');
-  //           setValue('contact_email', contact.constact_email || '');
-  //           setValue('contact_phone', contact.contact_phone?.toString() || '');
-  //           setValue('contact_charge', contact.contact_charge || '');
-  //           setValue('customer', contact.customer_id || '');
-  //         } else {
-  //           console.error('No se encontró ningún contacto con el id proporcionado.');
-  //         }
-  //       }
-  //     }
-  //   };
-
-  //   fetchCustomers();
-  //   fetchContact();
-  // }, [action, id]);
-
   useEffect(() => {
     const id = searchParams.get('id');
     if (action === 'view') {
@@ -111,27 +59,27 @@ export default function ContactRegister({ id }: { id: string }) {
     if (!id) {
       setReadOnly(false);
     }
-  const fetchData = async () => {
-    try {
-      const customers = await fetchCustomers(actualCompany?.currentCompanyId || '');
-      setClientData(customers);
+    const fetchData = async () => {
+      try {
+        const customers = await fetchCustomers(actualCompany?.currentCompanyId || '');
+        setClientData(customers);
 
-      if (id) {
-        const contact = await fetchContact(id);
-        setContactData(contact);
-        setValue('contact_name', contact.contact_name || '');
-        setValue('contact_email', contact.constact_email || '');
-        setValue('contact_phone', contact.contact_phone?.toString() || '');
-        setValue('contact_charge', contact.contact_charge || '');
-        setValue('customer', contact.customer_id || '');
+        if (id) {
+          const contact = await fetchContact(id);
+          setContactData(contact);
+          setValue('contact_name', contact.contact_name || '');
+          setValue('contact_email', contact.constact_email || '');
+          setValue('contact_phone', contact.contact_phone?.toString() || '');
+          setValue('contact_charge', contact.contact_charge || '');
+          setValue('customer', contact.customer_id || '');
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
+    };
 
-  fetchData();
-}, [action, id]);
+    fetchData();
+  }, [action, id]);
 
   const customerValue = watch('customer');
 

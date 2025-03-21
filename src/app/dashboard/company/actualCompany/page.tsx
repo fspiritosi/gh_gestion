@@ -6,7 +6,8 @@ import _EditCompanyButton from '@/features/company/components/ui/_EditCompanyBut
 // import { RegisterWithRole } from '@/components/RegisterWithRole';
 import {RegisterWithRole} from '@/features/company/modules/users/components/RegisterWithRole';
 // import CreatedForm from '@/components/CreatedForm';
-import ServiceComponent from '@/components/Services/ServiceComponent';
+// import ServiceComponent from '@/components/Services/ServiceComponent';
+import ServiceComponent from '@/features/company/modules/services/components/ServiceComponent';
 import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
 // import UsersTabComponent from '@/components/UsersTabComponent';
 import UsersTabComponent from '@/features/company/modules/users/components/UsersTabComponent'; 
@@ -19,7 +20,8 @@ import TypesDocumentAction from '../../document/documentComponents/TypesDocument
 // import Contacts from './contact/Contact';
 import Contacts from '@/features/company/modules/contacts/components/Contact';
 // import CovenantRegister from './covenant/CovenantRegister';
-import CovenantTreeFile from './covenant/CovenantTreeFile';
+// import CovenantTreeFile from './covenant/CovenantTreeFile';
+import CovenantTreeFile from '@/features/company/modules/covenant/components/CovenantTreeFile';
 // import Customers from './customers/Customers';
 import Customers from '@/features/company/modules/customers/components/Customers';
 import CompanyFeat from '@/features/company/CompanyFeat';
