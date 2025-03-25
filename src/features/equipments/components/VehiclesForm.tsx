@@ -1,41 +1,38 @@
 'use client';
 
+import AddTypeModal from '@/components/AddTypeModal';
+import BackButton from '@/components/BackButton';
 import { CheckboxDefaultValues } from '@/components/CheckboxDefValues';
+import { ImageHander } from '@/components/ImageHandler';
+import { Modal } from '@/components/Modal';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { Form } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { onCreate, onUpdate } from '@/features/equipments/action/actions';
+import { getVehicleSchema } from '@/features/equipments/schemas/schemas';
+import { dataType, generic } from '@/features/equipments/type/type';
+import { downloadQR, handleImageChange, printQR } from '@/features/equipments/utils/utils';
 import { useImageUpload } from '@/hooks/useUploadImage';
 import { cn } from '@/lib/utils';
 import { useCountriesStore } from '@/store/countries';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CaretSortIcon, CheckIcon, PlusCircledIcon } from '@radix-ui/react-icons';
-import { toPng } from 'html-to-image';
 import { AlertTriangle, CheckCircle, Copy, Download, Info, Printer, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { ChangeEvent, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { RiToolsFill } from 'react-icons/ri';
-
-import AddTypeModal from '@/components/AddTypeModal';
-import BackButton from '@/components/BackButton';
-import { ImageHander } from '@/components/ImageHandler';
-import { Modal } from '@/components/Modal';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { onCreate, onUpdate } from '@/features/equipments/action/actions';
-import {getVehicleSchema } from '@/features/equipments/schemas/schemas';
-import { dataType, generic } from '@/features/equipments/type/type';
 import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { supabase } from '../../../../supabase/supabase';
-import { handleImageChange, downloadQR, printQR } from '@/features/equipments/utils/utils';
 
 require('dotenv').config();
 
@@ -58,7 +55,6 @@ export default function VehiclesForm2({
 
   const fetchLogged = useLoggedUserStore((state) => state.loggedUser);
 
-  // Memoiza la función loggedUser
   const fetchLoggedUser = useCallback(() => {
     fetchLogged();
   }, [fetchLogged]);
@@ -143,7 +139,7 @@ export default function VehiclesForm2({
       intern_number: vehicle?.intern_number || '',
       picture: vehicle?.picture || '',
       allocated_to: vehicle?.allocated_to || [],
-  
+
       brand: vehicle?.brand || '',
       model: vehicle?.model || '',
       type_of_vehicle: vehicle?.type_of_vehicle || '',
@@ -188,15 +184,15 @@ export default function VehiclesForm2({
   const handleImageChangeWrapper = (event: ChangeEvent<HTMLInputElement>) => {
     handleImageChange(event, setImageFile, setBase64Image);
   };
-  
+
   const downloadQRWrapper = () => {
     downloadQR(qrCodeRef, vehicle?.domain || vehicle?.serie || 'QR');
   };
-  
+
   const printQRWrapper = () => {
     printQR(qrCodeRef);
   };
-  
+
   const variants: any = {
     operativo: 'success',
     'no operativo': 'destructive',
