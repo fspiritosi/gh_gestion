@@ -27,7 +27,7 @@ export async function ResoursesChart({
   employees,
   equipments,
 }: {
-  employees: Employee[];
+  employees: EmployeeDetailed[];
   equipments: VehicleWithBrand[];
 }) {
   const dataChart = [

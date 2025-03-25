@@ -199,9 +199,10 @@ declare global {
     types_of_vehicles: TypeOfVehicle; // Anteriormente: type_of_vehicle
     contractor_equipment: contractor_equipmentWithContractor[]; // Anteriormente: contractor_equipment
   }
-  interface ContractorEmployeeWithCustomer extends Omit<ContractorEmployee, 'customers'> {
+  interface ContractorEmployeeWithCustomer extends Omit<ContractorEmployee, 'customers' | 'contractor_id'> {
     // Anteriormente: ContractorWithCustomers
     customers: Customer; // Anteriormente: Customers
+    contractor_id: Customer;
   }
   interface VehicleDetailed extends Omit<Vehicle, 'type' | 'brand' | 'model' | 'type_of_vehicle'> {
     // Anteriormente: VehiclestWithRelations
@@ -254,6 +255,6 @@ declare global {
   }
 
   interface ContractorEmployeeWithEmployee extends Omit<ContractorEmployee, 'employee_id'> {
-    employee_id: Employee;
+    employee_id: EmployeeDetailed;
   }
 }

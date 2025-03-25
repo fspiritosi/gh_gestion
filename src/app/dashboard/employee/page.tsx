@@ -3,11 +3,11 @@ import DocumentNav from '@/components/DocumentNav';
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
+import EmployeeTable from '@/features/(Employees)/modules/employees/employee_table';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import CovenantTreeFile from '../company/actualCompany/covenant/CovenantTreeFile';
 import EmployeeDocumentsTabs from '../document/documentComponents/EmployeeDocumentsTabs';
-import EmployeeListTabs from '../document/documentComponents/EmployeeListTabs';
 import TypesDocumentAction from '../document/documentComponents/TypesDocumentAction';
 import TypesDocumentsView from '../document/documentComponents/TypesDocumentsView';
 
@@ -33,7 +33,8 @@ const EmployeePage = async () => {
               </Link>
             </div>
           ),
-          component: <EmployeeListTabs actives inactives />,
+          // component: <EmployeeListTabs actives inactives />,
+          component: <EmployeeTable />,
         },
       },
       {
