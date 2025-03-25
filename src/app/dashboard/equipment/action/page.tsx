@@ -8,8 +8,8 @@ import { cookies } from 'next/headers';
 // import { supabase } from '../../../../../supabase/supabase';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getRole } from '@/lib/utils/getRole';
-import VehiclesForm, { generic } from '../../../../components/VehiclesForm';
-
+import VehiclesForm from '@/features/equipments/components/VehiclesForm';
+import {generic} from '@/features/equipments/type/type';
 export default async function EquipmentFormAction({ searchParams }: { searchParams: any }) {
   const supabase = supabaseServer();
   // const { data } = await supabase
@@ -21,7 +21,8 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
 
   const cookiesStore = cookies();
   const company_id = cookiesStore.get('actualComp');
-
+  
+  
   let vehicle;
 
   //console.log(searchParams.id, 'searchParams.id');
@@ -43,8 +44,8 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
       model: item.model_vehicles.name,
       type: item.type.name,
     }));
-    console.log('vehicle-old-fetch', vehicle);
-    //console.log('vehicle-new-fetch', newVehicle);
+    
+    
   }
 
   let { data: types, error } = await supabase
@@ -58,7 +59,7 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
     .or(`company_id.eq.${company_id?.value},company_id.is.null`);
 
   const role = await getRole();
-  console.log('role action equipment', role);
+  
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
       <Card
