@@ -3,7 +3,7 @@ import { ItemCompany } from './itemCompany';
 
 export default async function CompanyComponent() {
   const companyData = await fetchCurrentCompany();
-
+ console.log(companyData)
   return (
     <div>
       {companyData && (
