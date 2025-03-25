@@ -11,9 +11,9 @@ import { buttonVariants } from '@/components/ui/button';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import CovenantTreeFile from '../../../../features/(Employees)/modules/convenios/CovenantTreeFile';
 import TypesDocumentAction from '../../document/documentComponents/TypesDocumentAction';
 import Contacts from './contact/Contact';
-import CovenantTreeFile from './covenant/CovenantTreeFile';
 import Customers from './customers/Customers';
 export default async function CompanyPage() {
   const coockiesStore = cookies();

@@ -3,8 +3,8 @@ import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCountriesStore } from '@/store/countries';
 import { useState } from 'react';
-import DocumentsTable from './DocumentsTable'; // Asumo que este componente existe
-import FilterHeader from './FilterComponent';
+import DocumentsTable from '../../../../app/dashboard/document/documentComponents/DocumentsTable'; // Asumo que este componente existe
+import FilterHeader from '../../../../app/dashboard/document/documentComponents/FilterComponent';
 
 function TypesDocumentsView({
   personas,

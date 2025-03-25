@@ -5,11 +5,11 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { CompanyDocumentsType } from '@/store/loggedUser';
 import { cookies } from 'next/headers';
 import { Suspense } from 'react';
+import EmployeeDocumentsTabs from '../../../features/(Employees)/modules/documents/EmployeeDocumentsTabs';
+import TypesDocumentsView from '../../../features/(Employees)/modules/documents_types/TypesDocumentsView';
 import CompanyTabs from './documentComponents/CompanyTabs';
-import EmployeeDocumentsTabs from './documentComponents/EmployeeDocumentsTabs';
 import EquipmentTabs from './documentComponents/EquipmentTabs';
 import TypesDocumentAction from './documentComponents/TypesDocumentAction';
-import TypesDocumentsView from './documentComponents/TypesDocumentsView';
 
 export default async function page() {
   const supabase = supabaseServer();

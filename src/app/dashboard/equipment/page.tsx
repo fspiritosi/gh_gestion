@@ -5,9 +5,9 @@ import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import TypesDocumentsView from '../../../features/(Employees)/modules/documents_types/TypesDocumentsView';
 import EquipmentTabs from '../document/documentComponents/EquipmentTabs';
 import TypesDocumentAction from '../document/documentComponents/TypesDocumentAction';
-import TypesDocumentsView from '../document/documentComponents/TypesDocumentsView';
 import EquipmentListTabs from './equipmentComponentes/EquipmentListTabs';
 export default async function Equipment() {
   const viewData = {

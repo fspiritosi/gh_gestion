@@ -1,7 +1,7 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import { FormattedOutput, Guild } from '@/types/types';
 import { cookies } from 'next/headers';
-import { TreeNode, TreeNodeData } from './TreeFile';
+import { TreeNode, TreeNodeData } from '../../../../app/dashboard/company/actualCompany/covenant/TreeFile';
 
 export default async function CovenantTreeFile() {
   const supabase = supabaseServer();
