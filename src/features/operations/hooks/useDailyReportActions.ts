@@ -17,8 +17,18 @@ export function useDailyReportActions(
   const handleEdit = (id: string) => {
     const itemToEdit = dailyReport.find((item) => item.id === id)
     if (itemToEdit) {
+      // Asegurarse de que todos los campos necesarios estén presentes
+      const completeItemToEdit = {
+        ...itemToEdit,
+        employees: itemToEdit.employees || [],
+        equipment: itemToEdit.equipment || [],
+        working_day: itemToEdit.working_day || "",
+        status: itemToEdit.status || "pendiente",
+        description: itemToEdit.description || "",
+      }
+
       setEditingId(id)
-      setEditingData(itemToEdit)
+      setEditingData(completeItemToEdit)
       setIsEditing(true)
     }
   }

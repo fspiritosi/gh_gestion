@@ -1,34 +1,14 @@
+
 "use client"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog"
-import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
 import { PlusCircledIcon } from "@radix-ui/react-icons"
 import { AnimatePresence, motion } from "framer-motion"
-import cookies from "js-cookie"
 import { useEffect, useState } from "react"
-import { FormProvider, useForm } from "react-hook-form"
-import MultiSelect from "./MultiSelect"
-// import { id } from 'date-fns/locale'
-import { supabaseBrowser } from "@/lib/supabase/browser"
-import { dailyReportSchema } from "@/zodSchemas/schemas"
-import { zodResolver } from "@hookform/resolvers/zod"
 import moment from "moment"
 import { Card, CardDescription } from "@/components/ui/card"
 import GenericDialog from "./GenericDialog"
-// import { cn } from '@/lib/utils'
 import DailyReportSkeleton from "@/components/Skeletons/DayliReportSkeleton"
 import DocumentView from "./DocumentView"
 import { dailyColumns } from "@/features/operations/components/ui/DailyReportColumns"
@@ -44,19 +24,18 @@ import {
 import type {
   Customers,
   Services,
-  Items,
-  Employee,
-  Equipment,
   RepairsSolicituds,
   DailyReportItem,
-  DailyReportData,
   DailyReportProps,
 } from "@/features/operations/types/types"
 import { useDailyReport } from "@/features/operations/hooks/useDailyReport"
 import { useDailyReportActions } from "@/features/operations/hooks/useDailyReportActions"
+import { useDailyReportForm } from "@/features/operations/hooks/useDailyReportForm"
+import { supabaseBrowser } from "@/lib/supabase/browser"
+import DailyReportForm from "@/features/operations/components/DailyReportForm"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function DailyReport({ reportData, allReport }: DailyReportProps) {
-  // console.log(reportData);
   const {
     companyName,
     employees,
@@ -70,19 +49,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     isLoading,
   } = useDailyReport(reportData || { id: "", date: "", status: false, dailyreportrows: [] })
   const [selectedCustomer, setSelectedCustomer] = useState<Customers | null>(null)
-  const [customerEmployees, setCustomerEmployees] = useState<Employee[]>([])
-  const [startTime, setStartTime] = useState<string>("")
-  const [endTime, setEndTime] = useState<string>("")
-  const [customerEquipment, setCustomerEquipment] = useState<Equipment[]>([])
-  const [customerServices, setCustomerServices] = useState<Services[]>([])
   const [selectedService, setSelectedService] = useState<Services | null>(null)
-  const [customerItems, setCustomerItems] = useState<Items[]>([])
-  // const [dailyReport, setDailyReport] = useState<DailyReportItem[]>(reportData?.dailyreportrows || []);
-  const [isMultipleEmployeesAllowed, setIsMultipleEmployeesAllowed] = useState<boolean>(false)
-  // const [editingId, setEditingId] = useState<string | null>(null);
-  // const [isEditing, setIsEditing] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false)
-  const [selectRow, setSelectRow] = useState<string | null>(null)
   const {
     handleEdit: handleEditAction,
     handleDelete: handleDeleteAction,
@@ -92,12 +59,25 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     setIsEditing,
     setEditingId,
   } = useDailyReportActions(dailyReport, setDailyReport)
+
+  const {
+    saveDailyReport,
+    updateDailyReport,
+    reprogramarReporte,
+    isDialogOpen,
+    setIsDialogOpen,
+    futureReports,
+    setFutureReports,
+    selectedReport,
+    setSelectedReport,
+    selectedDate,
+    setSelectedDate,
+    handleCloseDialog,
+  } = useDailyReportForm(dailyReport, setDailyReport, reportData?.id || "")
+
   const [reportStatus, setReportStatus] = useState<boolean>(reportData?.status || false)
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [confirmDelete, setConfirmDelete] = useState(false);
-  // const [selectRow, setSelectRow] = useState<string | null>(null);
-  const [workingDay, setWorkingDay] = useState<string>("")
-  // const [diagram, setDiagram] = useState<Diagram[]>([]);
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [selectRow, setSelectRow] = useState<string | null>(null)
   const [repairOrders, setRepairOrders] = useState<RepairsSolicituds[]>([])
   const [date, setDate] = useState<Date | undefined>(() => {
     if (reportData && reportData.date) {
@@ -106,37 +86,28 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     return undefined
   })
   const [existingReportId, setExistingReportId] = useState<string | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [futureReports, setFutureReports] = useState<DailyReportData[]>([])
-  const [selectedReport, setSelectedReport] = useState<DailyReportData | null>(null)
   const [documentUrl, setDocumentUrl] = useState<string | null>(null)
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  // const [companyData, setCompanyData] = useState<any>(null);
+  const [isDialogOpen2, setIsDialogOpen2] = useState(false)
   const [filaId, setFilaId] = useState<string | null>(null)
   const [filteredRow, setFilteredRow] = useState<DailyReportItem | null>(null)
   const supabase = supabaseBrowser()
-  // const [isLoading, setIsLoading] = useState<boolean>(true);
   const URL = process.env.NEXT_PUBLIC_BASE_URL
-  const formMethods = useForm<DailyReportItem>({
-    resolver: zodResolver(dailyReportSchema),
-    defaultValues: {
-      customer: undefined,
-      employees: [],
-      equipment: [],
-      working_day: "",
-      services: "",
-      item: "",
-      start_time: "",
-      end_time: "",
-      status: "pendiente",
-      description: "",
-    },
-  })
-  const { handleSubmit, control, setValue, watch, reset } = formMethods
+  const { toast } = useToast()
 
-  const company_id = cookies.get("actualComp")
-
-  const [isDialogOpen2, setIsDialogOpen2] = useState(false)
+  useEffect(() => {
+    if (reportData) {
+      setDate(new Date(reportData.date))
+      setEditingId(reportData.id)
+      setDailyReport(
+        reportData.dailyreportrows?.map((row) => ({
+          ...row,
+          daily_report_id: reportData.id,
+        })),
+      )
+      setReportStatus(reportData.status)
+      setExistingReportId(reportData.id)
+    }
+  }, [reportData])
 
   async function fetchDocument(document_path: string) {
     const { data: url } = supabase.storage.from("daily_reports").getPublicUrl(document_path)
@@ -146,12 +117,10 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
 
   const handleViewDocument = async (documentPath: string, row_id?: string) => {
     const filteredRow = dailyReport.find((row) => row.id === row_id)
-    //console.log(filteredRow);
     setFilteredRow(filteredRow as DailyReportItem)
-    const url = await fetchDocument(documentPath) // Asume que fetchDocumentUrl es una función que obtiene la URL del documento
+    const url = await fetchDocument(documentPath)
     setDocumentUrl(url)
     setFilaId(row_id || null)
-    // window.open(url, '_blank');
     setIsDialogOpen2(true)
   }
 
@@ -160,187 +129,24 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     setDocumentUrl(null)
   }
 
-  useEffect(() => {
-    // Filtrar servicios válidos en la fecha del parte diario
-    const validServices = services.filter((service) => {
-      const serviceStartDate = moment(service.service_start).toDate()
-      const serviceValidityDate = moment(service.service_validity).toDate()
-      const reportDate = moment(reportData?.date).toDate()
-
-      return service.is_active && reportDate >= serviceStartDate && reportDate <= serviceValidityDate
-    })
-
-    // Filtrar clientes que tienen servicios válidos
-    const customersWithServices = customers.filter((customer) =>
-      validServices.some((service) => service.customer_id === customer.id),
-    )
-
-    // Solo actualizar el estado si la lista filtrada es diferente
-    if (customersWithServices.length !== customers.length) {
-      // setCustomers(customersWithServices);
-    }
-  }, [customers, services, reportData])
-
-  useEffect(() => {
-    if (reportData) {
-      setDate(new Date(reportData.date))
-      setEditingId(reportData.id)
-      setDailyReport(
-        reportData.dailyreportrows?.map((row) => ({
-          ...row,
-          // date: format(new Date(row.date), "yyyy-MM-dd"),
-          daily_report_id: reportData.id,
-        })),
-      )
-      setReportStatus(reportData.status)
-      setExistingReportId(reportData.id)
-    }
-  }, [reportData])
-
-  useEffect(() => {
-    if (startTime && endTime) {
-      const start = new Date(`1970-01-01T${startTime}:00`)
-      const end = new Date(`1970-01-01T${endTime}:00`)
-      const diffInHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
-      setIsMultipleEmployeesAllowed(diffInHours > 12)
-    }
-  }, [startTime, endTime])
-
-  const handleSelectCustomer = (customerId: string, reportDate: Date) => {
-    const customer = customers.find((c: Customers) => c.id.toString() === customerId)
-    if (customer) {
-      setSelectedCustomer(customer)
-
-      const filteredEmployees = employees.filter((employee: Employee) => {
-        const isAllocatedToCustomer = employee.allocated_to?.includes(customer.id)
-        const isActiveOnReportDate = diagram.some((diagram) => {
-          const diagramDate = new Date(diagram.year, diagram.month - 1, diagram.day)
-          return (
-            diagramDate.getFullYear() === reportDate.getFullYear() &&
-            diagramDate.getMonth() === reportDate.getMonth() &&
-            diagramDate.getDate() === reportDate.getDate() &&
-            diagram.diagram_type.work_active &&
-            diagram.employee_id === employee.id
-          )
-        })
-        return isAllocatedToCustomer && isActiveOnReportDate
-      })
-      setCustomerEmployees(filteredEmployees)
-
-      const filteredEquipment = equipment.filter((equipment: Equipment) => {
-        const isAllocatedToCustomer = equipment.allocated_to?.includes(customer.id)
-        const isNotUnderRepair = !(equipment.condition === "en reparación" || equipment.condition === "no operativo")
-        return isAllocatedToCustomer && isNotUnderRepair
-      })
-      setCustomerEquipment(filteredEquipment)
-
-      const filteredServices = services.filter((service: Services) => {
-        const serviceStartDate = new Date(service.service_start)
-        const serviceValidityDate = new Date(service.service_validity)
-        return (
-          service.customer_id === customerId &&
-          service.is_active &&
-          reportDate >= serviceStartDate &&
-          reportDate <= serviceValidityDate
-        )
-      })
-
-      setCustomerServices(filteredServices)
-
-      // Reset dependent selects
-      setValue("services", "")
-      setValue("item", "")
-      setValue("employees", [])
-      setValue("equipment", [])
-      setCustomerItems([])
-      setSelectedService(null)
-    }
-  }
-
-  const handleSelectService = (serviceId: string) => {
-    const service = services.find((s: Services) => s.id === serviceId)
-    if (service) {
-      setSelectedService(service)
-
-      const filteredItems = items.filter((item: Items) => item.customer_service_id.id === serviceId)
-      setCustomerItems(filteredItems)
-
-      // Reset dependent selects
-      setValue("item", "")
-    }
-  }
-
   const handleAddNewRow = () => {
     setEditingId(null)
-    resetForm()
     setIsEditing(true)
   }
 
-  const resetForm = () => {
-    reset({
-      customer: undefined,
-      services: "",
-      working_day: "",
-      item: "",
-      start_time: "",
-      end_time: "",
-      employees: [],
-      equipment: [],
-      status: "pendiente",
-      description: "",
-    })
-    setStartTime("")
-    setEndTime("")
-    setSelectedCustomer(null)
-    setCustomerEmployees([])
-    setCustomerEquipment([])
-    setCustomerServices([])
-    setCustomerItems([])
-    setSelectedService(null)
-  }
-
   const handleEdit = async (id: string) => {
-    // Llamar a la función del hook
     handleEditAction(id)
-
-    // Obtener el item a editar
-    const itemToEdit = dailyReport.find((item) => item.id === id)
-    if (itemToEdit) {
-      // Configurar el formulario con los datos del item
-      await handleSelectCustomer(itemToEdit.customer || "", reportData ? new Date(reportData.date) : new Date())
-      setValue("customer", itemToEdit.customer)
-      setValue("working_day", itemToEdit.working_day)
-      setValue("employees", itemToEdit.employees)
-      setValue("equipment", itemToEdit.equipment)
-      setValue("services", itemToEdit.services)
-      await handleSelectService(itemToEdit.services)
-      setValue("item", itemToEdit.item)
-
-      // Normalizar el valor de working_day
-      const normalizedWorkingDay = itemToEdit.working_day?.trim().toLowerCase()
-
-      // Verificar si la jornada es de 8 o 12 horas y poner en vacío la hora de inicio y fin
-      if (normalizedWorkingDay === "jornada 8 horas" || normalizedWorkingDay === "jornada 12 horas") {
-        setValue("start_time", "")
-        setValue("end_time", "")
-      } else {
-        setValue("start_time", itemToEdit.start_time?.slice(0, 5))
-        setValue("end_time", itemToEdit.end_time?.slice(0, 5))
-      }
-      setValue("status", itemToEdit.status)
-      setValue("description", itemToEdit.description)
-    }
   }
 
   const handleConfirmOpen = (id: string) => {
     setSelectRow(id)
-
     setConfirmDelete(true)
   }
 
   const handleConfirmClose = () => {
     setConfirmDelete(false)
   }
+
   const handleDelete = async (id: string) => {
     try {
       const response = await fetch(`/api/daily-report/daily-report-row?id=${id}`, {
@@ -384,365 +190,25 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     }
   }
 
-  const handleWorkingDayChange = (value: string) => {
-    setWorkingDay(value)
-  }
+  const handleFormSubmit = async (data: any) => {
+    let success: boolean | undefined
 
-  const selectedEmployees = watch("employees")
-  const selectedEquipment = watch("equipment")
-
-  const formatTime = (time: string): string => {
-    if (!time) return ""
-    const [hours, minutes] = time.split(":")
-    return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}:00`
-  }
-
-  const saveDailyReport = async (data: any) => {
-    try {
-      const formattedStartTime = formatTime(data.start_time)
-      const formattedEndTime = formatTime(data.end_time)
-
-      // Obtener el array de filas existentes, asegurándonos de que sea un array
-      const existingRows = Array.isArray(dailyReport) ? dailyReport : []
-
-      // Verificar si ya existe una fila exactamente igual
-      const isDuplicate = existingRows.some(
-        (row) =>
-          row.customer === data.customer &&
-          row.services === data.services &&
-          row.item === data.item &&
-          row.working_day === data.working_day &&
-          row.start_time === formattedStartTime &&
-          row.end_time === formattedEndTime &&
-          row.description === data.description &&
-          row.status === data.status &&
-          JSON.stringify(row.employees) === JSON.stringify(data.employees) &&
-          JSON.stringify(row.equipment) === JSON.stringify(data.equipment),
-      )
-
-      if (isDuplicate) {
-        toast({
-          title: "Error",
-          description: "Ya existe una fila con los mismos datos.",
-          variant: "destructive",
-        })
-        return // Salir de la función si ya existe una fila igual
-      }
-
-      const rowResponse = await fetch("/api/daily-report/daily-report-row", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          daily_report_id: reportData?.id,
-          customer_id: data.customer,
-          service_id: data.services,
-          item_id: data.item,
-          start_time: formattedStartTime,
-          end_time: formattedEndTime,
-          description: data.description,
-          status: data.status,
-        }),
-      })
-
-      if (!rowResponse.ok) {
-        const errorText = await rowResponse.text()
-        throw new Error(`Error al insertar la fila en dailyreportrow: ${errorText}`)
-      }
-
-      const { data: rowData } = await rowResponse.json()
-      const rowId = rowData[0].id // Asegúrate de que esto sea correcto
-
-      if (data.employees && data.employees.length > 0) {
-        await fetch("/api/daily-report/dailyreportemployeerelations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(
-            data.employees.map((employee_id: string) => ({
-              daily_report_row_id: rowId,
-              employee_id: employee_id,
-            })),
-          ),
-        })
-      }
-
-      if (data.equipment && data.equipment.length > 0) {
-        await fetch("/api/daily-report/dailyreportequipmentrelations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(
-            data.equipment.map((equipment_id: string) => ({
-              daily_report_row_id: rowId,
-              equipment_id: equipment_id,
-            })),
-          ),
-        })
-      }
-
-      setDailyReport((prevReport) => {
-        // Verificar que prevReport sea un array
-        if (!Array.isArray(prevReport)) {
-          prevReport = []
-        }
-
-        return [
-          ...prevReport,
-          {
-            id: rowId,
-            date: reportData?.date || "",
-            working_day: data.working_day,
-            customer: data.customer,
-            employees: data.employees,
-            equipment: data.equipment,
-            services: data.services,
-            item: data.item,
-            start_time: formattedStartTime,
-            end_time: formattedEndTime,
-            status: data.status,
-            description: data.description,
-            document_path: data.document_path,
-          },
-        ]
-      })
-
-      resetForm()
-
-      toast({
-        title: "Éxito",
-        description: "Fila agregada correctamente al parte diario.",
-      })
-    } catch (error) {
-      console.error("Error al procesar el parte diario:", error)
-      toast({
-        title: "Error",
-        description: `Hubo un problema al procesar el parte diario: ${error instanceof Error ? error.message : "Unknown error"}`,
-        variant: "destructive",
-      })
-    }
-  }
-
-  const updateDailyReport = async (data: any, rowId: string) => {
-    try {
-      if (data.working_day === "jornada 8 horas" || data.working_day === "jornada 12 horas") {
-        data.start_time = ""
-        data.end_time = ""
-      }
-      const formattedStartTime = formatTime(data.start_time)
-      const formattedEndTime = formatTime(data.end_time)
-
-      // Actualizar la fila existente
-      const rowResponse = await fetch(`/api/daily-report/daily-report-row?id=${rowId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          daily_report_id: existingReportId,
-          customer_id: data.customer,
-          service_id: data.services,
-          item_id: data.item,
-          working_day: data.working_day,
-          start_time: formattedStartTime,
-          end_time: formattedEndTime,
-          description: data.description,
-          status: data.status,
-        }),
-      })
-
-      if (!rowResponse.ok) {
-        const errorText = await rowResponse.text()
-        throw new Error(`Error al actualizar la fila en dailyreportrow: ${errorText}`)
-      }
-
-      const { data: rowData } = await rowResponse.json()
-
-      // Obtener relaciones actuales de empleados
-      const employeeRelationsResponse = await fetch(`/api/daily-report/dailyreportemployeerelations?row_id=${rowId}`)
-      if (!employeeRelationsResponse.ok) {
-        const errorText = await employeeRelationsResponse.text()
-        throw new Error(`Error al obtener relaciones de empleados: ${errorText}`)
-      }
-      const employeeRelationsData = await employeeRelationsResponse.json()
-
-      const currentEmployees = employeeRelationsData.dailyreportemployeerelations.map((rel: any) => ({
-        id: rel.id,
-        employee_id: rel.employee_id,
-      }))
-
-      // Obtener relaciones actuales de equipos
-      const equipmentRelationsResponse = await fetch(`/api/daily-report/dailyreportequipmentrelations?row_id=${rowId}`)
-      if (!equipmentRelationsResponse.ok) {
-        const errorText = await equipmentRelationsResponse.text()
-        throw new Error(`Error al obtener relaciones de equipos: ${errorText}`)
-      }
-      const equipmentRelationsData = await equipmentRelationsResponse.json()
-
-      const currentEquipment = equipmentRelationsData.dailyreportequipmentrelations.map((rel: any) => ({
-        id: rel.id,
-        equipment_id: rel.equipment_id,
-      }))
-
-      // Determinar relaciones a eliminar
-      const employeesToRemove = currentEmployees.filter((rel: any) => !data.employees?.includes(rel.employee_id))
-      const equipmentToRemove = currentEquipment.filter((rel: any) => !data.equipment?.includes(rel.equipment_id))
-
-      // Eliminar relaciones no utilizadas
-      if (employeesToRemove.length > 0) {
-        await fetch("/api/daily-report/dailyreportemployeerelations", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            daily_report_row_id: rowId,
-            employees: employeesToRemove.map((rel: any) => ({ id: rel.id, employee_id: rel.employee_id })),
-          }),
-        })
-      }
-
-      if (equipmentToRemove.length > 0) {
-        await fetch("/api/daily-report/dailyreportequipmentrelations", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            daily_report_row_id: rowId,
-            equipment: equipmentToRemove.map((rel: any) => ({ id: rel.id, equipment_id: rel.equipment_id })),
-          }),
-        })
-      }
-      //Antes de actuaslizar las relaciones se debe verificar que no existan relaciones con el mismo empleado y el mismo rowId
-
-      const existingRelationEmployeeResponse = await fetch(
-        `/api/daily-report/dailyreportemployeerelations/check-employee`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            rowId: rowId,
-            employees: data.employees,
-          }),
-        },
-      )
-      const existingEmployee = await existingRelationEmployeeResponse.json()
-
-      // Actualizar relaciones con nuevos datos
-      if (data.employees && !existingEmployee.exists && data.employees.length > 0) {
-        await fetch("/api/daily-report/dailyreportemployeerelations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(
-            data.employees.map((employee_id: string) => ({
-              daily_report_row_id: rowId,
-              employee_id: employee_id,
-            })),
-          ),
-        })
-      }
-
-      //Antes de actuaslizar las relaciones se debe verificar que no existan relaciones con el mismo empleado y el mismo rowId
-
-      const existingRelationEquipmentResponse = await fetch(
-        `/api/daily-report/dailyreportequipmentrelations/check-equipment`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            rowId: rowId,
-            equipment: data.equipment,
-          }),
-        },
-      )
-      const existingEquipment = await existingRelationEquipmentResponse.json()
-
-      if (data.equipment && !existingEquipment.exists && data.equipment.length > 0) {
-        await fetch("/api/daily-report/dailyreportequipmentrelations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(
-            data.equipment.map((equipment_id: string) => ({
-              daily_report_row_id: rowId,
-              equipment_id: equipment_id,
-            })),
-          ),
-        })
-      }
-
-      setDailyReport((prevReport) =>
-        prevReport.map((report) =>
-          report.id === rowId
-            ? {
-                ...report,
-                customer: data.customer,
-                employees: data.employees,
-                equipment: data.equipment,
-                services: data.services,
-                item: data.item,
-                working_day: data.working_day,
-                start_time: formattedStartTime,
-                end_time: formattedEndTime,
-                status: data.status,
-                description: data.description,
-                document_path: data.document_path,
-              }
-            : report,
-        ),
-      )
-
-      toast({
-        title: "Éxito",
-        description: "Fila actualizada correctamente en el parte diario.",
-      })
-    } catch (error) {
-      console.error("Error al actualizar el parte diario:", error)
-      toast({
-        title: "Error",
-        description: `Hubo un problema al actualizar el parte diario: ${error instanceof Error ? error.message : "Unknown error"}`,
-        variant: "destructive",
-      })
-    }
-  }
-
-  const onSubmit = async (data: any) => {
     if (editingId) {
-      await updateDailyReport(data, editingId)
+      success = await updateDailyReport(data, editingId, existingReportId || "")
     } else {
-      await saveDailyReport(data)
+      success = await saveDailyReport(data)
     }
+
+    if (success === true) {
+      setIsEditing(false)
+      setEditingId(null)
+    }
+  }
+
+  const handleFormCancel = () => {
     setIsEditing(false)
     setEditingId(null)
   }
-
-  // Obtener la fecha actual
-  const currentDate = new Date()
-
-  // Función para calcular la diferencia de días
-  const calculateDateDifference = (dateString: string) => {
-    const reportDate = new Date(dateString)
-
-    const timeDifference = currentDate.getTime() - reportDate.getTime()
-
-    const dayDifference = timeDifference / (1000 * 3600 * 24)
-    return dayDifference
-  }
-
-  const dayDifference = calculateDateDifference(reportData?.date || "")
-
-  const canEdit = dayDifference <= 6
 
   const handleValueChange = (value: string) => {
     if (value === "reprogramado" && editingId) {
@@ -758,13 +224,6 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     } else if (value === "ejecutado" && editingId) {
       setIsDialogOpen(true)
     }
-  }
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false)
-    setFutureReports([])
-    setSelectedReport(null)
-    setSelectedDate(null)
   }
 
   const handleSaveToDailyReport = async () => {
@@ -785,141 +244,20 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       }
     }
   }
-  ////////////////////////////////////////////////////////////
 
-  const reprogramarReporte = async (data: any, rowId: string, newDailyReportId: string) => {
-    try {
-      const formattedStartTime = formatTime(data.start_time)
-      const formattedEndTime = formatTime(data.end_time)
+  // Obtener la fecha actual
+  const currentDate = new Date()
 
-      // Crear una nueva fila en el nuevo parte diario
-      const newRowResponse = await fetch(`/api/daily-report/daily-report-row`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          daily_report_id: newDailyReportId,
-          customer_id: data.customer,
-          service_id: data.services,
-          item_id: data.item,
-          working_day: data.working_day,
-          start_time: formattedStartTime,
-          end_time: formattedEndTime,
-          description: `Reprogramado desde ${data.date}`,
-          status: "pendiente",
-        }),
-      })
-
-      if (!newRowResponse.ok) {
-        const errorText = await newRowResponse.text()
-        throw new Error(`Error al crear la nueva fila en dailyreportrow: ${errorText}`)
-      }
-
-      const { data: newRowData } = await newRowResponse.json()
-      const newRowId = newRowData.id
-
-      // Actualizar el estado de la fila original a "reprogramado"
-      const updateRowResponse = await fetch(`/api/daily-report/daily-report-row?id=${rowId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: "reprogramado",
-          description: `Reprogramado a ${data.date}`,
-        }),
-      })
-
-      if (!updateRowResponse.ok) {
-        const errorText = await updateRowResponse.text()
-        throw new Error(`Error al actualizar la fila original en dailyreportrow: ${errorText}`)
-      }
-
-      // Obtener relaciones actuales de empleados
-      const employeeRelationsResponse = await fetch(`/api/daily-report/dailyreportemployeerelations?row_id=${rowId}`)
-      if (!employeeRelationsResponse.ok) {
-        const errorText = await employeeRelationsResponse.text()
-        throw new Error(`Error al obtener relaciones de empleados: ${errorText}`)
-      }
-      const employeeRelationsData = await employeeRelationsResponse.json()
-
-      const currentEmployees = employeeRelationsData.dailyreportemployeerelations.map((rel: any) => ({
-        id: rel.id,
-        employee_id: rel.employee_id,
-      }))
-
-      // Obtener relaciones actuales de equipos
-      const equipmentRelationsResponse = await fetch(`/api/daily-report/dailyreportequipmentrelations?row_id=${rowId}`)
-      if (!equipmentRelationsResponse.ok) {
-        const errorText = await equipmentRelationsResponse.text()
-        throw new Error(`Error al obtener relaciones de equipos: ${errorText}`)
-      }
-      const equipmentRelationsData = await equipmentRelationsResponse.json()
-
-      const currentEquipment = equipmentRelationsData.dailyreportequipmentrelations.map((rel: any) => ({
-        id: rel.id,
-        equipment_id: rel.equipment_id,
-      }))
-
-      // Crear nuevas relaciones de empleados para la nueva fila
-      if (currentEmployees.length > 0) {
-        await fetch("/api/daily-report/dailyreportemployeerelations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(
-            currentEmployees.map((employee: any) => ({
-              daily_report_row_id: newRowId,
-              employee_id: employee.employee_id,
-            })),
-          ),
-        })
-      }
-
-      // Crear nuevas relaciones de equipos para la nueva fila
-      if (currentEquipment.length > 0) {
-        await fetch("/api/daily-report/dailyreportequipmentrelations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(
-            currentEquipment.map((equipment: any) => ({
-              daily_report_row_id: newRowId,
-              equipment_id: equipment.equipment_id,
-            })),
-          ),
-        })
-      }
-
-      // Actualizar el estado del componente si es necesario
-      setDailyReport((prevReport) =>
-        prevReport.map((report) =>
-          report.id === rowId
-            ? {
-                ...report,
-                status: "reprogramado",
-                description: `Reprogramado a ${data.date}`,
-              }
-            : report,
-        ),
-      )
-
-      toast({
-        title: "Éxito",
-        description: "Fila reprogramada correctamente al nuevo parte diario.",
-      })
-    } catch (error) {
-      console.error("Error al reprogramar la fila al nuevo parte diario:", error)
-      toast({
-        title: "Error",
-        description: `Hubo un problema al reprogramar la fila al nuevo parte diario: ${error instanceof Error ? error.message : "Unknown error"}`,
-        variant: "destructive",
-      })
-    }
+  // Función para calcular la diferencia de días
+  const calculateDateDifference = (dateString: string) => {
+    const reportDate = new Date(dateString)
+    const timeDifference = currentDate.getTime() - reportDate.getTime()
+    const dayDifference = timeDifference / (1000 * 3600 * 24)
+    return dayDifference
   }
+
+  const dayDifference = calculateDateDifference(reportData?.date || "")
+  const canEdit = dayDifference <= 6
 
   function createDataToDownload(data: DailyReportItem[]) {
     const dataToDownload = data.map((report: DailyReportItem) => ({
@@ -955,335 +293,25 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
                 transition={{ duration: 0.3 }}
                 className="pr-4 overflow-hidden"
               >
-                <h1 className="text-2xl font-bold mb-4">{editingId ? "Editar Fila" : "Agregar Nueva Fila"}</h1>
-                <FormProvider {...formMethods}>
-                  <Form {...formMethods}>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                      <FormField
-                        control={control}
-                        name="customer"
-                        render={({ field, fieldState }) => (
-                          <FormItem>
-                            <FormLabel>Cliente</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={(value) => {
-                                field.onChange(value)
-                                handleSelectCustomer(value, reportData?.date ? new Date(reportData.date) : new Date())
-                              }}
-                            >
-                              <SelectTrigger className="w-full max-w-xs">
-                                <SelectValue placeholder="Seleccione un cliente" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectGroup>
-                                  {customers?.map((customer: Customers) => (
-                                    <SelectItem key={customer.id} value={customer.id}>
-                                      {customer.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                            {fieldState.error && <p className="text-red-500">{fieldState.error.message}</p>}
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={control}
-                        name="services"
-                        render={({ field, fieldState }) => (
-                          <FormItem>
-                            <FormLabel>Servicios</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={(value) => {
-                                field.onChange(value)
-                                handleSelectService(value)
-                              }}
-                            >
-                              <SelectTrigger className="w-full max-w-xs">
-                                <SelectValue placeholder="Seleccione el servicio" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectGroup>
-                                  <SelectLabel>Servicios</SelectLabel>
-                                  {customerServices?.map((service: Services) => (
-                                    <SelectItem key={service.id} value={service.id}>
-                                      {service.service_name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                            {fieldState.error && <p className="text-red-500">{fieldState.error.message}</p>}
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={control}
-                        name="item"
-                        render={({ field, fieldState }) => (
-                          <FormItem>
-                            <FormLabel>Items</FormLabel>
-                            <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className="w-full max-w-xs">
-                                <SelectValue placeholder="Seleccione un item" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectGroup>
-                                  <SelectLabel>Items</SelectLabel>
-                                  {customerItems?.map((item: Items) => (
-                                    <SelectItem key={item.id} value={item.id}>
-                                      {item.item_name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                            {fieldState.error && <p className="text-red-500">{fieldState.error.message}</p>}
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={control}
-                        name="employees"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="block w-full max-w-xs">Empleados</FormLabel>
-                            <div className="w-full max-w-xs">
-                              {" "}
-                              {/* Contenedor con clases de Tailwind */}
-                              <MultiSelect
-                                multiEmp={customerEmployees.map((employee: Employee) => ({
-                                  id: employee.id,
-                                  name: `${employee.firstname} ${employee.lastname}`,
-                                }))}
-                                placeholder="Seleccione empleados"
-                                selectedItems={field.value}
-                                onChange={(selected: any) => field.onChange(selected)}
-                              />
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={control}
-                        name="equipment"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="block w-full max-w-xs">Equipos</FormLabel>
-                            <MultiSelect
-                              multiEmp={customerEquipment.map((eq: Equipment) => ({
-                                id: eq.id,
-                                intern_number: eq.intern_number.toString(),
-                              }))}
-                              placeholder="Seleccione equipos"
-                              selectedItems={field.value}
-                              onChange={(selected: any) => field.onChange(selected)}
-                            />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={control}
-                        name="working_day"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Jornada</FormLabel>
-                            <Select
-                              value={field.value || workingDay}
-                              onValueChange={(value) => {
-                                field.onChange(value)
-                                handleWorkingDayChange(value)
-                              }}
-                            >
-                              <SelectTrigger className="w-full max-w-xs">
-                                <SelectValue placeholder="Tipo de jornada" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectGroup>
-                                  <SelectItem value="jornada 8 horas">Jornada 8 horas</SelectItem>
-                                  <SelectItem value="jornada 12 horas">Jornada 12 horas</SelectItem>
-                                  <SelectItem value="por horario">Por horario</SelectItem>
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-                      {isDialogOpen && (
-                        <>
-                          {watch("status") === "reprogramado" && (
-                            <GenericDialog
-                              title="Reprogramar Reporte"
-                              description="Selecciona un parte diario para reprogramar este reporte."
-                              isOpen={isDialogOpen}
-                              onClose={handleCloseDialog}
-                            >
-                              <div className="max-w-[45vw] mx-auto">
-                                <Select onValueChange={(value) => setSelectedDate(value)}>
-                                  <SelectTrigger className="w-full max-w-xs">
-                                    <SelectValue placeholder="Seleccione un parte diario" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectGroup>
-                                      {futureReports.map((futureReport) => (
-                                        <SelectItem key={futureReport.id} value={futureReport.id}>
-                                          {moment(futureReport.date).format("DD/MM/YYYY")}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectGroup>
-                                  </SelectContent>
-                                </Select>
-                                <div className="mt-4 flex justify-center w-full">
-                                  <Button variant="outline" onClick={handleCloseDialog} className="mr-2">
-                                    Cerrar
-                                  </Button>
-                                  <Button onClick={handleSaveToDailyReport} disabled={!selectedDate}>
-                                    Guardar
-                                  </Button>
-                                </div>
-                              </div>
-                            </GenericDialog>
-                          )}
-                          {watch("status") === "ejecutado" && (
-                            <GenericDialog
-                              title="Confirmar Estado Ejecutado"
-                              description="Si se pasa el estado a ejecutado, no se podrá modificar más."
-                              isOpen={isDialogOpen}
-                              onClose={handleCloseDialog}
-                            >
-                              <div className="max-w-[45vw] mx-auto">
-                                <div className="mt-4 flex justify-center w-full">
-                                  <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                      setValue("status", "pendiente")
-                                      handleCloseDialog()
-                                    }}
-                                    className="mr-2"
-                                  >
-                                    Cancelar
-                                  </Button>
-                                  <Button
-                                    onClick={() => {
-                                      handleCloseDialog()
-                                    }}
-                                  >
-                                    Aceptar
-                                  </Button>
-                                </div>
-                              </div>
-                            </GenericDialog>
-                          )}
-                        </>
-                      )}
-                      {workingDay === "por horario" && (
-                        <>
-                          <FormField
-                            control={control}
-                            name="start_time"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Hora de inicio</FormLabel>
-                                <Input
-                                  type="time"
-                                  name="start_time"
-                                  value={startTime ? startTime : field.value}
-                                  onChange={(e) => {
-                                    setStartTime(e.target.value)
-                                    field.onChange(e.target.value)
-                                  }}
-                                  className="w-full max-w-xs"
-                                />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={control}
-                            name="end_time"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Hora de finalización</FormLabel>
-                                <Input
-                                  type="time"
-                                  name="end_time"
-                                  value={field.value || endTime}
-                                  onChange={(e) => {
-                                    setEndTime(e.target.value)
-                                    field.onChange(e.target.value)
-                                  }}
-                                  className="w-full max-w-xs"
-                                />
-                              </FormItem>
-                            )}
-                          />
-                        </>
-                      )}
-
-                      {editingId && (
-                        <FormField
-                          control={control}
-                          name="status"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Estado</FormLabel>
-                              <Select
-                                value={field.value}
-                                onValueChange={(value) => {
-                                  field.onChange(value)
-                                  handleValueChange(value)
-                                }}
-                              >
-                                <SelectTrigger className="w-full max-w-xs">
-                                  <SelectValue placeholder="Seleccione un estado" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pendiente">Pendiente</SelectItem>
-                                  <SelectItem value="ejecutado">Ejecutado</SelectItem>
-                                  <SelectItem value="cancelado">Cancelado</SelectItem>
-                                  <SelectItem value="reprogramado">Reprogramado</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                          )}
-                        />
-                      )}
-
-                      <FormField
-                        control={control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="w-full max-w-xs">Descripción</FormLabel>
-                            <Textarea placeholder="Ingrese una breve descripción" className="resize-none" {...field} />
-                          </FormItem>
-                        )}
-                      />
-
-                      <Button type="submit" className="w-full max-w-xs">
-                        {editingId ? "Guardar Cambios" : "Agregar Fila"}
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          setIsEditing(false)
-                          resetForm()
-                        }}
-                        variant="outline"
-                        className="w-full max-w-xs"
-                      >
-                        Cancelar
-                      </Button>
-                    </form>
-                  </Form>
-                </FormProvider>
+                <DailyReportForm
+                  editingId={editingId}
+                  initialData={editingData}
+                  onSubmit={handleFormSubmit}
+                  onCancel={handleFormCancel}
+                  customers={customers}
+                  services={services}
+                  items={items}
+                  employees={employees}
+                  equipment={equipment}
+                  reportDate={reportData?.date || ""}
+                  diagram={diagram}
+                  isDialogOpen={isDialogOpen}
+                  handleCloseDialog={handleCloseDialog}
+                  futureReports={futureReports}
+                  selectedDate={selectedDate || ""}
+                  setSelectedDate={setSelectedDate}
+                  handleSaveToDailyReport={handleSaveToDailyReport}
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -1382,5 +410,9 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     </div>
   )
 }
+
+
+
+
 
 
