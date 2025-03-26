@@ -26,7 +26,7 @@ import { supabaseBrowser } from '@/lib/supabase/browser';
 import { dailyReportSchema } from '@/zodSchemas/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import moment from 'moment';
-import { Card, CardDescription } from '../ui/card';
+import { Card, CardDescription } from '@/components/ui/card';
 import GenericDialog from './GenericDialog';
 // import { cn } from '@/lib/utils'
 

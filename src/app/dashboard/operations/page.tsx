@@ -1,9 +1,11 @@
 
 import React from 'react'
 import Viewcomponent from '@/components/ViewComponent';
-import DailyReport from '@/components/DailyReport/DailyReport';
-import ViewDailyReports from '@/components/DailyReport/ViewDailysReports';
-import DailyReportDetail from '@/components/DailyReport/DailyReportDetail';
+// import DailyReport from '@/components/DailyReport/DailyReport';
+// import ViewDailyReports from '@/components/DailyReport/ViewDailysReports';
+import ViewDailyReports from '@/features/operations/components/ViewDailysReports';
+// import DailyReportDetail from '@/components/DailyReport/DailyReportDetail';
+import DailyReportDetail from '@/features/operations/components/DailyReportDetail';
 import Create from '@/components/DailyReport/Create';
  function OperationsPage() {
     const viewData = {
