@@ -437,21 +437,21 @@ export const getDocumentEmployeesById = async (id: string) => {
           `
     )
     .eq('id', id);
-    return documents_employee;
-}
+  return documents_employee;
+};
 export const getDocumentEquipmentById = async (id: string) => {
   const supabase = supabaseServer();
   let { data: documents_vehicle } = await supabase
-      .from('documents_equipment')
-      .select(
-        `
+    .from('documents_equipment')
+    .select(
+      `
       *,
       document_types(*),
       applies(*,brand(name),model(name),type_of_vehicle(name), company_id(*,province_id(name)))`
-      )
-      .eq('id', id);
-      return documents_vehicle;
-}
+    )
+    .eq('id', id);
+  return documents_vehicle;
+};
 // Equipment-related actions
 export const fetchAllEquipment = async (company_equipment_id?: string) => {
   const cookiesStore = cookies();
@@ -621,21 +621,21 @@ export const fetchEquipmentById = async (id: string) => {
   if (!company_id) return [];
 
   const { data: vehicleData, error } = await supabase
-      .from('vehicles')
-      .select('*, brand_vehicles(name), model_vehicles(name),types_of_vehicles(name),type(name)')
-      .eq('id', id);
+    .from('vehicles')
+    .select('*, brand_vehicles(name), model_vehicles(name),types_of_vehicles(name),type(name)')
+    .eq('id', id);
 
   if (error) console.log('eroor', error);
 
   const vehicle = vehicleData?.map((item: any) => ({
-      ...item,
-      type_of_vehicle: item.types_of_vehicles.name,
-      brand: item.brand_vehicles.name,
-      model: item.model_vehicles.name,
-      type: item.type.name,
-    }));
-    return vehicle;
-}
+    ...item,
+    type_of_vehicle: item.types_of_vehicles.name,
+    brand: item.brand_vehicles.name,
+    model: item.model_vehicles.name,
+    type: item.type.name,
+  }));
+  return vehicle;
+};
 // Repair-related actions
 export const fetchAllOpenRepairRequests = async () => {
   const cookiesStore = cookies();
@@ -966,5 +966,41 @@ export const fetchDiagramsTypes = async () => {
     console.error('Error fetching diagrams types:', error);
     return [];
   }
+  return data;
+};
+export const fetchContacts = async () => {
+  const supabase = supabaseServer();
+  const cookiesStore = cookies();
+  const company_id = cookiesStore.get('actualComp')?.value as string;
+  console.log(company_id);
+  if (!company_id) return [];
+  const { data, error } = await supabase
+    .from('contacts')
+    .select('*, customers(id, name)')
+    .eq('company_id', company_id || '');
+
+  if (error) {
+    console.error('Error fetching contacts:', error);
+    return [];
+  }
+
+  return data;
+};
+
+export const fetchCustomers = async () => {
+  const supabase = supabaseServer();
+  const cookiesStore = cookies();
+  const company_id = cookiesStore.get('actualComp')?.value as string;
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('is_active', true)
+    .eq('company_id', company_id || '');
+
+  if (error) {
+    console.error('Error fetching customers:', error);
+    return [];
+  }
+
   return data;
 };
