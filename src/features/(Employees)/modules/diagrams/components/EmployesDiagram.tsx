@@ -1,11 +1,11 @@
 import { fetchAllActivesEmployees, fetchDiagrams, fetchDiagramsTypes } from '@/app/server/GET/actions';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabaseServer } from '@/lib/supabase/server';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import { cookies } from 'next/headers';
-import DiagramEmployeeView from '../../../../components/Diagrams/DiagramEmployeeView';
-import DiagramFormUpdated from '../../../../components/Diagrams/DiagramFormUpdated';
-import DiagramTypeComponent from '../../../../components/Diagrams/DiagramTypeComponent';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../../components/ui/tabs';
+import DiagramEmployeeView from './DiagramEmployeeView';
+import DiagramFormUpdated from './DiagramFormUpdated';
+import DiagramTypeComponent from './DiagramTypeComponent';
 
 async function EmployesDiagram() {
   const URL = process.env.NEXT_PUBLIC_BASE_URL;

@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
-import { EditModal } from './EditDocumenTypeModal';
+import { EditModal } from '../../../documents_types/components/EditDocumenTypeModal';
 
 interface DocumentsTableProps {
   data: any[];

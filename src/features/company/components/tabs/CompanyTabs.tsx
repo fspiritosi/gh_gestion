@@ -1,8 +1,8 @@
+import { DataTable } from '@/app/dashboard/company/actualCompany/components/data-table';
+import { columnsDocuments } from '@/app/dashboard/company/actualCompany/components/document-colums';
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CompanyDocumentsType, useLoggedUserStore } from '@/store/loggedUser';
-import { DataTable } from '../../company/actualCompany/components/data-table';
-import { columnsDocuments } from '../../company/actualCompany/components/document-colums';
 
 function CompanyTabs({ companyData }: { companyData: CompanyDocumentsType[] }) {
   const ownerUser = useLoggedUserStore.getState().profile;

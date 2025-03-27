@@ -18,7 +18,7 @@ import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '../../supabase/supabase';
+import { supabase } from '../../../../../../supabase/supabase';
 
 const defaultValues = [
   {

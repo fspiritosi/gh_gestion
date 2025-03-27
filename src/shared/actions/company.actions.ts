@@ -20,7 +20,7 @@ export const fetchCurrentCompany = async () => {
     console.error('Error fetching company:');
     return null;
   }
-  return companyData as Company;
+  return companyData as Company[];
 };
 
 export const fetchUserCompanies = async (userId: string) => {

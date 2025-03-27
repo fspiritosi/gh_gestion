@@ -18,22 +18,24 @@ import { CaretSortIcon, CheckIcon, PlusCircledIcon } from '@radix-ui/react-icons
 import Cookies from 'js-cookie';
 import { Building2 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CompanySelectorProps } from '../../types/navbar.types';
 
 export function _CompanySelector({ sharedCompanies, allCompanies, currentCompany }: CompanySelectorProps) {
   const [open, setOpen] = useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(currentCompany?.[0]);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(
+    currentCompany?.[0] || allCompanies[0] || null
+  );
 
   // Si no hay compañía seleccionada y hay compañías disponibles, seleccionar la primera
-  useEffect(() => {
-    if (!selectedCompany && (allCompanies.length > 0 || sharedCompanies.length > 0)) {
-      const firstCompany = allCompanies[0] || sharedCompanies[0];
-      setSelectedCompany(firstCompany);
-      handleNewCompany(firstCompany);
-    }
-  }, [allCompanies, sharedCompanies]);
+  // useEffect(() => {
+  //   if (!selectedCompany && (allCompanies.length > 0 || sharedCompanies.length > 0)) {
+  //     const firstCompany = allCompanies[0] || sharedCompanies[0];
+  //     setSelectedCompany(firstCompany);
+  //     handleNewCompany(firstCompany);
+  //   }
+  // }, [allCompanies, sharedCompanies]);
 
   const totalCompanies = [...sharedCompanies, ...allCompanies];
 

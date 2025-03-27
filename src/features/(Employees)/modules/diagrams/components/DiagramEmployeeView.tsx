@@ -10,16 +10,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Button } from '../ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from '../ui/form';
 
+import InfoComponent from '@/components/InfoComponent';
 import * as XLSX from 'xlsx';
-import InfoComponent from '../InfoComponent';
 
 type Checked = DropdownMenuCheckboxItemProps['checked'];
 type DiamgramParsed = {

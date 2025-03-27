@@ -20,8 +20,6 @@ export default async function DashboardComponent() {
       <Tabs defaultValue="Principal" className="w-full">
         <TabsList className="ml-6">
           <TabsTrigger value="Principal">Principal</TabsTrigger>
-          {/* <TabsTrigger value="Empleados">Empleados</TabsTrigger> */}
-          {/* <TabsTrigger value="Mantenimiento">Mantenimiento</TabsTrigger> */}
         </TabsList>
         <TabsContent className="w-full" value="Principal">
           <section className="md:mx-7 grid grid-cols-1 mt-6 xl:grid-cols-4 gap-3 mb-4 ">
@@ -62,22 +60,6 @@ export default async function DashboardComponent() {
             </Card>
           </section>
         </TabsContent>
-        {/* <TabsContent value="Empleados">
-          <div className="grid grid-cols-2 gap-4 p-7">
-            <TotalDeVisitores employees={data} />
-            <Employeesnoq employees={data} />
-            <ComponentContract employees={data} />
-            <ComponentStatus employees={data} />
-          </div>
-        </TabsContent>
-        <TabsContent value="Mantenimiento">
-          <div className="grid grid-cols-2 gap-4 p-7">
-            <EquipmentSolicitudesDates solicitudes={data3} />
-            <EquipemtTypesChart equipments={data2} />
-            <EquipmentSolicitudes solicitudes={data3}/>
-            <ComponentStatusEquipment equipments={data2} />
-          </div>
-        </TabsContent> */}
       </Tabs>
     </div>
   );

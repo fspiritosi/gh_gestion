@@ -4,10 +4,9 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 
 import { Button } from '@/components/ui/button';
 
+import BtnXlsDownload from '@/components/BtnXlsDownload';
 import { useEffect, useState } from 'react';
 import { DiagramNewTypeForm } from './DiagramNewTypeForm';
-
-import BtnXlsDownload from '../BtnXlsDownload';
 
 function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[] }) {
   const [selectDiagramType, setSelectDiagramType] = useState<{}>({});

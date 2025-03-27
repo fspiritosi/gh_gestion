@@ -1,5 +1,4 @@
 'use client';
-import NewDocumentType from '@/components/NewDocumentType';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -13,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useCountriesStore } from '@/store/countries';
 import { useLoggedUserStore } from '@/store/loggedUser';
+import NewDocumentType from './NewDocumentType';
 
 function TypesDocumentAction({ optionChildrenProp }: { optionChildrenProp: string }) {
   const fetchDocumentTypes = useCountriesStore((state) => state.documentTypes);

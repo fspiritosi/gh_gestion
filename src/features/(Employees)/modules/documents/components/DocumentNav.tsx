@@ -1,5 +1,6 @@
-import NewDocumentMulti from './Documents/NewDocumentMulti';
-import NewDocumentNoMulti from './Documents/NewDocumentNoMulti';
+import NewDocumentMulti from '@/components/Documents/NewDocumentMulti';
+import NewDocumentNoMulti from '@/components/Documents/NewDocumentNoMulti';
+
 export default function DocumentNav({
   onlyEmployees,
   onlyNoMultiresource,

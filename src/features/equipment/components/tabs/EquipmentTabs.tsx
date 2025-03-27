@@ -1,10 +1,10 @@
 import { fetchMonthlyDocumentsEquipment, fetchPermanentDocumentsEquipment } from '@/app/server/GET/actions';
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ExpiredDataTable } from '@/features/(Employees)/modules/documents/components/data-table/data-table';
+import { ExpiredColums } from '@/features/(Employees)/modules/documents/components/tables/data/colums';
+import { ColumnsMonthly } from '@/features/(Employees)/modules/documents/components/tables/data/columsMonthly';
 import { formatVehiculesDocuments } from '@/lib/utils';
-import { ExpiredColums } from '../../../../shared/components/colums';
-import { ColumnsMonthly } from '../../../../shared/components/columsMonthly';
-import { ExpiredDataTable } from '../../../../shared/components/data-table';
 
 async function EquipmentTabs() {
   const monthlyDocuments = (await fetchMonthlyDocumentsEquipment()).map(formatVehiculesDocuments);

@@ -14,9 +14,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import UploadDocumentMultiEmployee from '@/features/(Employees)/modules/documents/components/UploadDocumentMultiEmployee';
 import { cn } from '@/lib/utils';
 import InfoComponent from '../InfoComponent';
-import UploadDocumentMultiEmployee from './UploadDocumentMultiEmployee';
 import UploadDocumentMultiEquipment from './UploadDocumentMultiEquipment';
 async function NewDocumentMulti({
   onlyEmployees,

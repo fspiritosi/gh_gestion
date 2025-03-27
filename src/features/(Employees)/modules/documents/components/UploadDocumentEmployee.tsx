@@ -1,8 +1,14 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { CardTitle } from '@/components/ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { EnhancedDatePicker } from '@/components/ui/enhanced-datepicket';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { YearMonthPicker } from '@/components/ui/year-month-picker';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { calculateNameOFDocument, cn, uploadDocument, uploadDocumentFile } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,13 +19,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Database } from '../../../database.types';
-import { CardTitle } from '../ui/card';
-import { EnhancedDatePicker } from '../ui/enhanced-datepicket';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
-import { YearMonthPicker } from '../ui/year-month-picker';
 
 function UploadDocumentEmployee({
   employees,

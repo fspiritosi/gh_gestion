@@ -17,13 +17,13 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
 // import CovenantTreeFile from '../../../../features/(Employees)/modules/convenios/CovenantTreeFile';
-import TypesDocumentAction from '../../document/documentComponents/TypesDocumentAction';
 // import Contacts from './contact/Contact';
 import Contacts from '@/features/company/modules/contacts/components/Contact';
 // import CovenantRegister from './covenant/CovenantRegister';
 // import CovenantTreeFile from './covenant/CovenantTreeFile';
 import CovenantTreeFile from '@/features/company/modules/covenant/components/CovenantTreeFile';
 // import Customers from './customers/Customers';
+import TypesDocumentAction from '@/features/(Employees)/modules/documents_types/components/TypesDocumentAction';
 import CompanyFeat from '@/features/company/CompanyFeat';
 import Customers from '@/features/company/modules/customers/components/Customers';
 export default async function CompanyPage() {
