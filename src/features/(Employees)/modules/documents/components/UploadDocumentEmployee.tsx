@@ -105,27 +105,25 @@ function UploadDocumentEmployee({
     Database['public']['Tables']['documents_employees']['Row'][]
   >([]);
 
-  
   const fetchSelectedEquipmentDocuments = async () => {
     if (default_id) {
-     const { data, error } = await supabase
-       .from('documents_employees')
-       .select('*')
-       .eq('applies', default_id)
-       .neq('document_path', null);
+      const { data, error } = await supabase
+        .from('documents_employees')
+        .select('*')
+        .eq('applies', default_id)
+        .neq('document_path', null);
 
-     if (error) {
-       console.error('error', error);
-       return;
-     }
+      if (error) {
+        console.error('error', error);
+        return;
+      }
 
-     setSelectedResourceDocuments(data);
+      setSelectedResourceDocuments(data);
     }
   };
   useEffect(() => {
     fetchSelectedEquipmentDocuments();
   }, [default_id]);
-
 
   //console.log('error', form.formState.errors);
   return (
@@ -403,7 +401,7 @@ function UploadDocumentEmployee({
           <div className="flex justify-around">
             <Button
               variant={'destructive'}
-              type='button'
+              type="button"
               onClick={() => {
                 form.reset();
                 setSelectedFile(undefined);

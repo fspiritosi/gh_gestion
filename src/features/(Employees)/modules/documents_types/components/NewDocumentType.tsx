@@ -105,7 +105,7 @@ export default function NewDocumentType({
       mandatory: undefined,
       explired: undefined,
       special: undefined,
-      applies: selectOptions === 'all' ? undefined : selectOptions as "Empresa" | "Persona" | "Equipos" | undefined,
+      applies: selectOptions === 'all' ? undefined : (selectOptions as 'Empresa' | 'Persona' | 'Equipos' | undefined),
     },
   });
 

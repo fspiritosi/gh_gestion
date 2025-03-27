@@ -82,7 +82,6 @@ function DiagramFormUpdated({
     },
   });
 
-
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     const { employee_id, dateRange, diagram_type } = data;
 
@@ -156,7 +155,6 @@ function DiagramFormUpdated({
 
     setErrorsDiagrams(errors);
     setSuccesDiagrams(successes);
-
   };
 
   const updateDiagram = async (diagramToUpdate: ErrorToCreate) => {

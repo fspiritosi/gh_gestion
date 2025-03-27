@@ -1,5 +1,5 @@
 import { fetchAllEmployees } from '@/shared/actions/employees.actions';
-import { EmployeesTableReusable } from './components/tables/data/employees-table';
+import { EmployeesTableReusable } from './tables/data/employees-table';
 import { formatEmployeesForTable } from './utils/utils';
 
 async function EmployeeTable() {

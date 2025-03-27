@@ -3,8 +3,8 @@ import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getRole } from '@/lib/utils/getRole';
 import { setEmployeesToShow } from '@/lib/utils/utils';
-import { EmployeesListColumns } from '../../../../features/(Employees)/components/tables/columns';
-import { EmployeesTable } from '../../../../features/(Employees)/components/tables/data-table';
+import { EmployeesTable } from './EmployeesTable';
+import { EmployeesListColumns } from './columns';
 
 async function EmployeeListTabs({ inactives, actives }: { inactives?: boolean; actives?: boolean }) {
   const role = await getRole();
