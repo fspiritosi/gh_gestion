@@ -1,6 +1,6 @@
 // services/vehicleServices.ts
-import { vehicleSchema } from '@/features/equipments/schemas/schemas';
-import { generic } from '@/features/equipments/type/type';
+import { vehicleSchema } from '@/features/(Equipment)/schemas/schemas';
+import { generic } from '@/features/(Equipment)/type/type';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { supabase } from '../../../../supabase/supabase';

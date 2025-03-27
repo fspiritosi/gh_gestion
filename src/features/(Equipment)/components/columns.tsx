@@ -35,7 +35,7 @@ import {
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { formSchema } from '@/features/equipments/schemas/schemas';
+import { formSchema } from '@/features/(Equipment)/schemas/schemas';
 import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { cn } from '@/lib/utils';
 import { useCountriesStore } from '@/store/countries';
@@ -52,7 +52,7 @@ import { useForm } from 'react-hook-form';
 import { RiToolsFill } from 'react-icons/ri';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../../supabase/supabase';
+import { supabase } from '../../../../supabase/supabase';
 
 type Colum = VehicleWithBrand;
 

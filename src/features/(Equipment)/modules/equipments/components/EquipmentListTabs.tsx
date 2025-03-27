@@ -2,8 +2,8 @@ import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { fetchAllEquipment } from '@/app/server/GET/actions';
-import { EquipmentColums } from '@/features/equipments/columns';
-import { EquipmentTable } from '@/features/equipments/data-equipment';
+import { EquipmentColums } from '@/features/(Equipment)/components/columns';
+import { EquipmentTable } from '@/features/(Equipment)/components/data-equipment';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getActualRole } from '@/lib/utils';
 import { cookies } from 'next/headers';

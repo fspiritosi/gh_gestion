@@ -33,7 +33,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import { Input } from './ui/input';
 require('dotenv').config();
 // import { useToast } from './ui/use-toast'
-import { VehicleType, dataType, generic } from '@/features/equipments/type/type';
+import { VehicleType, dataType, generic } from '@/features/(Equipment)/type/type';
 import QRCode from 'react-qr-code';
 import AddTypeModal from './AddTypeModal';
 

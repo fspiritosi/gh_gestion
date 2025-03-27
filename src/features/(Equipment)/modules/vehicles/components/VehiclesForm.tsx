@@ -14,10 +14,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { onCreate, onUpdate } from '@/features/equipments/action/actions';
-import { getVehicleSchema } from '@/features/equipments/schemas/schemas';
-import { dataType, generic } from '@/features/equipments/type/type';
-import { downloadQR, handleImageChange, printQR } from '@/features/equipments/utils/utils';
+import { onCreate, onUpdate } from '@/features/(Equipment)/action/actions';
+import { getVehicleSchema } from '@/features/(Equipment)/schemas/schemas';
+import { dataType, generic } from '@/features/(Equipment)/type/type';
+import { downloadQR, handleImageChange, printQR } from '@/features/(Equipment)/utils/utils';
 import { useImageUpload } from '@/hooks/useUploadImage';
 import { cn } from '@/lib/utils';
 import { useCountriesStore } from '@/store/countries';
