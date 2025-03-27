@@ -4,7 +4,7 @@ import { User } from '@supabase/supabase-js';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
-import RepairNewEntry from '../Tipos_de_reparaciones/RepairEntry';
+import RepairNewEntry from '../../features/(Maintenance)/modules/solicitudes/components/RepairEntry';
 import { Button } from '../ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '../ui/card';
 

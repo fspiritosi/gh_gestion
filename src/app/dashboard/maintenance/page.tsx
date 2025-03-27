@@ -1,6 +1,6 @@
 import RepairsSkeleton from '@/components/Skeletons/RepairsSkeleton';
-import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
+import RepairTypes from '@/features/(Maintenance)/modules/solicitudes/RepairTypes';
 import { Suspense } from 'react';
 function MantenimientoPage() {
   const viewData = {

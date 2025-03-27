@@ -20,13 +20,13 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
-import { Input } from '../ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Textarea } from '../ui/textarea';
-import { criticidad } from './RepairSolicitudesTable/data';
+import { Badge } from '../../../../../components/ui/badge';
+import { Button } from '../../../../../components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../../../../components/ui/form';
+import { Input } from '../../../../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
+import { Textarea } from '../../../../../components/ui/textarea';
+import { criticidad } from '../table/data';
 export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfRepair }) {
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
   const company_id = useLoggedUserStore((state) => state.actualCompany)?.id;
@@ -342,7 +342,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
                   <TableCell>{repair.name}</TableCell>
                   <TableCell>{repair.type_of_maintenance}</TableCell>
                   <TableCell className="font-medium">
-                    <Badge variant={badgeVariant} className='font-bold'>
+                    <Badge variant={badgeVariant} className="font-bold">
                       {' '}
                       {priority?.icon && <priority.icon className="mr-2 h-4 w-4 font-bold" />}
                       {repair.criticity}

@@ -51,7 +51,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../../../../supabase/supabase';
+import { supabase } from '../../../../supabase/supabase';
 
 const formSchema = z.object({
   reason_for_termination: z.string({

@@ -4,13 +4,13 @@ import {
   fetchEmployeeMonthlyDocumentsByEmployeeId,
   fetchEmployeePermanentDocumentsByEmployeeId,
 } from '@/app/server/GET/actions';
-import DocumentNav from '@/components/DocumentNav';
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import DocumentNav from '@/features/(Employees)/modules/documents/components/DocumentNav';
+import { ExpiredDataTable } from '@/features/(Employees)/modules/documents/components/data-table/data-table';
+import { ExpiredColums } from '@/features/(Employees)/modules/documents/components/tables/data/colums';
+import { ColumnsMonthly } from '@/features/(Employees)/modules/documents/components/tables/data/columsMonthly';
 import { formatEmployeeDocuments } from '@/lib/utils';
-import { ExpiredColums } from '../../../shared/components/colums';
-import { ColumnsMonthly } from '../../../shared/components/columsMonthly';
-import { ExpiredDataTable } from '../../../shared/components/data-table';
 
 type Props = { employee_id: string; role: string };
 

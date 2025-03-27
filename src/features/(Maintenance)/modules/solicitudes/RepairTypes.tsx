@@ -2,12 +2,12 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { setVehiclesToShow } from '@/lib/utils/utils';
 import { TypeOfRepair } from '@/types/types';
 import { cookies } from 'next/headers';
-import InfoComponent from '../InfoComponent';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import RepairNewEntry from './RepairEntry';
-import RepairNewEntryMultiple from './RepairEntryMultiple';
-import RepairSolicitudes from './RepairSolicitudesTable/RepairSolicitudes';
-import { RepairTypeForm } from './RepairTypeForm';
+import InfoComponent from '../../../../components/InfoComponent';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../../components/ui/tabs';
+import RepairNewEntry from './components/RepairEntry';
+import RepairNewEntryMultiple from './components/RepairEntryMultiple';
+import { RepairTypeForm } from './components/RepairTypeForm';
+import RepairSolicitudes from './table/RepairSolicitudes';
 
 async function RepairTypes({
   type_of_repair_new_entry,
@@ -79,7 +79,7 @@ async function RepairTypes({
           </TabsContent>
           <TabsContent value="carga_multiple">
             {' '}
-            <InfoComponent size='lg' message={message} />
+            <InfoComponent size="lg" message={message} />
             <RepairNewEntryMultiple
               user_id={user?.id}
               equipment={vehiclesFormatted}

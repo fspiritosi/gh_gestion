@@ -1,7 +1,7 @@
 import DocumentEquipmentComponent from '@/components/DocumentEquipmentComponent';
-import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import { Card, CardFooter } from '@/components/ui/card';
 import { TabsContent } from '@/components/ui/tabs';
+import RepairTypes from '@/features/(Maintenance)/modules/solicitudes/RepairTypes';
 import { cn } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';

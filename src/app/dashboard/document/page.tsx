@@ -5,7 +5,7 @@ import DocumentNav from '@/features/(Employees)/modules/documents/components/Doc
 import EmployeeDocumentsTabs from '@/features/(Employees)/modules/documents/components/EmployeeDocumentsTabs';
 import TypesDocumentAction from '@/features/(Employees)/modules/documents_types/components/TypesDocumentAction';
 import TypesDocumentsView from '@/features/(Employees)/modules/documents_types/components/TypesDocumentsView';
-import EquipmentTabs from '@/features/equipments/components/EquipmentTabs';
+import EquipmentTabs from '@/features/(Equipment)/components/EquipmentTabs';
 import { supabaseServer } from '@/lib/supabase/server';
 import { CompanyDocumentsType } from '@/store/loggedUser';
 import { cookies } from 'next/headers';
@@ -14,7 +14,6 @@ import { Suspense } from 'react';
 export default async function page() {
   const supabase = supabaseServer();
   const user = await supabase.auth.getUser();
-  const URL = process.env.NEXT_PUBLIC_BASE_URL;
   const cookiesStore = cookies();
   const { data: userShared } = await supabase
     .from('share_company_users')
@@ -96,18 +95,6 @@ export default async function page() {
           component: <TypesDocumentsView equipos empresa personas />,
         },
       },
-      // {
-      //   value: 'forms',
-      //   name: 'Formularios',
-      //   restricted: [],
-      //   content: {
-      //     title: 'Formularios',
-      //     description: 'Formularios de documentos',
-      //     buttonActioRestricted: [''],
-      //     // buttonAction: <TypesDocumentAction optionChildrenProp="Personas" />,
-      //     component: <CreatedForm />,
-      //   },
-      // },
     ],
   };
 

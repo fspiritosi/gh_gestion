@@ -1,7 +1,7 @@
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
-import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
+import RepairTypes from '@/features/(Maintenance)/modules/solicitudes/RepairTypes';
 import Link from 'next/link';
 import { Suspense } from 'react';
 

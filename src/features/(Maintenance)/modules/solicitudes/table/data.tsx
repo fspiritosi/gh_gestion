@@ -64,11 +64,11 @@ export const statuses = [
     color: 'text-red-400',
   },
   {
-    value:'Programado',
-    label:'Programado',
+    value: 'Programado',
+    label: 'Programado',
     icon: StopwatchIcon,
     color: 'text-blue-600',
-  }
+  },
 ];
 
 export const criticidad = [
