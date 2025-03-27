@@ -1,4 +1,3 @@
-
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -6,7 +5,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } f
 import { PlusCircledIcon } from "@radix-ui/react-icons"
 import { AnimatePresence, motion } from "framer-motion"
 import { useEffect, useState } from "react"
-import moment from "moment"
 import { Card, CardDescription } from "@/components/ui/card"
 import GenericDialog from "./GenericDialog"
 import DailyReportSkeleton from "@/components/Skeletons/DayliReportSkeleton"
@@ -73,6 +71,13 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     selectedDate,
     setSelectedDate,
     handleCloseDialog,
+    handleValueChange,
+    isLoadingReports,
+    loadFutureReports,
+    handleSaveToDailyReport,
+    handleCreateNewReport,
+    setEditingId: setFormEditingId,
+    editingId: formEditingId,
   } = useDailyReportForm(dailyReport, setDailyReport, reportData?.id || "")
 
   const [reportStatus, setReportStatus] = useState<boolean>(reportData?.status || false)
@@ -134,8 +139,21 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     setIsEditing(true)
   }
 
+  // Modificar la función handleEdit para mejorar la secuencia de edición
   const handleEdit = async (id: string) => {
-    handleEditAction(id)
+    console.log("Editando fila con ID:", id)
+
+    // Primero, limpiar cualquier estado de edición anterior
+    setIsEditing(false)
+    setEditingId(null)
+
+    // Esperar un momento para asegurar que los estados se han limpiado
+    setTimeout(() => {
+      // Luego iniciar la edición
+      const itemToEdit = dailyReport.find((item) => item.id === id)
+      console.log("Datos de la fila a editar:", itemToEdit)
+      handleEditAction(id)
+    }, 100)
   }
 
   const handleConfirmOpen = (id: string) => {
@@ -210,38 +228,40 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     setEditingId(null)
   }
 
-  const handleValueChange = (value: string) => {
+  // Modificar la función handleStatusChange para mostrar correctamente los reportes futuros
+  const handleStatusChange = (value: string) => {
+    console.log("Estado seleccionado en DailyReport:", value)
     if (value === "reprogramado" && editingId) {
       const currentReport = dailyReport.find((report: DailyReportItem) => report.id === editingId)
 
       if (currentReport) {
-        const futureReports = allReport?.filter((report) => moment(report.date).isAfter(moment(currentReport?.date)))
+        console.log("Reporte actual:", currentReport)
+        console.log("Fecha del reporte actual:", reportData?.date)
 
-        setFutureReports(futureReports as any)
-        setSelectedReport(currentReport as any)
-        setIsDialogOpen(true)
+        // Cargar reportes futuros directamente
+        if (reportData?.date) {
+          // Asegurarse de que la fecha esté en formato ISO
+          const formattedDate = new Date(reportData.date).toISOString()
+          console.log("Cargando reportes futuros con fecha:", formattedDate)
+
+          // Importante: Establecer el ID de edición en el hook del formulario
+          setFormEditingId(editingId)
+
+          loadFutureReports(formattedDate)
+          setSelectedReport(currentReport as any)
+          setIsDialogOpen(true)
+        } else {
+          toast({
+            title: "Error",
+            description: "No se pudo determinar la fecha del reporte actual",
+            variant: "destructive",
+          })
+        }
       }
     } else if (value === "ejecutado" && editingId) {
+      // Importante: Establecer el ID de edición en el hook del formulario
+      setFormEditingId(editingId)
       setIsDialogOpen(true)
-    }
-  }
-
-  const handleSaveToDailyReport = async () => {
-    if (selectedDate && selectedReport) {
-      try {
-        const updatedReport = {
-          ...selectedReport,
-          id: null,
-          daily_report_id: selectedDate,
-          description: `Reprogramado desde ${selectedReport.date}`,
-        }
-
-        await reprogramarReporte(updatedReport, existingReportId as string, selectedDate as string)
-
-        setIsDialogOpen(false)
-      } catch (error) {
-        console.error("Error al guardar el reporte:", error)
-      }
     }
   }
 
@@ -311,6 +331,10 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
                   selectedDate={selectedDate || ""}
                   setSelectedDate={setSelectedDate}
                   handleSaveToDailyReport={handleSaveToDailyReport}
+                  setIsDialogOpen={setIsDialogOpen}
+                  onCreateNewReport={handleCreateNewReport}
+                  isLoadingReports={isLoadingReports}
+                  handleStatusChange={handleStatusChange}
                 />
               </motion.div>
             )}
@@ -410,9 +434,4 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     </div>
   )
 }
-
-
-
-
-
 

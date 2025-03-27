@@ -1,10 +1,7 @@
-'use client';
+"use client"
 
-import React, { useState, useEffect } from 'react';
-import cookies from 'js-cookie';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import DailyReport from '@/features/operations/components/DailyReport';
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -12,354 +9,137 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "@/components/ui/use-toast";
-import { format, formatDate, parse } from "date-fns"
-import { DatePicker } from '@/components/DailyReport/DatePicker'
-import { FaAngleUp } from "react-icons/fa";
-import { FaAngleDown } from "react-icons/fa";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { startOfMonth, endOfMonth } from 'date-fns';
-import moment, { Moment } from 'moment';
-import InfoComponent from '@/components/InfoComponent';
-import { useRouter } from 'next/navigation';
-import {DailyReportData, DailyReportItem} from '@/features/operations/types/types';
-import {fetchReports} from '@/features/operations/utils/utils';
-import {transformDailyReports} from '@/features/operations/utils/utils';
-
+} from "@/components/ui/dialog"
+import { toast } from "@/components/ui/use-toast"
+import moment from "moment"
+import InfoComponent from "@/components/InfoComponent"
+import { useRouter } from "next/navigation"
+import type { DailyReportData } from "@/features/operations/types/types"
+import { startOfMonth, endOfMonth } from "date-fns"
+import DailyReport from "@/features/operations/components/DailyReport"
+import { useReportsList } from "@/features/operations/hooks/useReportsList"
+import ReportFilters from "@/features/operations/components/ReportFilters"
+import ReportsTable from "@/features/operations/components/ReportsTable"
 
 export default function ViewDailysReports() {
-  const [dailyReports, setDailyReports] = useState<DailyReportData[]>([]);
-  const [selectedReport, setSelectedReport] = useState<DailyReportData | null>(null);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [warningDialogOpen, setWarningDialogOpen] = useState(false);
-  const [pendingStatusChange, setPendingStatusChange] = useState<{ id: string, status: boolean } | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'abierto' | 'cerrado' | 'todos'>('todos');
-  const [isEditing, setIsEditing] = useState(false);
-  const router = useRouter();
+  const {
+    dailyReports,
+    transformedReports,
+    isLoading,
+    currentPage,
+    sortOrder,
+    itemsPerPage,
+    statusFilter,
+    startDate,
+    endDate,
+    warningDialogOpen,
+    currentReports,
+    totalPages,
+    setStartDate,
+    setEndDate,
+    setStatusFilter,
+    loadReports,
+    handlePageChange,
+    handleItemsPerPageChange,
+    handleSortChange,
+    handleStatusChangeWithWarning,
+    confirmStatusChange,
+    setWarningDialogOpen,
+  } = useReportsList()
+
+  const [selectedReport, setSelectedReport] = useState<DailyReportData | null>(null)
+  const [openModal, setOpenModal] = useState<boolean>(false)
+  const [allReport, setAllReport] = useState<DailyReportData[]>([])
+  const router = useRouter()
+
+  // Inicializar fechas al inicio y fin del mes actual
   useEffect(() => {
-    const now = new Date();
-    setStartDate(startOfMonth(now));
-    setEndDate(endOfMonth(now));
-  }, []);
+    const now = new Date()
+    setStartDate(startOfMonth(now))
+    setEndDate(endOfMonth(now))
+  }, [])
 
-  const handleSortChange = () => {
-    setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
-  };
-  // const filteredReports = dailyReports.filter((report: any) => {
-  //   const reportDate = new Date(report.date);
-  //   return (!startDate || reportDate >= startDate) && (!endDate || reportDate <= endDate);
-  // });
-  const filteredReports = dailyReports.filter((report: any) => {
-    
-    const reportDate = moment(report.date).startOf('day');
-    const matchesDateRange = (!startDate || reportDate.isSameOrAfter(moment(startDate).startOf('day'))) &&
-      (!endDate || reportDate.isSameOrBefore(moment(endDate).startOf('day')));
-    const matchesStatus = statusFilter === 'todos' || (statusFilter === 'abierto' && report.status) || (statusFilter === 'cerrado' && !report.status);
-    return matchesDateRange && matchesStatus;
-  });
-
-  const sortedReports = filteredReports.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return sortOrder === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
-  });
-
-  const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
-  const currentReports = filteredReports.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-  const handleItemsPerPageChange = (value: number) => {
-    setItemsPerPage(value);
-    setCurrentPage(1); // Reset to first page when items per page changes
-  };
-  const URL = process.env.NEXT_PUBLIC_BASE_URL;
-  const company_id = cookies.get("actualComp");
-
+  // Cargar reportes al montar el componente o cuando cambia el modal
   useEffect(() => {
-    fetchReports(setDailyReports, setIsLoading);
-  }, [company_id,openModal]);
-  
-  const transformedReports = transformDailyReports(dailyReports);
-  
+    loadReports()
+  }, [openModal])
 
-  const handleStatusChangeWithWarning = (id: string, status: boolean) => {
-    const report = dailyReports.find(r => r.id === id);
-    if (!report) return;
-
-    if (!status) { // Si el nuevo estado es 'cerrado' (false)
-      // Verificar si alguna fila tiene el estado "pendiente"
-      const hasPendingRows = report.dailyreportrows?.some(row => row.status === 'pendiente');
-      if (hasPendingRows) {
-        alert('No se puede cerrar el parte diario porque algunas filas están en estado "pendiente".');
-        return;
-      }
-      // Mostrar mensaje de advertencia antes de cerrar
-      setPendingStatusChange({ id, status });
-      setWarningDialogOpen(true);
-    } else {
-      handleStatusChange(id, status);
-    }
-  };
-
-  const confirmStatusChange = () => {
-    if (pendingStatusChange) {
-      handleStatusChange(pendingStatusChange.id, pendingStatusChange.status);
-      setPendingStatusChange(null);
-    }
-    setWarningDialogOpen(false);
-  };
-  const handleStatusChange = async (reportId: string, newStatus: boolean) => {
-    try {
-      const response = await fetch(`${URL}/api/daily-report/?id=${reportId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      setDailyReports(prevReports =>
-        prevReports.map(report =>
-          report.id === reportId ? { ...report, status: newStatus } : report
-        )
-      );
-
-      toast({
-        title: "Éxito",
-        description: "El estado del reporte se ha actualizado correctamente.",
-      });
-    } catch (error) {
-      console.error("Error updating report status:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el estado del reporte.",
-        variant: "destructive",
-      });
-    }
-  };
-
-const [allReport, setAllreport] = useState<DailyReportData[]>([]);
   const handleViewReport = (report: DailyReportData) => {
-    setIsLoading(true);
-    setIsEditing(true);
     try {
-      const fullReportData = transformedReports.find(r => r.id === report.id);
+      const fullReportData = transformedReports.find((r) => r.id === report.id)
       if (!fullReportData) {
-        throw new Error("Report not found in the array");
+        throw new Error("Report not found in the array")
       }
-      setAllreport(transformedReports)
-      setSelectedReport(fullReportData);
-      setOpenModal(true);
+      setAllReport(transformedReports)
+      setSelectedReport(fullReportData)
+      setOpenModal(true)
     } catch (error) {
-      console.error("Error fetching report details:", error);
+      console.error("Error fetching report details:", error)
       toast({
         title: "Error",
         description: "No se pudieron cargar los detalles del reporte.",
         variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      })
     }
-  };
-  
+  }
 
   const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedReport(null);
-    // router.refresh();
-  };
-
-  const handleSaveReport = async (updatedReport: DailyReportData) => {
-    try {
-      const response = await fetch(`${URL}/api/daily-report/${updatedReport.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedReport),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      setDailyReports(prevReports =>
-        prevReports.map(report =>
-          report.id === updatedReport.id ? updatedReport : report
-        )
-      );
-
-      handleCloseModal();
-      toast({
-        title: "Éxito",
-        description: "El reporte se ha guardado correctamente.",
-      });
-    } catch (error) {
-      console.error("Error saving report:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo guardar el reporte.",
-        variant: "destructive",
-      });
-    }
-  };
- 
+    setOpenModal(false)
+    setSelectedReport(null)
+  }
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Todos los Partes Diarios</h1>
-      <div className="mb-4 flex items-center gap-2">
-        <span className="mr-4">Filtrar por estado:</span>
-        <Select
-          value={statusFilter}
-          onValueChange={(value: 'abierto' | 'cerrado' | 'todos') => setStatusFilter(value)}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue>{statusFilter}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="abierto">Abierto</SelectItem>
-            <SelectItem value="cerrado">Cerrado</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="mb-4 flex items-center gap-2">
-        <span className="mr-4">Filtrar por fecha:</span>
-        <DatePicker date={startDate} setDate={setStartDate} label="Fecha de Inicio" />
-        <DatePicker date={endDate} setDate={setEndDate} label="Fecha de Fin" />
 
-        <span>Filas por página: </span>
-        <Select
-          value={itemsPerPage.toString()}
-          onValueChange={(value) => handleItemsPerPageChange(parseInt(value))}
-        >
-          <SelectTrigger className="w-[70px]">
-            <SelectValue placeholder="Seleccionar cantidad" />
-          </SelectTrigger>
-          <SelectContent className="w-auto min-w-[70px] absolute">
-            <SelectItem value="5">5</SelectItem>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="20">20</SelectItem>
-            <SelectItem value="30">30</SelectItem>
-            <SelectItem value="40">40</SelectItem>
-            <SelectItem value="50">50</SelectItem>
-            <SelectItem value="60">60</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Filtros */}
+      <ReportFilters
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        itemsPerPage={itemsPerPage}
+        handleItemsPerPageChange={handleItemsPerPageChange}
+      />
 
+      {/* Tabla de reportes */}
       {isLoading ? (
         <div className="text-center">Cargando...</div>
       ) : (
-        <>
-          <Table>
-            <TableCaption>
-              {/* Aquí puedes agregar un título o descripción para la tabla */}
-            </TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>
-                  <button onClick={handleSortChange} className="flex items-center">
-                    Fecha
-                    {sortOrder === 'asc' ? <FaAngleUp /> : <FaAngleDown />}
-                  </button>
-                </TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentReports.map((report) => (
-                <TableRow key={report.id}>
-                  <TableCell>{moment(report.date).format("DD/MM/YYYY")}</TableCell>
-                  <TableCell>
-                    <Select
-                      value={report.status ? 'true' : 'false'}
-                      onValueChange={(value: 'true' | 'false') => handleStatusChangeWithWarning(report.id, value === 'true')}
-                      disabled={report.status === false}
-                    >
-                      <SelectTrigger className="w-[200px]">
-                        <SelectValue>{report.status ? 'abierto' : 'cerrado'}</SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">abierto</SelectItem>
-                        <SelectItem value="false">cerrado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" onClick={() => handleViewReport(report)} disabled={isLoading}>
-                      Ver Completo
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="flex justify-center mt-4">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <Button
-                key={index}
-                onClick={() => handlePageChange(index + 1)}
-                variant={currentPage === index + 1 ? 'default' : 'outline'}
-                className="mx-1"
-              >
-                {index + 1}
-              </Button>
-            ))}
-          </div>
-        </>
+        <ReportsTable
+          currentReports={currentReports}
+          sortOrder={sortOrder}
+          handleSortChange={handleSortChange}
+          handleStatusChangeWithWarning={handleStatusChangeWithWarning}
+          handleViewReport={handleViewReport}
+          isLoading={isLoading}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          handlePageChange={handlePageChange}
+        />
       )}
 
+      {/* Modal para ver reporte completo */}
       <Dialog open={openModal} onOpenChange={setOpenModal}>
         <DialogContent className="max-w-[95vw] h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Parte Diario</DialogTitle>
             <DialogDescription className="flex items-center space-x-4">
-  <span>Fecha: {selectedReport?.date ? moment(selectedReport.date).format('DD/MM/YYYY') : ''}</span>
-  <div className="grid grid-cols-3 y gap-4 w-full">
-    <div className="col-span-1 flex">
-      <InfoComponent
-        size='sm'
-        message={`Los empleados no afectados y sin diagrama no se muestran.`}
-      />
-    </div>
-    <div className="col-span-1 flex">
-      <InfoComponent
-        size='sm'
-        message={`Los clientes dados de baja no se muestran.`}
-      />
-    </div>
-    <div className="col-span-1 flex">
-      <InfoComponent
-        size='sm'
-        message={`Los servicios vencidos o de baja no se muestran.`}
-      />
-    </div>
-  </div>
-</DialogDescription>
+              <span>Fecha: {selectedReport?.date ? moment(selectedReport.date).format("DD/MM/YYYY") : ""}</span>
+              <div className="grid grid-cols-3 y gap-4 w-full">
+                <div className="col-span-1 flex">
+                  <InfoComponent size="sm" message={`Los empleados no afectados y sin diagrama no se muestran.`} />
+                </div>
+                <div className="col-span-1 flex">
+                  <InfoComponent size="sm" message={`Los clientes dados de baja no se muestran.`} />
+                </div>
+                <div className="col-span-1 flex">
+                  <InfoComponent size="sm" message={`Los servicios vencidos o de baja no se muestran.`} />
+                </div>
+              </div>
+            </DialogDescription>
           </DialogHeader>
           <div className="flex-grow overflow-auto">
             {selectedReport ? (
@@ -369,26 +149,34 @@ const [allReport, setAllreport] = useState<DailyReportData[]>([]);
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={handleCloseModal}>Cerrar</Button>
-            {/* <Button onClick={() => selectedReport && handleSaveReport(selectedReport)}>Guardar Cambios</Button> */}
+            <Button variant="outline" onClick={handleCloseModal}>
+              Cerrar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Diálogo de confirmación para cerrar reporte */}
       <Dialog open={warningDialogOpen} onOpenChange={setWarningDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Advertencia</DialogTitle>
             <DialogDescription>
-              Si cambias el estado a cerrado, no podrás editar este reporte ni cambiar su estado nuevamente a abierto. ¿Deseas continuar?
+              Si cambias el estado a cerrado, no podrás editar este reporte ni cambiar su estado nuevamente a abierto.
+              ¿Deseas continuar?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setWarningDialogOpen(false)}>Cancelar</Button>
-            <Button variant="destructive" onClick={confirmStatusChange}>Confirmar</Button>
+            <Button variant="outline" onClick={() => setWarningDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmStatusChange}>
+              Confirmar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
+

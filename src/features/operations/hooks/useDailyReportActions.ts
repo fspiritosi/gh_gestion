@@ -14,22 +14,38 @@ export function useDailyReportActions(
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingData, setEditingData] = useState<DailyReportItem | null>(null)
 
+  // Reemplazar la función handleEdit con esta versión mejorada
   const handleEdit = (id: string) => {
     const itemToEdit = dailyReport.find((item) => item.id === id)
     if (itemToEdit) {
-      // Asegurarse de que todos los campos necesarios estén presentes
+      // Asegurarse de que todos los campos están presentes y con el formato correcto
       const completeItemToEdit = {
         ...itemToEdit,
+        customer: itemToEdit.customer ? String(itemToEdit.customer) : "",
+        services: itemToEdit.services ? String(itemToEdit.services) : "",
+        item: itemToEdit.item ? String(itemToEdit.item) : "",
         employees: itemToEdit.employees || [],
         equipment: itemToEdit.equipment || [],
         working_day: itemToEdit.working_day || "",
         status: itemToEdit.status || "pendiente",
         description: itemToEdit.description || "",
+        start_time: itemToEdit.start_time || "",
+        end_time: itemToEdit.end_time || "",
       }
 
-      setEditingId(id)
-      setEditingData(completeItemToEdit)
-      setIsEditing(true)
+      console.log("Datos completos para edición:", completeItemToEdit)
+
+      // Primero limpiar los estados anteriores
+      setEditingData(null)
+      setEditingId(null)
+      setIsEditing(false)
+
+      // Luego establecer los nuevos valores con un pequeño retraso
+      setTimeout(() => {
+        setEditingId(id)
+        setEditingData(completeItemToEdit)
+        setIsEditing(true)
+      }, 50)
     }
   }
 
