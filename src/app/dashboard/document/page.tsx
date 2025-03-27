@@ -5,7 +5,7 @@ import EmployeeDocumentsTabs from '@/features/(Employees)/modules/documents/comp
 import TypesDocumentAction from '@/features/(Employees)/modules/documents_types/components/TypesDocumentAction';
 import TypesDocumentsView from '@/features/(Employees)/modules/documents_types/components/TypesDocumentsView';
 import CompanyTabs from '@/features/company/components/tabs/CompanyTabs';
-import EquipmentTabs from '@/features/equipment/components/tabs/EquipmentTabs';
+import EquipmentTabs from '@/features/equipments/components/EquipmentTabs';
 import { supabaseServer } from '@/lib/supabase/server';
 import { CompanyDocumentsType } from '@/store/loggedUser';
 import { cookies } from 'next/headers';

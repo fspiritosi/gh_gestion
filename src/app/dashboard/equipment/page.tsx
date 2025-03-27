@@ -8,8 +8,8 @@ import { Suspense } from 'react';
 import DocumentNav from '@/features/(Employees)/modules/documents/components/DocumentNav';
 import TypesDocumentAction from '@/features/(Employees)/modules/documents_types/components/TypesDocumentAction';
 import TypesDocumentsView from '@/features/(Employees)/modules/documents_types/components/TypesDocumentsView';
-import EquipmentTabs from '@/features/equipment/components/tabs/EquipmentTabs';
 import EquipmentListTabs from '@/features/equipments/components/EquipmentListTabs';
+import EquipmentTabs from '@/features/equipments/components/EquipmentTabs';
 export default async function Equipment() {
   const viewData = {
     defaultValue: 'equipos',
