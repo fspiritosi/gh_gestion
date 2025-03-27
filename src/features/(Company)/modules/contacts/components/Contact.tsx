@@ -1,7 +1,7 @@
-import { columns } from '@/features/company/modules/contacts/components/ui/columns';
-import { DataContacts } from '@/features/company/modules/contacts/components/ui/data-table';
+import { DataContacts } from '@/app/dashboard/company/actualCompany/contact/data-table';
 import { cookies } from 'next/headers';
 import { supabase } from '../../../../../../supabase/supabase';
+import { columns } from './ui/columns';
 
 export default async function Contact() {
   const coockiesStore = cookies();

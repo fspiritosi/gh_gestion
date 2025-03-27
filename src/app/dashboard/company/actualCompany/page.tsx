@@ -2,30 +2,26 @@
 // import DangerZoneComponent from '@/components/DangerZoneComponent';
 import DocumentTabComponent from '@/components/DocumentTabComponent';
 // import EditCompanyButton from '@/components/EditCompanyButton';
-import _EditCompanyButton from '@/features/company/components/ui/_EditCompanyButton';
+import _EditCompanyButton from '@/features/(Company)/components/ui/_EditCompanyButton';
 // import { RegisterWithRole } from '@/components/RegisterWithRole';
-import { RegisterWithRole } from '@/features/company/modules/users/components/RegisterWithRole';
-// import CreatedForm from '@/components/CreatedForm';
+
 // import ServiceComponent from '@/components/Services/ServiceComponent';
 import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
-import ServiceComponent from '@/features/company/modules/services/components/ServiceComponent';
 // import UsersTabComponent from '@/components/UsersTabComponent';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
-import UsersTabComponent from '@/features/company/modules/users/components/UsersTabComponent';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
-// import CovenantTreeFile from '../../../../features/(Employees)/modules/convenios/CovenantTreeFile';
-// import Contacts from './contact/Contact';
-import Contacts from '@/features/company/modules/contacts/components/Contact';
-// import CovenantRegister from './covenant/CovenantRegister';
-// import CovenantTreeFile from './covenant/CovenantTreeFile';
-import CovenantTreeFile from '@/features/company/modules/covenant/components/CovenantTreeFile';
 // import Customers from './customers/Customers';
+import CompanyFeat from '@/features/(Company)/CompanyFeat';
+import Contact from '@/features/(Company)/modules/contacts/components/Contact';
+import CovenantTreeFile from '@/features/(Company)/modules/covenant/components/CovenantTreeFile';
+import Customers from '@/features/(Company)/modules/customers/components/Customers';
+import ServiceComponent from '@/features/(Company)/modules/services/components/ServiceComponent';
+import { RegisterWithRole } from '@/features/(Company)/modules/users/components/RegisterWithRole';
+import UsersTabComponent from '@/features/(Company)/modules/users/components/UsersTabComponent';
 import TypesDocumentAction from '@/features/(Employees)/modules/documents_types/components/TypesDocumentAction';
-import CompanyFeat from '@/features/company/CompanyFeat';
-import Customers from '@/features/company/modules/customers/components/Customers';
 export default async function CompanyPage() {
   const coockiesStore = cookies();
   const company_id = coockiesStore.get('actualComp')?.value;
@@ -114,7 +110,7 @@ export default async function CompanyPage() {
               Registrar Contacto
             </Link>
           ),
-          component: <Contacts />,
+          component: <Contact />,
         },
       },
       {

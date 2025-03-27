@@ -1,10 +1,10 @@
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import Viewcomponent from '@/components/ViewComponent';
+import CompanyTabs from '@/features/(Company)/components/tabs/CompanyTabs';
 import DocumentNav from '@/features/(Employees)/modules/documents/components/DocumentNav';
 import EmployeeDocumentsTabs from '@/features/(Employees)/modules/documents/components/EmployeeDocumentsTabs';
 import TypesDocumentAction from '@/features/(Employees)/modules/documents_types/components/TypesDocumentAction';
 import TypesDocumentsView from '@/features/(Employees)/modules/documents_types/components/TypesDocumentsView';
-import CompanyTabs from '@/features/company/components/tabs/CompanyTabs';
 import EquipmentTabs from '@/features/equipments/components/EquipmentTabs';
 import { supabaseServer } from '@/lib/supabase/server';
 import { CompanyDocumentsType } from '@/store/loggedUser';

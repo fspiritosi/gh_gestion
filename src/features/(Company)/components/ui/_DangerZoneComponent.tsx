@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { useCompanyStore } from '@/features/company/store/companyStore';
+import { useCompanyStore } from '@/features/(Company)/store/companyStore';
 import { useEffect, useState } from 'react';
 
 export default function DangerZoneComponent() {
