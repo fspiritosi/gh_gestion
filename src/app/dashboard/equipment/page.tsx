@@ -1,14 +1,15 @@
-import DocumentNav from '@/components/DocumentNav';
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import TypesDocumentsView from '../../../features/(Employees)/modules/documents_types/TypesDocumentsView';
-import EquipmentTabs from '../document/documentComponents/EquipmentTabs';
-import TypesDocumentAction from '../document/documentComponents/TypesDocumentAction';
-import EquipmentListTabs from './equipmentComponentes/EquipmentListTabs';
+
+import DocumentNav from '@/features/(Employees)/modules/documents/components/DocumentNav';
+import TypesDocumentAction from '@/features/(Employees)/modules/documents_types/components/TypesDocumentAction';
+import TypesDocumentsView from '@/features/(Employees)/modules/documents_types/components/TypesDocumentsView';
+import EquipmentTabs from '@/features/equipment/components/tabs/EquipmentTabs';
+import EquipmentListTabs from '@/features/equipments/components/EquipmentListTabs';
 export default async function Equipment() {
   const viewData = {
     defaultValue: 'equipos',

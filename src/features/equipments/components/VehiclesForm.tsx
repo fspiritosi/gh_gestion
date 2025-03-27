@@ -1,41 +1,40 @@
 'use client';
 
+import AddTypeModal from '@/components/AddTypeModal';
+import BackButton from '@/components/BackButton';
 import { CheckboxDefaultValues } from '@/components/CheckboxDefValues';
+import { ImageHander } from '@/components/ImageHandler';
+import { Modal } from '@/components/Modal';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { Form } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { onCreate, onUpdate } from '@/features/equipments/action/actions';
+import { getVehicleSchema } from '@/features/equipments/schemas/schemas';
+import { dataType, generic } from '@/features/equipments/type/type';
+import { downloadQR, handleImageChange, printQR } from '@/features/equipments/utils/utils';
 import { useImageUpload } from '@/hooks/useUploadImage';
-import { handleSupabaseError } from '@/lib/errorHandler';
 import { cn } from '@/lib/utils';
 import { useCountriesStore } from '@/store/countries';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CaretSortIcon, CheckIcon, PlusCircledIcon } from '@radix-ui/react-icons';
-import { toPng } from 'html-to-image';
 import { AlertTriangle, CheckCircle, Copy, Download, Info, Printer, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { ChangeEvent, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { RiToolsFill } from 'react-icons/ri';
-
+import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { supabase } from '../../supabase/supabase';
-import BackButton from './BackButton';
-import { ImageHander } from './ImageHandler';
-import { Modal } from './Modal';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Badge } from './ui/badge';
-import { CardDescription, CardHeader, CardTitle } from './ui/card';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
-import { Input } from './ui/input';
+import { supabase } from '../../../../supabase/supabase';
+
 require('dotenv').config();
-// import { useToast } from './ui/use-toast'
-import { VehicleType, dataType, generic } from '@/features/equipments/type/type';
-import QRCode from 'react-qr-code';
-import AddTypeModal from './AddTypeModal';
 
 export default function VehiclesForm2({
   vehicle,
@@ -56,7 +55,6 @@ export default function VehiclesForm2({
 
   const fetchLogged = useLoggedUserStore((state) => state.loggedUser);
 
-  // Memoiza la función loggedUser
   const fetchLoggedUser = useCallback(() => {
     fetchLogged();
   }, [fetchLogged]);
@@ -90,167 +88,6 @@ export default function VehiclesForm2({
 
   const router = useRouter();
   const [hideInput, setHideInput] = useState(false);
-  const vehicleSchema = z.object({
-    brand: z
-      .string({
-        required_error: 'La marca es requerida',
-      })
-      .optional(),
-    model: z
-      .string({
-        required_error: 'El modelo es requerido',
-      })
-      .optional(),
-    year: z.string({ required_error: 'El año es requerido' }).refine(
-      (e) => {
-        const year = Number(e);
-        const actualYear = new Date().getFullYear();
-        if (year !== undefined) {
-          // Aquí puedes usar year de manera segura
-          if (year < 1900 || year > actualYear) {
-            return false;
-          } else {
-            return true;
-          }
-        } else {
-          return 0;
-        }
-      },
-      {
-        message: 'El año debe ser mayor a 1900 y menor al año actual.',
-      }
-    ),
-    engine: z
-      .string({
-        required_error: 'El motor es requerido',
-      })
-      .min(2, {
-        message: 'El motor debe tener al menos 2 caracteres.',
-      })
-      .max(30, { message: 'El motor debe tener menos de 30 caracteres.' })
-      .optional(),
-
-    type_of_vehicle: z.string({ required_error: 'El tipo es requerido' }),
-    chassis: hideInput
-      ? z
-          .string({
-            required_error: 'El chasis es requerido',
-          })
-          .min(2, {
-            message: 'El chasis debe tener al menos 2 caracteres.',
-          })
-          .max(30, { message: 'El chasis debe tener menos de 30 caracteres.' })
-      : z.string().optional(),
-    kilometer: z.string().optional(),
-    domain: hideInput
-      ? z
-          .string({
-            required_error: 'El dominio es requerido',
-          })
-          .min(6, {
-            message: 'El dominio debe tener al menos 6 caracteres.',
-          })
-          .max(7, { message: 'El dominio debe tener menos de 7 caracteres.' })
-          .refine(
-            (e) => {
-              //old regex para validar dominio AAA000 (3 letras y 3 numeros)
-              const year = Number(form.getValues('year'));
-
-              const oldRegex = /^[A-Za-z]{3}[0-9]{3}$/;
-              if (year !== undefined) {
-                if (year <= 2015) {
-                  return oldRegex.test(e);
-                } else {
-                  return true;
-                }
-              } else {
-                return 0;
-              }
-            },
-            {
-              message: 'El dominio debe tener el formato AAA000. (verificar año)',
-            }
-          )
-          .refine(
-            (e) => {
-              const year = Number(form.getValues('year'));
-
-              const newRegex = /^[A-Za-z]{2}[0-9]{3}[A-Za-z]{2}$/;
-              if (year !== undefined) {
-                if (year >= 2017) {
-                  return newRegex.test(e);
-                } else {
-                  return true;
-                }
-              } else {
-                return 0;
-              }
-            },
-            {
-              message: 'El dominio debe tener el formato AA000AA. (verificar año)',
-            }
-          )
-          .refine(
-            (e) => {
-              const year = Number(form.getValues('year'));
-
-              const newRegex = /^[A-Za-z]{2}[0-9]{3}[A-Za-z]{2}$/;
-              const oldRegex = /^[A-Za-z]{3}[0-9]{3}$/;
-              if (year !== undefined) {
-                if (year === 2016 || year === 2015) {
-                  const result = newRegex.test(e) || oldRegex.test(e);
-                  return result;
-                } else {
-                  return true;
-                }
-              } else {
-                return 0;
-              }
-            },
-            {
-              message: 'El dominio debe tener uno de los siguientes formatos AA000AA o AAA000',
-            }
-          )
-          .refine(
-            async (domain: string) => {
-              let { data: vehicles, error } = await supabase
-                .from('vehicles')
-                .select('*')
-                .eq('domain', domain.toUpperCase());
-
-              if (vehicles?.[0] && window.location.href.includes('/dashboard/equipment/action?action=new')) {
-                return false;
-              } else {
-                return true;
-              }
-            },
-            { message: 'El dominio ya existe' }
-          )
-      : z.string().optional().nullable(),
-    serie: hideInput
-      ? z.string().optional()
-      : z
-          .string({
-            required_error: 'La serie es requerida',
-          })
-          .min(2, {
-            message: 'La serie debe tener al menos 2 caracteres.',
-          })
-          .max(30, { message: 'La serie debe tener menos de 3- caracteres.' }),
-    intern_number: z
-      .string({
-        required_error: 'El número interno es requerido',
-      })
-      .min(2, {
-        message: 'El número interno debe tener al menos 2 caracteres.',
-      })
-      .max(30, {
-        message: 'El número interno debe tener menos de 30 caracteres.',
-      }),
-    picture: z.string().optional(),
-    type: hideInput ? z.string().optional() : z.string({ required_error: 'El tipo es requerido' }),
-    allocated_to: z.array(z.string()).optional(),
-  });
   const [readOnly, setReadOnly] = useState(accion === 'view' ? true : false);
 
   const fetchData = async () => {
@@ -290,7 +127,7 @@ export default function VehiclesForm2({
 
   const types = data.tipe_of_vehicles?.map((e) => e.name);
   const vehicleModels = data.models;
-
+  const vehicleSchema = getVehicleSchema(hideInput);
   const form = useForm<z.infer<typeof vehicleSchema>>({
     resolver: zodResolver(vehicleSchema),
     defaultValues: {
@@ -324,235 +161,38 @@ export default function VehiclesForm2({
   const mandatoryDocuments = useCountriesStore((state) => state.mandatoryDocuments);
   const loggedUser = useLoggedUserStore((state) => state.credentialUser?.id);
 
-  async function onCreate(values: z.infer<typeof vehicleSchema>) {
-    toast.promise(
-      async () => {
-        const { type_of_vehicle, brand, model, domain } = values;
-
-        try {
-          const { data: vehicle, error } = await supabase
-            .from('vehicles')
-            .insert([
-              {
-                ...values,
-                domain: domain?.toUpperCase() || null,
-                type_of_vehicle: data.tipe_of_vehicles.find((e) => e.name === type_of_vehicle)?.id,
-                brand: brand_vehicles?.find((e) => e.name === brand)?.id,
-                model: data.models.find((e) => e.name === model)?.id,
-                type: vehicleType.find((e) => e.name === values.type)?.id,
-                company_id: actualCompany?.id,
-                condition: 'operativo',
-                kilometer: values.kilometer || 0,
-              },
-            ])
-            .select();
-
-          const documentsMissing: {
-            applies: number;
-            id_document_types: string;
-            validity: string | null;
-            user_id: string | undefined;
-          }[] = [];
-
-          mandatoryDocuments?.Equipos?.forEach((document) => {
-            documentsMissing.push({
-              applies: vehicle?.[0]?.id,
-              id_document_types: document.id,
-              validity: null,
-              user_id: loggedUser,
-            });
-          });
-
-          const { data: documentData, error: documentError } = await supabase
-            .from('documents_equipment')
-            .insert(documentsMissing)
-            .select();
-
-          if (documentError) {
-            throw new Error(handleSupabaseError(documentError.message));
-          }
-
-          if (error) {
-            throw new Error(handleSupabaseError(error.message));
-          }
-
-          const id = vehicle?.[0].id;
-
-          const fileExtension = imageFile?.name.split('.').pop();
-
-          if (imageFile) {
-            try {
-              const renamedFile = new File([imageFile], `${id.replace(/\s/g, '')}.${fileExtension}`, {
-                type: `image/${fileExtension}`,
-              });
-              await uploadImage(renamedFile, 'vehicle_photos');
-
-              try {
-                const vehicleImage = `${url}/vehicle_photos/${id}.${fileExtension}`.trim().replace(/\s/g, '');
-
-                const { data, error } = await supabase
-                  .from('vehicles')
-                  .update({ picture: vehicleImage })
-                  .eq('id', id)
-                  .eq('company_id', actualCompany?.id);
-              } catch (error) {}
-            } catch (error: any) {
-              throw new Error(handleSupabaseError(error.message));
-            }
-          }
-
-          router.push('/dashboard/equipment');
-        } catch (error) {
-          console.error(error);
-        }
-      },
-      {
-        loading: 'Guardando...',
-        success: 'equipo registrado',
-        error: (error) => {
-          return error;
-        },
-      }
-    );
-  }
   const { uploadImage } = useImageUpload();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [base64Image, setBase64Image] = useState<string>('');
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  // const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
 
-    if (file) {
-      setImageFile(file);
-      // Convertir la imagen a base64
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target && typeof e.target.result === 'string') {
-          setBase64Image(e.target.result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+  //   if (file) {
+  //     setImageFile(file);
+  //     // Convertir la imagen a base64
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       if (e.target && typeof e.target.result === 'string') {
+  //         setBase64Image(e.target.result);
+  //       }
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+  const handleImageChangeWrapper = (event: ChangeEvent<HTMLInputElement>) => {
+    handleImageChange(event, setImageFile, setBase64Image);
   };
 
-  async function onUpdate(values: z.infer<typeof vehicleSchema>) {
-    function compareContractorEmployees(originalObj: VehicleType | null, modifiedObj: z.infer<typeof vehicleSchema>) {
-      const originalSet = new Set(originalObj?.allocated_to);
-      const modifiedSet = new Set(modifiedObj?.allocated_to);
-      // Valores a eliminar
-      const valuesToRemove = [...originalSet].filter((value) => !modifiedSet.has(value));
+  const downloadQRWrapper = () => {
+    downloadQR(qrCodeRef, vehicle?.domain || vehicle?.serie || 'QR');
+  };
 
-      // Valores a agregar
-      const valuesToAdd = [...modifiedSet].filter((value) => !originalSet.has(value));
+  const printQRWrapper = () => {
+    printQR(qrCodeRef);
+  };
 
-      // Valores que se mantienen
-      const valuesToKeep = [...originalSet].filter((value) => modifiedSet.has(value));
-
-      return {
-        valuesToRemove,
-        valuesToAdd,
-        valuesToKeep,
-      };
-    }
-
-    function getUpdatedFields(originalObj: any, modifiedObj: any) {
-      const updatedFields: any = {};
-      for (const key in modifiedObj) {
-        if (modifiedObj[key] !== originalObj[key]) {
-          updatedFields[key] = modifiedObj[key];
-        }
-      }
-      return updatedFields;
-    }
-
-    toast.promise(
-      async () => {
-        const { brand_vehicles: brandd, model_vehicles, types_of_vehicles, ...rest } = vehicle;
-        const result = compareContractorEmployees(rest, values);
-
-        result.valuesToRemove.forEach(async (e) => {
-          const { error } = await supabase
-            .from('contractor_equipment')
-            .delete()
-            .eq('equipment_id', vehicle?.id)
-            .eq('contractor_id', e);
-          if (error) return handleSupabaseError(error.message);
-        });
-
-        const error2 = await Promise.all(
-          result.valuesToAdd.map(async (e) => {
-            if (!result.valuesToKeep.includes(e)) {
-              const { error } = await supabase
-                .from('contractor_equipment')
-                .insert({ equipment_id: vehicle?.id, contractor_id: e });
-              if (error) return handleSupabaseError(error.message);
-            }
-          })
-        );
-
-        const updatedFields = getUpdatedFields(rest, {
-          type_of_vehicle: data.tipe_of_vehicles.find((e) => e.name === values.type_of_vehicle)?.id,
-          brand: brand_vehicles?.find((e: any) => e.name === values.brand)?.id,
-          model: data.models.find((e) => e.name === values.model)?.id,
-          year: values.year,
-          engine: values.engine,
-          chassis: values.chassis,
-          serie: values.serie,
-          domain: values.domain?.toUpperCase(),
-          intern_number: values.intern_number,
-          picture: values.picture,
-          allocated_to: values.allocated_to,
-          kilometer: values.kilometer,
-          type: vehicleType.find((e) => e.name === values.type)?.id,
-        });
-
-        try {
-          const { error: updatedERROR } = await supabase
-            .from('vehicles')
-            .update(updatedFields)
-            .eq('id', vehicle?.id)
-            .eq('company_id', actualCompany?.id);
-
-          const id = vehicle?.id;
-          const fileExtension = imageFile?.name.split('.').pop();
-          if (imageFile) {
-            try {
-              const renamedFile = new File([imageFile], `${id?.replace(/\s/g, '')}.${fileExtension}`, {
-                type: `image/${fileExtension}`,
-              });
-              await uploadImage(renamedFile, 'vehicle_photos');
-
-              try {
-                const vehicleImage = `${url}/vehicle_photos/${id}.${fileExtension}?timestamp=${Date.now()}`
-                  .trim()
-                  .replace(/\s/g, '');
-                const { data, error } = await supabase
-                  .from('vehicles')
-                  .update({ picture: vehicleImage })
-                  .eq('id', id)
-                  .eq('company_id', actualCompany?.id);
-              } catch (error) {}
-            } catch (error: any) {
-              throw new Error('Error al subir la imagen');
-            }
-          }
-
-          setReadOnly(true);
-          router.refresh();
-        } catch (error) {
-          console.log(error);
-          throw new Error('Error al editar el equipo');
-        }
-      },
-      {
-        loading: 'Guardando...',
-        success: 'equipo editado',
-        error: (error) => {
-          return error;
-        },
-      }
-    );
-  }
   const variants: any = {
     operativo: 'success',
     'no operativo': 'destructive',
@@ -571,46 +211,64 @@ export default function VehiclesForm2({
   const qrUrl = `${URLQR}maintenance?equipment=${vehicle?.id}`;
   const qrCodeRef = useRef<HTMLDivElement>(null);
 
-  const downloadQR = async () => {
-    if (!qrCodeRef.current) return;
+  // const downloadQR = async () => {
+  //   if (!qrCodeRef.current) return;
 
-    try {
-      const dataUrl = await toPng(qrCodeRef.current);
+  //   try {
+  //     const dataUrl = await toPng(qrCodeRef.current);
 
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `qr-code${vehicle.domain || vehicle.serie}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error('Error generating image:', error);
+  //     const link = document.createElement('a');
+  //     link.href = dataUrl;
+  //     link.download = `qr-code${vehicle.domain || vehicle.serie}.png`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   } catch (error) {
+  //     console.error('Error generating image:', error);
+  //   }
+  // };
+
+  // const printQR = () => {
+  //   if (!qrCodeRef.current) return;
+
+  //   const qrCodeElement = qrCodeRef.current;
+  //   const iframe = document.createElement('iframe');
+  //   iframe.style.position = 'absolute';
+  //   iframe.style.width = '0';
+  //   iframe.style.height = '0';
+  //   iframe.style.border = 'none';
+  //   document.body.appendChild(iframe);
+
+  //   const iframeDoc = iframe.contentWindow?.document;
+  //   if (iframeDoc) {
+  //     iframeDoc.write('<html><head><title>Print QR Code</title></head><body>');
+  //     iframeDoc.write(qrCodeElement.innerHTML);
+  //     iframeDoc.write('</body></html>');
+  //     iframeDoc.close();
+  //     iframe.contentWindow?.focus();
+  //     iframe.contentWindow?.print();
+  //   }
+
+  //   document.body.removeChild(iframe);
+  // };
+  const handleSubmitForm = (values: any) => {
+    if (accion === 'edit' || accion === 'view') {
+      return onUpdate(
+        vehicle,
+        values,
+        uploadImage,
+        imageFile,
+        actualCompany,
+        vehicleType,
+        data,
+        brand_vehicles,
+        router
+      );
+    } else {
+      return onCreate(values, uploadImage, imageFile, actualCompany, vehicleType, data, brand_vehicles, router);
     }
   };
 
-  const printQR = () => {
-    if (!qrCodeRef.current) return;
-
-    const qrCodeElement = qrCodeRef.current;
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
-
-    const iframeDoc = iframe.contentWindow?.document;
-    if (iframeDoc) {
-      iframeDoc.write('<html><head><title>Print QR Code</title></head><body>');
-      iframeDoc.write(qrCodeElement.innerHTML);
-      iframeDoc.write('</body></html>');
-      iframeDoc.close();
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
-    }
-
-    document.body.removeChild(iframe);
-  };
   return (
     <section className="grid max-w-full ">
       <header className="flex justify-between gap-4 flex-wrap">
@@ -695,10 +353,7 @@ export default function VehiclesForm2({
         </TabsList>
         <TabsContent value="equipment" className="px-3 py-2">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(accion === 'edit' || accion === 'view' ? onUpdate : onCreate)}
-              className="w-full"
-            >
+            <form onSubmit={form.handleSubmit(handleSubmitForm)} className="w-full">
               <div className=" flex gap-[2vw] flex-wrap items-center">
                 <FormField
                   control={form.control}
@@ -1180,7 +835,7 @@ export default function VehiclesForm2({
                             <ImageHander
                               labelInput="Subir foto"
                               desciption="Subir foto del equipo"
-                              handleImageChange={handleImageChange}
+                              handleImageChange={handleImageChangeWrapper}
                               base64Image={base64Image} //nueva
                               disabled={readOnly}
                               inputStyle={{
@@ -1219,11 +874,11 @@ export default function VehiclesForm2({
                     <QRCode id="vehicle-qr-code" value={qrUrl} size={300} level="H" />
                   </div>
                   <div className="flex space-x-2">
-                    <Button onClick={downloadQR} size="sm">
+                    <Button onClick={downloadQRWrapper} size="sm">
                       <Download className="w-4 h-4 mr-2" />
                       Descargar
                     </Button>
-                    <Button onClick={printQR} size="sm">
+                    <Button onClick={printQRWrapper} size="sm">
                       <Printer className="w-4 h-4 mr-2" />
                       Imprimir
                     </Button>

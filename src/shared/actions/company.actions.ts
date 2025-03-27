@@ -3,19 +3,24 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
+const URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 export const fetchCurrentCompany = async () => {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
-  const { data, error } = await supabase.from('company').select('*').eq('id', company_id);
+  const companyResponse = await fetch(`${URL}/api/company/?actual=${company_id}`);
+  const companyDataResponse = companyResponse.ok ? await companyResponse.json() : null;
 
-  if (error) {
-    console.error('Error fetching company:', error);
-    return [];
+  const companyData = companyDataResponse.data[0];
+
+  if (!companyData) {
+    console.error('Error fetching company:');
+    return null;
   }
-  return data;
+  return companyData as Company;
 };
 
 export const fetchUserCompanies = async (userId: string) => {

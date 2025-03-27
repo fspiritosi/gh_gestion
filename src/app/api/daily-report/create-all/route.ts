@@ -246,7 +246,7 @@ export async function POST(request: NextRequest) {
         throw new Error(`Error creando parte diario: ${error?.message || 'No se pudo crear el parte diario'}`);
       }
 
-      dailyReportId = data[0].id;
+      dailyReportId = data[0];
     } else {
       // Si `editingId` está presente, actualizar el parte diario existente
       const { data, error } = await supabase
@@ -259,7 +259,7 @@ export async function POST(request: NextRequest) {
         throw new Error(`Error editando parte diario: ${error?.message || 'No se pudo editar el parte diario'}`);
       }
 
-      dailyReportId = data[0].id;
+      dailyReportId = data[0];
     }
     //console.log(dailyReportId);
     // 2. Insertar filas en la tabla dailyReportRow
@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Obtener todos los IDs de las filas insertadas
-      dailyReportRowIds = rowData.map((row) => row.id); // Almacenar todos los IDs
+      dailyReportRowIds = rowData.map((row) => row); // Almacenar todos los IDs
     }
 
     // 3. Relacionar empleados en dailyReportEmployeeRelations

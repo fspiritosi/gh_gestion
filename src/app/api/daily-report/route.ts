@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const supabase = supabaseServer();
   const searchParams = request.nextUrl.searchParams;
   const company_id = searchParams.get('actual');
-  //console.log('company_id', company_id);
+  console.log('company_id', company_id);
   try {
     let { data: dailyReports, error } = await supabase
       .from('dailyreport')

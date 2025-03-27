@@ -1,10 +1,8 @@
 'use client';
 
+import { DetailTable } from '@/components/DailyReport/tables/Data-table-DetailDailyReport';
+import { detailColumns } from '@/components/DailyReport/tables/DetailReportColumms';
 import { useEffect, useState } from 'react';
-// import { DetailTable } from '@/components/DailyReport/tables/Data-table-DetailDailyReport';
-import { DetailTable } from '@/features/operations/components/ui/Data-table-DetailDailyReport';
-import { detailColumns } from '@/features/operations/components/ui/DetailReportColumms';
-// import { DatePicker } from '@/components/DailyReport/DatePicker';
 // import { cookies } from 'next/headers';
 import cookies from 'js-cookie';
 import moment from 'moment';
@@ -59,8 +57,18 @@ export default function DailyReportDetail() {
   });
 
   return (
+    // <div>
+    //   <div className="flex">
+    //     <div>
+    //       <DatePicker date={startDate} setDate={setStartDate} label="Seleccionar fecha de inicio" />
+    //     </div>
+    //     <div>
+    //       <DatePicker date={endDate} setDate={setEndDate} label="Seleccionar fecha de fin" />
+    //     </div>
+    //   </div>
     <div>
       <DetailTable columns={detailColumns} data={filteredData || []} />
     </div>
+    // </div>
   );
 }
