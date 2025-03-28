@@ -66,7 +66,9 @@ export function ModeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative !border-0 hover:bg-accent hover:text-accent-foreground">
-          <span className="animate-in fade-in zoom-in duration-300">{getCurrentIcon()}</span>
+          <span className="animate-in fade-in zoom-in duration-300">
+            <Monitor className="h-[1.2rem] w-[1.2rem]" />
+          </span>
           <span className="sr-only">Seleccionar tema</span>
         </Button>
       </DropdownMenuTrigger>

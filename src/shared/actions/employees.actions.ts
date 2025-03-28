@@ -7,7 +7,10 @@ export const fetchAllEmployees = async (role?: string) => {
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
   const user = await fetchCurrentUser();
+  console.log(company_id, 'company_id');
   if (!company_id) return [];
+
+  console.log(user, 'user');
 
   if (role === 'Invitado') {
     const { data, error } = await supabase
@@ -31,8 +34,6 @@ export const fetchAllEmployees = async (role?: string) => {
     )
     .eq('company_id', company_id)
     .returns<EmployeeDetailed[]>();
-
-  console.log(data?.find((employee) => employee.email === 'rubenhectorlucero54@gmail.com')?.contractor_employee[0]);
 
   if (error) {
     console.error('Error fetching employees:', error);

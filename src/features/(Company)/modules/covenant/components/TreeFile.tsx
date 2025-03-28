@@ -1,7 +1,7 @@
 'use client';
-import AddCategoryModal from '@/features/company/modules/covenant/components/AddCategoryModal';
-import AddCovenantModal from '@/features/company/modules/covenant/components/AddCovenantModal';
-import AddGuildModal from '@/features/company/modules/covenant/components/AddGuildModal';
+import AddCategoryModal from '@/features/(Employees)/modules/convenios/components/AddCategoryModal';
+import AddCovenantModal from '@/features/(Employees)/modules/convenios/components/AddCovenantModal';
+import AddGuildModal from '@/features/(Employees)/modules/convenios/components/AddGuildModal';
 import { ChevronDown, ChevronRight, FileText, FolderClosed, FolderOpen } from 'lucide-react';
 import React, { useState } from 'react';
 

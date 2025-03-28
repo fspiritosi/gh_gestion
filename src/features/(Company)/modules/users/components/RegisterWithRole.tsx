@@ -16,8 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Toggle } from '@/components/ui/toggle';
 import { useCompanyStore } from '@/features/(Company)/store/companyStore';
-import { createUserWithRole } from '@/features/company/modules/users/actions/actions';
-import { registerSchemaWithRole } from '@/features/company/modules/users/schemas/schemas';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons';
@@ -27,6 +25,8 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { supabase } from '../../../../../../supabase/supabase';
+import { createUserWithRole } from '../actions/actions';
+import { registerSchemaWithRole } from '../schemas/schemas';
 export const RegisterWithRole = () => {
   const [showPasswords, setShowPasswords] = useState(false);
   const [open, setOpen] = useState(false);

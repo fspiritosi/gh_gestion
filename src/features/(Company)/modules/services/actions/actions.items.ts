@@ -1,5 +1,5 @@
-import { Item, Service } from '@/features/company/modules/services/types/types';
 import { toast } from 'sonner';
+import { Item, Service } from '../types/types';
 
 const URL = process.env.NEXT_PUBLIC_BASE_URL;
 

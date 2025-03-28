@@ -11,6 +11,9 @@ import { fetchAllEquipment } from '@/shared/actions/equipment.actions';
 export default async function DashboardComponent() {
   const employees = await fetchAllEmployees();
   const equipments = await fetchAllEquipment();
+
+  console.log(employees);
+
   return (
     <div className="">
       <section className="grid sm:grid-cols-2 grid-cols-1 gap-6 mx-7">

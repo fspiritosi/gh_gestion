@@ -7,18 +7,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  ServiceSubmit,
-  ServiceUpdate,
-  handleDeactivateService,
-} from '@/features/company/modules/services/actions/actions.services';
-import { ServiceSchema } from '@/features/company/modules/services/schemas/schemas';
-import { Service } from '@/features/company/modules/services/types/types';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { ServiceSubmit, ServiceUpdate, handleDeactivateService } from '../actions/actions.services';
+import { ServiceSchema } from '../schemas/schemas';
+import { Service } from '../types/types';
 
 export default function ServicesForm({
   customers,

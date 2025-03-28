@@ -6,19 +6,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 // import { Item } from '@radix-ui/react-dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  fetchServices,
-  handleDeactivateItem,
-  itemOnSubmit,
-  itemOnUpdate,
-} from '@/features/company/modules/services/actions/actions.items';
-import { EditItemSchema, ItemsSchema } from '@/features/company/modules/services/schemas/schemas';
-import { Item, customer, measure_unit } from '@/features/company/modules/services/types/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { fetchServices, handleDeactivateItem, itemOnSubmit, itemOnUpdate } from '../actions/actions.items';
+import { EditItemSchema, ItemsSchema } from '../schemas/schemas';
+import { Item, customer, measure_unit } from '../types/types';
 
 type Service = z.infer<typeof ItemsSchema>;
 

@@ -1,13 +1,13 @@
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
+import CovenantTreeFile from '@/features/(Company)/modules/covenant/components/CovenantTreeFile';
 import EmployesDiagram from '@/features/(Employees)/modules/diagrams/components/EmployesDiagram';
 import DocumentNav from '@/features/(Employees)/modules/documents/components/DocumentNav';
 import EmployeeDocumentsTabs from '@/features/(Employees)/modules/documents/components/EmployeeDocumentsTabs';
 import TypesDocumentAction from '@/features/(Employees)/modules/documents_types/components/TypesDocumentAction';
 import TypesDocumentsView from '@/features/(Employees)/modules/documents_types/components/TypesDocumentsView';
 import EmployeeTable from '@/features/(Employees)/modules/employees/components/employee_table';
-import CovenantTreeFile from '@/features/company/modules/covenant/components/CovenantTreeFile';
 import Link from 'next/link';
 import { Suspense } from 'react';
 

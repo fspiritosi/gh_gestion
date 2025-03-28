@@ -35,11 +35,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useCompanyStore } from '@/features/(Company)/store/companyStore';
-import {
-  deactivateCustomer,
-  fetchInactiveCustomer,
-  reintegerCustomer,
-} from '@/features/company/modules/customers/actions/actions';
+
 import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { cn } from '@/lib/utils';
 import { useLoggedUserStore } from '@/store/loggedUser';
@@ -55,6 +51,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { deactivateCustomer, fetchInactiveCustomer, reintegerCustomer } from '../../actions/actions';
 
 const formSchema = z.object({
   reason_for_termination: z.string({
