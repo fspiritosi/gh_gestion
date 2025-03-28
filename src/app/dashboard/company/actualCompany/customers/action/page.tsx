@@ -1,11 +1,12 @@
 import { fetchAllEquipment } from '@/app/server/GET/actions';
 import BackButton from '@/components/BackButton';
-import CustomerComponent from '@/features/(Company)/modules/customers/components/CustomerComponent';
+// import CustomerComponent from '@/features/(Company)/modules/customers/components/CustomerComponent';
+import ClientRegister from '@/features/(Company)/modules/customers/components/CustomerComponent';
 import { cn } from '@/lib/utils';
 
 export default async function CustomerFormAction({ searchParams, params }: { searchParams: any; params: any }) {
   const equipment = await fetchAllEquipment();
-  console.log(equipment);
+  // console.log(equipment);
 
   return (
     <section className="grid grid-cols-2 xl:grid-cols-2 gap-2 py-4 justify-start">
@@ -19,7 +20,7 @@ export default async function CustomerFormAction({ searchParams, params }: { sea
           searchParams.action === 'new' && 'col-span-8'
         )}
       >
-        <CustomerComponent equipment={equipment} id={searchParams.id} />
+        <ClientRegister equipment={equipment} id={searchParams.id} />
       </div>
     </section>
   );

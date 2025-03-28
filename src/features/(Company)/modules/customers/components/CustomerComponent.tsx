@@ -1,3 +1,4 @@
+
 'use client';
 
 import { columnsGuests } from '@/app/dashboard/company/actualCompany/components/columnsGuests';
@@ -10,8 +11,6 @@ import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/c
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { createdCustomer, updateCustomer } from '@/features/(Company)/modules/customers/actions/actions';
-import { customersSchema } from '@/features/(Company)/modules/customers/schemas/schemas';
 import { cn } from '@/lib/utils';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,18 +21,19 @@ import { Toaster, toast } from 'sonner';
 import { z } from 'zod';
 import { supabase } from '../../../../../../supabase/supabase';
 // import { columns } from '../app/dashboard/company/customers/action/columnsCustomers';
-import { EmployeesListColumns } from '@/features/(Employees)/modules/employees/components/tables/columns';
-import  EmployeesTable  from '@/features/(Employees)/modules/employees/components/employee_table';
 import { EquipmentColums as columns1 } from '@/app/dashboard/equipment/columns';
 // import { Employee } from '@/types/types';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EmployeesTable } from '@/features/(Employees)/modules/employees/components/tables/EmployeesTable';
+import { EmployeesListColumns } from '@/features/(Employees)/modules/employees/components/tables/columns';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import cookie from 'js-cookie';
 import moment from 'moment';
-import EmployeeTable from '@/features/(Employees)/modules/employees/components/employee_table';
+import { createdCustomer, updateCustomer } from '../actions/actions';
+import { customersSchema } from '../schemas/schemas';
 interface Service {
   id: string;
   service_name: string;
@@ -62,7 +62,6 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [items, setItems] = useState<any>(null);
   const actualCompany = cookie.get('actualComp');
-  console.log('actualCompany', actualCompany);
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
 
   const fetchItems = async () => {
@@ -374,8 +373,7 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
               <div className="h-full flex-1 flex-col space-y-8 md:flex">
                 <Card>
                   <CardContent>
-                    {/* <EmployeesTable columns={EmployeesListColumns} data={filteredCustomersActiveEmployees || []} /> */}
-                    <EmployeeTable />
+                    <EmployeesTable columns={EmployeesListColumns} data={filteredCustomersActiveEmployees || []} />
                   </CardContent>
                 </Card>
               </div>
@@ -384,8 +382,7 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
               <div className="h-full flex-1 flex-col space-y-8 md:flex">
                 <Card>
                   <CardContent>
-                    {/* <EmployeesTable columns={EmployeesListColumns} data={filteredCustomersInActiveEmployees || []} /> */}
-                    <EmployeeTable />
+                    <EmployeesTable columns={EmployeesListColumns} data={filteredCustomersInActiveEmployees || []} />
                   </CardContent>
                 </Card>
               </div>
