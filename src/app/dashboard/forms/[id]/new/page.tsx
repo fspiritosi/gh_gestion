@@ -1,6 +1,6 @@
 import { fetchAllEquipment, fetchCustomFormById, getCurrentProfile } from '@/app/server/GET/actions';
-import { dailyChecklistConfig } from '@/components/CheckList/DynamicChecklistForm';
-import DynamicFormWrapper from '@/components/CheckList/DynamicFormWrapper';
+import { dailyChecklistConfig } from '@/features/CheckList/components/DynamicChecklistForm';
+import DynamicFormWrapper from '@/features/CheckList/components/DynamicFormWrapper';
 
 async function page({ params }: { params: { id: string } }) {
   const equipments = (await fetchAllEquipment()).map((equipment) => ({

@@ -4,7 +4,7 @@ import {
   fetchSingEmployee,
   findEmployeeByFullName,
 } from '@/app/server/GET/actions';
-import DynamicFormWrapper from '@/components/CheckList/DynamicFormWrapper';
+import DynamicFormWrapper from '@/features/CheckList/components/DynamicFormWrapper';
 
 async function page({ params }: { params: { id: string } }) {
   // console.log('params', params);

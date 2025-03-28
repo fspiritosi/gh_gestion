@@ -8,7 +8,7 @@ import { TransporteSPANAYCHKHYS03 } from '@/components/pdf/generators/Transporte
 import { TransporteSPANAYCHKHYS04 } from '@/components/pdf/generators/TransporteSPANAYCHKHYS04';
 import { buttonVariants } from '@/components/ui/button';
 import Link from 'next/link';
-import CheckListAnwersTable from '../components/CheckListAnwersTable';
+import CheckListAnwersTable from '@/features/CheckList/components/CheckListAnwersTable';
 
 const renderForm = (activeFormType: string) => {
   switch (activeFormType) {
