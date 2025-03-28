@@ -30,12 +30,20 @@ export function _CompanySelector({ sharedCompanies, allCompanies, currentCompany
 
   // Si no hay compañía seleccionada y hay compañías disponibles, seleccionar la primera
   useEffect(() => {
-    if (!selectedCompany && (allCompanies.length > 0 || sharedCompanies.length > 0)) {
-      const firstCompany = allCompanies[0] || sharedCompanies[0];
-      setSelectedCompany(firstCompany);
-      handleNewCompany(firstCompany);
+    const actualCompany = Cookies.get('actualComp');
+
+    if (!actualCompany) {
+      Cookies.set('actualComp', allCompanies[0]?.id || sharedCompanies[0]?.id);
     }
-  }, [allCompanies, sharedCompanies]);
+
+    // if (!selectedCompany && (allCompanies.length > 0 || sharedCompanies.length > 0)) {
+    //   const firstCompany = allCompanies[0] || sharedCompanies[0];
+    //   setSelectedCompany(firstCompany);
+    //   console.log(firstCompany);
+    //   Cookies.set('actualComp', firstCompany.id);
+    //   handleNewCompany(firstCompany);
+    // }
+  }, [allCompanies, sharedCompanies, currentCompany]);
 
   const totalCompanies = [...sharedCompanies, ...allCompanies];
 

@@ -1,17 +1,36 @@
 'use server';
 
+import { getCurrentUserProfile } from '@/features/(Layout)/navbar/actions/actions.navbar';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 const URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const fetchCurrentCompany = async () => {
-  const cookiesStore = cookies();
+  'use server';
   const supabase = supabaseServer();
-  const company_id = cookiesStore.get('actualComp')?.value;
-  if (!company_id) return [];
+  const cookieStore = cookies();
+  let company_id = cookieStore.get('actualComp')?.value;
 
-  const { data: company, error } = await supabase.from('company').select('*').eq('id', company_id);
+  if (!company_id) {
+    console.log('qui');
+    const user = await getCurrentUserProfile();
+    console.log(user);
+    const { allCompanies, sharedCompanies } = await fetchUserCompanies(user?.id || '');
+    const firstCompany = allCompanies[0] || sharedCompanies[0];
+    console.log(firstCompany);
+    if (firstCompany) {
+      console.log(firstCompany.id);
+      // Establecer cookie desde el servidor
+      cookieStore.set('actualComp', firstCompany.id);
+      company_id = firstCompany.id;
+    }
+  }
+
+  const { data: company, error } = await supabase
+    .from('company')
+    .select('*')
+    .eq('id', company_id || '');
 
   if (error) {
     console.error('Error fetching company:', error);

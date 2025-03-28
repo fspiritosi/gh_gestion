@@ -1,4 +1,3 @@
-import { logout } from '@/app/login/actions';
 import { ModeToggle } from '@/components/ui/ToogleDarkButton';
 import { Button } from '@/components/ui/button';
 import { NavbarClientProps } from '../types/navbar.types';
@@ -28,7 +27,7 @@ export function Navbar({ user, notifications, companies }: NavbarClientProps) {
 
         <_NotificationsModal notifications={notifications} />
         <ModeToggle />
-        <_UserMenu user={user} onLogout={logout} />
+        <_UserMenu user={user} />
       </div>
     </nav>
   );

@@ -32,7 +32,6 @@ export type NotificationItemProps = {
 
 export type UserMenuProps = {
   user: UserProfile | null;
-  onLogout: () => Promise<void>;
 };
 
 export interface EmployeeDocumentWithDocumentTypes extends Omit<EmployeeDocument, 'id_document_types' | 'applies'> {

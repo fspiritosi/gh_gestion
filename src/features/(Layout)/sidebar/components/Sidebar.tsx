@@ -2,14 +2,38 @@
 import { CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useSidebarStore } from '../store/useSidebarStore';
 import { SidebarProps } from '../types/types';
 import { filterNavigationLinks, sortNavigationLinks } from '../utils/sidebar.utils';
 
-export function Sidebar({ pathname, role, userModules }: SidebarProps) {
-  const activeLink = pathname.split('/')[2] || 'dashboard';
+export function Sidebar({ role, userModules }: SidebarProps) {
+  const pathName = usePathname();
   const filteredLinks = sortNavigationLinks(filterNavigationLinks(role, userModules));
   const isActiveSidebar = useSidebarStore((state) => state.isActiveSidebar);
+
+  // Create links with regex patterns for accurate active link detection
+  const linksWithRegex = filteredLinks.map((link) => {
+    // Convert link href to regex pattern
+    const href = link.href.toString();
+    const regexPattern = new RegExp(`^${href.replace(/\//g, '\\/')}(\/|$)`);
+
+    return {
+      ...link,
+      regex: regexPattern,
+    };
+  });
+
+  // Use the reduce method to find the best match (most specific)
+  const activeLink =
+    linksWithRegex.reduce(
+      (bestMatch: { link: any; matchLength: number }, link: any) => {
+        const match = pathName.match(link.regex);
+        const matchLength = match ? match[0].length : 0;
+        return matchLength > bestMatch.matchLength ? { link, matchLength } : bestMatch;
+      },
+      { link: null, matchLength: 0 }
+    ).link?.name || '';
 
   return (
     <div
@@ -28,9 +52,10 @@ export function Sidebar({ pathname, role, userModules }: SidebarProps) {
             href={link.href}
             className={cn(
               'flex items-center p-4 cursor-pointer transition-all duration-500 rounded-s-full lisidebar relative',
-              link.name.toLowerCase() === activeLink
+              link.name === activeLink
                 ? 'bg-muted activesidebar before:shadow-custom-white after:shadow-custom-white-inverted'
-                : 'hover:bg-muted/80'
+                : 'hover:bg-muted/80',
+              isActiveSidebar ? 'ml-0' : 'ml-4'
             )}
           >
             <div className="flex items-center overflow-hidden">

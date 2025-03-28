@@ -14,16 +14,27 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { supabaseBrowser } from '@/lib/supabase/browser';
+import cookie from 'js-cookie';
 import { LogOut, Settings, UserCircle2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { updateProfileAvatar } from '../../actions/actions.navbar';
 import { UserMenuProps } from '../../types/navbar.types';
 
-export function _UserMenu({ user, onLogout }: UserMenuProps) {
+export function _UserMenu({ user }: UserMenuProps) {
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const form = useForm();
 
+  const router = useRouter();
+  const logout = async () => {
+    const supabase = supabaseBrowser();
+    await supabase.auth.signOut();
+    //Borrar las cookies
+    cookie.remove('actualComp');
+    router.push('/login');
+  };
   const handleAvatarUpdate = async (imageUrl: string) => {
     if (!user?.id) return;
 
@@ -69,7 +80,9 @@ export function _UserMenu({ user, onLogout }: UserMenuProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
-            onSelect={onLogout}
+            onSelect={async () => {
+              await logout();
+            }}
           >
             <LogOut className="h-4 w-4" />
             <span>Cerrar Sesión</span>
