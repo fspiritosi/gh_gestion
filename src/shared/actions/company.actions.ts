@@ -11,16 +11,13 @@ export const fetchCurrentCompany = async () => {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
-  const companyResponse = await fetch(`${URL}/api/company/?actual=${company_id}`);
-  const companyDataResponse = companyResponse.ok ? await companyResponse.json() : null;
+  const { data: company, error } = await supabase.from('company').select('*').eq('id', company_id);
 
-  const companyData = companyDataResponse.data[0];
-
-  if (!companyData) {
-    console.error('Error fetching company:');
+  if (error) {
+    console.error('Error fetching company:', error);
     return null;
   }
-  return companyData as Company[];
+  return company;
 };
 
 export const fetchUserCompanies = async (userId: string) => {
