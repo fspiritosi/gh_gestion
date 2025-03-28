@@ -1,6 +1,6 @@
 import { fetchAllEquipment, fetchCustomForms } from '@/app/server/GET/actions';
-import ChecklistTable from '@/components/CheckList/ListOfChecklist';
 import Viewcomponent from '@/components/ViewComponent';
+import ChecklistTable from '@/features/CheckList/ListOfChecklist';
 import { ReportModal } from './components/ReportModal';
 async function MantenimientoPage() {
   const checklists = await fetchCustomForms();

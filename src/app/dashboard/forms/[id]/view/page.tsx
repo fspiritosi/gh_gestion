@@ -4,7 +4,7 @@ import {
   fetchSingEmployee,
   findEmployeeByFullName,
 } from '@/app/server/GET/actions';
-import DynamicFormWrapper from '@/components/CheckList/DynamicFormWrapper';
+import DynamicFormWrapper from '@/features/CheckList/components/DynamicFormWrapper';
 
 async function page({ params }: { params: { id: string } }) {
   // console.log('params', params);
@@ -22,16 +22,15 @@ async function page({ params }: { params: { id: string } }) {
     intern_number: equipment.intern_number,
   }));
   const choferName = (answer[0].answer as any)?.chofer;
-  let singurl : any = '';
+  let singurl: any = '';
 
   if (choferName) {
     const data = await findEmployeeByFullName(choferName);
     if (data?.id) {
       const singEmployee = await fetchSingEmployee(data?.id);
-      singurl = singEmployee  || ''
+      singurl = singEmployee || '';
     }
   }
-
 
   return (
     <div className="px-7">
