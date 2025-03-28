@@ -1,11 +1,12 @@
 import CompanyComponent from './ui/CompanyComponent';
 import DangerZoneComponent from './ui/_DangerZoneComponent';
-
-export function Company() {
+import { fetchCurrentCompany } from '@/shared/actions/company.actions';
+export async function Company() {
+  const companyData = await fetchCurrentCompany();
   return (
     <div>
-      <CompanyComponent />
-      <DangerZoneComponent />
+      <CompanyComponent companyData={companyData} />
+      <DangerZoneComponent currentCompanyName={companyData?.[0]?.company_name ?? ''} />
     </div>
   );
 }

@@ -22,7 +22,7 @@ import { formatRelative } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { supabase } from '../../../../../../../supabase/supabase';
+import { supabase } from '../../../../../../supabase/supabase';
 import { DataTableColumnHeader } from './data-table-column-header';
 
 export const columnsGuests: ColumnDef<SharedUser>[] = [

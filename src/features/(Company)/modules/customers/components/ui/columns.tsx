@@ -52,6 +52,8 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { deactivateCustomer, fetchInactiveCustomer, reintegerCustomer } from '../../actions/actions';
+import Cookies from 'js-cookie';
+
 
 const formSchema = z.object({
   reason_for_termination: z.string({
@@ -101,8 +103,8 @@ export const columns: ColumnDef<Colum>[] = [
         setShowModal(!showModal);
       };
 
-      const actualCompany = useCompanyStore();
-
+      // const actualCompany = useCompanyStore();
+      const actualCompany = Cookies.get('actualComp');
       //   try {
       //     const { data, error } = await supabase
       //       .from('customers')
@@ -117,9 +119,9 @@ export const columns: ColumnDef<Colum>[] = [
       //     console.error(error);
       //   }
       // };
-
+      console.log(actualCompany);
       useEffect(() => {
-        fetchInactiveCustomer((actualCompany?.currentCompanyId as string) || '');
+        fetchInactiveCustomer(actualCompany || '');
       }, []);
       const handleOpenIntegerModal = (id: string) => {
         setCuit(cuit);
@@ -205,7 +207,7 @@ export const columns: ColumnDef<Colum>[] = [
           await deactivateCustomer(
             values,
             customers?.id,
-            actualCompany?.currentCompanyId || '',
+            actualCompany || '',
             employ || [], // Pasar un array vacío si employ es null o undefined
             equip || [] // Pasar un array vacío si equip es null o undefined
           );
@@ -218,7 +220,7 @@ export const columns: ColumnDef<Colum>[] = [
       };
       const handleReinteger = async () => {
         try {
-          const result = await reintegerCustomer(customers?.id, actualCompany?.currentCompanyId);
+          const result = await reintegerCustomer(customers?.id, actualCompany || '');
 
           if (result && result.success) {
             setIntegerModal(false);

@@ -1,0 +1,670 @@
+diff --git a/src/app/dashboard/company/actualCompany/components/columnsGuests.tsx b/src/app/dashboard/company/actualCompany/components/columnsGuests.tsx
+index effdafe..2fbcd32 100644
+--- a/src/app/dashboard/company/actualCompany/components/columnsGuests.tsx
++++ b/src/app/dashboard/company/actualCompany/components/columnsGuests.tsx
+@@ -22,7 +22,7 @@ import { formatRelative } from 'date-fns';
+ import { es } from 'date-fns/locale';
+ import { useRouter } from 'next/navigation';
+ import { toast } from 'sonner';
+-import { supabase } from '../../../../../../../supabase/supabase';
++import { supabase } from '../../../../../../supabase/supabase';
+ import { DataTableColumnHeader } from './data-table-column-header';
+ 
+ export const columnsGuests: ColumnDef<SharedUser>[] = [
+diff --git a/src/app/dashboard/company/actualCompany/contact/action/page.tsx b/src/app/dashboard/company/actualCompany/contact/action/page.tsx
+index 127fcb5..417723b 100644
+--- a/src/app/dashboard/company/actualCompany/contact/action/page.tsx
++++ b/src/app/dashboard/company/actualCompany/contact/action/page.tsx
+@@ -1,15 +1,14 @@
+ import { cn } from '@/lib/utils';
+ import BackButton from '../../../../../../components/BackButton';
+ // import ContactComponent from '../../../../../../components/ContactComponent';
+-import ContactComponent from '@/features/company/modules/contacts/components/ContactComponent';
++import ContactComponent from '@/features/(Company)/modules/contacts/components/ContactComponent';
+ 
+-export default async function CustomerFormAction({ searchParams, params }: { searchParams: any; params: any }) {
++export default async function CustomerFormAction({ searchParams }: { searchParams: any }) {
+   // const { data } = await supabase
+   //   .from('customers')
+   //   .select('*')
+   //   .eq('id', searchParams.id)
+   // revalidatePath('/dashboard/company/customer/action')
+-
+   return (
+     <section className="grid grid-cols-2 xl:grid-cols-2 gap-2 py-4 justify-start">
+       <div className="flex gap-2 col-start-2 justify-end ">
+@@ -22,7 +21,7 @@ export default async function CustomerFormAction({ searchParams, params }: { sea
+           searchParams.action === 'new' && 'col-span-8'
+         )}
+       >
+-        <ContactComponent id={searchParams.id} />
++        <ContactComponent id={searchParams?.id} />
+       </div>
+     </section>
+   );
+diff --git a/src/app/dashboard/company/actualCompany/contact/page.tsx b/src/app/dashboard/company/actualCompany/contact/page.tsx
+index bbf3b00..a58a63e 100644
+--- a/src/app/dashboard/company/actualCompany/contact/page.tsx
++++ b/src/app/dashboard/company/actualCompany/contact/page.tsx
+@@ -1,7 +1,7 @@
+ import { cn } from '@/lib/utils';
+ import BackButton from '../../../../../components/BackButton';
+ // import ContactComponent from '../../../../../components/ContactComponent';
+-import ContactComponent from '@/features/company/modules/contacts/components/ContactComponent';
++import ContactComponent from '@/features/(Company)/modules/contacts/components/ContactComponent';
+ 
+ export default async function ContactFormAction({ searchParams, params }: { searchParams: any; params: any }) {
+   // const { data } = await supabase
+diff --git a/src/app/dashboard/company/actualCompany/customers/action/page.tsx b/src/app/dashboard/company/actualCompany/customers/action/page.tsx
+index cb989be..8baf266 100644
+--- a/src/app/dashboard/company/actualCompany/customers/action/page.tsx
++++ b/src/app/dashboard/company/actualCompany/customers/action/page.tsx
+@@ -1,6 +1,6 @@
+ import { fetchAllEquipment } from '@/app/server/GET/actions';
+ import BackButton from '@/components/BackButton';
+-import CustomerComponent from '@/features/company/modules/customers/components/CustomerComponent';
++import CustomerComponent from '@/features/(Company)/modules/customers/components/CustomerComponent';
+ import { cn } from '@/lib/utils';
+ 
+ export default async function CustomerFormAction({ searchParams, params }: { searchParams: any; params: any }) {
+diff --git a/src/app/dashboard/equipment/action/page.tsx b/src/app/dashboard/equipment/action/page.tsx
+index 492badf..baa5437 100644
+--- a/src/app/dashboard/equipment/action/page.tsx
++++ b/src/app/dashboard/equipment/action/page.tsx
+@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
+ import { cookies } from 'next/headers';
+ // import { supabase } from '../../../../../supabase/supabase';
+ import { generic } from '@/features/(Equipment)/type/type';
+-import VehiclesForm from '@/features/equipments/components/VehiclesForm';
++import VehiclesForm from '@/features/(Equipment)/components/VehiclesForm';
+ import { supabaseServer } from '@/lib/supabase/server';
+ import { getRole } from '@/lib/utils/getRole';
+ export default async function EquipmentFormAction({ searchParams }: { searchParams: any }) {
+diff --git a/src/components/DocumentEquipmentComponent.tsx b/src/components/DocumentEquipmentComponent.tsx
+index 3cedf39..1c41f92 100644
+--- a/src/components/DocumentEquipmentComponent.tsx
++++ b/src/components/DocumentEquipmentComponent.tsx
+@@ -1,15 +1,15 @@
+ // 'use client';
+ import { CardContent } from '@/components/ui/card';
+ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+-import { ExpiredColums } from '@/shared/components/colums';
+-import { ColumnsMonthly } from '@/shared/components/columsMonthly';
+-import { ExpiredDataTable } from '@/shared/components/data-table';
++import { ExpiredColums } from '@/features/(Employees)/modules/documents/components/tables/data/colums';
++import { ColumnsMonthly } from '@/features/(Employees)/modules/documents/components/tables/data/columsMonthly';
++import { ExpiredDataTable } from '@/features/(Employees)/modules/documents/components/data-table/data-table';
+ // import { useLoggedUserStore } from '@/store/loggedUser';
+ import { fetchMonthlyDocumentsByEquipmentId, fetchPermanentDocumentsByEquipmentId } from '@/app/server/GET/actions';
+ import { supabaseServer } from '@/lib/supabase/server';
+ import { formatVehiculesDocuments } from '@/lib/utils';
+ import { cookies } from 'next/headers';
+-import DocumentNav from './DocumentNav';
++import DocumentNav from '@/features/(Employees)/modules/documents/components/DocumentNav';
+ 
+ export default async function DocumentEquipmentComponent({ id, role }: { id: string; role: string }) {
+   const monthlyDocuments = (await fetchMonthlyDocumentsByEquipmentId(id)).map(formatVehiculesDocuments);
+diff --git a/src/features/(Company)/components/company.tsx b/src/features/(Company)/components/company.tsx
+index b934053..1b4035a 100644
+--- a/src/features/(Company)/components/company.tsx
++++ b/src/features/(Company)/components/company.tsx
+@@ -1,11 +1,12 @@
+ import CompanyComponent from './ui/CompanyComponent';
+ import DangerZoneComponent from './ui/_DangerZoneComponent';
+-
+-export function Company() {
++import { fetchCurrentCompany } from '@/shared/actions/company.actions';
++export async function Company() {
++  const companyData = await fetchCurrentCompany();
+   return (
+     <div>
+-      <CompanyComponent />
+-      <DangerZoneComponent />
++      <CompanyComponent companyData={companyData} />
++      <DangerZoneComponent currentCompanyName={companyData?.[0]?.company_name ?? ''} />
+     </div>
+   );
+ }
+diff --git a/src/features/(Company)/components/ui/CompanyComponent.tsx b/src/features/(Company)/components/ui/CompanyComponent.tsx
+index cda2ee1..91b86c4 100644
+--- a/src/features/(Company)/components/ui/CompanyComponent.tsx
++++ b/src/features/(Company)/components/ui/CompanyComponent.tsx
+@@ -1,21 +1,18 @@
+-import { fetchCurrentCompany } from '@/shared/actions/company.actions';
+ import { ItemCompany } from './itemCompany';
+ 
+-export default async function CompanyComponent() {
+-  const companyData = await fetchCurrentCompany();
+-  console.log(companyData);
++export default function CompanyComponent({ companyData }: { companyData: any }) {
+   return (
+     <div>
+       {companyData && (
+         <div>
+-          <ItemCompany name="Razón Social" info={companyData.company_name} />
+-          <ItemCompany name="CUIT" info={companyData.company_cuit} />
+-          <ItemCompany name="Dirección" info={companyData.address} />
+-          <ItemCompany name="Pais" info={companyData.country} />
+-          <ItemCompany name="Ciudad" info={companyData.city?.name} />
+-          <ItemCompany name="Industria" info={companyData.industry} />
+-          <ItemCompany name="Teléfono de contacto" info={companyData.contact_phone} />
+-          <ItemCompany name="Email de contacto" info={companyData.contact_email} />
++          <ItemCompany name="Razón Social" info={companyData[0].company_name} />
++          <ItemCompany name="CUIT" info={companyData[0].company_cuit} />
++          <ItemCompany name="Dirección" info={companyData[0].address} />
++          <ItemCompany name="Pais" info={companyData[0].country} />
++          <ItemCompany name="Ciudad" info={companyData[0].city?.name} />
++          <ItemCompany name="Industria" info={companyData[0].industry} />
++          <ItemCompany name="Teléfono de contacto" info={companyData[0].contact_phone} />
++          <ItemCompany name="Email de contacto" info={companyData[0].contact_email} />
+         </div>
+       )}
+     </div>
+diff --git a/src/features/(Company)/components/ui/_DangerZoneComponent.tsx b/src/features/(Company)/components/ui/_DangerZoneComponent.tsx
+index 5878e32..44dbb86 100644
+--- a/src/features/(Company)/components/ui/_DangerZoneComponent.tsx
++++ b/src/features/(Company)/components/ui/_DangerZoneComponent.tsx
+@@ -12,16 +12,9 @@ import {
+   DialogTrigger,
+ } from '@/components/ui/dialog';
+ import { Input } from '@/components/ui/input';
+-import { useCompanyStore } from '@/features/(Company)/store/companyStore';
+-import { useEffect, useState } from 'react';
+-
+-export default function DangerZoneComponent() {
+-  const { currentCompanyName, fetchCompany } = useCompanyStore();
+-
+-  useEffect(() => {
+-    fetchCompany();
+-  }, [fetchCompany]);
++import { useState } from 'react';
+ 
++export default function DangerZoneComponent({ currentCompanyName }: { currentCompanyName: string }) {
+   const [verify, setVerify] = useState(false);
+ 
+   function compare(text: string) {
+diff --git a/src/features/(Company)/modules/contacts/components/ContactComponent.tsx b/src/features/(Company)/modules/contacts/components/ContactComponent.tsx
+index 80dffca..d4fadfb 100644
+--- a/src/features/(Company)/modules/contacts/components/ContactComponent.tsx
++++ b/src/features/(Company)/modules/contacts/components/ContactComponent.tsx
+@@ -12,23 +12,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
+ import { useRouter, useSearchParams } from 'next/navigation';
+ import { useEffect, useState } from 'react';
+ import { useForm } from 'react-hook-form';
+-import { Toaster, toast } from 'sonner';
++import {toast } from 'sonner';
+ import { z } from 'zod';
+ import { createdContact, fetchContact, fetchCustomers, updateContact } from '../actions/actions';
+-type Action = 'view' | 'edit' | null;
++import ContactFormSkeleton from '@/features/(Company)/modules/contacts/components/skeletons/contactSkeleton';
+ 
++type Action = 'view' | 'edit' | null;
+ type ContactFormValues = z.infer<typeof contactSchema>;
+ 
+ export default function ContactRegister({ id }: { id: string }) {
+   const router = useRouter();
+-  const functionAction = id ? updateContact : createdContact;
+   const searchParams = useSearchParams();
+-  const actualCompany = useCompanyStore();
+   const supabase = supabaseBrowser();
++  
++  // Obtener solo lo necesario del store
++  const { currentCompanyId, fetchCompany } = useCompanyStore(state => ({
++    currentCompanyId: state.currentCompanyId,
++    fetchCompany: state.fetchCompany
++  }));
++  
+   const [action, setAction] = useState<Action>(searchParams.get('action') as Action);
+   const [readOnly, setReadOnly] = useState(action === 'edit' ? false : true);
+-  const [clientData, setClientData] = useState<any>(null);
++  const [clientData, setClientData] = useState<any[]>([]);
+   const [contactData, setContactData] = useState<any>(null);
++  const [loading, setLoading] = useState(true);
++
+   const form = useForm<ContactFormValues>({
+     resolver: zodResolver(contactSchema),
+     defaultValues: {
+@@ -40,48 +48,55 @@ export default function ContactRegister({ id }: { id: string }) {
+     },
+   });
+ 
+-  const {
+-    register,
+-    handleSubmit,
+-    setValue,
+-    watch,
+-    formState: { errors: formErrors },
+-  } = form;
++  const { register, handleSubmit, setValue, watch, formState: { errors: formErrors } } = form;
++  const customerValue = watch('customer');
++  const functionAction = id ? updateContact : createdContact;
+ 
++  // Efecto para cargar datos iniciales
+   useEffect(() => {
+-    const id = searchParams.get('id');
+-    if (action === 'view') {
+-      setReadOnly(true);
+-    }
+-    if (action === 'edit') {
+-      setReadOnly(false);
+-    }
+-    if (!id) {
+-      setReadOnly(false);
+-    }
+-    const fetchData = async () => {
++    const initializeData = async () => {
+       try {
+-        const customers = await fetchCustomers(actualCompany?.currentCompanyId || '');
++        // Asegurarnos de tener el companyId
++        if (!currentCompanyId) {
++          await fetchCompany();
++          return;
++        }
++
++        const actionParam = searchParams.get('action') as Action;
++        setAction(actionParam);
++        
++        if (actionParam === 'view') {
++          setReadOnly(true);
++        } else if (actionParam === 'edit') {
++          setReadOnly(false);
++        } else if (!id) {
++          setReadOnly(false);
++        }
++
++        // Cargar clientes
++        const customers = await fetchCustomers(currentCompanyId);
+         setClientData(customers);
+ 
++        // Cargar contacto si hay ID
+         if (id) {
+           const contact = await fetchContact(id);
+           setContactData(contact);
+-          setValue('contact_name', contact.contact_name || '');
+-          setValue('contact_email', contact.constact_email || '');
+-          setValue('contact_phone', contact.contact_phone?.toString() || '');
+-          setValue('contact_charge', contact.contact_charge || '');
+-          setValue('customer', contact.customer_id || '');
++          setValue('contact_name', contact?.contact_name || '');
++          setValue('contact_email', contact?.constact_email || '');
++          setValue('contact_phone', contact?.contact_phone?.toString() || '');
++          setValue('contact_charge', contact?.contact_charge || '');
++          setValue('customer', contact?.customer_id || '');
+         }
+       } catch (error) {
+         console.error('Error fetching data:', error);
++        toast.error('Error al cargar los datos');
++      } finally {
++        setLoading(false);
+       }
+     };
+ 
+-    fetchData();
+-  }, [action, id]);
+-
+-  const customerValue = watch('customer');
++    initializeData();
++  }, [id, searchParams, currentCompanyId]);
+ 
+   const onSubmit = async (formData: ContactFormValues) => {
+     try {
+@@ -89,6 +104,10 @@ export default function ContactRegister({ id }: { id: string }) {
+         throw new Error('Debe seleccionar un cliente válido.');
+       }
+ 
++      if (!currentCompanyId) {
++        throw new Error('No se ha seleccionado una empresa');
++      }
++
+       const data = new FormData();
+       data.append('id', id);
+       data.append('contact_name', formData.contact_name);
+@@ -96,42 +115,48 @@ export default function ContactRegister({ id }: { id: string }) {
+       data.append('contact_phone', formData.contact_phone);
+       data.append('contact_charge', formData.contact_charge);
+       data.append('customer', formData.customer);
+-      const company_id = actualCompany?.currentCompanyId;
+-      data.append('company_id', company_id as string);
+-      toast.loading('Creando contacto');
++      data.append('company_id', currentCompanyId);
++
++      // toast.loading(id ? 'Actualizando contacto...' : 'Creando contacto...');
+ 
+       const response = await functionAction(data);
+ 
+-      if (response.status === 201) {
++      if (response.status === 201 || response.status === 200) {
+         toast.dismiss();
+-        toast.success('Contacto creado satisfactoriamente!');
++        toast.success(id ? 'Contacto actualizado!' : 'Contacto creado!');
+         router.push('/dashboard/company/actualCompany');
+       } else {
+-        toast.dismiss();
+-        toast.error(response.body);
++        throw new Error(response.body || 'Error desconocido');
+       }
+-    } catch (errors) {
+-      // console.error('Error submitting form:', error);
++    } catch (error) {
+       toast.dismiss();
+-      toast.error('Error al crear el cliente');
++      toast.error(error instanceof Error ? error.message : 'Error al procesar el contacto');
+     }
+   };
+ 
++  if (loading) {
++    return (
++      // <div className="fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center">
++      //   <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary"></div>
++      // </div>
++      <ContactFormSkeleton />
++    );
++  }
++
+   return (
+     <section className={cn('md:mx-7')}>
+       <Card className="mt-6 p-8">
+         <CardTitle className="text-4xl mb-3">
+-          {action === 'view' ? '' : action === 'edit' ? 'Editar Contacto' : 'Registrar Contacto'}
++          {action === 'edit' ? 'Editar Contacto' : 'Registrar Contacto'}
+         </CardTitle>
+         <CardDescription>
+-          {action === 'view'
+-            ? ''
+-            : action === 'edit'
+-              ? 'Edita este formulario con los datos de tu Contacto'
+-              : 'Completa este formulario con los datos de tu nuevo Contacto'}
++          {action === 'edit' 
++            ? 'Edita este formulario con los datos de tu Contacto' 
++            : 'Completa este formulario con los datos de tu nuevo Contacto'}
+         </CardDescription>
++        
+         <div className="mt-6 rounded-xl flex w-full">
+-          <form onSubmit={handleSubmit(onSubmit)}>
++          <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+             <input type="hidden" name="id" value={id} />
+ 
+             <div className="flex flex-wrap gap-3 items-center w-full">
+@@ -141,103 +166,89 @@ export default function ContactRegister({ id }: { id: string }) {
+                   id="contact_name"
+                   {...register('contact_name')}
+                   className="max-w-[350px] w-[300px]"
+-                  placeholder="nombre del contacto"
+-                  defaultValue={contactData?.contact_name || ''}
++                  placeholder="Nombre del contacto"
+                   readOnly={readOnly}
+                 />
+                 {formErrors.contact_name && (
+-                  <CardDescription id="contact_name_error" className="max-w-[300px]">
+-                    {formErrors.contact_name.message}
+-                  </CardDescription>
++                  <span className="text-red-500 text-sm">{formErrors.contact_name.message}</span>
+                 )}
+               </div>
++
+               <div>
+                 <Label htmlFor="contact_email">Email</Label>
+                 <Input
+                   id="contact_email"
+                   {...register('contact_email')}
+                   className="max-w-[350px] w-[300px]"
+-                  placeholder="email"
+-                  defaultValue={contactData?.contact_email || ''}
++                  placeholder="Email"
+                   readOnly={readOnly}
+                 />
+                 {formErrors.contact_email && (
+-                  <CardDescription id="contact_email_error" className="max-w-[300px]">
+-                    {formErrors.contact_email.message}
+-                  </CardDescription>
++                  <span className="text-red-500 text-sm">{formErrors.contact_email.message}</span>
+                 )}
+               </div>
++
+               <div>
+-                <Label htmlFor="contact_phone">Número de teléfono</Label>
++                <Label htmlFor="contact_phone">Teléfono</Label>
+                 <Input
+                   id="contact_phone"
+                   {...register('contact_phone')}
+                   className="max-w-[350px] w-[300px]"
+-                  placeholder="teléfono"
+-                  defaultValue={contactData?.contact_phone || ''}
++                  placeholder="Teléfono"
+                   readOnly={readOnly}
+                 />
+                 {formErrors.contact_phone && (
+-                  <CardDescription id="contact_phone_error" className="max-w-[300px]">
+-                    {formErrors.contact_phone.message}
+-                  </CardDescription>
++                  <span className="text-red-500 text-sm">{formErrors.contact_phone.message}</span>
+                 )}
+               </div>
+ 
+               <div>
+-                <Label htmlFor="customer">Seleccione un cliente</Label>
++                <Label htmlFor="customer">Cliente</Label>
+                 <Select
+                   value={customerValue}
+                   onValueChange={(value) => setValue('customer', value)}
+                   disabled={readOnly}
+                 >
+-                  <SelectTrigger id="customer" name="customer" className="max-w-[350px] w-[300px]">
+-                    <SelectValue
+-                      placeholder={
+-                        clientData?.find((cli: any) => cli.id === customerValue)?.name || 'Seleccionar un cliente'
+-                      }
+-                    />
++                  <SelectTrigger className="max-w-[350px] w-[300px]">
++                    <SelectValue placeholder="Seleccionar cliente" />
+                   </SelectTrigger>
+                   <SelectContent>
+-                    {clientData?.map((client: any) => (
+-                      <SelectItem key={client?.id} value={client?.id}>
+-                        {client?.name}
++                    {clientData.map((client) => (
++                      <SelectItem key={client.id} value={client.id}>
++                        {client.name}
+                       </SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+                 {formErrors.customer && (
+-                  <CardDescription id="customer_error" className="max-w-[300px]">
+-                    {formErrors.customer.message}
+-                  </CardDescription>
++                  <span className="text-red-500 text-sm">{formErrors.customer.message}</span>
+                 )}
+               </div>
++
+               <div>
+                 <Label htmlFor="contact_charge">Cargo</Label>
+                 <Input
+                   id="contact_charge"
+                   {...register('contact_charge')}
+                   className="max-w-[350px] w-[300px]"
+-                  placeholder="cargo en la empresa"
+-                  defaultValue={contactData?.contact_charge || ''}
++                  placeholder="Cargo en la empresa"
+                   readOnly={readOnly}
+                 />
+                 {formErrors.contact_charge && (
+-                  <CardDescription id="contact_charge_error" className="max-w-[300px]">
+-                    {formErrors.contact_charge.message}
+-                  </CardDescription>
++                  <span className="text-red-500 text-sm">{formErrors.contact_charge.message}</span>
+                 )}
+               </div>
+             </div>
+-            {action === 'view' ? null : (
++
++            {!readOnly && (
+               <Button type="submit" className="mt-5">
+-                {id ? 'Editar Contacto' : 'Registrar Contacto'}
++                {id ? 'Actualizar Contacto' : 'Registrar Contacto'}
+               </Button>
+             )}
+-            <Toaster />
+           </form>
+         </div>
+       </Card>
++      {/* <Toaster position="top-right" /> */}
+     </section>
+   );
+-}
++}
+\ No newline at end of file
+diff --git a/src/features/(Company)/modules/customers/components/CustomerComponent.tsx b/src/features/(Company)/modules/customers/components/CustomerComponent.tsx
+index ae20c2b..a2439c4 100644
+--- a/src/features/(Company)/modules/customers/components/CustomerComponent.tsx
++++ b/src/features/(Company)/modules/customers/components/CustomerComponent.tsx
+@@ -10,8 +10,8 @@ import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/c
+ import { Input } from '@/components/ui/input';
+ import { Label } from '@/components/ui/label';
+ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+-import { createdCustomer, updateCustomer } from '@/features/company/modules/customers/actions/actions';
+-import { customersSchema } from '@/features/company/modules/customers/schemas/schemas';
++import { createdCustomer, updateCustomer } from '@/features/(Company)/modules/customers/actions/actions';
++import { customersSchema } from '@/features/(Company)/modules/customers/schemas/schemas';
+ import { cn } from '@/lib/utils';
+ import { useLoggedUserStore } from '@/store/loggedUser';
+ import { zodResolver } from '@hookform/resolvers/zod';
+@@ -22,8 +22,8 @@ import { Toaster, toast } from 'sonner';
+ import { z } from 'zod';
+ import { supabase } from '../../../../../../supabase/supabase';
+ // import { columns } from '../app/dashboard/company/customers/action/columnsCustomers';
+-import { EmployeesListColumns } from '@/app/dashboard/employee/columns';
+-import { EmployeesTable } from '@/app/dashboard/employee/data-table';
++import { EmployeesListColumns } from '@/features/(Employees)/modules/employees/components/tables/columns';
++import  EmployeesTable  from '@/features/(Employees)/modules/employees/components/employee_table';
+ import { EquipmentColums as columns1 } from '@/app/dashboard/equipment/columns';
+ // import { Employee } from '@/types/types';
+ import { Badge } from '@/components/ui/badge';
+@@ -33,6 +33,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
+ import { setEmployeesToShow } from '@/lib/utils/utils';
+ import cookie from 'js-cookie';
+ import moment from 'moment';
++import EmployeeTable from '@/features/(Employees)/modules/employees/components/employee_table';
+ interface Service {
+   id: string;
+   service_name: string;
+@@ -61,6 +62,7 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
+   const [selectedService, setSelectedService] = useState<Service | null>(null);
+   const [items, setItems] = useState<any>(null);
+   const actualCompany = cookie.get('actualComp');
++  console.log('actualCompany', actualCompany);
+   const URL = process.env.NEXT_PUBLIC_BASE_URL;
+ 
+   const fetchItems = async () => {
+@@ -372,7 +374,8 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
+               <div className="h-full flex-1 flex-col space-y-8 md:flex">
+                 <Card>
+                   <CardContent>
+-                    <EmployeesTable columns={EmployeesListColumns} data={filteredCustomersActiveEmployees || []} />
++                    {/* <EmployeesTable columns={EmployeesListColumns} data={filteredCustomersActiveEmployees || []} /> */}
++                    <EmployeeTable />
+                   </CardContent>
+                 </Card>
+               </div>
+@@ -381,7 +384,8 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
+               <div className="h-full flex-1 flex-col space-y-8 md:flex">
+                 <Card>
+                   <CardContent>
+-                    <EmployeesTable columns={EmployeesListColumns} data={filteredCustomersInActiveEmployees || []} />
++                    {/* <EmployeesTable columns={EmployeesListColumns} data={filteredCustomersInActiveEmployees || []} /> */}
++                    <EmployeeTable />
+                   </CardContent>
+                 </Card>
+               </div>
+diff --git a/src/features/(Company)/modules/customers/components/ui/columns.tsx b/src/features/(Company)/modules/customers/components/ui/columns.tsx
+index 95e7e7c..1e1e895 100644
+--- a/src/features/(Company)/modules/customers/components/ui/columns.tsx
++++ b/src/features/(Company)/modules/customers/components/ui/columns.tsx
+@@ -52,6 +52,8 @@ import { useForm } from 'react-hook-form';
+ import { toast } from 'sonner';
+ import { z } from 'zod';
+ import { deactivateCustomer, fetchInactiveCustomer, reintegerCustomer } from '../../actions/actions';
++import Cookies from 'js-cookie';
++
+ 
+ const formSchema = z.object({
+   reason_for_termination: z.string({
+@@ -101,8 +103,8 @@ export const columns: ColumnDef<Colum>[] = [
+         setShowModal(!showModal);
+       };
+ 
+-      const actualCompany = useCompanyStore();
+-
++      // const actualCompany = useCompanyStore();
++      const actualCompany = Cookies.get('actualComp');
+       //   try {
+       //     const { data, error } = await supabase
+       //       .from('customers')
+@@ -117,9 +119,9 @@ export const columns: ColumnDef<Colum>[] = [
+       //     console.error(error);
+       //   }
+       // };
+-
++      console.log(actualCompany);
+       useEffect(() => {
+-        fetchInactiveCustomer((actualCompany?.currentCompanyId as string) || '');
++        fetchInactiveCustomer(actualCompany || '');
+       }, []);
+       const handleOpenIntegerModal = (id: string) => {
+         setCuit(cuit);
+@@ -205,7 +207,7 @@ export const columns: ColumnDef<Colum>[] = [
+           await deactivateCustomer(
+             values,
+             customers?.id,
+-            actualCompany?.currentCompanyId || '',
++            actualCompany || '',
+             employ || [], // Pasar un array vacío si employ es null o undefined
+             equip || [] // Pasar un array vacío si equip es null o undefined
+           );
+@@ -218,7 +220,7 @@ export const columns: ColumnDef<Colum>[] = [
+       };
+       const handleReinteger = async () => {
+         try {
+-          const result = await reintegerCustomer(customers?.id, actualCompany?.currentCompanyId);
++          const result = await reintegerCustomer(customers?.id, actualCompany || '');
+ 
+           if (result && result.success) {
+             setIntegerModal(false);
+diff --git a/src/features/(Company)/store/companyStore.ts b/src/features/(Company)/store/companyStore.ts
+index 0d36086..3136f1b 100644
+--- a/src/features/(Company)/store/companyStore.ts
++++ b/src/features/(Company)/store/companyStore.ts
+@@ -26,8 +26,8 @@ export const useCompanyStore = create<CompanyStore>((set) => ({
+       }
+ 
+       set({
+-        currentCompanyId: companyData.id,
+-        currentCompanyName: companyData.company_name,
++        currentCompanyId: companyData?.[0]?.id,
++        currentCompanyName: companyData?.[0]?.company_name,
+       });
+     } catch (error) {
+       console.error('Error al obtener la empresa:', error);
+diff --git a/src/shared/actions/company.actions.ts b/src/shared/actions/company.actions.ts
+index 96caed1..c1345c2 100644
+--- a/src/shared/actions/company.actions.ts
++++ b/src/shared/actions/company.actions.ts
+@@ -11,7 +11,7 @@ export const fetchCurrentCompany = async () => {
+   const company_id = cookiesStore.get('actualComp')?.value;
+   if (!company_id) return [];
+ 
+-  const { data: company, error } = await supabase.from('company').select('*').eq('id', company_id);
++  const { data: company, error } = await supabase.from('company').select('*, city(id, name)').eq('id', company_id);
+ 
+   if (error) {
+     console.error('Error fetching company:', error);
+diff --git a/src/shared/actions/employees.actions.ts b/src/shared/actions/employees.actions.ts
+index e07cd8f..0c748fc 100644
+--- a/src/shared/actions/employees.actions.ts
++++ b/src/shared/actions/employees.actions.ts
+@@ -1,3 +1,5 @@
++'use server';
++
+ import { fetchCurrentUser } from '@/app/server/GET/actions';
+ import { supabaseServer } from '@/lib/supabase/server';
+ import { cookies } from 'next/headers';

@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import BackButton from '../../../../../components/BackButton';
 // import ContactComponent from '../../../../../components/ContactComponent';
-import ContactComponent from '@/features/company/modules/contacts/components/ContactComponent';
+import ContactComponent from '@/features/(Company)/modules/contacts/components/ContactComponent';
 
 export default async function ContactFormAction({ searchParams, params }: { searchParams: any; params: any }) {
   // const { data } = await supabase

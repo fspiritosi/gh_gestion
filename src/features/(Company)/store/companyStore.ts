@@ -26,8 +26,8 @@ export const useCompanyStore = create<CompanyStore>((set) => ({
       }
 
       set({
-        currentCompanyId: companyData.id,
-        currentCompanyName: companyData.company_name,
+        currentCompanyId: companyData?.[0]?.id,
+        currentCompanyName: companyData?.[0]?.company_name,
       });
     } catch (error) {
       console.error('Error al obtener la empresa:', error);

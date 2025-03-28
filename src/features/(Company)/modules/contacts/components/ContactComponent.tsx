@@ -12,23 +12,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Toaster, toast } from 'sonner';
+import {toast } from 'sonner';
 import { z } from 'zod';
 import { createdContact, fetchContact, fetchCustomers, updateContact } from '../actions/actions';
-type Action = 'view' | 'edit' | null;
+import ContactFormSkeleton from '@/features/(Company)/modules/contacts/components/skeletons/contactSkeleton';
 
+type Action = 'view' | 'edit' | null;
 type ContactFormValues = z.infer<typeof contactSchema>;
 
 export default function ContactRegister({ id }: { id: string }) {
   const router = useRouter();
-  const functionAction = id ? updateContact : createdContact;
   const searchParams = useSearchParams();
-  const actualCompany = useCompanyStore();
   const supabase = supabaseBrowser();
+  
+  // Obtener solo lo necesario del store
+  const { currentCompanyId, fetchCompany } = useCompanyStore(state => ({
+    currentCompanyId: state.currentCompanyId,
+    fetchCompany: state.fetchCompany
+  }));
+  
   const [action, setAction] = useState<Action>(searchParams.get('action') as Action);
   const [readOnly, setReadOnly] = useState(action === 'edit' ? false : true);
-  const [clientData, setClientData] = useState<any>(null);
+  const [clientData, setClientData] = useState<any[]>([]);
   const [contactData, setContactData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -40,53 +48,64 @@ export default function ContactRegister({ id }: { id: string }) {
     },
   });
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors: formErrors },
-  } = form;
+  const { register, handleSubmit, setValue, watch, formState: { errors: formErrors } } = form;
+  const customerValue = watch('customer');
+  const functionAction = id ? updateContact : createdContact;
 
+  // Efecto para cargar datos iniciales
   useEffect(() => {
-    const id = searchParams.get('id');
-    if (action === 'view') {
-      setReadOnly(true);
-    }
-    if (action === 'edit') {
-      setReadOnly(false);
-    }
-    if (!id) {
-      setReadOnly(false);
-    }
-    const fetchData = async () => {
+    const initializeData = async () => {
       try {
-        const customers = await fetchCustomers(actualCompany?.currentCompanyId || '');
+        // Asegurarnos de tener el companyId
+        if (!currentCompanyId) {
+          await fetchCompany();
+          return;
+        }
+
+        const actionParam = searchParams.get('action') as Action;
+        setAction(actionParam);
+        
+        if (actionParam === 'view') {
+          setReadOnly(true);
+        } else if (actionParam === 'edit') {
+          setReadOnly(false);
+        } else if (!id) {
+          setReadOnly(false);
+        }
+
+        // Cargar clientes
+        const customers = await fetchCustomers(currentCompanyId);
         setClientData(customers);
 
+        // Cargar contacto si hay ID
         if (id) {
           const contact = await fetchContact(id);
           setContactData(contact);
-          setValue('contact_name', contact.contact_name || '');
-          setValue('contact_email', contact.constact_email || '');
-          setValue('contact_phone', contact.contact_phone?.toString() || '');
-          setValue('contact_charge', contact.contact_charge || '');
-          setValue('customer', contact.customer_id || '');
+          setValue('contact_name', contact?.contact_name || '');
+          setValue('contact_email', contact?.constact_email || '');
+          setValue('contact_phone', contact?.contact_phone?.toString() || '');
+          setValue('contact_charge', contact?.contact_charge || '');
+          setValue('customer', contact?.customer_id || '');
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+        toast.error('Error al cargar los datos');
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchData();
-  }, [action, id]);
-
-  const customerValue = watch('customer');
+    initializeData();
+  }, [id, searchParams, currentCompanyId]);
 
   const onSubmit = async (formData: ContactFormValues) => {
     try {
       if (!formData.customer || formData.customer === 'undefined') {
         throw new Error('Debe seleccionar un cliente válido.');
+      }
+
+      if (!currentCompanyId) {
+        throw new Error('No se ha seleccionado una empresa');
       }
 
       const data = new FormData();
@@ -96,42 +115,48 @@ export default function ContactRegister({ id }: { id: string }) {
       data.append('contact_phone', formData.contact_phone);
       data.append('contact_charge', formData.contact_charge);
       data.append('customer', formData.customer);
-      const company_id = actualCompany?.currentCompanyId;
-      data.append('company_id', company_id as string);
-      toast.loading('Creando contacto');
+      data.append('company_id', currentCompanyId);
+
+      // toast.loading(id ? 'Actualizando contacto...' : 'Creando contacto...');
 
       const response = await functionAction(data);
 
-      if (response.status === 201) {
+      if (response.status === 201 || response.status === 200) {
         toast.dismiss();
-        toast.success('Contacto creado satisfactoriamente!');
+        toast.success(id ? 'Contacto actualizado!' : 'Contacto creado!');
         router.push('/dashboard/company/actualCompany');
       } else {
-        toast.dismiss();
-        toast.error(response.body);
+        throw new Error(response.body || 'Error desconocido');
       }
-    } catch (errors) {
-      // console.error('Error submitting form:', error);
+    } catch (error) {
       toast.dismiss();
-      toast.error('Error al crear el cliente');
+      toast.error(error instanceof Error ? error.message : 'Error al procesar el contacto');
     }
   };
+
+  if (loading) {
+    return (
+      // <div className="fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center">
+      //   <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary"></div>
+      // </div>
+      <ContactFormSkeleton />
+    );
+  }
 
   return (
     <section className={cn('md:mx-7')}>
       <Card className="mt-6 p-8">
         <CardTitle className="text-4xl mb-3">
-          {action === 'view' ? '' : action === 'edit' ? 'Editar Contacto' : 'Registrar Contacto'}
+          {action === 'edit' ? 'Editar Contacto' : 'Registrar Contacto'}
         </CardTitle>
         <CardDescription>
-          {action === 'view'
-            ? ''
-            : action === 'edit'
-              ? 'Edita este formulario con los datos de tu Contacto'
-              : 'Completa este formulario con los datos de tu nuevo Contacto'}
+          {action === 'edit' 
+            ? 'Edita este formulario con los datos de tu Contacto' 
+            : 'Completa este formulario con los datos de tu nuevo Contacto'}
         </CardDescription>
+        
         <div className="mt-6 rounded-xl flex w-full">
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <input type="hidden" name="id" value={id} />
 
             <div className="flex flex-wrap gap-3 items-center w-full">
@@ -141,103 +166,89 @@ export default function ContactRegister({ id }: { id: string }) {
                   id="contact_name"
                   {...register('contact_name')}
                   className="max-w-[350px] w-[300px]"
-                  placeholder="nombre del contacto"
-                  defaultValue={contactData?.contact_name || ''}
+                  placeholder="Nombre del contacto"
                   readOnly={readOnly}
                 />
                 {formErrors.contact_name && (
-                  <CardDescription id="contact_name_error" className="max-w-[300px]">
-                    {formErrors.contact_name.message}
-                  </CardDescription>
+                  <span className="text-red-500 text-sm">{formErrors.contact_name.message}</span>
                 )}
               </div>
+
               <div>
                 <Label htmlFor="contact_email">Email</Label>
                 <Input
                   id="contact_email"
                   {...register('contact_email')}
                   className="max-w-[350px] w-[300px]"
-                  placeholder="email"
-                  defaultValue={contactData?.contact_email || ''}
+                  placeholder="Email"
                   readOnly={readOnly}
                 />
                 {formErrors.contact_email && (
-                  <CardDescription id="contact_email_error" className="max-w-[300px]">
-                    {formErrors.contact_email.message}
-                  </CardDescription>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="contact_phone">Número de teléfono</Label>
-                <Input
-                  id="contact_phone"
-                  {...register('contact_phone')}
-                  className="max-w-[350px] w-[300px]"
-                  placeholder="teléfono"
-                  defaultValue={contactData?.contact_phone || ''}
-                  readOnly={readOnly}
-                />
-                {formErrors.contact_phone && (
-                  <CardDescription id="contact_phone_error" className="max-w-[300px]">
-                    {formErrors.contact_phone.message}
-                  </CardDescription>
+                  <span className="text-red-500 text-sm">{formErrors.contact_email.message}</span>
                 )}
               </div>
 
               <div>
-                <Label htmlFor="customer">Seleccione un cliente</Label>
+                <Label htmlFor="contact_phone">Teléfono</Label>
+                <Input
+                  id="contact_phone"
+                  {...register('contact_phone')}
+                  className="max-w-[350px] w-[300px]"
+                  placeholder="Teléfono"
+                  readOnly={readOnly}
+                />
+                {formErrors.contact_phone && (
+                  <span className="text-red-500 text-sm">{formErrors.contact_phone.message}</span>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="customer">Cliente</Label>
                 <Select
                   value={customerValue}
                   onValueChange={(value) => setValue('customer', value)}
                   disabled={readOnly}
                 >
-                  <SelectTrigger id="customer" name="customer" className="max-w-[350px] w-[300px]">
-                    <SelectValue
-                      placeholder={
-                        clientData?.find((cli: any) => cli.id === customerValue)?.name || 'Seleccionar un cliente'
-                      }
-                    />
+                  <SelectTrigger className="max-w-[350px] w-[300px]">
+                    <SelectValue placeholder="Seleccionar cliente" />
                   </SelectTrigger>
                   <SelectContent>
-                    {clientData?.map((client: any) => (
-                      <SelectItem key={client?.id} value={client?.id}>
-                        {client?.name}
+                    {clientData.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {formErrors.customer && (
-                  <CardDescription id="customer_error" className="max-w-[300px]">
-                    {formErrors.customer.message}
-                  </CardDescription>
+                  <span className="text-red-500 text-sm">{formErrors.customer.message}</span>
                 )}
               </div>
+
               <div>
                 <Label htmlFor="contact_charge">Cargo</Label>
                 <Input
                   id="contact_charge"
                   {...register('contact_charge')}
                   className="max-w-[350px] w-[300px]"
-                  placeholder="cargo en la empresa"
-                  defaultValue={contactData?.contact_charge || ''}
+                  placeholder="Cargo en la empresa"
                   readOnly={readOnly}
                 />
                 {formErrors.contact_charge && (
-                  <CardDescription id="contact_charge_error" className="max-w-[300px]">
-                    {formErrors.contact_charge.message}
-                  </CardDescription>
+                  <span className="text-red-500 text-sm">{formErrors.contact_charge.message}</span>
                 )}
               </div>
             </div>
-            {action === 'view' ? null : (
+
+            {!readOnly && (
               <Button type="submit" className="mt-5">
-                {id ? 'Editar Contacto' : 'Registrar Contacto'}
+                {id ? 'Actualizar Contacto' : 'Registrar Contacto'}
               </Button>
             )}
-            <Toaster />
           </form>
         </div>
       </Card>
+      {/* <Toaster position="top-right" /> */}
     </section>
   );
 }

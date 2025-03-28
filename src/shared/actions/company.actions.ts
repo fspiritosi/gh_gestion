@@ -12,6 +12,7 @@ export const fetchCurrentCompany = async () => {
   const cookieStore = cookies();
   let company_id = cookieStore.get('actualComp')?.value;
 
+// <<<<<<< Updated upstream
   if (!company_id) {
     console.log('qui');
     const user = await getCurrentUserProfile();
@@ -27,10 +28,13 @@ export const fetchCurrentCompany = async () => {
     }
   }
 
-  const { data: company, error } = await supabase
-    .from('company')
-    .select('*')
-    .eq('id', company_id || '');
+//   const { data: company, error } = await supabase
+//     .from('company')
+//     .select('*')
+//     .eq('id', company_id || '');
+// =======
+  const { data: company, error } = await supabase.from('company').select('*, city(id, name)').eq('id', company_id || '');
+// >>>>>>> Stashed changes
 
   if (error) {
     console.error('Error fetching company:', error);

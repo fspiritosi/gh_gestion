@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 // import { supabase } from '../../../../../supabase/supabase';
 import { generic } from '@/features/(Equipment)/type/type';
-import VehiclesForm from '@/features/equipments/components/VehiclesForm';
+import VehiclesForm from '@/features/(Equipment)/components/VehiclesForm';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getRole } from '@/lib/utils/getRole';
 export default async function EquipmentFormAction({ searchParams }: { searchParams: any }) {

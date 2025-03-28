@@ -1,3 +1,5 @@
+'use server';
+
 import { fetchCurrentUser } from '@/app/server/GET/actions';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';

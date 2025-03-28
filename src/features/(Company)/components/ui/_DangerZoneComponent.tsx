@@ -12,16 +12,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { useCompanyStore } from '@/features/(Company)/store/companyStore';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-export default function DangerZoneComponent() {
-  const { currentCompanyName, fetchCompany } = useCompanyStore();
-
-  useEffect(() => {
-    fetchCompany();
-  }, [fetchCompany]);
-
+export default function DangerZoneComponent({ currentCompanyName }: { currentCompanyName: string }) {
   const [verify, setVerify] = useState(false);
 
   function compare(text: string) {

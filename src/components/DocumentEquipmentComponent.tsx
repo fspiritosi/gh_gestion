@@ -1,15 +1,15 @@
 // 'use client';
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ExpiredColums } from '@/shared/components/colums';
-import { ColumnsMonthly } from '@/shared/components/columsMonthly';
-import { ExpiredDataTable } from '@/shared/components/data-table';
+import { ExpiredColums } from '@/features/(Employees)/modules/documents/components/tables/data/colums';
+import { ColumnsMonthly } from '@/features/(Employees)/modules/documents/components/tables/data/columsMonthly';
+import { ExpiredDataTable } from '@/features/(Employees)/modules/documents/components/data-table/data-table';
 // import { useLoggedUserStore } from '@/store/loggedUser';
 import { fetchMonthlyDocumentsByEquipmentId, fetchPermanentDocumentsByEquipmentId } from '@/app/server/GET/actions';
 import { supabaseServer } from '@/lib/supabase/server';
 import { formatVehiculesDocuments } from '@/lib/utils';
 import { cookies } from 'next/headers';
-import DocumentNav from './DocumentNav';
+import DocumentNav from '@/features/(Employees)/modules/documents/components/DocumentNav';
 
 export default async function DocumentEquipmentComponent({ id, role }: { id: string; role: string }) {
   const monthlyDocuments = (await fetchMonthlyDocumentsByEquipmentId(id)).map(formatVehiculesDocuments);
