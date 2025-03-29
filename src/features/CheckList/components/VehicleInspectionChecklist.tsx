@@ -18,12 +18,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import BackButton from '../BackButton';
-import { TransporteSPANAYCHKHYS03 } from '../pdf/generators/TransporteSPANAYCHKHYS03';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Textarea } from '../ui/textarea';
+import BackButton from '@/components/BackButton';
+import { TransporteSPANAYCHKHYS03 } from '@/components/pdf/generators/TransporteSPANAYCHKHYS03';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
 
 export const checklistItems03 = {
   general: [

@@ -109,7 +109,7 @@ export async function getUserNotifications() {
     if (!notifications) return [];
 
     // Luego obtenemos los documentos de empleados y equipos
-    const documentIds = notifications.map((n) => n.document_id);
+    const documentIds = notifications.map((n) => n.document_id).filter(Boolean) as string[];
 
     const { data: employeeDocsResponse, error: employeeDocsError } = await supabase
       .from('documents_employees')

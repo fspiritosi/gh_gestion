@@ -3,7 +3,7 @@
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { formatEmployeesForTable } from '../../../utils/utils';
+import { formatEmployeesForTable } from '@/features/(Employees)/modules/employees/components/utils/utils';
 import { employeeColumns } from './columns';
 import { EmployeeTableData } from './types';
 

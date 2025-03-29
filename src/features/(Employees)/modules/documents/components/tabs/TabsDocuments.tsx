@@ -1,18 +1,19 @@
 'use client';
-import DocumentNav from '@/components/DocumentNav';
+import DocumentNav from '@/features/(Employees)/modules/documents/components/DocumentNav';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CompanyDocumentsType, useLoggedUserStore } from '@/store/loggedUser';
 import cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import TypesDocumentsView from '../../../../features/(Employees)/modules/documents_types/TypesDocumentsView';
-import { ExpiredColums } from '../../../../shared/components/colums';
-import { ColumnsMonthly } from '../../../../shared/components/columsMonthly';
-import { ExpiredDataTable } from '../../../../shared/components/data-table';
-import { DataTable } from '../../company/actualCompany/components/data-table';
-import { columnsDocuments } from '../../company/actualCompany/components/document-colums';
-import EquipmentDocumentsTable from './EquipmentDocumentsTable';
+import TypesDocumentsView from '@/features/(Employees)/modules/documents_types/components/TypesDocumentsView';
+import { ExpiredColums } from '@/features/(Employees)/modules/documents/components/tables/data/colums';
+import { ColumnsMonthly } from '@/features/(Employees)/modules/documents/components/tables/data/columsMonthly';
+import { ExpiredDataTable } from '@/features/(Employees)/modules/documents/components/data-table/data-table';
+import { DataTable } from '@/app/dashboard/company/actualCompany/components/data-table';
+// import { columnsDocuments } from '../../company/actualCompany/components/document-colums';
+import { columnsDocuments } from '@/app/dashboard/company/actualCompany/components/document-colums';
+import EquipmentDocumentsTable from '@/features/(Equipment)/components/tables/EquipmentDocumentsTable';
 
 interface Document {
   date: string;

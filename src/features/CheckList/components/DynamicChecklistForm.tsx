@@ -21,9 +21,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import BackButton from '../BackButton';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import BackButton from '@/components/BackButton';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 // Define the structure for a checklist item
 type ChecklistItem = {

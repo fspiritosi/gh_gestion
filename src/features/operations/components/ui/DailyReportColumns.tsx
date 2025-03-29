@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
 import { FilePenLine, Trash2 } from 'lucide-react';
 import moment from 'moment';
-import { DailyReportItem } from '../DailyReport';
+import { DailyReportItem } from '@/features/operations/types/types';
 
 export const dailyColumns = (
   handleViewDocument: (documentPath: string, row_id?: string) => void,

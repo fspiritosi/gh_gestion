@@ -24,7 +24,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '../../../../../../../supabase/supabase';
+import { supabase } from '../../../../../../supabase/supabase';
 import { DataTableColumnHeader } from './data-table-column-header';
 
 export const columns: ColumnDef<SharedUser>[] = [

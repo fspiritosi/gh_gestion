@@ -2,11 +2,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { columnsCategory } from '../components/ui/columnsCategory';
-import { columns } from './columnsCct';
-import { columnsGuild } from './columnsGuild';
-import { DataCategory } from './data-table-category';
-import { DataCct } from './ui/data-table-cct';
-import { DataGuild } from './ui/data-table-guild';
+import { columns } from '@/features/(Company)/modules/covenant/components/ui/columnsCct';
+import { columnsGuild } from '@/features/(Company)/modules/covenant/components/ui/columnsGuild';
+import { DataCategory } from '@/features/(Company)/modules/covenant/components/ui/data-table-category';
+import { DataCct } from '@/features/(Company)/modules/covenant/components/ui/data-table-cct';
+import { DataGuild } from '@/features/(Company)/modules/covenant/components/ui/data-table-guild';
 
 export default async function Cct() {
   const supabase = supabaseServer();

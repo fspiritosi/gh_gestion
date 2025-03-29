@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import { Badge } from '@/components/ui/badge';
 
-import DownloadButton from '@/app/dashboard/document/documentComponents/DownloadButton';
+import DownloadButton from '@/features/(Employees)/modules/documents/components/DownloadButton';
 import BackButton from '@/components/BackButton';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';

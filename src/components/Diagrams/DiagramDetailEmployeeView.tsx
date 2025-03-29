@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import InfoComponent from '../InfoComponent';
 import { Calendar } from '../ui/calendar';
-import DiagramFormUpdated from './DiagramFormUpdated';
+import DiagramFormUpdated from '@/features/(Employees)/modules/diagrams/components/DiagramFormUpdated';
 import { DiagramDetailTable } from './table/DiagramDetailTable';
 import { DetailDiagramColums } from './table/diagram-detail-colums';
 type diagram = {

@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { PersonIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
-import { formatEmployeesForTable } from '../../../utils/utils';
+import { formatEmployeesForTable } from '@/features/(Employees)/modules/employees/components/utils/utils';
+import { format } from 'date-fns';
 
 export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTable>[0], unknown>[] = [
   {

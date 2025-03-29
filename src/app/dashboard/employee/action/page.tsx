@@ -32,7 +32,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
 
   const coockiesStore = cookies();
-  const company_id = coockiesStore.get('actualComp')?.value;
+  const company_id = coockiesStore.get('actualComp')?.value.toString();
 
   let formattedEmployee;
   let guild:
@@ -55,9 +55,9 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
         covenant_id: string;
       }[]
     | undefined = undefined;
-  if (searchParams.employee_id) {
+  if (searchParams.id) {
     const { employee } = await fetch(
-      `${URL}/api/employees/${searchParams.employee_id}?actual=${company_id}&user=${user?.data?.user?.id}`
+      `${URL}/api/employees/${searchParams.id}?actual=${company_id}&user=${user?.data?.user?.id}`
     ).then((e) => e.json());
 
     formattedEmployee = setEmployeesToShow(employee)?.[0];
@@ -104,7 +104,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
     };
   });
 
-  const historyData = (await fetchDiagramsHistoryByEmployeeId(searchParams.employee_id)).map((item) => ({
+  const historyData = (await fetchDiagramsHistoryByEmployeeId(searchParams.id)).map((item) => ({
     date: moment.utc(item.prev_date).format('DD/MM/YYYY'),
     description: item.description,
     status: item.state,
@@ -117,7 +117,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
     type: item.prev_state ? 'modified' : 'created',
   }));
 
-  const diagrams2 = await fetchDiagramsByEmployeeId(searchParams.employee_id);
+  const diagrams2 = await fetchDiagramsByEmployeeId(searchParams.id);
   const diagrams_types2 = await fetchDiagramsTypes();
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">

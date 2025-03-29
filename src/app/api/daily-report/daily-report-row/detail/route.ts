@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     let { data: dailyreportrows, error } = await supabase.from('dailyreportrows' as any)
     .select(`*,daily_report_id(date,company_id),customer_id(name), service_id(service_name), item_id(item_name)`)
     // .eq('daily_report_id.company_id', company_id);
-    .eq('daily_report_id.company_id', company_id)
+    .eq('daily_report_id.company_id', company_id as string)
     .not('daily_report_id', 'is', null);
     
     

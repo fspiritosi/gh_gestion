@@ -40,9 +40,9 @@ import { z } from 'zod';
 import { supabase } from '../../supabase/supabase';
 import BackButton from './BackButton';
 
-import AddCategoryModal from './AddCategoryModal';
-import AddCovenantModal from './AddCovenantModal';
-import AddGuildModal from './AddGuildModal';
+import AddCategoryModal from '@/features/(Company)/modules/covenant/components/AddCategoryModal';
+import AddCovenantModal from '@/features/(Company)/modules/covenant/components/AddCovenantModal';
+import AddGuildModal from '@/features/(Company)/modules/covenant/components/AddGuildModal';
 import { DiagramDetailEmployeeView } from './Diagrams/DiagramDetailEmployeeView';
 import { ImageHander } from './ImageHandler';
 import { AlertDialogFooter } from './ui/alert-dialog';

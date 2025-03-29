@@ -51,3 +51,13 @@ export async function googleLogin(url: string) {
     redirect(data.url); // use the redirect API for your server framework
   }
 }
+export async function logout() {
+  const supabase = supabaseServer();
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    return handleSupabaseError(error.message);
+  }
+}
+
+

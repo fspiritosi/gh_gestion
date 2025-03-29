@@ -9,8 +9,8 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import FieldRenderer from '../formUtils/fieldRenderer';
-import { buildFormData, buildFormSchema } from '../formUtils/formUtils';
+import FieldRenderer from '@/features/CheckList/utils/fieldRenderer';
+import { buildFormData, buildFormSchema } from '@/features/CheckList/utils/formUtils';
 
 interface Props {
   campos: any[] | null;

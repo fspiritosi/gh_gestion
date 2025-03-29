@@ -1,4 +1,4 @@
-import DownloadButton from '@/app/dashboard/document/documentComponents/DownloadButton';
+import DownloadButton from '@/features/(Employees)/modules/documents/components/DownloadButton';
 import BackButton from '@/components/BackButton';
 import DeleteDocument from '@/components/DeleteDocument';
 import ReplaceDocument from '@/components/ReplaceDocument';

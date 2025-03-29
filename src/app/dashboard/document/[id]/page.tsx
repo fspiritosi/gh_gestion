@@ -14,7 +14,7 @@ import { formatDate } from 'date-fns';
 import { es } from 'date-fns/locale';
 import moment from 'moment';
 import { Suspense } from 'react';
-import DownloadButton from '../documentComponents/DownloadButton';
+import DownloadButton from '@/features/(Employees)/modules/documents/components/DownloadButton';
 import { getRole } from '@/lib/utils/getRole';
 import { getDocumentEmployeesById, getDocumentEquipmentById } from '@/app/server/GET/actions';
 export default async function page({

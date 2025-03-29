@@ -24,7 +24,9 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { ZodError, z } from 'zod';
 import { supabase } from '../../supabase/supabase';
-import { generic } from './VehiclesForm';
+// import { generic } from './VehiclesForm';
+import { generic } from '@/features/(Equipment)/type/type';
+
 
 const schema = z
   .string()

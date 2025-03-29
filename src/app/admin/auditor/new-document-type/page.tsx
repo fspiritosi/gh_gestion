@@ -1,4 +1,4 @@
-import NewDocumentType from '@/components/NewDocumentType';
+// import NewDocumentType from '@/components/NewDocumentType';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 

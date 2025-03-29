@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import BackButton from '@/components/BackButton';
-import ConvenantComponent from '@/components/CovenantComponent';
+import ConvenantComponent from '@/features/(Employees)/modules/convenios/components/CovenantComponent';
 export default async function CovenantFormAction({ searchParams, params }: { searchParams: any; params: any }) {
   
   return (
