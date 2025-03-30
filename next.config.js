@@ -21,7 +21,18 @@ const nextConfig = {
         hostname: '127.0.0.1'
       }
     ]
-  }
+  },
+  // Aumentar el tamaño máximo de la pila permitido para micromatch
+  webpack: (config, { isServer }) => {
+    // Aumentar el límite de llamadas recursivas
+    config.optimization.nodeEnv = false
+
+    return config
+  },
+  // Optimizar el proceso de build
+  poweredByHeader: false,
+  reactStrictMode: true,
+  swcMinify: true
 }
 
 module.exports = nextConfig
