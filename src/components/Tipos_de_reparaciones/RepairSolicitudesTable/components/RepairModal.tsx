@@ -41,7 +41,7 @@ function RepairModal({ row, onlyView, action }: { row: any; onlyView?: boolean; 
       if (row.original.user_images) {
         const modifiedStrings = await Promise?.all(
           row.original.user_images?.map(async (str: any) => {
-            const { data } = supabase.storage.from('repair_images').getPublicUrl(str);
+            const { data } = supabase.storage.from('repair-images').getPublicUrl(str);
             return data.publicUrl;
           })
         );
@@ -53,7 +53,7 @@ function RepairModal({ row, onlyView, action }: { row: any; onlyView?: boolean; 
     const modifiedStringsMechanic = row.original.mechanic_images
       ?.filter((e: any) => e)
       .map((str: any) => {
-        const { data } = supabase.storage.from('repair_images').getPublicUrl(str?.slice(1));
+        const { data } = supabase.storage.from('repair-images').getPublicUrl(str?.slice(1));
         return data.publicUrl;
       });
     setImagesMechanic(modifiedStringsMechanic);

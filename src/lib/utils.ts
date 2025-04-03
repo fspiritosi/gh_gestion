@@ -137,7 +137,7 @@ export async function verifyDuplicatedDocument(
 
   //console.log(path, 'Ruta completa');
 
-  const { data, error } = await supabase.storage.from('document_files').list(path);
+  const { data, error } = await supabase.storage.from('document-files').list(path);
   //     transporte-sp-srl-(30714153974)/persona/franco-ivan-andres-paratore
 
   //console.log(data, 'Archivos listados');
@@ -160,7 +160,7 @@ export async function verifyDuplicatedDocument(
 export const uploadDocumentFile = async (file: File, path: string) => {
   const supabase = supabaseBrowser();
   //console.log('file', file);
-  const { data, error } = await supabase.storage.from('document_files').upload(path, file, {
+  const { data, error } = await supabase.storage.from('document-files').upload(path, file, {
     cacheControl: '3600',
     upsert: false,
     contentType: file.type,

@@ -401,10 +401,10 @@ export default function VehiclesForm2({
               const renamedFile = new File([imageFile], `${id.replace(/\s/g, '')}.${fileExtension}`, {
                 type: `image/${fileExtension}`,
               });
-              await uploadImage(renamedFile, 'vehicle_photos');
+              await uploadImage(renamedFile, 'vehicle-photos');
 
               try {
-                const vehicleImage = `${url}/vehicle_photos/${id}.${fileExtension}`.trim().replace(/\s/g, '');
+                const vehicleImage = `${url}/vehicle-photos/${id}.${fileExtension}`.trim().replace(/\s/g, '');
 
                 const { data, error } = await supabase
                   .from('vehicles')
@@ -538,10 +538,10 @@ export default function VehiclesForm2({
               const renamedFile = new File([imageFile], `${id?.replace(/\s/g, '')}.${fileExtension}`, {
                 type: `image/${fileExtension}`,
               });
-              await uploadImage(renamedFile, 'vehicle_photos');
+              await uploadImage(renamedFile, 'vehicle-photos');
 
               try {
-                const vehicleImage = `${url}/vehicle_photos/${id}.${fileExtension}?timestamp=${Date.now()}`
+                const vehicleImage = `${url}/vehicle-photos/${id}.${fileExtension}?timestamp=${Date.now()}`
                   .trim()
                   .replace(/\s/g, '');
                 const { data, error } = await supabase

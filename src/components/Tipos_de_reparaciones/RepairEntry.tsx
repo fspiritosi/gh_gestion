@@ -207,7 +207,7 @@ export default function RepairNewEntry({
     const formatedDomain = formatDocumentTypeName(domain);
     const url = `/${formatedDomain}/${maintenanceName}-(${formattedToday.replaceAll('/', '-')})/user-image/${index}`;
 
-    const { data, error } = await supabase.storage.from('repair_images').upload(url, image);
+    const { data, error } = await supabase.storage.from('repair-images').upload(url, image);
 
     if (error) {
       throw new Error(`${error.message}`);
