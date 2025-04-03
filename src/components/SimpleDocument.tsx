@@ -155,7 +155,7 @@ export default function SimpleDocument({
           const formatedAppliesPath = documetType.applies.toLowerCase().replace(/ /g, '-');
 
           const { data } = await supabase.storage
-            .from('document_files')
+            .from('document-files')
             .list(`${formatedCompanyName}-(${actualCompany?.company_cuit})/${formatedAppliesPath}/`, {
               search: `${formatedAppliesName}/${formatedDocumentTypeName}`,
             });
@@ -181,7 +181,7 @@ export default function SimpleDocument({
 
           //! la extnsion en el equipo no se cambia bien
           const { data: response, error } = await supabase.storage
-            .from('document_files')
+            .from('document-files')
             .upload(
               `${formatedCompanyName}-(${actualCompany?.company_cuit})/${formatedAppliesPath}/${formatedAppliesName}/${formatedDocumentTypeName}-(${hasExpiredDate}).${fileExtension}`,
               files?.[index] || document.file,
@@ -744,7 +744,7 @@ export default function SimpleDocument({
                 file: '',
                 validity: '',
                 user_id: user,
-                period:  '',
+                period: '',
               })
             }
           >

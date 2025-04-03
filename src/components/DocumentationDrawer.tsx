@@ -95,7 +95,7 @@ export const DocumentationDrawer = ({ resource, document, id }: Props) => {
 
         const files = await Promise.all(
           documentToDownload?.map(async (doc) => {
-            const { data, error } = await supabase.storage.from('document_files').download(doc.document_path);
+            const { data, error } = await supabase.storage.from('document-files').download(doc.document_path);
 
             if (error) {
               throw new Error(handleSupabaseError(error.message));

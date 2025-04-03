@@ -30,14 +30,19 @@ import { Card, CardDescription } from '../ui/card';
 import GenericDialog from './GenericDialog';
 // import { cn } from '@/lib/utils'
 
-
+import BtnXlsDownload from '../BtnXlsDownload';
 import DailyReportSkeleton from '../Skeletons/DayliReportSkeleton';
 import DocumentView from './DocumentView';
 import { dailyColumns } from './tables/DailyReportColumns';
 import { TypesOfCheckListTable } from './tables/data-table-dily-report';
-import BtnXlsDownload from '../BtnXlsDownload'
 // import { Customers, Services, Items, Employee, Equipment} from '@/components/DailyReport/DailyReport';
-import { getCustomerName, getServiceName, getItemName, getEmployeeNames, getEquipmentNames } from '@/components/DailyReport/utils/utils';
+import {
+  getCustomerName,
+  getEmployeeNames,
+  getEquipmentNames,
+  getItemName,
+  getServiceName,
+} from '@/components/DailyReport/utils/utils';
 export interface Customers {
   id: string;
   name: string;
@@ -334,7 +339,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
   const [isDialogOpen2, setIsDialogOpen2] = useState(false);
 
   async function fetchDocument(document_path: string) {
-    const { data: url } = supabase.storage.from('daily_reports').getPublicUrl(document_path);
+    const { data: url } = supabase.storage.from('daily-reports').getPublicUrl(document_path);
     setDocumentUrl(url.publicUrl);
     return url.publicUrl;
   }
@@ -523,10 +528,8 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
 
       // Verificar si la jornada es de 8 o 12 horas y poner en vacío la hora de inicio y fin
       if (normalizedWorkingDay === 'jornada 8 horas' || normalizedWorkingDay === 'jornada 12 horas') {
-
         setValue('start_time', '');
         setValue('end_time', '');
-
       } else {
         setValue('start_time', itemToEdit.start_time?.slice(0, 5));
         setValue('end_time', itemToEdit.end_time?.slice(0, 5));
@@ -753,7 +756,6 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       if (data.working_day === 'jornada 8 horas' || data.working_day === 'jornada 12 horas') {
         data.start_time = '';
         data.end_time = '';
-
       }
       const formattedStartTime = formatTime(data.start_time);
       const formattedEndTime = formatTime(data.end_time);
@@ -909,19 +911,19 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
         prevReport.map((report) =>
           report.id === rowId
             ? {
-              ...report,
-              customer: data.customer,
-              employees: data.employees,
-              equipment: data.equipment,
-              services: data.services,
-              item: data.item,
-              working_day: data.working_day,
-              start_time: formattedStartTime,
-              end_time: formattedEndTime,
-              status: data.status,
-              description: data.description,
-              document_path: data.document_path,
-            }
+                ...report,
+                customer: data.customer,
+                employees: data.employees,
+                equipment: data.equipment,
+                services: data.services,
+                item: data.item,
+                working_day: data.working_day,
+                start_time: formattedStartTime,
+                end_time: formattedEndTime,
+                status: data.status,
+                description: data.description,
+                document_path: data.document_path,
+              }
             : report
         )
       );
@@ -1122,10 +1124,10 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
         prevReport.map((report) =>
           report.id === rowId
             ? {
-              ...report,
-              status: 'reprogramado',
-              description: `Reprogramado a ${data.date}`,
-            }
+                ...report,
+                status: 'reprogramado',
+                description: `Reprogramado a ${data.date}`,
+              }
             : report
         )
       );
@@ -1367,230 +1369,241 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
                                   <Button variant="outline" onClick={handleCloseDialog} className="mr-2">
                                     Cerrar
                                   </Button>
-                                <Button onClick={handleSaveToDailyReport} disabled={!selectedDate}>
-                                  Guardar
-                                </Button>
+                                  <Button onClick={handleSaveToDailyReport} disabled={!selectedDate}>
+                                    Guardar
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          </GenericDialog>
+                            </GenericDialog>
                           )}
-                      {watch('status') === 'ejecutado' && (
-                        <GenericDialog
-                          title="Confirmar Estado Ejecutado"
-                          description="Si se pasa el estado a ejecutado, no se podrá modificar más."
-                          isOpen={isDialogOpen}
-                          onClose={handleCloseDialog}
-                        >
-                          <div className="max-w-[45vw] mx-auto">
-                            <div className="mt-4 flex justify-center w-full">
-                              <Button
-                                variant="outline"
-                                onClick={() => {
-                                  setValue('status', 'pendiente');
-                                  handleCloseDialog();
-                                }}
-                                className="mr-2"
-                              >
-                                Cancelar
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  handleCloseDialog();
-                                }}
-                              >
-                                Aceptar
-                              </Button>
-                            </div>
-                          </div>
-                        </GenericDialog>
+                          {watch('status') === 'ejecutado' && (
+                            <GenericDialog
+                              title="Confirmar Estado Ejecutado"
+                              description="Si se pasa el estado a ejecutado, no se podrá modificar más."
+                              isOpen={isDialogOpen}
+                              onClose={handleCloseDialog}
+                            >
+                              <div className="max-w-[45vw] mx-auto">
+                                <div className="mt-4 flex justify-center w-full">
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setValue('status', 'pendiente');
+                                      handleCloseDialog();
+                                    }}
+                                    className="mr-2"
+                                  >
+                                    Cancelar
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      handleCloseDialog();
+                                    }}
+                                  >
+                                    Aceptar
+                                  </Button>
+                                </div>
+                              </div>
+                            </GenericDialog>
+                          )}
+                        </>
                       )}
-                    </>
-                        )}
-                    {workingDay === 'por horario' && (
-                      <>
+                      {workingDay === 'por horario' && (
+                        <>
+                          <FormField
+                            control={control}
+                            name="start_time"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Hora de inicio</FormLabel>
+                                <Input
+                                  type="time"
+                                  name="start_time"
+                                  value={startTime ? startTime : field.value}
+                                  onChange={(e) => {
+                                    setStartTime(e.target.value);
+                                    field.onChange(e.target.value);
+                                  }}
+                                  className="w-full max-w-xs"
+                                />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={control}
+                            name="end_time"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Hora de finalización</FormLabel>
+                                <Input
+                                  type="time"
+                                  name="end_time"
+                                  value={field.value || endTime}
+                                  onChange={(e) => {
+                                    setEndTime(e.target.value);
+                                    field.onChange(e.target.value);
+                                  }}
+                                  className="w-full max-w-xs"
+                                />
+                              </FormItem>
+                            )}
+                          />
+                        </>
+                      )}
+
+                      {editingId && (
                         <FormField
                           control={control}
-                          name="start_time"
+                          name="status"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Hora de inicio</FormLabel>
-                              <Input
-                                type="time"
-                                name="start_time"
-                                value={startTime ? startTime : field.value}
-                                onChange={(e) => {
-                                  setStartTime(e.target.value);
-                                  field.onChange(e.target.value);
+                              <FormLabel>Estado</FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  handleValueChange(value);
                                 }}
-                                className="w-full max-w-xs"
-                              />
+                              >
+                                <SelectTrigger className="w-full max-w-xs">
+                                  <SelectValue placeholder="Seleccione un estado" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pendiente">Pendiente</SelectItem>
+                                  <SelectItem value="ejecutado">Ejecutado</SelectItem>
+                                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                                  <SelectItem value="reprogramado">Reprogramado</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </FormItem>
                           )}
                         />
+                      )}
 
-                        <FormField
-                          control={control}
-                          name="end_time"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Hora de finalización</FormLabel>
-                              <Input
-                                type="time"
-                                name="end_time"
-                                value={field.value || endTime}
-                                onChange={(e) => {
-                                  setEndTime(e.target.value);
-                                  field.onChange(e.target.value);
-                                }}
-                                className="w-full max-w-xs"
-                              />
-                            </FormItem>
-                          )}
-                        />
-                      </>
-                    )}
-
-                    {editingId && (
                       <FormField
                         control={control}
-                        name="status"
+                        name="description"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Estado</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                handleValueChange(value);
-                              }}
-                            >
-                              <SelectTrigger className="w-full max-w-xs">
-                                <SelectValue placeholder="Seleccione un estado" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pendiente">Pendiente</SelectItem>
-                                <SelectItem value="ejecutado">Ejecutado</SelectItem>
-                                <SelectItem value="cancelado">Cancelado</SelectItem>
-                                <SelectItem value="reprogramado">Reprogramado</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <FormLabel className="w-full max-w-xs">Descripción</FormLabel>
+                            <Textarea placeholder="Ingrese una breve descripción" className="resize-none" {...field} />
                           </FormItem>
                         )}
                       />
-                    )}
 
-                    <FormField
-                      control={control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="w-full max-w-xs">Descripción</FormLabel>
-                          <Textarea placeholder="Ingrese una breve descripción" className="resize-none" {...field} />
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button type="submit" className="w-full max-w-xs">
-                      {editingId ? 'Guardar Cambios' : 'Agregar Fila'}
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setIsEditing(false);
-                        resetForm();
-                      }}
-                      variant="outline"
-                      className="w-full max-w-xs"
-                    >
-                      Cancelar
-                    </Button>
-                  </form>
-                </Form>
-              </FormProvider>
+                      <Button type="submit" className="w-full max-w-xs">
+                        {editingId ? 'Guardar Cambios' : 'Agregar Fila'}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setIsEditing(false);
+                          resetForm();
+                        }}
+                        variant="outline"
+                        className="w-full max-w-xs"
+                      >
+                        Cancelar
+                      </Button>
+                    </form>
+                  </Form>
+                </FormProvider>
               </motion.div>
             )}
-      </AnimatePresence>
-      <motion.div
-        animate={{ width: isEditing ? '77%' : '100%' }}
-        transition={{ duration: 0.3 }}
-        className="overflow-x-auto"
-      >
-        {canEdit && (
-          <div className="flex justify-end items-center mb-4">
-            <Button onClick={handleAddNewRow} className="items-end">
-              <PlusCircledIcon className="mr-2 h-4 w-4" />
-              Agregar Fila
-            </Button>
-          </div>
-        )}
+          </AnimatePresence>
+          <motion.div
+            animate={{ width: isEditing ? '77%' : '100%' }}
+            transition={{ duration: 0.3 }}
+            className="overflow-x-auto"
+          >
+            {canEdit && (
+              <div className="flex justify-end items-center mb-4">
+                <Button onClick={handleAddNewRow} className="items-end">
+                  <PlusCircledIcon className="mr-2 h-4 w-4" />
+                  Agregar Fila
+                </Button>
+              </div>
+            )}
 
-        <TypesOfCheckListTable
-          columns={dailyColumns(handleViewDocument, handleEdit, handleConfirmOpen, canEdit as any, customers, services, items, companyName as any)}
-          data={dailyReport || ''}
-          customers={customers}
-          services={services}
-          items={items}
-          employees={employees}
-          equipment={equipment}
-          companyName={companyName || ''}
-          handleViewDocument={function (documentPath: string, row_id?: string): Promise<void> {
-            throw new Error('Function not implemented.');
-          }} />
-        <BtnXlsDownload fn={createDataToDownload} dataToDownload={dailyReport} nameFile={`'Parte_Diario'${reportData?.date}`} />
-
-      </motion.div>
-    </motion.div>
-      </div >
-    <GenericDialog isOpen={isDialogOpen2} onClose={closeDialog2} title="" description="">
-      <Card className="mb-2 w-full max-w-5xl mx-auto h-[85vh]">
-        <CardDescription className="p-3 flex justify-center items-center h-full">
-          <DocumentView
-            rowId={filaId || ''}
-            row={(filteredRow as DailyReportItem) || ''}
-            documentUrl={documentUrl || ''}
-            customerName={getCustomerName(selectedCustomer?.id || '', customers)}
-            companyName={companyName || ''}
-            serviceName={getServiceName(selectedService?.id || '', services)}
-            itemNames={getItemName(selectedService?.item_id || '', items)}
-            employeeNames={filteredRow?.employees.map((emp: string) => getEmployeeNames([emp], employees))}
-            equipmentNames={filteredRow?.equipment.map((eq: string) => getEquipmentNames([eq], equipment))}
-          />
-        </CardDescription>
-      </Card>
-    </GenericDialog>
-  {
-    confirmDelete && (
-      <div>
-        <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-          <DialogContent className="w-full max-w-fit mx-auto p-2 flex flex-col items-center">
-            <DialogTitle className="text-xl font-semibold mb-4">Confirmar Eliminación</DialogTitle>
-            <DialogDescription className="text-center mb-4">
-              ¿Estás seguro de que deseas eliminar esta fila?
-            </DialogDescription>
-            <div className="flex justify-center mt-2 space-x-2">
-              <Button onClick={handleConfirmClose} className="mr-2">
-                Cancelar
-              </Button>
-              <Button
-                onClick={() => {
-                  handleDelete(selectRow as any);
-                  handleConfirmClose();
-                }}
-                variant="destructive"
-              >
-                Eliminar
-              </Button>
-            </div>
-          </DialogContent>
-          <DialogFooter className="flex justify-center">
-            <Button onClick={handleConfirmClose} variant="outline">
-              Cerrar
-            </Button>
-          </DialogFooter>
-        </Dialog>
+            <TypesOfCheckListTable
+              columns={dailyColumns(
+                handleViewDocument,
+                handleEdit,
+                handleConfirmOpen,
+                canEdit as any,
+                customers,
+                services,
+                items,
+                companyName as any
+              )}
+              data={dailyReport || ''}
+              customers={customers}
+              services={services}
+              items={items}
+              employees={employees}
+              equipment={equipment}
+              companyName={companyName || ''}
+              handleViewDocument={function (documentPath: string, row_id?: string): Promise<void> {
+                throw new Error('Function not implemented.');
+              }}
+            />
+            <BtnXlsDownload
+              fn={createDataToDownload}
+              dataToDownload={dailyReport}
+              nameFile={`'Parte_Diario'${reportData?.date}`}
+            />
+          </motion.div>
+        </motion.div>
       </div>
-    )
-  }
-    </div >
+      <GenericDialog isOpen={isDialogOpen2} onClose={closeDialog2} title="" description="">
+        <Card className="mb-2 w-full max-w-5xl mx-auto h-[85vh]">
+          <CardDescription className="p-3 flex justify-center items-center h-full">
+            <DocumentView
+              rowId={filaId || ''}
+              row={(filteredRow as DailyReportItem) || ''}
+              documentUrl={documentUrl || ''}
+              customerName={getCustomerName(selectedCustomer?.id || '', customers)}
+              companyName={companyName || ''}
+              serviceName={getServiceName(selectedService?.id || '', services)}
+              itemNames={getItemName(selectedService?.item_id || '', items)}
+              employeeNames={filteredRow?.employees.map((emp: string) => getEmployeeNames([emp], employees))}
+              equipmentNames={filteredRow?.equipment.map((eq: string) => getEquipmentNames([eq], equipment))}
+            />
+          </CardDescription>
+        </Card>
+      </GenericDialog>
+      {confirmDelete && (
+        <div>
+          <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+            <DialogContent className="w-full max-w-fit mx-auto p-2 flex flex-col items-center">
+              <DialogTitle className="text-xl font-semibold mb-4">Confirmar Eliminación</DialogTitle>
+              <DialogDescription className="text-center mb-4">
+                ¿Estás seguro de que deseas eliminar esta fila?
+              </DialogDescription>
+              <div className="flex justify-center mt-2 space-x-2">
+                <Button onClick={handleConfirmClose} className="mr-2">
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleDelete(selectRow as any);
+                    handleConfirmClose();
+                  }}
+                  variant="destructive"
+                >
+                  Eliminar
+                </Button>
+              </div>
+            </DialogContent>
+            <DialogFooter className="flex justify-center">
+              <Button onClick={handleConfirmClose} variant="outline">
+                Cerrar
+              </Button>
+            </DialogFooter>
+          </Dialog>
+        </div>
+      )}
+    </div>
   );
 }

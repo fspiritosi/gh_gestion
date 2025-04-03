@@ -97,10 +97,10 @@ export default function ReplaceDocument({
           newDocumentName = newDocumentName + `.${newExtension}`;
         }
 
-        const { error, data: response } = await supabase.storage.from('document_files').remove([documentName]);
+        const { error, data: response } = await supabase.storage.from('document-files').remove([documentName]);
 
         const { data: respons2e } = await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .list(documentName?.split('/')?.slice(0, 2).join('/'), {
             search: `/${documentName?.split('/')?.slice(3).join('/').split('.')[0]}`,
           });
@@ -111,7 +111,7 @@ export default function ReplaceDocument({
         }
 
         const { error: finalerror, data: finalDocument } = await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .upload(newDocumentName, file, {
             cacheControl: '3600',
             upsert: true,

@@ -83,7 +83,6 @@ const periodRangeFilter: FilterFn<Colum> = (
   filterValue: any,
   addMeta: (meta: any) => void
 ) => {
-  
   const startDateInput = document.getElementById('date-from') as HTMLInputElement;
   const endDateInput = document.getElementById('date-limit') as HTMLInputElement;
   const startDateValue = startDateInput?.value ? new Date(startDateInput?.value) : null;
@@ -132,7 +131,7 @@ export const ColumnsMonthly: ColumnDef<Colum>[] = [
       const handleDownload = async (path: string, fileName: string, resourceName: string) => {
         toast.promise(
           async () => {
-            const { data, error } = await supabase.storage.from('document_files').download(path);
+            const { data, error } = await supabase.storage.from('document-files').download(path);
 
             if (error) {
               throw new Error(handleSupabaseError(error.message));

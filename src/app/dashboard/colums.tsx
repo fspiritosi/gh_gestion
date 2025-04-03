@@ -287,7 +287,7 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
       const handleDownload = async (path: string, fileName: string, resourceName: string) => {
         toast.promise(
           async () => {
-            const { data, error } = await supabase.storage.from('document_files').download(path);
+            const { data, error } = await supabase.storage.from('document-files').download(path);
 
             if (error) {
               throw new Error(handleSupabaseError(error.message));
@@ -539,7 +539,7 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
   },
   {
     accessorKey: 'documentName',
-    header: 'Documento'
+    header: 'Documento',
   },
   {
     accessorKey: 'intern_number',

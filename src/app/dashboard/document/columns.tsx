@@ -95,10 +95,9 @@ export const columns: ColumnDef<Colum>[] = [
       const equipment = row.original;
       const document = row.original;
       const handleDownload = async (path: string, fileName: string, resourceName: string) => {
- 
         toast.promise(
           async () => {
-            const { data, error } = await supabase.storage.from('document_files').download(path);
+            const { data, error } = await supabase.storage.from('document-files').download(path);
 
             if (error) {
               throw new Error(handleSupabaseError(error.message));
@@ -375,7 +374,7 @@ export const columns: ColumnDef<Colum>[] = [
               Ver historial de modificaciones
             </DropdownMenuItem>
             <DropdownMenuItem
-             disabled={row.original.state === 'pendiente'}
+              disabled={row.original.state === 'pendiente'}
               onClick={() =>
                 handleDownload(row.original.document_url, row.original.documentName, row.original.resource)
               }

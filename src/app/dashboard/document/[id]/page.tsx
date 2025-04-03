@@ -1,3 +1,4 @@
+import { getDocumentEmployeesById, getDocumentEquipmentById } from '@/app/server/GET/actions';
 import BackButton from '@/components/BackButton';
 import DeleteDocument from '@/components/DeleteDocument';
 import ReplaceDocument from '@/components/ReplaceDocument';
@@ -10,13 +11,12 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cn } from '@/lib/utils';
+import { getRole } from '@/lib/utils/getRole';
 import { formatDate } from 'date-fns';
 import { es } from 'date-fns/locale';
 import moment from 'moment';
 import { Suspense } from 'react';
 import DownloadButton from '../documentComponents/DownloadButton';
-import { getRole } from '@/lib/utils/getRole';
-import { getDocumentEmployeesById, getDocumentEquipmentById } from '@/app/server/GET/actions';
 export default async function page({
   params,
   searchParams,
@@ -34,30 +34,29 @@ export default async function page({
   const supabase = supabaseServer();
 
   const role = await getRole();
-  
-  if(searchParams.resource === 'Persona'){
+
+  if (searchParams.resource === 'Persona') {
     const documents_employee = await getDocumentEmployeesById(params.id);
     document = documents_employee;
     resourceType = 'documentos-empleados';
     resource = 'employee';
   }
 
-  if(searchParams.resource === 'Equipos'){
+  if (searchParams.resource === 'Equipos') {
     const documents_equipment = await getDocumentEquipmentById(params.id);
     document = documents_equipment;
     resourceType = 'documentos-equipos';
     resource = 'vehicle';
   }
 
-
   documentType = document?.[0]?.document_types?.id;
 
   //const resorceId = document?.[0]?.applies?.id;
-  // const { data } = await supabase.storage.from('document_files').list(resourceType, {
+  // const { data } = await supabase.storage.from('document-files').list(resourceType, {
   //   search: `document-${documentType ?? ''}-${resorceId ?? ''}`,
   // });
 
-  const { data: url } = supabase.storage.from('document_files').getPublicUrl(document?.[0]?.document_path);
+  const { data: url } = supabase.storage.from('document-files').getPublicUrl(document?.[0]?.document_path);
 
   documentName = document?.[0]?.document_path;
   documentUrl = url.publicUrl;
