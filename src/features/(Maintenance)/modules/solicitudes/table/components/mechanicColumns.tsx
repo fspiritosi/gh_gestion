@@ -214,7 +214,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
         const fetchImageUrls = async () => {
           const modifiedStrings = row.original.user_images
             ?.map((str) => {
-              const { data } = supabase.storage.from('repair_images').getPublicUrl(str.slice(1));
+              const { data } = supabase.storage.from('repair-images').getPublicUrl(str.slice(1));
               return data.publicUrl;
             })
             .filter((e) => e);
@@ -222,7 +222,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
           const modifiedStringsMechanic = row.original.mechanic_images
             ?.filter((e) => e)
             .map((str) => {
-              const { data } = supabase.storage.from('repair_images').getPublicUrl(str?.slice(1));
+              const { data } = supabase.storage.from('repair-images').getPublicUrl(str?.slice(1));
               return data.publicUrl;
             });
           setImagesMechanic(modifiedStringsMechanic);
@@ -307,7 +307,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
             .forEach(async (e) => {
               if (!e) return;
               const { data, error } = await supabase.storage
-                .from('repair_images')
+                .from('repair-images')
                 .upload(e?.url, e?.image, { upsert: true });
               if (error) {
                 throw new Error(handleSupabaseError(error.message));
@@ -501,7 +501,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
           .filter((e) => e)
           .forEach(async (e) => {
             if (!e) return;
-            const { data, error } = await supabase.storage.from('repair_images').upload(e?.url, e?.image);
+            const { data, error } = await supabase.storage.from('repair-images').upload(e?.url, e?.image);
             if (error) {
               throw new Error(handleSupabaseError(error.message));
             }

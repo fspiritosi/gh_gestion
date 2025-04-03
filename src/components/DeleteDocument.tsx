@@ -48,7 +48,7 @@ export default function DeleteDocument({
         if (!documentName) return;
 
         await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .remove([documentName])
           .then(async () => {
             if (resource === 'employee') {

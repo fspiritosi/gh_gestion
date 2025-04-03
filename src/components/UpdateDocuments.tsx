@@ -107,7 +107,7 @@ export default function UpdateDocuments({
 
         if (montly) {
           const { error: newDocumentError, data } = await supabase.storage
-            .from('document_files')
+            .from('document-files')
             .upload(newDocumentName, file, { upsert: true });
 
           const { error: updateError } = await supabase
@@ -135,7 +135,7 @@ export default function UpdateDocuments({
         //console.log(documentName);
 
         const { data: fileData, error: downloadError } = await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .download(documentName);
 
         if (downloadError) {
@@ -144,7 +144,7 @@ export default function UpdateDocuments({
         }
 
         const { error: uploadError } = await supabase.storage
-          .from('document_files_expired')
+          .from('document-files_expired')
           .upload(documentName, fileData, { upsert: true });
 
         if (uploadError) {
@@ -152,7 +152,7 @@ export default function UpdateDocuments({
           throw new Error(handleSupabaseError(uploadError.message));
         }
 
-        const { error: deleteError } = await supabase.storage.from('document_files').remove([documentName]);
+        const { error: deleteError } = await supabase.storage.from('document-files').remove([documentName]);
 
         if (deleteError) {
           //  console.log(deleteError);
@@ -160,7 +160,7 @@ export default function UpdateDocuments({
         }
 
         const { error: newDocumentError, data: finalDocument } = await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .upload(newDocumentName, file, { upsert: true });
 
         const { error: updateError } = await supabase

@@ -115,7 +115,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
   }, [reportData]);
 
   async function fetchDocument(document_path: string) {
-    const { data: url } = supabase.storage.from('daily_reports').getPublicUrl(document_path);
+    const { data: url } = supabase.storage.from('daily-reports').getPublicUrl(document_path);
     setDocumentUrl(url.publicUrl);
     return url.publicUrl;
   }

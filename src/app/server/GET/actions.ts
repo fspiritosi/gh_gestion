@@ -72,7 +72,7 @@ export const fetchSingEmployee = async (employeesId: string) => {
     return null;
   }
 
-  const data2 = supabase.storage.from('document_files').getPublicUrl(employeeSingDocument?.[0]?.document_path || '');
+  const data2 = supabase.storage.from('document-files').getPublicUrl(employeeSingDocument?.[0]?.document_path || '');
 
   console.log('data', data2);
 

@@ -85,11 +85,11 @@ export default async function page({ params }: { params: { id: string } }) {
   documentType = document?.[0]?.document_types?.id;
 
   const resorceId = document?.[0]?.applies?.id;
-  const { data } = await supabase.storage.from('document_files').list(resourceType, {
+  const { data } = await supabase.storage.from('document-files').list(resourceType, {
     search: `document-${documentType}-${resorceId}`,
   });
 
-  const { data: url } = supabase.storage.from('document_files').getPublicUrl(document?.[0]?.document_path);
+  const { data: url } = supabase.storage.from('document-files').getPublicUrl(document?.[0]?.document_path);
 
   documentName = document?.[0]?.document_path;
   documentUrl = url.publicUrl;

@@ -66,9 +66,9 @@ export async function onCreate(
             type: `image/${fileExtension}`,
           });
 
-          await uploadImage(renamedFile, 'vehicle_photos');
+          await uploadImage(renamedFile, 'vehicle-photos');
 
-          const vehicleImage = `${process.env.NEXT_PUBLIC_PROJECT_URL}/vehicle_photos/${insertedVehicle.id}.${fileExtension}`;
+          const vehicleImage = `${process.env.NEXT_PUBLIC_PROJECT_URL}/vehicle-photos/${insertedVehicle.id}.${fileExtension}`;
           await supabase
             .from('vehicles')
             .update({ picture: vehicleImage })
@@ -163,9 +163,9 @@ export async function onUpdate(
           const renamedFile = new File([imageFile], `${vehicle?.id}.${fileExtension}`, {
             type: `image/${fileExtension}`,
           });
-          await uploadImage(renamedFile, 'vehicle_photos');
+          await uploadImage(renamedFile, 'vehicle-photos');
 
-          const vehicleImage = `${process.env.NEXT_PUBLIC_PROJECT_URL}/vehicle_photos/${vehicle?.id}.${fileExtension}`;
+          const vehicleImage = `${process.env.NEXT_PUBLIC_PROJECT_URL}/vehicle-photos/${vehicle?.id}.${fileExtension}`;
           await supabase
             .from('vehicles')
             .update({ picture: vehicleImage })

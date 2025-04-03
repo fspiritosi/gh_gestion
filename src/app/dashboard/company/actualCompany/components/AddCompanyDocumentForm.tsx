@@ -71,7 +71,7 @@ function AddCompanyDocumentForm({
         const formatedDocumentTypeName = formatDocumentTypeName(documentForId?.name || '');
         const hasExpiredDate = data.validity?.replace(/\//g, '-') ?? 'v0';
         const { data: DuplicatedDocument } = await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .list(
             `${actualCompany?.company_name.toLowerCase().replace(/ /g, '-')}-(${actualCompany?.company_cuit})/empresa`,
             {
@@ -84,7 +84,7 @@ function AddCompanyDocumentForm({
         const fileExtension = data.file.split('.').pop();
         if (!file) throw new Error('No se ha subido el archivo');
         await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .upload(
             `/${actualCompany?.company_name.toLowerCase().replace(/ /g, '-')}-(${actualCompany?.company_cuit})/empresa/${formatedDocumentTypeName}-(${hasExpiredDate}).${fileExtension}`,
             file,
@@ -111,7 +111,7 @@ function AddCompanyDocumentForm({
               .eq('id_document_types', documentId);
 
             if (error) {
-              await supabase.storage.from('document_files').remove([response.data?.path || '']);
+              await supabase.storage.from('document-files').remove([response.data?.path || '']);
             }
             fetchDocuments();
             router.refresh();

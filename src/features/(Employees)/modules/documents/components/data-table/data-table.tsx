@@ -268,7 +268,7 @@ export function ExpiredDataTable<TData, TValue>({
 
         const files = await Promise.all(
           documentToDownload?.map(async (doc: any) => {
-            const { data, error } = await supabase.storage.from('document_files').download(doc.document_url);
+            const { data, error } = await supabase.storage.from('document-files').download(doc.document_url);
 
             if (error) {
               // console.log('Salio este error', error);
