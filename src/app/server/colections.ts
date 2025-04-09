@@ -4,6 +4,7 @@ import type { Database as DB } from '../../../database.types';
 declare global {
   // Tipos de tablas
   type Database = DB;
+  type CostCenter = DB['public']['Tables']['cost_center']['Row'];
   type Vehicle = DB['public']['Tables']['vehicles']['Row']; // Anteriormente: Vehicles
   type VehicleBrand = DB['public']['Tables']['brand_vehicles']['Row']; // Anteriormente: Brand
   type DocumentTypes = DB['public']['Tables']['document_types']['Row']; // Anteriormente: TypeOfDocuments
@@ -53,8 +54,8 @@ declare global {
   interface diagrams_logsWithUser extends Omit<diagrams_logs, 'modified_by'> {
     modified_by: UserProfile; // Anteriormente: Profile
   }
-  interface EmployeeDiagramWithDiagramType extends Omit<EmployeeDiagram, 'diagram_type'|'employee_id'> {
-    diagram_type: DiagramType; 
+  interface EmployeeDiagramWithDiagramType extends Omit<EmployeeDiagram, 'diagram_type' | 'employee_id'> {
+    diagram_type: DiagramType;
     employee_id: Employee;
   }
 
@@ -164,10 +165,10 @@ declare global {
     };
   }
 
-interface contractor_equipmentWithContractor extends Omit<contractor_equipment, 'contractor_id'> {
+  interface contractor_equipmentWithContractor extends Omit<contractor_equipment, 'contractor_id'> {
     // Anteriormente: contractor_equipmentWithContractor
     contractor_id: customers; // Anteriormente: CompanyWithRelations
-}
+  }
 
   // Relaciones para ShareCompanyUsers con Equipment
   interface ShareCompanyUsersWithEquipment extends Omit<ShareCompanyUsers, 'customer_id'> {
@@ -190,7 +191,7 @@ interface contractor_equipmentWithContractor extends Omit<contractor_equipment, 
   }
 
   // Relaciones de Vehicle
-  interface VehicleWithBrand extends Omit<Vehicle, 'brand' | 'model' | 'type'|'contractor_equipment'> {
+  interface VehicleWithBrand extends Omit<Vehicle, 'brand' | 'model' | 'type' | 'contractor_equipment'> {
     // Anteriormente: VehiclesWithBrand
     brand: VehicleBrand; // Anteriormente: Brand
     model: TypeOfVehicle; // Anteriormente: Model

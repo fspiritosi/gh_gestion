@@ -12,6 +12,7 @@ import { getRole } from '@/lib/utils/getRole';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import moment from 'moment';
 import { cookies } from 'next/headers';
+import { fetchAllCostCenter } from './actions/actions';
 export default async function EmployeeFormAction({ searchParams }: { searchParams: any }) {
   // const { data } = await supabase
 
@@ -19,7 +20,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   //   .select('*,applies(*),id_document_types(*)')
   //   .eq('applies.document_number', searchParams.document)
   //   .not('applies', 'is', null)
-  const role = await getRole()
+  const role = await getRole();
 
   const supabase = supabaseServer();
   const user = await supabase.auth.getUser();
@@ -56,11 +57,39 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
       }[]
     | undefined = undefined;
   if (searchParams.employee_id) {
-    const { employee } = await fetch(
-      `${URL}/api/employees/${searchParams.employee_id}?actual=${company_id}&user=${user?.data?.user?.id}`
-    ).then((e) => e.json());
+    let { data: employees, error } = await supabase
+      .from('employees')
+      .select(
+        `*,guild(name), city (
+        name
+      ),
+      province(
+        name
+      ),
+      workflow_diagram(
+        name
+      ),
+      hierarchical_position(
+        name
+      ),
+      birthplace(
+        name
+      ),
+      contractor_employee(
+        customers(
+          *
+        )
+      )`
+      )
+      .eq('id', searchParams.employee_id || '');
 
-    formattedEmployee = setEmployeesToShow(employee)?.[0];
+    if (error) {
+      console.log(error, 'error');
+    }
+
+    console.log(employees);
+
+    formattedEmployee = setEmployeesToShow(employees)?.[0];
   }
 
   let { data: guilds, error } = await supabase
@@ -116,13 +145,17 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
     modifiedAt: moment(item.created_at).local().format('DD/MM/YYYY HH:mm'), // Formatear a la hora local
     type: item.prev_state ? 'modified' : 'created',
   }));
-  
+
+  const allCostCenter = await fetchAllCostCenter();
   const diagrams2 = await fetchDiagramsByEmployeeId(searchParams.employee_id);
   const diagrams_types2 = await fetchDiagramsTypes();
+
+  console.log(allCostCenter, 'allCostcenter');
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
       <Card className={cn('col-span-8 flex flex-col justify-between overflow-hidden')}>
         <EmployeeComponent
+          cost_center={allCostCenter}
           guild={guild}
           covenants={covenants}
           categories={categories}

@@ -35,6 +35,7 @@ require('dotenv').config();
 // import { useToast } from './ui/use-toast'
 import QRCode from 'react-qr-code';
 import AddTypeModal from './AddTypeModal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 type VehicleType = {
   year: string;
   engine: string;
@@ -69,12 +70,14 @@ type dataType = {
 
 export default function VehiclesForm2({
   vehicle,
+  allCostCenter,
   children,
   types: vehicleType,
   brand_vehicles,
   role,
 }: {
   vehicle: any | null;
+  allCostCenter: CostCenter[];
   children: ReactNode;
   types: generic[];
   brand_vehicles: VehicleBrand[] | null;
@@ -266,6 +269,7 @@ export default function VehiclesForm2({
     picture: z.string().optional(),
     type: hideInput ? z.string().optional() : z.string({ required_error: 'El tipo es requerido' }),
     allocated_to: z.array(z.string()).optional(),
+    cost_center_id: z.string().optional(),
   });
   const [readOnly, setReadOnly] = useState(accion === 'view' ? true : false);
 
@@ -318,7 +322,7 @@ export default function VehiclesForm2({
       intern_number: vehicle?.intern_number || '',
       picture: vehicle?.picture || '',
       allocated_to: vehicle?.allocated_to || [],
-
+      cost_center_id: vehicle?.cost_center_id || '',
       brand: vehicle?.brand || '',
       model: vehicle?.model || '',
       type_of_vehicle: vehicle?.type_of_vehicle || '',
@@ -359,6 +363,7 @@ export default function VehiclesForm2({
                 company_id: actualCompany?.id,
                 condition: 'operativo',
                 kilometer: values.kilometer || 0,
+                cost_center_id: values.cost_center_id || null,
               },
             ])
             .select();
@@ -520,6 +525,7 @@ export default function VehiclesForm2({
           allocated_to: values.allocated_to,
           kilometer: values.kilometer,
           type: vehicleType.find((e) => e.name === values.type)?.id,
+          cost_center_id: values.cost_center_id || null,
         });
 
         try {
@@ -1142,31 +1148,33 @@ export default function VehiclesForm2({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="intern_number"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col min-w-[250px]">
-                      <FormLabel>
-                        Número interno del equipo
-                        <span style={{ color: 'red' }}>*</span>
-                      </FormLabel>
-                      <Input
-                        {...field}
-                        disabled={readOnly}
-                        type="text"
-                        className="input w-[250px]"
-                        placeholder="Ingrese el número interno"
-                        value={field.value !== '' ? field.value : vehicle?.intern_number || ''}
-                        onChange={(e) => {
-                          form.setValue('intern_number', e.target.value);
-                        }}
-                      />
-                      <FormDescription>Ingrese el número interno del equipo</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="intern_number"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col min-w-[250px]">
+                        <FormLabel>
+                          Número interno del equipo
+                          <span style={{ color: 'red' }}>*</span>
+                        </FormLabel>
+                        <Input
+                          {...field}
+                          disabled={readOnly}
+                          type="text"
+                          className="input w-[250px]"
+                          placeholder="Ingrese el número interno"
+                          value={field.value !== '' ? field.value : vehicle?.intern_number || ''}
+                          onChange={(e) => {
+                            form.setValue('intern_number', e.target.value);
+                          }}
+                        />
+                        <FormDescription>Ingrese el número interno del equipo</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 {role !== 'Invitado' && (
                   <div className=" min-w-[250px] flex flex-col gap-2">
                     <FormField
@@ -1187,6 +1195,34 @@ export default function VehiclesForm2({
                     />
                   </div>
                 )}
+                <FormField
+                  control={form.control}
+                  name="cost_center_id"
+                  render={({ field }) => (
+                    <FormItem className={cn('flex flex-col min-w-[250px]')}>
+                      <FormLabel>Cost Center</FormLabel>
+                      <Select
+                        disabled={readOnly}
+                        value={field.value}
+                        onValueChange={(value) => form.setValue('cost_center_id', value)}
+                      >
+                        <SelectTrigger className="w-[250px]">
+                          <SelectValue placeholder="Cost Center" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allCostCenter?.map((costCenter) => (
+                            <SelectItem key={costCenter.id} value={costCenter.id}>
+                              {costCenter.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <FormDescription>Selecciona el Centro de costo</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="w-[300px] flex  gap-2">
                   <FormField
                     control={form.control}

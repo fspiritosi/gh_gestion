@@ -1,4 +1,3 @@
-import { id } from 'date-fns/locale';
 import {
   CompaniesTableOptions,
   DocumentsTableOptions,
@@ -103,6 +102,7 @@ export const setEmployeesToShow = (employees: any) => {
       guild: employees?.guild?.name,
       covenants: employees?.covenant?.name,
       category: employees?.category?.name,
+      cost_center_id: employees?.cost_center_id,
     };
   });
 
