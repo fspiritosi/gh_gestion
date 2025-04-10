@@ -1,5 +1,3 @@
-import CompanyComponent from '@/components/CompanyComponent';
-import DangerZoneComponent from '@/components/DangerZoneComponent';
 import DocumentTabComponent from '@/components/DocumentTabComponent';
 import EditCompanyButton from '@/components/EditCompanyButton';
 import { RegisterWithRole } from '@/components/RegisterWithRole';
@@ -8,6 +6,7 @@ import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
 import UsersTabComponent from '@/components/UsersTabComponent';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
+import General from '@/features/Empresa/General/General';
 import RecursoHumanos from '@/features/Empresa/RRHH/RecursoHumanos';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
@@ -32,12 +31,7 @@ export default async function CompanyPage() {
           description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: <EditCompanyButton companyId={company_id?.toString() ?? ''} />,
-          component: (
-            <div>
-              <CompanyComponent />
-              <DangerZoneComponent />
-            </div>
-          ),
+          component: <General />,
         },
       },
       {

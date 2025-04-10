@@ -1,122 +1,96 @@
-'use client';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { createContractType, deleteContractType, updateContractType } from '../actions/actions';
-const ContractTypeSchema = z.object({
+import { createCostCenter, updateCostCenter } from '../actions/actions';
+const CostCenterSchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(1, { message: 'Debe ingresar el nombre del tipo de contrato' }),
-  description: z.string().default('').nullable(),
+  name: z.string().min(1, { message: 'Debe ingresar el nombre del centro de costo' }),
   is_active: z.string().optional(),
 });
 
-export default function ContractTypeForm({ editingContractType }: { editingContractType: ContractType | null }) {
-  const form = useForm<z.infer<typeof ContractTypeSchema>>({
-    resolver: zodResolver(ContractTypeSchema),
+function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter | null }) {
+  const form = useForm<z.infer<typeof CostCenterSchema>>({
+    resolver: zodResolver(CostCenterSchema),
     defaultValues: {
       name: '',
-      description: '',
       is_active: '',
     },
   });
 
   const { reset } = form;
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(!!editingContractType);
+  const [isEditing, setIsEditing] = useState(!!editingCostCenter);
 
-  console.log(editingContractType, 'editingContractType');
+  console.log(editingCostCenter, 'editingCostCenter');
 
   useEffect(() => {
-    if (editingContractType) {
+    if (editingCostCenter) {
       reset({
-        id: editingContractType.id,
-        name: editingContractType.name,
-        description: editingContractType.description,
-        is_active: editingContractType.is_active ? 'true' : 'false',
+        id: editingCostCenter.id,
+        name: editingCostCenter.name,
+        is_active: editingCostCenter.is_active ? 'true' : 'false',
       });
       setIsEditing(true);
     } else {
       reset({
         id: '',
         name: '',
-        description: '',
         is_active: '',
       });
       setIsEditing(false);
     }
-  }, [editingContractType, reset]);
+  }, [editingCostCenter, reset]);
 
-  const onSubmit = async (values: z.infer<typeof ContractTypeSchema>) => {
+  const onSubmit = async (values: z.infer<typeof CostCenterSchema>) => {
     toast.promise(
       async () => {
-        await createContractType({ description: values.description, name: values.name });
+        await createCostCenter({ name: values.name });
       },
       {
-        loading: 'Creando tipo de contrato...',
+        loading: 'Creando centro de costo...',
         success: () => {
           router.refresh();
           resetForm();
-          return 'Tipo de contrato creado correctamente';
+          return 'Centro de costo creado correctamente';
         },
         error: (error) => {
-          return 'Error al crear el tipo de contrato';
+          return 'Error al crear el centro de costo';
         },
       }
     );
   };
 
-  const handleDelete = async () => {
+  const onUpdate = async (values: z.infer<typeof CostCenterSchema>) => {
     toast.promise(
       async () => {
-        await deleteContractType({ id: editingContractType!.id });
-      },
-      {
-        loading: 'Eliminando tipo de contrato...',
-        success: () => {
-          router.refresh();
-          resetForm();
-          return 'Tipo de contrato eliminado correctamente';
-        },
-        error: (error) => {
-          return 'Error al eliminar el tipo de contrato';
-        },
-      }
-    );
-  };
-
-  const onUpdate = async (values: z.infer<typeof ContractTypeSchema>) => {
-    toast.promise(
-      async () => {
-        await updateContractType({
+        await updateCostCenter({
           id: values.id!,
           name: values.name,
-          description: values.description,
           is_active: values.is_active === 'true' ? true : false,
         });
       },
       {
-        loading: 'Actualizando tipo de contrato...',
+        loading: 'Actualizando centro de costo...',
         success: () => {
           router.refresh();
           resetForm();
-          return 'Tipo de contrato actualizado correctamente';
+          return 'Centro de costo actualizado correctamente';
         },
         error: (error) => {
-          return 'Error al actualizar el tipo de contrato';
+          return 'Error al actualizar el centro de costo';
         },
       }
     );
   };
 
-  const handleSubmit = (values: z.infer<typeof ContractTypeSchema>) => {
+  const handleSubmit = (values: z.infer<typeof CostCenterSchema>) => {
     if (isEditing) {
       onUpdate(values);
     } else {
@@ -128,7 +102,6 @@ export default function ContractTypeForm({ editingContractType }: { editingContr
     reset({
       id: '',
       name: '',
-      description: '',
       is_active: '',
     });
     setIsEditing(false);
@@ -141,41 +114,22 @@ export default function ContractTypeForm({ editingContractType }: { editingContr
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4">
-        <h2 className="text-xl font-bold mb-4">{isEditing ? 'Editar Tipo de Contrato' : 'Crear Tipo de Contrato'}</h2>
+        <h2 className="text-xl font-bold mb-4">{isEditing ? 'Editar Centro de Costo' : 'Crear Centro de Costo'}</h2>
 
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nombre del Tipo de Contrato</FormLabel>
+              <FormLabel>Nombre del Centro de Costo</FormLabel>
               <FormControl>
-                <Input type="text" {...field} className="input w-[400px]" placeholder="Nombre del tipo de contrato" />
+                <Input type="text" {...field} className="input w-[400px]" placeholder="Nombre del centro de costo" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descripción</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  value={field.value || ''}
-                  className="w-[400px]"
-                  placeholder="Descripción del tipo de contrato"
-                  rows={4}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="is_active"
@@ -215,3 +169,5 @@ export default function ContractTypeForm({ editingContractType }: { editingContr
     </Form>
   );
 }
+
+export default CostCenterForm;
