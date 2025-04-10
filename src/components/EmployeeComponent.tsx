@@ -21,7 +21,6 @@ import {
   genderOptionsENUM,
   instrutionsOptionsENUM,
   nacionaliOptionsENUM,
-  typeOfContractENUM,
 } from '@/types/enums';
 import { names } from '@/types/types';
 import { accordionSchema } from '@/zodSchemas/schemas';
@@ -58,43 +57,6 @@ type Province = {
   id: number;
   name: string;
 };
-type dataType = {
-  guild: {
-    name: string;
-    id: string;
-    is_active: boolean;
-  }[];
-  covenants: {
-    name: string;
-    number: string;
-    guild_id: string;
-    id: string;
-    is_active: boolean;
-  }[];
-  category: {
-    name: string;
-    id: string;
-    covenant_id: string;
-    is_active: boolean;
-  }[];
-};
-
-type diagram = {
-  id: string;
-  created_at: string;
-  employee_id: string;
-  diagram_type: {
-    id: string;
-    name: string;
-    color: string;
-    company_id: string;
-    created_at: string;
-    short_description: string;
-  };
-  day: number;
-  month: number;
-  year: number;
-};
 
 export default function EmployeeComponent({
   guild,
@@ -108,7 +70,10 @@ export default function EmployeeComponent({
   activeEmploees,
   historyData,
   role,
+  contract_types,
 }: {
+  contract_types: ContractType[];
+
   cost_center: CostCenter[];
   historyData: any;
   role: string | null;
@@ -412,7 +377,7 @@ export default function EmployeeComponent({
       label: 'Tipo de contrato',
       type: 'select',
       placeholder: 'Tipo de contrato',
-      options: typeOfContractENUM,
+      options: contract_types.map((contractType) => contractType.name),
       name: 'type_of_contract',
     },
     {

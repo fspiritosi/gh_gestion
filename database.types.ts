@@ -1241,6 +1241,7 @@ export type Database = {
           affiliate_status: Database['public']['Enums']['affiliate_status_enum'] | null;
           allocated_to: string[] | null;
           birthplace: string;
+          born_date: string | null;
           category_id: string | null;
           city: number;
           company_id: string | null;
@@ -1281,6 +1282,7 @@ export type Database = {
           affiliate_status?: Database['public']['Enums']['affiliate_status_enum'] | null;
           allocated_to?: string[] | null;
           birthplace: string;
+          born_date?: string | null;
           category_id?: string | null;
           city: number;
           company_id?: string | null;
@@ -1321,6 +1323,7 @@ export type Database = {
           affiliate_status?: Database['public']['Enums']['affiliate_status_enum'] | null;
           allocated_to?: string[] | null;
           birthplace?: string;
+          born_date?: string | null;
           category_id?: string | null;
           city?: number;
           company_id?: string | null;
@@ -2165,6 +2168,30 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      types_of_contract: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_active: boolean | null;
+          name: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean | null;
+          name: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean | null;
+          name?: string;
+        };
+        Relationships: [];
       };
       types_of_repairs: {
         Row: {

@@ -4,6 +4,7 @@ import type { Database as DB } from '../../../database.types';
 declare global {
   // Tipos de tablas
   type Database = DB;
+  type ContractType = DB['public']['Tables']['types_of_contract']['Row'];
   type CostCenter = DB['public']['Tables']['cost_center']['Row'];
   type Vehicle = DB['public']['Tables']['vehicles']['Row']; // Anteriormente: Vehicles
   type VehicleBrand = DB['public']['Tables']['brand_vehicles']['Row']; // Anteriormente: Brand
