@@ -11,7 +11,17 @@ import { columns, type Diagram } from './column';
 import { DataTable } from './data-table';
 import { SkeletonTable } from './skeletonTable';
 
-export default function ListDiagrams() {
+interface DiagramType {
+  id: string;
+  created_at: string;
+  name: string;
+  company_id: string;
+  color: string;
+  short_description: string;
+  work_active: boolean;
+}
+
+export default function ListDiagrams({ diagramsTypes }: { diagramsTypes: DiagramType[] }) {
   const [data, setData] = useState<Diagram[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDiagram, setSelectedDiagram] = useState<Diagram | null>(null);
@@ -22,7 +32,16 @@ export default function ListDiagrams() {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/work-diagrams`);
       const data = await response.json();
-      setData(data.diagrams);
+      const newData = data.diagrams.map((diagram: Diagram) => {
+        const active_novelty = diagramsTypes.find((dt) => dt.id === diagram.active_novelty);
+        const inactive_novelty = diagramsTypes.find((dt) => dt.id === diagram.inactive_novelty);
+        return {
+          ...diagram,
+          active_novelty: active_novelty ? active_novelty.name : '',
+          inactive_novelty: inactive_novelty ? inactive_novelty.name : '',
+        };
+      });
+      setData(newData);
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching diagrams:', error);
@@ -112,13 +131,14 @@ export default function ListDiagrams() {
               ? 'Modifique los campos que desee editar'
               : 'Detalles del diagrama de trabajo'
         }
-        size="xl"
+        size="lg"
       >
         <WorkDiagramForm
           diagram={selectedDiagram}
           mode={modalMode}
           onSuccess={handleSuccess}
           onCancel={() => setIsModalOpen(false)}
+          diagramsTypes={diagramsTypes}
         />
       </BaseModal>
       <Toaster />

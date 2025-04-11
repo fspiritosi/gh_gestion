@@ -21,11 +21,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const supabase = supabaseServer();
   const body = await request.json();
-  const { name, active_working_days, inactive_working_days } = body;
+  const { name, active_working_days, inactive_working_days, active_novelty, inactive_novelty } = body;
   try {
     let { data: diagram, error } = await supabase
       .from('work-diagram')
-      .insert([{ name, active_working_days, inactive_working_days }])
+      .insert([{ name, active_working_days, inactive_working_days, active_novelty, inactive_novelty }])
       .single();
 
     if (error) {
@@ -41,11 +41,11 @@ export async function PUT(request: NextRequest) {
   const supabase = supabaseServer();
   const id = request.nextUrl.searchParams.get('id');
   const body = await request.json();
-  const { name, active_working_days, inactive_working_days, is_active } = body;
+  const { name, active_working_days, inactive_working_days, is_active, active_novelty, inactive_novelty } = body;
   try {
     let { data: diagram, error } = await supabase
       .from('work-diagram')
-      .update({ name, active_working_days, inactive_working_days, is_active })
+      .update({ name, active_working_days, inactive_working_days, is_active, active_novelty, inactive_novelty })
       .eq('id', id || '')
       .single();
 

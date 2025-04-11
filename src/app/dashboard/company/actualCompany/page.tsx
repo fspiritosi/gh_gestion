@@ -14,7 +14,6 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import TypesDocumentAction from '../../document/documentComponents/TypesDocumentAction';
 import Contacts from './contact/Contact';
-import CovenantTreeFile from './covenant/CovenantTreeFile';
 import Customers from './customers/Customers';
 
 export default async function CompanyPage() {
@@ -107,18 +106,18 @@ export default async function CompanyPage() {
           component: <Contacts />,
         },
       },
-      {
-        value: 'covenant',
-        name: 'Convenios colectivos de trabajo',
-        restricted: [''],
-        content: {
-          title: 'Convenios colectivos de trabajo',
-          description: 'Lista de Convenios colectivos de trabajo',
-          buttonActioRestricted: [''],
-          // buttonAction: <CovenantRegister />,
-          component: <CovenantTreeFile />,
-        },
-      },
+      // {
+      //   value: 'covenant',
+      //   name: 'Convenios colectivos de trabajo',
+      //   restricted: [''],
+      //   content: {
+      //     title: 'Convenios colectivos de trabajo',
+      //     description: 'Lista de Convenios colectivos de trabajo',
+      //     buttonActioRestricted: [''],
+      //     // buttonAction: <CovenantRegister />,
+      //     component: <CovenantTreeFile />,
+      //   },
+      // },
       // {
       //   value: 'forms',
       //   name: 'Formularios',
