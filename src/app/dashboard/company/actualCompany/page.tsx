@@ -1,3 +1,4 @@
+import RrhhComponent from '@/app/dashboard/company/companyComponents/rrhh/rrhhComponent';
 import CompanyComponent from '@/components/CompanyComponent';
 import DangerZoneComponent from '@/components/DangerZoneComponent';
 import DocumentTabComponent from '@/components/DocumentTabComponent';
@@ -15,6 +16,7 @@ import TypesDocumentAction from '../../document/documentComponents/TypesDocument
 import Contacts from './contact/Contact';
 import CovenantTreeFile from './covenant/CovenantTreeFile';
 import Customers from './customers/Customers';
+
 export default async function CompanyPage() {
   const coockiesStore = cookies();
   const company_id = coockiesStore.get('actualComp')?.value;
@@ -139,6 +141,18 @@ export default async function CompanyPage() {
           buttonActioRestricted: [''],
           buttonAction: '',
           component: <ServiceComponent />,
+        },
+      },
+      {
+        value: 'rrhh',
+        name: 'RRHH',
+        restricted: [''],
+        content: {
+          title: 'RRHH de la empresa',
+          description: 'Crear y ver RRHH de la empresa',
+          buttonActioRestricted: [''],
+          buttonAction: '',
+          component: <RrhhComponent />,
         },
       },
       // {
