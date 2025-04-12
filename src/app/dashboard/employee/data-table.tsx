@@ -39,11 +39,11 @@ import { useLoggedUserStore } from '@/store/loggedUser';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[] | any;
-  data: TData[];  
-  role?:string | null  
+  data: TData[];
+  role?: string | null;
 }
 
-export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableProps<TData, TValue>) {
+export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -63,10 +63,11 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
 
   useEffect(() => {
     // Filtrar las columnas basado en el rol
-    const filteredColumns = role === 'Invitado' 
-      ? columns.filter((col: any) => col.accessorKey !== 'status' && col.accessorKey !== 'allocated_to')
-      : columns;
-    
+    const filteredColumns =
+      role === 'Invitado'
+        ? columns.filter((col: any) => col.accessorKey !== 'status' && col.accessorKey !== 'allocated_to')
+        : columns;
+
     setDefaultColumns(filteredColumns);
   }, [columns, role]);
 
@@ -78,13 +79,11 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
         valorGuardado = valorGuardado.filter((col: string) => col !== 'allocated_to');
         localStorage.setItem('employeeColumns', JSON.stringify(valorGuardado));
       }
-      return valorGuardado.length ? valorGuardado : defaultVisibleColumns.filter(col => 
-        role === 'Invitado' ? col !== 'allocated_to' : true
-      );
+      return valorGuardado.length
+        ? valorGuardado
+        : defaultVisibleColumns.filter((col) => (role === 'Invitado' ? col !== 'allocated_to' : true));
     }
-    return role === 'Invitado' 
-      ? defaultVisibleColumns.filter(col => col !== 'allocated_to')
-      : defaultVisibleColumns;
+    return role === 'Invitado' ? defaultVisibleColumns.filter((col) => col !== 'allocated_to') : defaultVisibleColumns;
   });
 
   useEffect(() => {
@@ -108,10 +107,10 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
   useEffect(() => {
     // Set initial column visibility based on role
     if (role === 'Invitado') {
-      setColumnVisibility(prev => ({
+      setColumnVisibility((prev) => ({
         ...prev,
         status: false,
-        allocated_to: false
+        allocated_to: false,
       }));
     }
   }, [role]);
