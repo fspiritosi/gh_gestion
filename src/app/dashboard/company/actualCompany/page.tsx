@@ -8,7 +8,6 @@ import UsersTabComponent from '@/components/UsersTabComponent';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
 import General from '@/features/Empresa/General/General';
-import RecursoHumanos from '@/features/Empresa/RRHH/RecursoHumanos';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -135,18 +134,6 @@ export default async function CompanyPage() {
           buttonActioRestricted: [''],
           buttonAction: '',
           component: <ServiceComponent />,
-        },
-      },
-      {
-        value: 'rrhh',
-        name: 'Recursos Humanos',
-        restricted: [''],
-        content: {
-          title: 'Recursos Humanos de la empresa',
-          description: 'Crear y ver Recursos Humanos de la empresa',
-          buttonActioRestricted: [''],
-          buttonAction: '',
-          component: <RecursoHumanos company_id={company_id?.toString() ?? ''} />,
         },
       },
       {

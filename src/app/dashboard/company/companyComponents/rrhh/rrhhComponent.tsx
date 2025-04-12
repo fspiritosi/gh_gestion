@@ -2,6 +2,8 @@ import CovenantTreeFile from '@/app/dashboard/company/actualCompany/covenant/Cov
 import ListDiagrams from '@/app/dashboard/company/companyComponents/rrhh/listDiagrams';
 import DiagramTypeComponent from '@/components/Diagrams/DiagramTypeComponent';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { fetchAllContractTypes } from '@/features/Empresa/RRHH/actions/actions';
+import ContractTypesTab from '@/features/Empresa/RRHH/components/ContractTypeTab';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 interface DiagramType {
@@ -29,7 +31,7 @@ export default async function RrhhComponent() {
   const { data: diagrams_types }: { data: DiagramType[] } = await fetch(
     `${URL}/api/employees/diagrams/tipos?actual=${company_id}&user=${user?.id}`
   ).then((e) => e.json());
-
+  const allContractTypes = await fetchAllContractTypes();
   // const employees2 = await fetchAllActivesEmployees();
   // const diagrams2 = await fetchDiagrams();
   // const diagrams_types2 = await fetchDiagramsTypes();
@@ -41,6 +43,7 @@ export default async function RrhhComponent() {
           <TabsTrigger value="listado">Tipos de Diagramas</TabsTrigger>
           <TabsTrigger value="diagrams">Tipos de Novedades</TabsTrigger>
           <TabsTrigger value="convenios">CCT</TabsTrigger>
+          <TabsTrigger value="contract-types">Tipos de Contrato</TabsTrigger>
         </TabsList>
         <TabsContent value="listado">
           <ListDiagrams diagramsTypes={diagrams_types} />
@@ -50,6 +53,9 @@ export default async function RrhhComponent() {
         </TabsContent>
         <TabsContent value="convenios">
           <CovenantTreeFile />
+        </TabsContent>
+        <TabsContent value="contract-types" className="">
+          <ContractTypesTab allContractTypes={allContractTypes} />
         </TabsContent>
       </Tabs>
     </div>
