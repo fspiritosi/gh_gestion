@@ -1275,7 +1275,7 @@ export type Database = {
           street: string;
           street_number: string;
           termination_date: string | null;
-          type_of_contract: Database['public']['Enums']['type_of_contract_enum'];
+          type_of_contract: string | null;
           workflow_diagram: string | null;
         };
         Insert: {
@@ -1316,7 +1316,7 @@ export type Database = {
           street: string;
           street_number: string;
           termination_date?: string | null;
-          type_of_contract: Database['public']['Enums']['type_of_contract_enum'];
+          type_of_contract?: string | null;
           workflow_diagram?: string | null;
         };
         Update: {
@@ -1357,7 +1357,7 @@ export type Database = {
           street?: string;
           street_number?: string;
           termination_date?: string | null;
-          type_of_contract?: Database['public']['Enums']['type_of_contract_enum'];
+          type_of_contract?: string | null;
           workflow_diagram?: string | null;
         };
         Relationships: [
@@ -1423,6 +1423,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'provinces';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'employees_type_of_contract_fkey';
+            columns: ['type_of_contract'];
+            isOneToOne: false;
+            referencedRelation: 'types_of_contract';
+            referencedColumns: ['name'];
           },
           {
             foreignKeyName: 'employees_workflow_diagram_fkey';
@@ -2391,24 +2398,51 @@ export type Database = {
       };
       'work-diagram': {
         Row: {
+          active_novelty: string | null;
+          active_working_days: number | null;
           created_at: string;
           id: string;
+          inactive_novelty: string | null;
+          inactive_working_days: number | null;
           is_active: boolean | null;
           name: string;
         };
         Insert: {
+          active_novelty?: string | null;
+          active_working_days?: number | null;
           created_at?: string;
           id?: string;
+          inactive_novelty?: string | null;
+          inactive_working_days?: number | null;
           is_active?: boolean | null;
           name: string;
         };
         Update: {
+          active_novelty?: string | null;
+          active_working_days?: number | null;
           created_at?: string;
           id?: string;
+          inactive_novelty?: string | null;
+          inactive_working_days?: number | null;
           is_active?: boolean | null;
           name?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'work-diagram_active_novelty_fkey';
+            columns: ['active_novelty'];
+            isOneToOne: false;
+            referencedRelation: 'diagram_type';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'work-diagram_inactive_novelty_fkey';
+            columns: ['inactive_novelty'];
+            isOneToOne: false;
+            referencedRelation: 'diagram_type';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: {
@@ -2430,6 +2464,50 @@ export type Database = {
       enviar_documentos_vencidos: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
+      };
+      find_employee_by_full_name_v2: {
+        Args: { p_full_name: string; p_company_id: string };
+        Returns: {
+          affiliate_status: Database['public']['Enums']['affiliate_status_enum'] | null;
+          allocated_to: string[] | null;
+          birthplace: string;
+          born_date: string | null;
+          category_id: string | null;
+          city: number;
+          company_id: string | null;
+          company_position: string | null;
+          cost_center_id: string | null;
+          covenants_id: string | null;
+          created_at: string;
+          cuil: string;
+          date_of_admission: string;
+          document_number: string;
+          document_type: Database['public']['Enums']['document_type_enum'];
+          email: string | null;
+          file: string;
+          firstname: string;
+          gender: Database['public']['Enums']['gender_enum'] | null;
+          guild_id: string | null;
+          hierarchical_position: string | null;
+          id: string;
+          is_active: boolean | null;
+          lastname: string;
+          level_of_education: Database['public']['Enums']['level_of_education_enum'] | null;
+          marital_status: Database['public']['Enums']['marital_status_enum'] | null;
+          nationality: Database['public']['Enums']['nationality_enum'];
+          normal_hours: string | null;
+          phone: string;
+          picture: string;
+          postal_code: string | null;
+          province: number;
+          reason_for_termination: Database['public']['Enums']['reason_for_termination_enum'] | null;
+          status: Database['public']['Enums']['status_type'] | null;
+          street: string;
+          street_number: string;
+          termination_date: string | null;
+          type_of_contract: string | null;
+          workflow_diagram: string | null;
+        }[];
       };
       migrate_document: {
         Args: { target_id: string; execute_migration?: boolean };
