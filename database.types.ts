@@ -206,6 +206,7 @@ export type Database = {
       };
       company: {
         Row: {
+          cities: any;
           address: string;
           by_defect: boolean | null;
           city: number;

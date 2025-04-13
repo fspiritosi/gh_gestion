@@ -8,7 +8,7 @@ interface ViewDataObj {
   defaultValue: string;
   tabsValues: {
     value: string;
-    name: string;
+    name: React.ReactNode | string;
     restricted: string[];
     content: {
       title: string;

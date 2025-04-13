@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'; 
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
@@ -94,7 +94,6 @@ const ServiceTable = ({ services, customers, company_id }: ServiceTableProps) =>
     fetchServices();
   }, []);
 
- 
   return (
     <ResizablePanelGroup className="pl-6 flex flex-col gap-2" direction="horizontal">
       <ResizablePanel>
@@ -110,7 +109,7 @@ const ServiceTable = ({ services, customers, company_id }: ServiceTableProps) =>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los clientes</SelectItem>
-                {customers.map((customer: any) => (
+                {customers?.map((customer: any) => (
                   <SelectItem value={String(customer.id)} key={customer.id}>
                     {customer.name}
                   </SelectItem>

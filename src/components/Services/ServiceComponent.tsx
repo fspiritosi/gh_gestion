@@ -27,7 +27,7 @@ export default async function ServiceComponent() {
   const cookiesStore = cookies();
   const company_id = cookiesStore.get('actualComp')?.value || '';
   const { customers } = await fetch(`${URL}/api/company/customers?actual=${company_id}`).then((e) => e.json());
-  const filterCustomers = customers.filter((client: customer) => client.is_active === true);
+  const filterCustomers = customers?.filter((client: customer) => client.is_active === true);
   //console.log(filterCustomers)
   const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
   // const {measure_units}= await fetch(`${URL}/api/meassure`).then((e) => e.json());
@@ -53,16 +53,24 @@ export default async function ServiceComponent() {
         <TabsTrigger value="servicesItems">Cargar Items</TabsTrigger>
       </TabsList>
       <TabsContent value="services">
-        <ServiceTable services={services} customers={filterCustomers} company_id={company_id} />
+        {services ? (
+          <ServiceTable services={services} customers={filterCustomers} company_id={company_id} />
+        ) : (
+          <div>No hay servicios</div>
+        )}
       </TabsContent>
       <TabsContent value="servicesItems">
-        <ServiceItemsTable
-          measure_units={measure_units as any}
-          customers={filterCustomers}
-          services={services}
-          company_id={company_id}
-          items={items}
-        />
+        {services ? (
+          <ServiceItemsTable
+            measure_units={measure_units as any}
+            customers={filterCustomers}
+            services={services}
+            company_id={company_id}
+            items={items}
+          />
+        ) : (
+          <div>No hay items para mostrar</div>
+        )}
       </TabsContent>
     </Tabs>
   );
