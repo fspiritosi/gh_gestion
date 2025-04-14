@@ -42,8 +42,13 @@ export default function ListDiagrams({ diagramsTypes }: { diagramsTypes: Diagram
         };
       });
       setData(newData);
-      setIsLoading(false);
+      if (response.ok) {
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+      }
     } catch (error) {
+      setIsLoading(false);
       console.error('Error fetching diagrams:', error);
     }
   };
