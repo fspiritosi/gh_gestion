@@ -50,7 +50,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
             </TableRow>
           </TableHeader>
           <TableBody>
-            {diagrams_types.map((diagramType: any) => (
+            {diagrams_types?.map((diagramType: any) => (
               <TableRow key={diagramType.name}>
                 <TableCell>{diagramType.name}</TableCell>
 

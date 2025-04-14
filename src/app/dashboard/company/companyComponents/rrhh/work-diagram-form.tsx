@@ -17,7 +17,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 // Actualizar el esquema para eliminar el campo days
-const formSchema = z.object({
+const WorkDiagramSchema = z.object({
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters.',
   }),
@@ -44,7 +44,7 @@ interface DiagramType {
 
 type DiagramsTypes = DiagramType[];
 
-type WorkDiagramFormValues = z.infer<typeof formSchema>;
+type WorkDiagramFormValues = z.infer<typeof WorkDiagramSchema>;
 
 interface WorkDiagramFormProps {
   diagram?: any | null;
@@ -62,31 +62,35 @@ export default function WorkDiagramForm({
   onCancel,
 }: WorkDiagramFormProps) {
   const form = useForm<WorkDiagramFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(WorkDiagramSchema),
     defaultValues: {
       name: diagram?.name || '',
       is_active: diagram?.is_active ?? true,
       active_working_days: diagram?.active_working_days || 0,
       inactive_working_days: diagram?.inactive_working_days || 0,
-      active_novelty: diagram?.active_novelty?.id || null,
-      inactive_novelty: diagram?.inactive_novelty?.id || null,
+      active_novelty: diagramsTypes?.find((t) => t.name === diagram?.active_novelty)?.id || '',
+      inactive_novelty: diagramsTypes?.find((t) => t.name === diagram?.inactive_novelty)?.id || '',
     },
   });
 
   const isViewMode = mode === 'view';
 
   useEffect(() => {
-    if (diagram) {
+    if (diagram && diagramsTypes) {
+      const activeNoveltyId = diagramsTypes.find((t) => t.name === diagram.active_novelty)?.id;
+
+      const inactiveNoveltyId = diagramsTypes.find((t) => t.name === diagram.inactive_novelty)?.id;
+
       form.reset({
         name: diagram.name,
         is_active: diagram.is_active,
         active_working_days: diagram.active_working_days,
         inactive_working_days: diagram.inactive_working_days,
-        active_novelty: diagram?.active_novelty || null,
-        inactive_novelty: diagram?.inactive_novelty || null,
+        active_novelty: activeNoveltyId ?? '',
+        inactive_novelty: inactiveNoveltyId ?? '',
       });
     }
-  }, [diagram, form]);
+  }, [diagram, diagramsTypes, form]);
 
   async function onSubmit(values: WorkDiagramFormValues) {
     try {
