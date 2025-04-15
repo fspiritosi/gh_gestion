@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { createCostCenter, updateCostCenter } from '../actions/actions';
+import { createCostCenter, updateCostCenter } from '../../actions/actions';
 const CostCenterSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, { message: 'Debe ingresar el nombre del centro de costo' }),
@@ -158,7 +158,9 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
         />
 
         <div className="flex gap-2 mt-6">
-          <Button type="submit">{isEditing ? 'Actualizar' : 'Crear'}</Button>
+          <Button type="submit" variant={'gh_orange'}>
+            {isEditing ? 'Actualizar' : 'Crear'}
+          </Button>
           {isEditing && (
             <Button type="button" onClick={handleCancel} variant="outline">
               Cancelar

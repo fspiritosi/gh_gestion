@@ -66,9 +66,13 @@ export default async function UsersTabComponent() {
   return (
     <div>
       <Tabs defaultValue="employ" className="w-full">
-        <TabsList className="ml-8">
-          <TabsTrigger value="employ">Empleados</TabsTrigger>
-          <TabsTrigger value="guests">Invitados</TabsTrigger>
+        <TabsList className="ml-8 bg-gh_contrast/50">
+          <TabsTrigger value="employ" className="text-gh_orange font-semibold">
+            Empleados
+          </TabsTrigger>
+          <TabsTrigger value="guests" className="text-gh_orange font-semibold">
+            Invitados
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="employ">
           <div className="p-8">

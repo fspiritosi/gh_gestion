@@ -3,6 +3,8 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
+// General Actions
+
 export async function getCompany() {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
@@ -30,6 +32,8 @@ export async function getCompany() {
   }
   return data;
 }
+
+// Cost Center Actions
 
 export async function fetchAllCostCenters() {
   const cookiesStore = cookies();
@@ -79,6 +83,8 @@ export const updateCostCenter = async (costCenter: { id: string; name: string; i
   }
   return data;
 };
+
+// Sector Actions
 
 export async function fetchAllSectors() {
   const cookiesStore = cookies();

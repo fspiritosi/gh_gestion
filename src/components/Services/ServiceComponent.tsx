@@ -48,9 +48,13 @@ export default async function ServiceComponent() {
 
   return (
     <Tabs defaultValue="services">
-      <TabsList>
-        <TabsTrigger value="services">Cargar Servicio</TabsTrigger>
-        <TabsTrigger value="servicesItems">Cargar Items</TabsTrigger>
+      <TabsList className="mb-2 bg-gh_contrast/50">
+        <TabsTrigger value="services" className="text-gh_orange font-semibold">
+          Servicios
+        </TabsTrigger>
+        <TabsTrigger value="servicesItems" className="text-gh_orange font-semibold">
+          Items
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="services">
         {services ? (

@@ -26,7 +26,9 @@ const config = {
         cardMedia: '1227px',
       },
       colors: {
-        codecontrol: '#3597C7',
+        gh_contrast: '#e8e8e8',
+        gh: '#fff',
+        gh_orange: '#ff9800',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

@@ -21,7 +21,7 @@ export default async function RecursoHumanos({ company_id, contractTypes = [] }:
   return (
     <div className=" ">
       <Tabs defaultValue="contract-types" className="w-full">
-        <TabsList className="mb-2">
+        <TabsList className="mb-2 bg-gh_orange">
           <TabsTrigger value="contract-types">Tipos de Contrato</TabsTrigger>
         </TabsList>
 

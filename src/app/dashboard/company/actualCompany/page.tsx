@@ -4,10 +4,10 @@ import EditCompanyButton from '@/components/EditCompanyButton';
 import { RegisterWithRole } from '@/components/RegisterWithRole';
 import ServiceComponent from '@/components/Services/ServiceComponent';
 import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
-import UsersTabComponent from '@/components/UsersTabComponent';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
 import General from '@/features/Empresa/General/General';
+import UsersTabComponent from '@/features/Empresa/Usuarios/UsersTabComponent';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -27,8 +27,8 @@ export default async function CompanyPage() {
         name: 'General',
         restricted: [''],
         content: {
-          title: 'Datos generales de la empresa',
-          description: 'Información de la empresa',
+          title: 'Empresa',
+          //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: <EditCompanyButton companyId={company_id?.toString() ?? ''} />,
           component: <General />,
@@ -38,9 +38,10 @@ export default async function CompanyPage() {
         value: '"documentacion"',
         name: 'Documentacion',
         restricted: [''],
+
         content: {
-          title: 'Documentos de la empresa',
-          description: 'Lista de documentos a nombre de la empresa',
+          title: 'Documentos empresa',
+          //description: 'Lista de documentos a nombre de la empresa',
           buttonActioRestricted: [''],
           buttonAction: (
             <div className="flex gap-4 flex-wrap pl-6">
@@ -54,9 +55,10 @@ export default async function CompanyPage() {
         value: 'users',
         name: 'Usuarios',
         restricted: [''],
+
         content: {
-          title: 'Usuarios de la empresa',
-          description: 'Lista de usuarios de la empresa',
+          title: 'Usuarios',
+          //description: 'Lista de usuarios de la empresa',
           buttonActioRestricted: [''],
           buttonAction: <RegisterWithRole />,
           component: <UsersTabComponent />,
@@ -67,13 +69,13 @@ export default async function CompanyPage() {
         name: 'Clientes',
         restricted: [''],
         content: {
-          title: 'Clientes de la empresa',
-          description: 'Lista de clientes de la empresa',
+          title: 'Clientes',
+          //description: 'Lista de clientes de la empresa',
           buttonActioRestricted: [''],
           buttonAction: (
             <Link
               href={'/dashboard/company/actualCompany/customers/action?action=new'}
-              className={buttonVariants({ variant: 'default' })}
+              className={buttonVariants({ variant: 'gh_orange', size: 'sm', className: 'font-semibold' })}
             >
               Registrar Cliente
             </Link>
@@ -86,13 +88,13 @@ export default async function CompanyPage() {
         name: 'Contactos',
         restricted: [''],
         content: {
-          title: 'Contactos de la empresa',
-          description: 'Lista de contactos de la empresa',
+          title: 'Contactos',
+          //description: 'Lista de contactos de la empresa',
           buttonActioRestricted: [''],
           buttonAction: (
             <Link
               href={'/dashboard/company/contact/action?action=new'}
-              className={buttonVariants({ variant: 'default' })}
+              className={buttonVariants({ variant: 'gh_orange', size: 'sm', className: 'font-semibold' })}
             >
               Registrar Contacto
             </Link>
@@ -126,11 +128,11 @@ export default async function CompanyPage() {
       // },
       {
         value: 'service',
-        name: 'Servicios',
+        name: 'Contratos',
         restricted: [''],
         content: {
-          title: 'Servicios de la empresa',
-          description: 'Crear y ver servicios de la empresa',
+          title: 'Contratos o Servicios',
+          //description: 'Crear y ver servicios de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
           component: <ServiceComponent />,
@@ -141,8 +143,8 @@ export default async function CompanyPage() {
         name: 'RRHH',
         restricted: [''],
         content: {
-          title: 'RRHH de la empresa',
-          description: 'Crear y ver RRHH de la empresa',
+          title: 'RRHH',
+          //description: 'Crear y ver RRHH de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
           component: <RrhhComponent />,

@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { createSector, updateSector } from '../actions/actions';
+import { createSector, updateSector } from '../../actions/actions';
 
 interface Sector {
   id: string | null;
@@ -170,7 +170,9 @@ function organigramForm({ editingSector }: { editingSector: Sector | null }) {
                 </FormItem>
               )}
             />
-            <Button type="submit">Guardar</Button>
+            <Button type="submit" variant={'gh_orange'}>
+              Guardar
+            </Button>
           </div>
         </form>
       </Form>
