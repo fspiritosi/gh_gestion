@@ -96,7 +96,7 @@ export default function SideBar({ Allinks, role }: { Allinks: any; role: string 
   return (
     <div
       key={role}
-      className={`relative top-0 left-0 h-full bg-white dark:bg-muted/50 transition-width duration-500 ${isActive ? 'w-16' : 'w-56'} sticky top-0 h-screen`}
+      className={`relative top-0 left-0 h-full bg-gh dark:bg-muted/50 transition-width duration-500 ${isActive ? 'w-16' : 'w-56'} sticky top-0 h-screen`}
     >
       <div className={cn('flex items-center p-2 justify-center')}>
         <span className="text-white text-xl flex items-center gap-2 relative overflow-hidden">
@@ -112,8 +112,8 @@ export default function SideBar({ Allinks, role }: { Allinks: any; role: string 
             className={cn(
               'flex items-center p-4 cursor-pointer transition-all duration-500 rounded-s-full lisidebar relative',
               link.name === activeLink
-                ? 'bg-muted activesidebar before:shadow-custom-white after:shadow-custom-white-inverted'
-                : 'hover:bg-muted/80',
+                ? 'bg-gh_contrast activesidebar before:shadow-custom-gh_contrast after:shadow-custom-gh_contrast-inverted'
+                : 'hover:bg-gh_contrast/80',
               isActive ? 'ml-0' : 'ml-4'
             )}
           >

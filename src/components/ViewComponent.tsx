@@ -12,7 +12,7 @@ interface ViewDataObj {
     restricted: string[];
     content: {
       title: string;
-      description: string;
+      description?: string;
       buttonActioRestricted: string[];
       buttonAction?: React.ReactNode;
       component: React.ReactNode;
@@ -28,13 +28,18 @@ export default async function Viewcomponent({ viewData }: { viewData: ViewDataOb
   const role = await getActualRole(actualCompany as string, user?.data?.user?.id as string);
 
   return (
-    <div className="flex flex-col gap-6 py-4 px-6 h-full ">
+    <div className="flex flex-col gap-6 py-1 px-6 h-full ">
       <Tabs defaultValue={viewData.defaultValue}>
-        <TabsList className="flex gap-1 justify-start w-fit">
+        <TabsList className="flex gap-1 justify-start w-fit bg-gh">
           {viewData.tabsValues.map((tab, index) => {
             if (tab.restricted.includes(role)) return;
             return (
-              <TabsTrigger key={crypto.randomUUID()} value={tab.value} id={tab.value}>
+              <TabsTrigger
+                key={crypto.randomUUID()}
+                value={tab.value}
+                id={tab.value}
+                className={`text-gh_orange font-semibold`}
+              >
                 {tab.name}
               </TabsTrigger>
             );
@@ -43,15 +48,17 @@ export default async function Viewcomponent({ viewData }: { viewData: ViewDataOb
         {viewData.tabsValues.map((tab, index) => (
           <TabsContent key={crypto.randomUUID()} value={tab.value}>
             <Card className="overflow-hidden">
-              <CardHeader className="w-full flex bg-muted dark:bg-muted/50 border-b-2 flex-row justify-between">
+              <CardHeader className="w-full flex bg-gh dark:bg-muted/50 border-b-2 flex-row justify-between items-center">
                 <div className="w-fit">
-                  <CardTitle className="text-2xl font-bold tracking-tight w-fit">{tab.content.title}</CardTitle>
-                  <CardDescription className="text-muted-foreground w-fit">{tab.content.description}</CardDescription>
+                  <CardTitle className="text-lg font-bold tracking-tight w-fit">{tab.content.title}</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground w-fit">
+                    {tab.content.description}
+                  </CardDescription>
                 </div>
                 {tab.content.buttonActioRestricted?.includes(role) ? false : tab.content.buttonAction}
               </CardHeader>
               <CardContent className="py-4 px-4 ">{tab.content.component}</CardContent>
-              <CardFooter className="flex flex-row items-center border-t bg-muted dark:bg-muted/50 px-6 py-3"></CardFooter>
+              <CardFooter className="flex flex-row items-center border-t bg-gh/70 dark:bg-muted/50 px-6 py-3"></CardFooter>
             </Card>
           </TabsContent>
         ))}

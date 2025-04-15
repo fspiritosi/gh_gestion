@@ -1,21 +1,19 @@
-'use client'
-import React from 'react'
+'use client';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';    
 
 interface Company {
-    companyId: string;
+  companyId: string;
 }
 
 export default function EditCompanyButton(companyId: Company) {
-    const router = useRouter();
-    const handleEditCompany = () => {
-        router.push(`/dashboard/company/${companyId?.companyId}`);
-    };
-    return (
-        <Button className="w-fit" onClick={handleEditCompany}>
-            Editar Compañía
-        </Button>
-    )
+  const router = useRouter();
+  const handleEditCompany = () => {
+    router.push(`/dashboard/company/${companyId?.companyId}`);
+  };
+  return (
+    <Button className="w-fit font-semibold" variant={'gh_orange'} size={'sm'} onClick={handleEditCompany}>
+      Editar Compañía
+    </Button>
+  );
 }
-

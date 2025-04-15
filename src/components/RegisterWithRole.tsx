@@ -187,13 +187,13 @@ export const RegisterWithRole = () => {
           // const { data, error } = await supabase.auth.signUp({
           //   email: values.email,
           //   password: values.password!,
-          
+
           // });
-          
+
           const { data, error } = await supabase.auth.admin.createUser({
             email: values.email,
             password: values.password!,
-            email_confirm:true
+            email_confirm: true,
           });
 
           if (error) {
@@ -274,12 +274,22 @@ export const RegisterWithRole = () => {
       <div>
         <AlertDialog open={open} onOpenChange={() => setOpen(!open)}>
           <AlertDialogTrigger asChild>
-            <Button variant="default" className="mr-2" onClick={() => handleOpen('Usuario')}>
+            <Button
+              variant="gh_orange"
+              className="mr-2 font-semibold"
+              size={'sm'}
+              onClick={() => handleOpen('Usuario')}
+            >
               Agregar Usuario
             </Button>
           </AlertDialogTrigger>
           <AlertDialogTrigger asChild>
-            <Button variant="default" className="ml-2" onClick={() => handleOpen('Invitado')}>
+            <Button
+              variant="gh_orange"
+              className="ml-2 font-semibold"
+              size={'sm'}
+              onClick={() => handleOpen('Invitado')}
+            >
               Agregar Invitado
             </Button>
           </AlertDialogTrigger>

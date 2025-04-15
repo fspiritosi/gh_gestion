@@ -1,9 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import CompanyComponent from '@/features/Empresa/General/components/CompanyComponent';
-import DangerZoneComponent from '@/features/Empresa/General/components/DangerZoneComponent';
+import CompanyComponent from '@/features/Empresa/General/components/company/CompanyComponent';
+import DangerZoneComponent from '@/features/Empresa/General/components/company/DangerZoneComponent';
 import { fetchAllCostCenters, fetchAllSectors, getCompany } from './actions/actions';
-import CostCenterTab from './components/CostCenterTab';
-import OrganigramTab from './components/OrganigramTab';
+import CostCenterTab from './components/cost-center/CostCenterTab';
+import OrganigramTab from './components/organigrama/OrganigramTab';
 
 async function General() {
   const costCenters = await fetchAllCostCenters();
@@ -12,10 +12,16 @@ async function General() {
   return (
     <div className=" ">
       <Tabs defaultValue="company" className="w-full">
-        <TabsList className="mb-2">
-          <TabsTrigger value="company">Empresa</TabsTrigger>
-          <TabsTrigger value="cost-center">Centro de costos</TabsTrigger>
-          <TabsTrigger value="organigrama">Organigrama</TabsTrigger>
+        <TabsList className="mb-2 bg-gh_contrast/50">
+          <TabsTrigger className="text-gh_orange font-semibold" value="company">
+            Empresa
+          </TabsTrigger>
+          <TabsTrigger className="text-gh_orange font-semibold" value="cost-center">
+            Centro de costos
+          </TabsTrigger>
+          <TabsTrigger className="text-gh_orange font-semibold" value="organigrama">
+            Organigrama
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="company" className="">
           <CompanyComponent company={companyData[0]} />
