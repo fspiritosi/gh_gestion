@@ -171,10 +171,14 @@ function organigramForm({ editingSector }: { editingSector: Sector | null }) {
             )}
           />
           <div className="flex space-x-2">
-            <Button type="submit">{isEditing ? 'Actualizar' : 'Crear'}</Button>
-            <Button variant="outline" onClick={handleCancel}>
-              Cancelar
+            <Button type="submit" variant="gh_orange">
+              {isEditing ? 'Actualizar' : 'Crear'}
             </Button>
+            {isEditing && (
+              <Button variant="outline" onClick={handleCancel}>
+                Cancelar
+              </Button>
+            )}
           </div>
         </form>
       </Form>
