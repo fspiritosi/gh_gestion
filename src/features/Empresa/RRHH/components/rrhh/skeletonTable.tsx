@@ -33,10 +33,10 @@ export function SkeletonTable() {
       </div>
 
       {/* Paginación */}
-      <div className="flex items-center justify-end space-x-2 py-4">
+      {/* <div className="flex items-center justify-end space-x-2 py-4">
         <Skeleton className="h-9 w-20" />
         <Skeleton className="h-9 w-20" />
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import RrhhComponent from '@/app/dashboard/company/companyComponents/rrhh/rrhhComponent';
 import DocumentTabComponent from '@/components/DocumentTabComponent';
 import EditCompanyButton from '@/components/EditCompanyButton';
 import { RegisterWithRole } from '@/components/RegisterWithRole';
@@ -7,6 +6,7 @@ import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
 import General from '@/features/Empresa/General/General';
+import RrhhComponent from '@/features/Empresa/RRHH/components/rrhh/rrhhComponent';
 import UsersTabComponent from '@/features/Empresa/Usuarios/UsersTabComponent';
 import { cookies } from 'next/headers';
 import Link from 'next/link';

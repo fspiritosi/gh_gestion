@@ -124,55 +124,61 @@ function organigramForm({ editingSector }: { editingSector: Sector | null }) {
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4">
           <h2 className="text-xl font-bold mb-4">{isEditing ? 'Editar Sector' : 'Crear Sector'}</h2>
-          <div className="space-y-4 p-4 w-[300px]">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre del Sector</FormLabel>
-                  <FormControl>
-                    <Input type="text" {...field} className="input w-[400px]" placeholder="Nombre del sector" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="is_active"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Activo</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={(value) => field.onChange(value === 'true')}
-                      value={field.value ? 'true' : 'false'}
-                      className="flex  space-x-1"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="true" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Activo</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="false" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Inactivo</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" variant={'gh_orange'}>
-              Guardar
+
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre del Sector</FormLabel>
+                <FormControl>
+                  <Input type="text" {...field} className="input w-[400px]" placeholder="Nombre del sector" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="is_active"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Activo</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={(value) => field.onChange(value === 'true')}
+                    value={field.value ? 'true' : 'false'}
+                    className="flex  space-x-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="true" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Activo</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="false" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Inactivo</FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex space-x-2">
+            <Button type="submit" variant="gh_orange">
+              {isEditing ? 'Actualizar' : 'Crear'}
             </Button>
+            {isEditing && (
+              <Button variant="outline" onClick={handleCancel}>
+                Cancelar
+              </Button>
+            )}
           </div>
         </form>
       </Form>

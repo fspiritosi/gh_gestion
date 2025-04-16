@@ -1,6 +1,7 @@
 'use server';
 
 import { supabaseServer } from '@/lib/supabase/server';
+import { WorkDiagram } from '@/types/types';
 import { cookies } from 'next/headers';
 
 export async function fetchAllContractTypes() {
@@ -74,6 +75,74 @@ export async function deleteContractType(contractType: { id: string }) {
   if (error) {
     console.error('Error deleting contract type:', error);
     throw new Error('Error deleting contract type');
+  }
+  return data;
+}
+
+export async function createWorkDiagram(workDiagram: {
+  name: string;
+  is_active: boolean;
+  active_working_days: number;
+  inactive_working_days: number;
+  active_novelty: string;
+  inactive_novelty: string;
+}) {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  if (!company_id) throw new Error('No company ID found');
+
+  const { data, error } = await supabase.from('work-diagram').insert(workDiagram).returns<WorkDiagram[]>();
+
+  if (error) {
+    console.error('Error creating work diagram:', error);
+    throw new Error('Error creating work diagram');
+  }
+  return data;
+}
+
+export async function updateWorkDiagram(workDiagram: {
+  id: string;
+  name: string;
+  is_active: boolean;
+  active_working_days: number;
+  inactive_working_days: number;
+  active_novelty: string;
+  inactive_novelty: string;
+}) {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  if (!company_id) throw new Error('No company ID found');
+
+  const { data, error } = await supabase
+    .from('work-diagram')
+    .update(workDiagram)
+    .eq('id', workDiagram.id)
+    .returns<WorkDiagram[]>();
+
+  if (error) {
+    console.error('Error updating work diagram:', error);
+    throw new Error('Error updating work diagram');
+  }
+  return data;
+}
+
+export async function deleteWorkDiagram(workDiagram: { id: string }) {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  if (!company_id) throw new Error('No company ID found');
+
+  const { data, error } = await supabase
+    .from('work-diagram')
+    .delete()
+    .eq('id', workDiagram.id)
+    .returns<WorkDiagram[]>();
+
+  if (error) {
+    console.error('Error deleting work diagram:', error);
+    throw new Error('Error deleting work diagram');
   }
   return data;
 }
