@@ -11,11 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { createWorkDiagram, updateWorkDiagram } from '@/features/Empresa/RRHH/actions/actions';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as z from 'zod';
-
 // Actualizar el esquema para eliminar el campo days
 const WorkDiagramSchema = z.object({
   name: z.string().min(2, {
@@ -48,19 +50,12 @@ type WorkDiagramFormValues = z.infer<typeof WorkDiagramSchema>;
 
 interface WorkDiagramFormProps {
   diagram?: any | null;
-  mode?: 'create' | 'edit' | 'view';
+  mode: 'create' | 'edit';
   diagramsTypes?: DiagramsTypes | null;
-  onSuccess?: () => void;
-  onCancel?: () => void;
+  setMode: React.Dispatch<React.SetStateAction<'create' | 'edit'>>;
 }
 
-export default function WorkDiagramForm({
-  diagramsTypes,
-  diagram,
-  mode = 'create',
-  onSuccess,
-  onCancel,
-}: WorkDiagramFormProps) {
+export default function WorkDiagramForm({ diagramsTypes, diagram, mode, setMode }: WorkDiagramFormProps) {
   const form = useForm<WorkDiagramFormValues>({
     resolver: zodResolver(WorkDiagramSchema),
     defaultValues: {
@@ -72,8 +67,13 @@ export default function WorkDiagramForm({
       inactive_novelty: diagramsTypes?.find((t) => t.name === diagram?.inactive_novelty)?.id || '',
     },
   });
+  const { reset } = form;
+  const router = useRouter();
 
-  const isViewMode = mode === 'view';
+  console.log(diagram, 'diagram');
+  console.log(mode, 'mode');
+
+  const isViewMode = false;
 
   useEffect(() => {
     if (diagram && diagramsTypes) {
@@ -92,34 +92,80 @@ export default function WorkDiagramForm({
     }
   }, [diagram, diagramsTypes, form]);
 
-  async function onSubmit(values: WorkDiagramFormValues) {
-    try {
-      const url = `${process.env.NEXT_PUBLIC_BASE_URL}`;
-      const method = mode === 'edit' ? 'PUT' : 'POST';
-      const endpoint = mode === 'edit' ? `/api/work-diagrams?id=${diagram?.id}` : '/api/work-diagrams';
-
-      const response = await fetch(`${url}${endpoint}`, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
+  const onSubmit = async (values: z.infer<typeof WorkDiagramSchema>) => {
+    toast.promise(
+      async () => {
+        await createWorkDiagram({
+          name: values.name,
+          is_active: values.is_active,
+          active_working_days: values.active_working_days,
+          inactive_working_days: values.inactive_working_days,
+          active_novelty: values.active_novelty || '',
+          inactive_novelty: values.inactive_novelty || '',
+        });
+      },
+      {
+        loading: 'Creando diagrama...',
+        success: () => {
+          router.refresh();
+          reset();
+          return 'Diagrama creado correctamente';
         },
-        body: JSON.stringify(values),
-      });
-
-      const data = await response.json();
-
-      if (onSuccess) {
-        onSuccess();
+        error: (error) => {
+          return 'Error al crear el diagrama';
+        },
       }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    }
-  }
+    );
+  };
+  const onUpdate = async (values: z.infer<typeof WorkDiagramSchema>) => {
+    toast.promise(
+      async () => {
+        if (!diagram?.id) {
+          toast.error('No diagram ID found');
+          return;
+        }
+        await updateWorkDiagram({
+          id: diagram?.id,
+          name: values.name,
+          is_active: values.is_active,
+          active_working_days: values.active_working_days,
+          inactive_working_days: values.inactive_working_days,
+          active_novelty: values.active_novelty || '',
+          inactive_novelty: values.inactive_novelty || '',
+        });
+      },
+      {
+        loading: 'Actualizando diagrama...',
+        success: () => {
+          router.refresh();
+          reset();
+          return 'Diagrama actualizado correctamente';
+        },
+        error: (error) => {
+          return 'Error al actualizar el diagrama';
+        },
+      }
+    );
+  };
+  const onCancel = () => {
+    form.reset({
+      name: '',
+      is_active: false,
+      active_working_days: 0,
+      inactive_working_days: 0,
+      active_novelty: '',
+      inactive_novelty: '',
+    });
+    setMode('create');
+    toast.dismiss('Edicion cancelada');
+  };
+  console.log(mode, 'mode');
 
   return (
     <div className="container w-full mx-auto p-4">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(mode === 'edit' ? onUpdate : onSubmit)}>
+          <h2 className="text-xl font-bold mb-4">{mode === 'edit' ? 'Editar Diagrama' : 'Crear Diagrama'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Nombre */}
             <FormField
@@ -154,8 +200,8 @@ export default function WorkDiagramForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="true">Active</SelectItem>
-                      <SelectItem value="false">Inactive</SelectItem>
+                      <SelectItem value="true">Activo</SelectItem>
+                      <SelectItem value="false">Inactivo</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -189,7 +235,7 @@ export default function WorkDiagramForm({
               name="active_novelty"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo de Novedad Activa</FormLabel>
+                  <FormLabel>Novedad Activa</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value ?? ''} disabled={isViewMode}>
                       <SelectTrigger className="w-[180px]">
@@ -240,7 +286,7 @@ export default function WorkDiagramForm({
               name="inactive_novelty"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo de Novedad Inactiva</FormLabel>
+                  <FormLabel>Novedad Inactiva</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value ?? ''} disabled={isViewMode}>
                       <SelectTrigger className="w-[180px]">
@@ -264,28 +310,22 @@ export default function WorkDiagramForm({
                 </FormItem>
               )}
             />
-            <Button type="button" variant="outline" className="w-[180px]" onClick={onCancel}>
+            {/* <Button type="button" variant="outline" className="w-[180px]" onClick={onCancel}>
               {isViewMode ? 'Cerrar' : 'Cancelar'}
-            </Button>
-
+            </Button> */}
+          </div>
+          <div className="flex justify-start mt-4 space-x-4">
             {!isViewMode && (
-              <Button type="submit" className="w-[180px]">
-                {mode === 'edit' ? 'Actualizar' : 'Guardar'}
+              <Button type="submit" variant="gh_orange">
+                {mode === 'edit' ? 'Actualizar' : 'Crear'}
+              </Button>
+            )}
+            {mode === 'edit' && (
+              <Button type="button" variant="outline" className="flex space-x-2" onClick={onCancel}>
+                Cancelar
               </Button>
             )}
           </div>
-
-          {/* <div className="mt-6 flex gap-4 justify-center">
-            <Button type="button" variant="outline" className="w-[180px]" onClick={onCancel}>
-              {isViewMode ? 'Cerrar' : 'Cancelar'}
-            </Button>
-
-            {!isViewMode && (
-              <Button type="submit" className="w-[180px]">
-                {mode === 'edit' ? 'Actualizar' : 'Guardar'}
-              </Button>
-            )}
-          </div> */}
         </form>
       </Form>
     </div>

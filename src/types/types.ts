@@ -700,5 +700,17 @@ export type FormattedGuild = {
   children: FormattedCovenant[];
 };
 
+export type WorkDiagram = {
+  id: string;
+  name: string;
+  is_active: boolean;
+  active_working_days: number;
+  inactive_working_days: number;
+  active_novelty: string | undefined;
+  inactive_novelty: string | undefined;
+  company_id: string;
+  created_at: string;
+};
+
 // Tipo para la función de salida completa
 export type FormattedOutput = FormattedGuild[] | undefined;

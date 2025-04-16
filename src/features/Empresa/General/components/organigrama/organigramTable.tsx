@@ -6,7 +6,7 @@ interface Sector {
   name: string;
   is_active: boolean;
 }
-function CostCenterTable({ sectors, onEdit }: { sectors: Sector[]; onEdit: (sector: Sector) => void }) {
+function OrganigramTable({ sectors, onEdit }: { sectors: Sector[]; onEdit: (sector: Sector) => void }) {
   return (
     <div className="flex flex-col gap-4 p-4">
       <h2 className="text-xl font-bold">Sectores</h2>
@@ -51,4 +51,4 @@ function CostCenterTable({ sectors, onEdit }: { sectors: Sector[]; onEdit: (sect
   );
 }
 
-export default CostCenterTable;
+export default OrganigramTable;

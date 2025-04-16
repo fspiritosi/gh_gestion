@@ -1,11 +1,12 @@
 import CovenantTreeFile from '@/app/dashboard/company/actualCompany/covenant/CovenantTreeFile';
-import ListDiagrams from '@/app/dashboard/company/companyComponents/rrhh/listDiagrams';
 import DiagramTypeComponent from '@/components/Diagrams/DiagramTypeComponent';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetchAllContractTypes } from '@/features/Empresa/RRHH/actions/actions';
 import ContractTypesTab from '@/features/Empresa/RRHH/components/ContractTypeTab';
+import DiagramTypesTab from '@/features/Empresa/RRHH/components/rrhh/diagramTypesTab';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
+
 interface DiagramType {
   id: string;
   created_at: string;
@@ -46,7 +47,8 @@ export default async function RrhhComponent() {
           <TabsTrigger value="contract-types">Tipos de Contrato</TabsTrigger>
         </TabsList>
         <TabsContent value="listado">
-          <ListDiagrams diagramsTypes={diagrams_types} />
+          {/* <ListDiagrams diagramsTypes={diagrams_types} /> */}
+          <DiagramTypesTab diagrams_types={diagrams_types} />
         </TabsContent>
         <TabsContent value="diagrams">
           <DiagramTypeComponent diagrams_types={diagrams_types} />
