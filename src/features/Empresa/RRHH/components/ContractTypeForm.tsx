@@ -204,7 +204,9 @@ export default function ContractTypeForm({ editingContractType }: { editingContr
         />
 
         <div className="flex gap-2 mt-6">
-          <Button type="submit">{isEditing ? 'Actualizar' : 'Crear'}</Button>
+          <Button variant="gh_orange" type="submit">
+            {isEditing ? 'Actualizar' : 'Crear'}
+          </Button>
           {isEditing && (
             <Button type="button" onClick={handleCancel} variant="outline">
               Cancelar

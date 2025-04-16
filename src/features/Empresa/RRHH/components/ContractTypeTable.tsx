@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useEffect, useState } from 'react';
-
+import { VerActivosButton } from './rrhh/verActivosButton';
 interface ContractTypeTableProps {
   contractTypes: ContractType[];
   onEdit: (contractType: ContractType) => void;
@@ -24,8 +24,10 @@ export default function ContractTypeTable({ contractTypes, onEdit }: ContractTyp
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <h2 className="text-xl font-bold">Tipos de Contrato</h2>
-
+      <div className="flex justify-between">
+        <h2 className="text-xl font-bold">Tipos de Contrato</h2>
+        <VerActivosButton data={contractTypes} filterKey="is_active" onFilteredChange={setFilteredContractTypes} />
+      </div>
       <div className="overflow-x-auto max-h-96 overflow-y-auto w-full">
         <Table>
           <TableHeader>
@@ -37,8 +39,8 @@ export default function ContractTypeTable({ contractTypes, onEdit }: ContractTyp
             </TableRow>
           </TableHeader>
           <TableBody>
-            {contractTypes.length > 0 ? (
-              contractTypes.map((contractType) => (
+            {filteredContractTypes.length > 0 ? (
+              filteredContractTypes.map((contractType) => (
                 <TableRow key={contractType.id}>
                   <TableCell className="font-medium">{contractType.name}</TableCell>
                   <TableCell>{contractType.description}</TableCell>

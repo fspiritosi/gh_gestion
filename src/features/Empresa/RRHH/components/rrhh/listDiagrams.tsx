@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { SkeletonTable } from './skeletonTable';
+import { VerActivosButton } from './verActivosButton';
 interface DiagramType {
   id: string;
   created_at: string;
@@ -49,8 +50,8 @@ export default function ListDiagrams({
 }) {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showActive, setShowActive] = useState(true);
-
+  // const [showActive, setShowActive] = useState(true);
+  const [filteredData, setFilteredData] = useState<Diagram[]>([]);
   const fetchData = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/work-diagrams`);
@@ -82,10 +83,10 @@ export default function ListDiagrams({
     fetchData();
   }, []);
 
-  const filteredData = showActive
-    ? data.filter((d: Diagram) => d.is_active)
-    : data.filter((d: Diagram) => !d.is_active);
-  console.log(filteredData, 'filteredData');
+  // const filteredData = showActive
+  //   ? data.filter((d: Diagram) => d.is_active)
+  //   : data.filter((d: Diagram) => !d.is_active);
+  // console.log(filteredData, 'filteredData');
   return isLoading ? (
     <SkeletonTable />
   ) : (
@@ -94,9 +95,10 @@ export default function ListDiagrams({
         <div className="flex justify-between">
           <h2 className="text-xl font-bold">Diagramas de Trabajo</h2>
           <div className="flex justify-end">
-            <Button variant="gh_orange" size="sm" onClick={() => setShowActive((prev) => !prev)} className="w-fit">
+            {/* <Button variant="gh_orange" size="sm" onClick={() => setShowActive((prev) => !prev)} className="w-fit">
               {showActive ? 'Ver inactivos' : 'Ver activos'}
-            </Button>
+            </Button> */}
+            <VerActivosButton data={data} filterKey="is_active" onFilteredChange={setFilteredData} />
           </div>
         </div>
         <div className="overflow-x-auto max-h-96 overflow-y-auto w-full">

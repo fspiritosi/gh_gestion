@@ -157,7 +157,6 @@ export default function WorkDiagramForm({ diagramsTypes, diagram, mode, setMode 
       inactive_novelty: '',
     });
     setMode('create');
-    toast.dismiss('Edicion cancelada');
   };
   console.log(mode, 'mode');
 
