@@ -6,7 +6,7 @@ import ContractTypesTab from '@/features/Empresa/RRHH/components/ContractTypeTab
 import DiagramTypesTab from '@/features/Empresa/RRHH/components/rrhh/diagramTypesTab';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
-
+import PositionsTab from '../rrhh/company_positions/positionsTab';
 interface DiagramType {
   id: string;
   created_at: string;
@@ -45,6 +45,7 @@ export default async function RrhhComponent() {
           <TabsTrigger value="diagrams">Tipos de Novedades</TabsTrigger>
           <TabsTrigger value="convenios">CCT</TabsTrigger>
           <TabsTrigger value="contract-types">Tipos de Contrato</TabsTrigger>
+          <TabsTrigger value="positions">Puestos</TabsTrigger>
         </TabsList>
         <TabsContent value="listado">
           {/* <ListDiagrams diagramsTypes={diagrams_types} /> */}
@@ -58,6 +59,9 @@ export default async function RrhhComponent() {
         </TabsContent>
         <TabsContent value="contract-types" className="">
           <ContractTypesTab allContractTypes={allContractTypes} />
+        </TabsContent>
+        <TabsContent value="positions">
+          <PositionsTab />
         </TabsContent>
       </Tabs>
     </div>

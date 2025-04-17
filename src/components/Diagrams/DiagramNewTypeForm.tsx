@@ -6,15 +6,20 @@ import { Switch } from '@/components/ui/switch';
 import { zodResolver } from '@hookform/resolvers/zod';
 import cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Input } from '../ui/input';
 
-export function DiagramNewTypeForm({ selectedDiagram }: { selectedDiagram?: any }) {
+interface DiagramNewTypeFormProps {
+  selectedDiagram?: any;
+  diagramToEdit: boolean;
+  setDiagramToEdit: (value: boolean) => void;
+}
+
+export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramToEdit }: DiagramNewTypeFormProps) {
   const company_id = cookies.get('actualComp');
-  const isMounted = useRef(true);
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
   const NewDiagramType = z.object({
     name: z.string().min(1, { message: 'El nombre de la novedad no puede estar vacío' }),
@@ -23,8 +28,7 @@ export function DiagramNewTypeForm({ selectedDiagram }: { selectedDiagram?: any 
     id: z.string().optional(),
     work_active: z.boolean().optional(),
   });
-  const [buttonToShow, setButtonToShow] = useState(true);
-  const [diagramToEdit, setDiagramToEdit] = useState(false);
+
   type NewDiagramType = z.infer<typeof NewDiagramType>;
   const router = useRouter();
 
@@ -75,41 +79,34 @@ export function DiagramNewTypeForm({ selectedDiagram }: { selectedDiagram?: any 
       id: '',
     });
     setDiagramToEdit(false);
-    setButtonToShow(true);
   }
-  // console.log('selectedDiagram', selectedDiagram);
-  // console.log('Diagram', diagramToEdit);
-  // console.log('button', buttonToShow);
-  // useEffect(() => {
-
-  //     form.reset({
-  //       name: selectedDiagram ? selectedDiagram?.name : '',
-  //       short_description: selectedDiagram ? selectedDiagram?.short_description : '',
-  //       color: selectedDiagram ? selectedDiagram?.color : '',
-  //       id: selectedDiagram ? selectedDiagram?.id : '',
-  //     });
-  //   setDiagramToEdit(true);
-  //   setButtonToShow(false);
-  // }, [selectedDiagram]);
 
   useEffect(() => {
-    if (isMounted.current) {
+    if (selectedDiagram) {
       form.reset({
-        name: selectedDiagram ? selectedDiagram?.name : '',
-        short_description: selectedDiagram ? selectedDiagram?.short_description : '',
-        color: selectedDiagram ? selectedDiagram?.color : '',
-        id: selectedDiagram ? selectedDiagram?.id : '',
+        name: selectedDiagram.name,
+        short_description: selectedDiagram.short_description,
+        color: selectedDiagram.color,
+        id: selectedDiagram.id,
+        work_active: selectedDiagram.work_active,
       });
       setDiagramToEdit(true);
-      setButtonToShow(false);
     } else {
-      isMounted.current = true;
+      form.reset({
+        name: '',
+        short_description: '',
+        color: '',
+        id: '',
+        work_active: false,
+      });
+      setDiagramToEdit(false);
     }
-  }, [selectedDiagram]);
+  }, [selectedDiagram, form]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-[400px]">
+        <h2 className="text-xl font-bold mb-4">{diagramToEdit ? 'Editar Novedad' : 'Crear Novedad'}</h2>
         <FormField
           control={form.control}
           name="name"
@@ -160,16 +157,18 @@ export function DiagramNewTypeForm({ selectedDiagram }: { selectedDiagram?: any 
           />
         </div>
         {!diagramToEdit ? (
-          <Button className="mt-4" type="submit">
-            Cargar novedad
-          </Button>
+          <div className="flex gap-x-4">
+            <Button variant="gh_orange" className="mt-4" type="submit">
+              Crear
+            </Button>
+          </div>
         ) : (
           <div className="flex gap-x-4">
-            <Button className="mt-4" type="submit">
-              Editar Novedad
+            <Button variant="gh_orange" className="mt-4" type="submit">
+              Actualizar
             </Button>
-            <Button className="mt-4" type="button" onClick={() => cleanForm()}>
-              Limpiar formulario
+            <Button variant="outline" className="mt-4" type="button" onClick={() => cleanForm()}>
+              Cancelar
             </Button>
           </div>
         )}

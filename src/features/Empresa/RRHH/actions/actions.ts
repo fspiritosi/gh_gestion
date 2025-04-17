@@ -1,9 +1,8 @@
 'use server';
 
 import { supabaseServer } from '@/lib/supabase/server';
-import { WorkDiagram } from '@/types/types';
+import { Position, WorkDiagram } from '@/types/types';
 import { cookies } from 'next/headers';
-
 export async function fetchAllContractTypes() {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
@@ -143,6 +142,86 @@ export async function deleteWorkDiagram(workDiagram: { id: string }) {
   if (error) {
     console.error('Error deleting work diagram:', error);
     throw new Error('Error deleting work diagram');
+  }
+  return data;
+}
+
+export async function fetchAllPositions() {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  if (!company_id) return [];
+
+  const { data, error } = await supabase
+    .from('company_position' as any)
+    .select('*')
+    .returns<Position[]>();
+
+  if (error) {
+    console.error('Error fetching positions:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function createPosition(position: {
+  name: string;
+  is_active: boolean;
+  hierarchical_position_id: string[];
+}) {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  console.log(company_id, 'company_id');
+  if (!company_id) throw new Error('No company ID found');
+  console.log(position, 'position');
+  const { data, error } = await supabase
+    .from('company_position' as any)
+    .insert(position)
+    .returns<Position>();
+
+  if (error) {
+    console.error('Error creating position:', error);
+    throw new Error('Error creating position');
+  }
+  return data;
+}
+
+export async function updatePosition(position: {
+  id: string;
+  name: string;
+  is_active: boolean;
+  hierarchical_position_id: string[];
+}) {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  if (!company_id) throw new Error('No company ID found');
+
+  const { data, error } = await supabase
+    .from('company_position' as any)
+    .update(position)
+    .eq('id', position.id)
+    .returns<Position[]>();
+
+  if (error) {
+    console.error('Error updating position:', error);
+    throw new Error('Error updating position');
+  }
+  return data;
+}
+
+export async function fetchAllHierarchicalPositions() {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  if (!company_id) return [];
+
+  const { data, error } = await supabase.from('hierarchy').select('*').returns<any[]>();
+
+  if (error) {
+    console.error('Error fetching hierarchical positions:', error);
+    return [];
   }
   return data;
 }
