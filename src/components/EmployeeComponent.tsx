@@ -1717,6 +1717,7 @@
 //     </section>
 //   );
 // }
+
 'use client';
 require('dotenv').config();
 
@@ -1750,18 +1751,17 @@ import { PostgrestError } from '@supabase/supabase-js';
 import { addMonths, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Check, ChevronsUpDown, Loader } from 'lucide-react';
+import moment from 'moment';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { supabase } from '../../supabase/supabase';
-import BackButton from './BackButton';
-
-import moment from 'moment';
 import AddCategoryModal from './AddCategoryModal';
 import AddCovenantModal from './AddCovenantModal';
 import AddGuildModal from './AddGuildModal';
+import BackButton from './BackButton';
 import { DiagramDetailEmployeeView } from './Diagrams/DiagramDetailEmployeeView';
 import { ImageHander } from './ImageHandler';
 import { AlertDialogFooter } from './ui/alert-dialog';
@@ -1791,9 +1791,10 @@ export default function EmployeeComponent({
   historyData,
   role,
   contract_types,
+  company_positions,
 }: {
   contract_types: ContractType[];
-
+  company_positions: any[];
   cost_center: CostCenter[];
   historyData: any;
   role: string | null;
@@ -1850,8 +1851,6 @@ export default function EmployeeComponent({
   const url = process.env.NEXT_PUBLIC_PROJECT_URL;
   const mandatoryDocuments = useCountriesStore((state) => state.mandatoryDocuments);
 
-  console.log(user, 'user');
-
   const form = useForm<z.infer<typeof accordionSchema>>({
     resolver: zodResolver(accordionSchema),
     defaultValues: user || {
@@ -1876,7 +1875,7 @@ export default function EmployeeComponent({
       email: '',
       file: '',
       hierarchical_position: undefined,
-      company_position: '',
+      company_position: undefined,
       workflow_diagram: undefined,
       type_of_contract: undefined,
       allocated_to: [],
@@ -1888,6 +1887,26 @@ export default function EmployeeComponent({
     },
   });
 
+  const hierarchicalPosition = useWatch({ control: form.control, name: 'hierarchical_position' });
+  const hierarchicalPositionId = hierarchyOptions?.find((option) => option.name === hierarchicalPosition)?.id;
+  const positionName = company_positions?.find((option) => option.id === user?.company_position)?.name;
+  const [displayedPositionName, setDisplayedPositionName] = useState(
+    company_positions?.find((cp) => cp.id === user?.company_position)?.name || ''
+  );
+  useEffect(() => {
+    // Cuando cambie la posición jerárquica o se cargue el usuario
+    const currentId = form.getValues('company_position');
+    const newName = company_positions?.find((cp) => cp.id === currentId)?.name || '';
+    setDisplayedPositionName(newName);
+  }, [hierarchicalPositionId, user?.company_position]);
+
+  const filteredPositions = company_positions
+    ? company_positions
+        .filter((cp) => (hierarchicalPositionId ? cp.hierarchical_position_id?.includes(hierarchicalPositionId) : true))
+        .map((cp) => cp.name) // Usamos solo los nombres
+    : [];
+
+  const currentPositionName = company_positions?.find((cp) => cp.id === user?.company_position)?.name || '';
   const [accordion1Errors, setAccordion1Errors] = useState(false);
   const [accordion2Errors, setAccordion2Errors] = useState(false);
   const [accordion3Errors, setAccordion3Errors] = useState(false);
@@ -2073,18 +2092,26 @@ export default function EmployeeComponent({
       pattern: '[0-9]+',
     },
     {
-      label: 'Puesto Jerarquico',
+      label: 'Sector',
       type: 'select',
-      placeholder: 'Puesto Jerarquico',
+      placeholder: 'Sector',
       options: hierarchyOptions,
       name: 'hierarchical_position',
     },
     {
       label: 'Puesto en la empresa',
-      type: 'text',
-      placeholder: 'Puesto en la empresa',
+      type: 'select',
+      placeholder: 'Selecciona un puesto',
+      options: filteredPositions,
       name: 'company_position',
+      value: currentPositionName, // Valor inicial mostrado
+      // Agrega esta propiedad adicional
+      extraData: {
+        company_positions,
+        currentId: user?.company_position,
+      },
     },
+
     {
       label: 'Diagrama de trabajo',
       type: 'select',
@@ -2189,6 +2216,7 @@ export default function EmployeeComponent({
           birthplace: String(countryOptions.find((e) => e.name === values.birthplace)?.id),
           city: String(citysOptions.find((e) => e.name.trim() === values.city)?.id),
           hierarchical_position: String(hierarchyOptions.find((e) => e.name === values.hierarchical_position)?.id),
+          company_position: values.company_position,
           workflow_diagram: String(workDiagramOptions.find((e) => e.name === values.workflow_diagram)?.id),
           picture: fileExtension
             ? `${url}/${values.document_number}.${fileExtension}`.trim()
@@ -2282,10 +2310,10 @@ export default function EmployeeComponent({
           birthplace: String(countryOptions.find((e) => e.name === values.birthplace)?.id),
           city: String(citysOptions.find((e) => e.name.trim() === values.city)?.id),
           hierarchical_position: String(hierarchyOptions.find((e) => e.name === values.hierarchical_position)?.id),
+          company_position: values.company_position,
           workflow_diagram: String(workDiagramOptions.find((e) => e.name === values.workflow_diagram)?.id),
         };
 
-        console.log(finalValues, 'finalValues');
         const result = compareContractorEmployees(user, finalValues as any);
         result.valuesToRemove.forEach(async (e) => {
           const { error } = await supabase
@@ -2430,7 +2458,13 @@ export default function EmployeeComponent({
   });
   const guildId = useWatch({ control: form.control, name: 'guild_id' });
   const covenantsId = useWatch({ control: form.control, name: 'covenants_id' });
-
+  const handlePositionChange = (selectedName: string) => {
+    const selectedPosition = company_positions?.find((cp) => cp.name === selectedName);
+    if (selectedPosition) {
+      form.setValue('company_position', selectedPosition.id, { shouldValidate: true });
+      setDisplayedPositionName(selectedName);
+    }
+  };
   return (
     <section>
       <header className="flex justify-between gap-4 flex-wrap">
@@ -2460,8 +2494,8 @@ export default function EmployeeComponent({
           ) : (
             <h2 className="text-4xl">{accion === 'edit' ? 'Editar empleado' : 'Agregar empleado'}</h2>
           )}
-          {role !== 'Invitado' && readOnly && accion === 'view' ? (
-            <div className="flex flex-grap gap-2">
+          <div className="flex gap-2">
+            {role !== 'Invitado' && readOnly && accion === 'view' && (
               <Button
                 variant="default"
                 onClick={() => {
@@ -2470,18 +2504,15 @@ export default function EmployeeComponent({
               >
                 Habilitar edición
               </Button>
-              <BackButton />
-            </div>
-          ) : (
-            !readOnly &&
-            accion !== 'new' &&
-            role !== 'Invitado' && (
-              <div className="flex flex-grap gap-2">
+            )}
+
+            {!readOnly && accion !== 'new' && role !== 'Invitado' && (
+              <div className="flex">
                 <Dialog onOpenChange={() => setShowModal(!showModal)}>
                   <DialogTrigger asChild>
                     <Button variant="destructive">Dar de baja</Button>
                   </DialogTrigger>
-                  <BackButton />
+                  {/* <BackButton /> */}
                   <DialogContent className="dark:bg-slate-950">
                     <DialogTitle>Dar de baja</DialogTitle>
                     <DialogDescription>
@@ -2608,8 +2639,9 @@ export default function EmployeeComponent({
                   </DialogContent>
                 </Dialog>
               </div>
-            )
-          )}
+            )}
+            <BackButton />
+          </div>
         </CardHeader>
       </header>
       <Form {...form}>
@@ -2918,6 +2950,40 @@ export default function EmployeeComponent({
               )}
               <div className="min-w-full max-w-sm flex flex-wrap gap-8">
                 {LABORALDATA?.map((data, index) => {
+                  if (data.name === 'company_position') {
+                    const filteredPositions =
+                      company_positions
+                        ?.filter((cp) =>
+                          hierarchicalPositionId ? cp.hierarchical_position_id?.includes(hierarchicalPositionId) : true
+                        )
+                        ?.map((cp) => cp.name) || [];
+
+                    return (
+                      <div key={data.name} className="w-[300px] flex flex-col gap-2">
+                        <FormField
+                          control={form.control}
+                          name="company_position"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                Puesto en la empresa
+                                <span style={{ color: 'red' }}> *</span>
+                              </FormLabel>
+                              <SelectWithData
+                                onChange={field.onChange}
+                                disabled={readOnly}
+                                placeholder="Selecciona un puesto"
+                                field={{ ...field, onChange: handlePositionChange }}
+                                options={filteredPositions}
+                                value={displayedPositionName}
+                              />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    );
+                  }
                   if (data.name === 'date_of_admission') {
                     return (
                       // <div key={crypto.randomUUID()} className="w-[300px] flex flex-col gap-2">

@@ -30,7 +30,7 @@ function PositionsTable({
   const [filteredData, setFilteredData] = useState<Position[]>([]);
 
   return (
-    <div>
+    <div className="ml-4">
       <div className="flex justify-between">
         <h2 className="text-xl font-bold">Posiciones</h2>
         <div className="flex justify-end">

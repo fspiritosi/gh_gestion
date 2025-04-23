@@ -140,7 +140,7 @@ export default function ContractTypeForm({ editingContractType }: { editingContr
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 space-x-4 w-[300px]">
         <h2 className="text-xl font-bold mb-4">{isEditing ? 'Editar Tipo de Contrato' : 'Crear Tipo de Contrato'}</h2>
 
         <FormField

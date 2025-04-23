@@ -105,88 +105,88 @@ function PositionsForm({
   }));
 
   return (
-    <div className="container w-full mx-auto p-4">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4">
-          <h2 className="text-xl font-bold mb-4">{mode === 'edit' ? 'Editar Posición' : 'Crear Posición'}</h2>
+    // <div className="container w-full mx-auto ">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 w-[300px]">
+        <h2 className="text-xl font-bold mb-4">{mode === 'edit' ? 'Editar Posición' : 'Crear Posición'}</h2>
 
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre de la Posición</FormLabel>
-                <FormControl>
-                  <Input type="text" {...field} className="input w-[400px]" placeholder="Nombre de la posición" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="hierarchical_position_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Posiciones jerárquicas</FormLabel>
-                <FormControl>
-                  <MultiSelectCombobox
-                    options={hierarchicalDataFormatted}
-                    emptyMessage="No hay posiciones"
-                    selectedValues={field.value || []}
-                    onChange={field.onChange}
-                    placeholder="Selecciona posiciones"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Puesto</FormLabel>
+              <FormControl>
+                <Input type="text" {...field} placeholder="Nombre del puesto" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="hierarchical_position_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sector/Departamento</FormLabel>
+              <FormControl>
+                <MultiSelectCombobox
+                  options={hierarchicalDataFormatted}
+                  emptyMessage="No hay posiciones"
+                  selectedValues={field.value || []}
+                  onChange={field.onChange}
+                  placeholder="Seleccione Sectores"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="is_active"
-            render={({ field }) => (
-              <FormItem className="space-y-3">
-                <FormLabel>Activo</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={(value) => field.onChange(value === 'true')}
-                    value={field.value ? 'true' : 'false'}
-                    className="flex  space-x-1"
-                  >
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="true" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Activo</FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="false" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Inactivo</FormLabel>
-                    </FormItem>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="is_active"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel>Activo</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={(value) => field.onChange(value === 'true')}
+                  value={field.value ? 'true' : 'false'}
+                  className="flex  space-x-1"
+                >
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="true" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Activo</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="false" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Inactivo</FormLabel>
+                  </FormItem>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <div className="flex gap-2 mt-6">
-            <Button variant="gh_orange" type="submit">
-              {mode === 'edit' ? 'Actualizar' : 'Crear'}
+        <div className="flex gap-2 mt-6">
+          <Button variant="gh_orange" type="submit">
+            {mode === 'edit' ? 'Actualizar' : 'Crear'}
+          </Button>
+          {mode === 'edit' && (
+            <Button type="button" onClick={handleCancel} variant="outline">
+              Cancelar
             </Button>
-            {mode === 'edit' && (
-              <Button type="button" onClick={handleCancel} variant="outline">
-                Cancelar
-              </Button>
-            )}
-          </div>
-        </form>
-      </Form>
-    </div>
+          )}
+        </div>
+      </form>
+    </Form>
+    // </div>
   );
 }
 

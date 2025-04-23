@@ -23,7 +23,7 @@ export default function ContractTypeTable({ contractTypes, onEdit }: ContractTyp
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col ml-4">
       <div className="flex justify-between">
         <h2 className="text-xl font-bold">Tipos de Contrato</h2>
         <VerActivosButton data={contractTypes} filterKey="is_active" onFilteredChange={setFilteredContractTypes} />

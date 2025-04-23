@@ -841,6 +841,7 @@ export type Database = {
           name: string | null;
           short_description: string;
           work_active: boolean | null;
+          is_active?: boolean | null;
         };
         Insert: {
           color: string;
@@ -850,6 +851,7 @@ export type Database = {
           name?: string | null;
           short_description: string;
           work_active?: boolean | null;
+          is_active?: boolean | null;
         };
         Update: {
           color?: string;
@@ -859,6 +861,7 @@ export type Database = {
           name?: string | null;
           short_description?: string;
           work_active?: boolean | null;
+          is_active?: boolean | null;
         };
         Relationships: [
           {

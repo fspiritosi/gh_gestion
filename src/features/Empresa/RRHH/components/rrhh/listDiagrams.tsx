@@ -90,8 +90,8 @@ export default function ListDiagrams({
   return isLoading ? (
     <SkeletonTable />
   ) : (
-    <div className="container mx-auto py-4 px-1">
-      <div className="flex flex-col gap-4 p-4">
+    <div className="mx-auto ml-4">
+      <div className="flex flex-col">
         <div className="flex justify-between">
           <h2 className="text-xl font-bold">Diagramas de Trabajo</h2>
           <div className="flex justify-end">
