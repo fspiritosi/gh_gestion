@@ -19,7 +19,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   }
 
   function createDataToDownload(data: any) {
-    const dataToDownload = data.map((dato: any) => ({
+    const dataToDownload = data?.map((dato: any) => ({
       nombre: dato.name,
       color: dato.color,
       descCorta: dato.short_description,
@@ -37,7 +37,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   }, [selectDiagramType]);
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="pt-6">
+    <ResizablePanelGroup direction="horizontal" className="ml-2">
       <ResizablePanel>
         <DiagramNewTypeForm
           selectedDiagram={selectDiagramType}
@@ -49,7 +49,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
       <ResizablePanel className="pl-6 min-w-[600px]" defaultSize={70}>
         <div className="flex justify-between">
           <h2 className="text-xl font-bold">Tipos deNovedades</h2>
-          <VerActivosButton data={diagrams_types} filterKey="work_active" onFilteredChange={setFilteredData} />
+          <VerActivosButton data={diagrams_types} filterKey="is_active" onFilteredChange={setFilteredData} />
         </div>
         <Table>
           <TableCaption>Lista de novedades de diagrama</TableCaption>

@@ -158,12 +158,11 @@ export default function WorkDiagramForm({ diagramsTypes, diagram, mode, setMode 
     });
     setMode('create');
   };
-  console.log(mode, 'mode');
 
   return (
-    <div className="container w-full mx-auto p-4">
+    <div className="w-full ">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(mode === 'edit' ? onUpdate : onSubmit)}>
+        <form onSubmit={form.handleSubmit(mode === 'edit' ? onUpdate : onSubmit)} className="space-y-8 w-[400px]">
           <h2 className="text-xl font-bold mb-4">{mode === 'edit' ? 'Editar Diagrama' : 'Crear Diagrama'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Nombre */}
