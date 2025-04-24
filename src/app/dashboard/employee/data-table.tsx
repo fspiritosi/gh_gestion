@@ -1,12 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
@@ -23,6 +17,7 @@ import {
 } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
 
+import { ColumnVisibilityToggle } from '@/components/ColumnVisibilityToggle';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -142,7 +137,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
     province: createOptions('province'),
     affiliate_status: createOptions('affiliate_status'),
     city: createOptions('city'),
-    hierrical_position: createOptions('hierrical_position'),
+    // hierrical_position: createOptions('hierrical_position'),
     workflow_diagram: createOptions('workflow_diagram'),
     status: createOptions('status'),
     guild: createOptions('guild'),
@@ -164,7 +159,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
     hierarchical_position: {
       name: 'hierarchical_position',
       option: allOptions.hierarchical_position,
-      label: 'Posición jerárquica',
+      label: 'Sector',
     },
     type_of_contract: {
       name: 'type_of_contract',
@@ -216,11 +211,11 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
       option: allOptions.city,
       label: 'Ciudad',
     },
-    hierrical_position: {
-      name: 'hierrical_position',
-      option: allOptions.hierrical_position,
-      label: 'Posición jerárquica',
-    },
+    // hierrical_position: {
+    //   name: 'hierrical_position',
+    //   option: allOptions.hierrical_position,
+    //   label: 'Sector',
+    // },
     workflow_diagram: {
       name: 'workflow_diagram',
       option: allOptions.workflow_diagram,
@@ -283,7 +278,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
       province: 'Todos',
       affiliate_status: 'Todos',
       city: 'Todos',
-      hierrical_position: 'Todos',
+      // hierrical_position: 'Todos',
       status: 'Todos',
       guild: 'Todos',
       covenants: 'Todos',
@@ -325,7 +320,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
             </SelectContent>
           </Select>
 
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Columnas</Button>
             </DropdownMenuTrigger>
@@ -366,7 +361,9 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
                   );
                 })}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
+
+          <ColumnVisibilityToggle table={table} />
           {/* <BtnXlsDownload fn={(data: any) => data} dataToDownload={data} nameFile={'Empleados'} /> */}
         </div>
       </div>
