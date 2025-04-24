@@ -92,7 +92,7 @@ type Colum = {
   date_of_admission: string;
   affiliate_status: string;
   city: string;
-  hierrical_position: string;
+  // hierrical_position: string;
   workflow_diagram: string;
   birthplace: string;
   status: string;
@@ -549,7 +549,7 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
   },
   {
     accessorKey: 'hierarchical_position',
-    header: 'Posición jerárquica',
+    header: 'Sector',
   },
   {
     accessorKey: 'company_position',
