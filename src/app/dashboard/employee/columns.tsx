@@ -134,6 +134,7 @@ const allocatedToRangeFilter: FilterFn<Colum> = (
 export const EmployeesListColumns: ColumnDef<Colum>[] = [
   {
     id: 'actions',
+
     cell: ({ row }: { row: any }) => {
       const share = useLoggedUserStore((state) => state.sharedCompanies);
       const profile = useLoggedUserStore((state) => state.credentialUser?.id);
@@ -459,6 +460,7 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
         </DropdownMenu>
       );
     },
+    enableHiding: false,
   },
 
   {
@@ -481,6 +483,7 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
         </Link>
       );
     },
+    enableHiding: true,
   },
   {
     accessorKey: 'status',
@@ -637,8 +640,8 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
   //   header: 'Posición jerárquica',
   // },
 
-  {
-    accessorKey: 'showUnavaliableEmployees',
-    header: 'Ver empleados dados de baja',
-  },
+  // {
+  //   accessorKey: 'showUnavaliableEmployees',
+  //   header: 'Ver empleados dados de baja',
+  // },
 ];

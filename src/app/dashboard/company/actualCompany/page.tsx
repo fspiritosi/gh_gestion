@@ -11,9 +11,9 @@ import UsersTabComponent from '@/features/Empresa/Usuarios/UsersTabComponent';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import Customers from '../../../../features/Empresa/Clientes/Customers';
 import TypesDocumentAction from '../../document/documentComponents/TypesDocumentAction';
 import Contacts from './contact/Contact';
-import Customers from './customers/Customers';
 
 export default async function CompanyPage() {
   const coockiesStore = cookies();
