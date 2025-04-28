@@ -5,6 +5,7 @@ import { supabase } from '../../../../supabase/supabase';
 import { columns } from './components/columns';
 import CustomerTab from './components/customerTab';
 import { DataCustomers } from './components/data-customer';
+import CustomerEquipmentTab from './components/equipos/customerEquipmentTab';
 
 export default async function Customers() {
   const coockiesStore = cookies();
@@ -17,6 +18,7 @@ export default async function Customers() {
   }
   const contractorCompanies = customers?.filter((company: any) => company.company_id.toString() === actualCompany);
 
+  console.log(contractorCompanies);
   return (
     <div>
       <Tabs defaultValue="areas">
@@ -24,6 +26,7 @@ export default async function Customers() {
           <TabsList>
             <TabsTrigger value="customers">Clientes</TabsTrigger>
             <TabsTrigger value="areas">Areas</TabsTrigger>
+            <TabsTrigger value="equipos">Equipos Clientes</TabsTrigger>
           </TabsList>
         </CardContent>
         <TabsContent value="customers">
@@ -31,6 +34,9 @@ export default async function Customers() {
         </TabsContent>
         <TabsContent value="areas">
           <CustomerTab />
+        </TabsContent>
+        <TabsContent value="equipos">
+          <CustomerEquipmentTab customers={contractorCompanies || []} />
         </TabsContent>
       </Tabs>
     </div>

@@ -269,3 +269,71 @@ export async function fetchAreasWithProvinces() {
     return { areasWithProvinces: [], error: 'Error al obtener las areas con sus provincias' };
   }
 }
+
+export async function fetchEquipmentsCustomers() {
+  const supabase = supabaseServer();
+  try {
+    const { data: equipments, error } = await supabase.from('equipos_clientes' as any).select('*');
+    if (error) {
+      console.error(error);
+      return { equipments: [], error: 'Error al obtener los equipos' };
+    }
+    return { equipments, error };
+  } catch (error) {
+    console.error(error);
+    return { equipments: [], error: 'Error al obtener los equipos' };
+  }
+}
+
+export async function createEquipmentCustomer(values: any) {
+  const supabase = supabaseServer();
+  try {
+    const { data: equipment, error: equipmentError } = await supabase
+      .from('equipos_clientes' as any)
+      .insert({
+        name: values.name,
+        customer_id: values.customer_id,
+        type: values.type,
+      })
+      .select('*');
+
+    if (equipmentError) {
+      return { status: 500, body: 'Internal Server Error' };
+    }
+
+    return { status: 200, body: 'Equipo creado satisfactoriamente' };
+  } catch (error) {
+    console.error(error);
+    return { status: 500, body: 'Internal Server Error' };
+  }
+}
+
+export async function updateEquipmentCustomer(values: any) {
+  const supabase = supabaseServer();
+
+  try {
+    const { data: equipment, error } = await supabase
+      .from('equipos_clientes' as any)
+      .update({
+        name: values.name,
+        customer_id: values.customer_id,
+        type: values.type,
+      })
+      .eq('id', values.id)
+      .select('*'); // traer el equipo actualizado
+
+    if (error) {
+      console.error('Error updating equipment:', error.message);
+      return { status: 500, body: error.message };
+    }
+
+    if (!equipment || equipment.length === 0) {
+      return { status: 404, body: 'Equipo no encontrado o no actualizado.' };
+    }
+
+    return { status: 200, body: 'Equipo actualizado satisfactoriamente' };
+  } catch (error) {
+    console.error('Unexpected error updating equipment:', error);
+    return { status: 500, body: 'Unexpected server error.' };
+  }
+}
