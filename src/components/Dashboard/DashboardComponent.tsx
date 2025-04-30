@@ -5,6 +5,7 @@ import { ResoursesChart } from '@/components/Graficos/ResousrsesChart';
 import { MissingDocumentList } from '@/components/MissingDocumentList';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { InteractiveChart } from '../Graficos/InteractiveChart';
 
 export default async function DashboardComponent() {
   // const data = await fetchAllEmployeesJUSTEXAMPLE();
@@ -26,7 +27,7 @@ export default async function DashboardComponent() {
           <section className="md:mx-7 grid grid-cols-1 mt-6 xl:grid-cols-4 gap-3 mb-4 ">
             <section className="flex flex-col gap-4 w-full">
               <ResoursesChart />
-              {/* <InteractiveChart /> */}
+              <InteractiveChart />
               <MissingDocumentList />
             </section>
             <Card className="col-span-3 flex flex-col justify-between overflow-hidden">

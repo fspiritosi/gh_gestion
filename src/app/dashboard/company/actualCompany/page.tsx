@@ -1,26 +1,22 @@
-import DocumentTabComponent from '@/components/DocumentTabComponent';
 import EditCompanyButton from '@/components/EditCompanyButton';
-import { RegisterWithRole } from '@/components/RegisterWithRole';
 import ServiceComponent from '@/components/Services/ServiceComponent';
 import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
 import General from '@/features/Empresa/General/General';
 import RrhhComponent from '@/features/Empresa/RRHH/components/rrhh/rrhhComponent';
-import UsersTabComponent from '@/features/Empresa/Usuarios/UsersTabComponent';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import TypesDocumentAction from '../../document/documentComponents/TypesDocumentAction';
 import Contacts from './contact/Contact';
 import Customers from './customers/Customers';
 
-export default async function CompanyPage() {
+export default async function CompanyPage({ searchParams }: { searchParams: { tab: string; subtab?: string } }) {
   const coockiesStore = cookies();
   const company_id = coockiesStore.get('actualComp')?.value;
-
+  console.log(searchParams, 'searchParams');
   const viewData = {
-    defaultValue: 'general',
+    defaultValue: searchParams?.tab || 'general',
     tabsValues: [
       {
         value: 'general',
@@ -31,39 +27,39 @@ export default async function CompanyPage() {
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: <EditCompanyButton companyId={company_id?.toString() ?? ''} />,
-          component: <General />,
+          component: <General tabValue="general" subtab={searchParams?.subtab} />,
         },
       },
-      {
-        value: '"documentacion"',
-        name: 'Documentacion',
-        restricted: [''],
+      // {
+      //   value: '"documentacion"',
+      //   name: 'Documentacion',
+      //   restricted: [''],
 
-        content: {
-          title: 'Documentos empresa',
-          //description: 'Lista de documentos a nombre de la empresa',
-          buttonActioRestricted: [''],
-          buttonAction: (
-            <div className="flex gap-4 flex-wrap pl-6">
-              <TypesDocumentAction optionChildrenProp="Empresa" />
-            </div>
-          ),
-          component: <DocumentTabComponent />,
-        },
-      },
-      {
-        value: 'users',
-        name: 'Usuarios',
-        restricted: [''],
+      //   content: {
+      //     title: 'Documentos empresa',
+      //     //description: 'Lista de documentos a nombre de la empresa',
+      //     buttonActioRestricted: [''],
+      //     buttonAction: (
+      //       <div className="flex gap-4 flex-wrap pl-6">
+      //         <TypesDocumentAction optionChildrenProp="Empresa" />
+      //       </div>
+      //     ),
+      //     component: <DocumentTabComponent />,
+      //   },
+      // },
+      // {
+      //   value: 'users',
+      //   name: 'Usuarios',
+      //   restricted: [''],
 
-        content: {
-          title: 'Usuarios',
-          //description: 'Lista de usuarios de la empresa',
-          buttonActioRestricted: [''],
-          buttonAction: <RegisterWithRole />,
-          component: <UsersTabComponent />,
-        },
-      },
+      //   content: {
+      //     title: 'Usuarios',
+      //     //description: 'Lista de usuarios de la empresa',
+      //     buttonActioRestricted: [''],
+      //     buttonAction: <RegisterWithRole />,
+      //     component: <UsersTabComponent />,
+      //   },
+      // },
       {
         value: 'customers',
         name: 'Clientes',
