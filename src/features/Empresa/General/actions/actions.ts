@@ -137,3 +137,41 @@ export const updateSector = async (sector: { id: string; name: string; is_active
   }
   return data;
 };
+
+export const getRoles = async () => {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  const { data: roles, error } = await supabase.from('roles').select('*').eq('intern', false).neq('name', 'Invitado');
+  if (error) {
+    console.error('Error updating sector:', error);
+    throw new Error('Error updating sector');
+  }
+  return roles;
+};
+
+export const fetchCustomers = async () => {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('is_active', true)
+    .eq('company_id', company_id!);
+  if (error) {
+    console.error('Error fetching customers:', error);
+  }
+  return data;
+};
+
+export const getProfile = async (email: string) => {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  const { data: profile, error } = await supabase.from('profile').select('*').eq('email', email);
+  if (error) {
+    console.error('Error fetching profile:', error);
+  }
+  return profile;
+};
