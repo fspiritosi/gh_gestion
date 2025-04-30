@@ -35,6 +35,7 @@ export default async function page() {
 
   const viewData = {
     defaultValue: 'Documentos de empleados',
+    path: '/dashboard/document',
     tabsValues: [
       {
         value: 'Documentos de empleados',

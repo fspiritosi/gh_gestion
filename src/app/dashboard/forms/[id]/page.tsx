@@ -30,6 +30,7 @@ async function page({ params }: { params: { id: string } }) {
 
   const viewData = {
     defaultValue: 'anwers',
+    path: `/dashboard/forms/${params.id}`,
     tabsValues: [
       {
         value: 'anwers',

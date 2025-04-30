@@ -14,6 +14,7 @@ import TypesDocumentsView from '../document/documentComponents/TypesDocumentsVie
 const EmployeePage = async () => {
   const viewData = {
     defaultValue: 'employees',
+    path: '/dashboard/employee',
     tabsValues: [
       {
         value: 'employees',
