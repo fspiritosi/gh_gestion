@@ -57,7 +57,9 @@ export default async function Viewcomponent({ viewData }: { viewData: ViewDataOb
                     {tab.content.description}
                   </CardDescription>
                 </div>
-                {tab.content.buttonActioRestricted?.includes(role) ? false : tab.content.buttonAction}
+                <div className="flex gap-4 flex-wrap pl-6 justify-end">
+                  {tab.content.buttonActioRestricted?.includes(role) ? false : tab.content.buttonAction}
+                </div>
               </CardHeader> */}
               <CardContent className="py-4 px-4 ">{tab.content.component}</CardContent>
               <CardFooter className="flex flex-row items-center border-t bg-gh/70 dark:bg-muted/50 px-6 py-3"></CardFooter>
