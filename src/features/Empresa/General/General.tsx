@@ -5,7 +5,6 @@ import CompanyComponent from '@/features/Empresa/General/components/company/Comp
 import { fetchAllCostCenters, fetchAllSectors, getCompany } from './actions/actions';
 import CostCenterTab from './components/cost-center/CostCenterTab';
 import OrganigramTab from './components/organigrama/OrganigramTab';
-import UsersTabComponent from './components/users/UsersTabComponent';
 
 async function General({ tabValue, subtab }: { subtab?: string; tabValue: string }) {
   const costCenters = await fetchAllCostCenters();
@@ -54,21 +53,21 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
           component: <OrganigramTab sectors={sectors} />,
         },
       },
-      {
-        value: 'users',
-        name: 'Usuarios',
-        restricted: [''],
-        tab: tabValue,
-        //options:[{value:"employees", label:"Empleados"}, {value:"no-employees", label:"Invitados"}],
-        content: {
-          title: 'Usuarios',
-          //description: 'Lista de usuarios de la empresa',
-          buttonActioRestricted: [''],
-          buttonAction: '',
-          //component: <CompanyUserTab />,
-          component: <UsersTabComponent />,
-        },
-      },
+      // {
+      //   value: 'users',
+      //   name: 'Usuarios',
+      //   restricted: [''],
+      //   tab: tabValue,
+      //   //options:[{value:"employees", label:"Empleados"}, {value:"no-employees", label:"Invitados"}],
+      //   content: {
+      //     title: 'Usuarios',
+      //     //description: 'Lista de usuarios de la empresa',
+      //     buttonActioRestricted: [''],
+      //     buttonAction: '',
+      //     //component: <CompanyUserTab />,
+      //     component: <UsersTabComponent />,
+      //   },
+      // },
       {
         value: '"documentacion"',
         name: 'Documentacion',
