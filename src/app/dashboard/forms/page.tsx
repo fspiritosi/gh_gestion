@@ -8,6 +8,7 @@ async function MantenimientoPage() {
 
   const viewData = {
     defaultValue: 'formularios',
+    path: '/dashboard/forms',
     tabsValues: [
       {
         value: 'formularios',
