@@ -1,19 +1,15 @@
-import EditCompanyButton from '@/components/EditCompanyButton';
 import ServiceComponent from '@/components/Services/ServiceComponent';
 import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
 import General from '@/features/Empresa/General/General';
 import RrhhComponent from '@/features/Empresa/RRHH/components/rrhh/rrhhComponent';
-import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import Contacts from './contact/Contact';
 import Customers from './customers/Customers';
 
 export default async function CompanyPage({ searchParams }: { searchParams: { tab: string; subtab?: string } }) {
-  const coockiesStore = cookies();
-  const company_id = coockiesStore.get('actualComp')?.value;
   console.log(searchParams, 'searchParams');
   const viewData = {
     defaultValue: searchParams?.tab || 'general',
@@ -27,7 +23,7 @@ export default async function CompanyPage({ searchParams }: { searchParams: { ta
           title: 'Empresa',
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
-          buttonAction: <EditCompanyButton companyId={company_id?.toString() ?? ''} />,
+          buttonAction: '',
           component: <General tabValue="general" subtab={searchParams?.subtab} />,
         },
       },

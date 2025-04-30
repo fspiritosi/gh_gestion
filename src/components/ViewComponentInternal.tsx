@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 interface ViewDataObj {
   defaultValue: string;
+  path: string;
   tabsValues: {
     value: string;
     name: React.ReactNode | string;
@@ -43,13 +44,16 @@ export default async function ViewcomponentInternal({ viewData }: { viewData: Vi
                 id={tab.value}
                 className={`text-gh_orange font-semibold`}
               >
-                <Link href={`/dashboard/company/actualCompany?tab=${tab.tab}&subtab=${tab.value}`}>{tab.name}</Link>
+                <Link href={`${viewData.path}?tab=${tab.tab}&subtab=${tab.value}`}>{tab.name}</Link>
               </TabsTrigger>
             );
           })}
         </TabsList>
         {viewData.tabsValues.map((tab, index) => (
           <TabsContent key={crypto.randomUUID()} value={tab.value}>
+            <div className="flex gap-4 py-2 flex-wrap justify-start">
+              {tab.content.buttonActioRestricted?.includes(role) ? false : tab.content.buttonAction}
+            </div>
             <div className="py-4 ">{tab.content.component}</div>
           </TabsContent>
         ))}
