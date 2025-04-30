@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 function MantenimientoPage() {
   const viewData = {
     defaultValue: 'type_of_repairs',
+    path: '/dashboard/maintenance',
     tabsValues: [
       {
         value: 'type_of_repairs',

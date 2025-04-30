@@ -12,6 +12,7 @@ import EquipmentListTabs from './equipmentComponentes/EquipmentListTabs';
 export default async function Equipment() {
   const viewData = {
     defaultValue: 'equipos',
+    path: '/dashboard/equipment',
     tabsValues: [
       {
         value: 'equipos',
