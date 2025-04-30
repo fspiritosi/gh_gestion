@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 interface ViewDataObj {
   defaultValue: string;
+  path: string;
   tabsValues: {
     value: string;
     name: React.ReactNode | string;
@@ -41,7 +42,7 @@ export default async function Viewcomponent({ viewData }: { viewData: ViewDataOb
                 id={tab.value}
                 className={`text-gh_orange font-semibold`}
               >
-                <Link href={`/dashboard/company/actualCompany?tab=${tab.value}`}>{tab.name}</Link>
+                <Link href={`${viewData.path}?tab=${tab.value}`}>{tab.name}</Link>
               </TabsTrigger>
             );
           })}

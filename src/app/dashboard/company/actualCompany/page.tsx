@@ -17,6 +17,7 @@ export default async function CompanyPage({ searchParams }: { searchParams: { ta
   console.log(searchParams, 'searchParams');
   const viewData = {
     defaultValue: searchParams?.tab || 'general',
+    path: '/dashboard/company/actualCompany',
     tabsValues: [
       {
         value: 'general',
