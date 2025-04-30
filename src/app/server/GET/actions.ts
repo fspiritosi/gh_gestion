@@ -107,17 +107,26 @@ export const fetchAllEmployees = async (role?: string) => {
   if (role === 'Invitado') {
     const { data, error } = await supabase
       .from('share_company_users')
-      .select(`*,customer_id(*,contractor_employee(*,employee_id(*)))`)
+      .select(
+        `*,
+        customer_id(*,contractor_employee(*,employee_id(*)))`
+      )
       .eq('profile_id', user?.id || '')
       .eq('company_id', company_id)
       .returns<ShareCompanyUsersWithRelations[]>();
 
     const employees = data?.[0].customer_id?.contractor_employee;
     const allEmployees = employees?.map((employee) => employee.employee_id);
+
     return allEmployees || [];
   }
 
-  const { data, error } = await supabase.from('employees').select('*').eq('company_id', company_id);
+  const { data, error } = await supabase
+    .from('employees')
+    .select(
+      '*,guild_id(name),covenants_id(name),category_id(name),company_position(name),hierarchical_position(name),city(name),province(name),workflow_diagram(name),birthplace(name)'
+    )
+    .eq('company_id', company_id);
 
   if (error) {
     console.error('Error fetching employees:', error);

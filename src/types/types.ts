@@ -711,6 +711,13 @@ export type WorkDiagram = {
   company_id: string;
   created_at: string;
 };
+export type Position = {
+  id: string;
+  created_at: string;
+  name: string;
+  hierarchical_position_id: string;
+  is_active: boolean;
+};
 
 // Tipo para la función de salida completa
 export type FormattedOutput = FormattedGuild[] | undefined;

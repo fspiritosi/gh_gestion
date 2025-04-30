@@ -13,7 +13,7 @@ import { getRole } from '@/lib/utils/getRole';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import moment from 'moment';
 import { cookies } from 'next/headers';
-import { fetchAllCostCenter } from './actions/actions';
+import { fetchAllCompanyPositon, fetchAllCostCenter } from './actions/actions';
 export default async function EmployeeFormAction({ searchParams }: { searchParams: any }) {
   // const { data } = await supabase
 
@@ -151,8 +151,8 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   const diagrams2 = await fetchDiagramsByEmployeeId(searchParams.employee_id);
   const diagrams_types2 = await fetchDiagramsTypes();
   const contract_types = await fetchAllContractTypes();
+  const allCompanyPositions = await fetchAllCompanyPositon();
 
-  console.log(allCostCenter, 'allCostcenter');
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
       <Card className={cn('col-span-8 flex flex-col justify-between overflow-hidden')}>
@@ -168,6 +168,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
           activeEmploees={[formattedEmployee]}
           historyData={historyData}
           contract_types={contract_types}
+          company_positions={allCompanyPositions}
         >
           <DocumentTable role={role} employee_id={formattedEmployee?.id || ''} />
         </EmployeeComponent>
