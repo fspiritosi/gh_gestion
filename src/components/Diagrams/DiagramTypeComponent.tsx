@@ -48,7 +48,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
       <ResizableHandle withHandle />
       <ResizablePanel className="pl-6 min-w-[600px]" defaultSize={70}>
         <div className="flex justify-between">
-          <h2 className="text-xl font-bold">Tipos deNovedades</h2>
+          <h2 className="text-xl font-bold">Tipos de Novedades</h2>
           <VerActivosButton data={diagrams_types} filterKey="is_active" onFilteredChange={setFilteredData} />
         </div>
         <Table>

@@ -19,8 +19,6 @@ function customerEquipmentTab({ customers }: { customers: any[] }) {
   useEffect(() => {
     fetchEquipments();
   }, []);
-  console.log(SelectedEquipment);
-  console.log(customers);
   return (
     <div>
       <ResizablePanelGroup direction="horizontal" className="min-h-[400px]">

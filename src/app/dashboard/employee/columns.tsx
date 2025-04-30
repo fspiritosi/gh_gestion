@@ -42,6 +42,7 @@ import { useCountriesStore } from '@/store/countries';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
 import { ColumnDef, FilterFn, Row } from '@tanstack/react-table';
 import { addMonths, format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -157,6 +158,7 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
         role = roleRaw?.join('');
         // role = users?.actualCompany?.share_company_users?.[0]?.role as string;
       }
+      const customers = useCountriesStore((state) => state.customers || []);
 
       const [showModal, setShowModal] = useState(false);
       const [integerModal, setIntegerModal] = useState(false);
@@ -570,31 +572,73 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
     accessorKey: 'type_of_contract',
     header: 'Tipo de contrato',
   },
+  // {
+  //   accessorKey: 'allocated_to',
+  //   header: 'Afectado a',
+  //   cell: ({ row }) => {
+  //     const values = row.original.allocated_to;
+
+  //     if (!values) return <Badge variant={'outline'}>Sin afectar</Badge>;
+  //     const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+
+  //     const contractorCompanies = Array.isArray(values)
+  //       ? values
+  //           .map((allocatedToId) =>
+  //             useCountriesStore(
+  //               (state) => state.customers?.find((company: any) => String(company.id) === String(allocatedToId))?.name
+  //             )
+  //           )
+  //           .join(', ')
+  //       : useCountriesStore(
+  //           (state) => state.customers?.find((company: any) => String(company.id) === String(values))?.name
+  //         );
+
+  //     return <p>{contractorCompanies}</p>;
+  //   },
+  //   filterFn: allocatedToRangeFilter,
+  // },
   {
     accessorKey: 'allocated_to',
     header: 'Afectado a',
     cell: ({ row }) => {
       const values = row.original.allocated_to;
+      const customers = useCountriesStore((state) => state.customers || []);
 
-      if (!values) return <Badge variant={'outline'}>Sin afectar</Badge>;
-      const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+      if (!values || values.length === 0) {
+        return <Badge variant="outline">Sin afectar</Badge>;
+      }
 
-      const contractorCompanies = Array.isArray(values)
-        ? values
-            .map((allocatedToId) =>
-              useCountriesStore(
-                (state) => state.customers?.find((company: any) => String(company.id) === String(allocatedToId))?.name
-              )
-            )
-            .join(', ')
-        : useCountriesStore(
-            (state) => state.customers?.find((company: any) => String(company.id) === String(values))?.name
-          );
+      const matchedCustomers = Array.isArray(values)
+        ? values.map((id) => customers.find((c) => String(c.id) === String(id))?.name).filter(Boolean) // elimina undefined
+        : [customers.find((c) => String(c.id) === String(values))?.name].filter(Boolean);
 
-      return <p>{contractorCompanies}</p>;
+      const first = matchedCustomers[0] ?? '—';
+
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="truncate max-w-[200px] cursor-pointer">
+                <Badge>
+                  {first}
+                  {matchedCustomers.length > 1 && ` +${matchedCustomers.length - 1}`}
+                </Badge>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="text-white bg-black rounded-lg p-2">
+              <div className="flex flex-col">
+                {matchedCustomers.map((name, index) => (
+                  <span key={index}>{name}</span>
+                ))}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
     },
     filterFn: allocatedToRangeFilter,
   },
+
   {
     accessorKey: 'province',
     header: 'Provincia',

@@ -1,5 +1,4 @@
 'use client';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,68 +11,83 @@ import {
 } from '@/components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
-interface AreaTableProp {
-  areas: {
-    id: string;
-    nombre: string;
-    descripcion_corta: string;
-    cliente: string;
-    provincias: string[];
-  }[];
-  selectedArea: AreaTableProp['areas'][number] | null;
-  setSelectedArea: (area: AreaTableProp['areas'][number] | null) => void;
+
+interface Sector {
+  id: string;
+  name: string;
+  descripcion_corta: string;
+  customer_id: string;
+  sector_customer: Array<{
+    customer_id: {
+      id: string;
+      name: string;
+    };
+  }>;
+}
+interface SectorTableProp {
+  customers: any[];
+  sectors: Sector[];
+  selectedSector: Sector | null;
+  setSelectedSector: (sector: Sector | null) => void;
   setMode: (mode: 'create' | 'edit') => void;
   mode: 'create' | 'edit';
 }
 
-function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: AreaTableProp) {
+function SectorTable({ customers, sectors, selectedSector, setSelectedSector, setMode, mode }: SectorTableProp) {
   // Estados para filtros y paginación
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [filterByName, setFilterByName] = useState('');
   const [selectedClient, setSelectedClient] = useState('todos');
-  const [selectedProvince, setSelectedProvince] = useState('todos');
-  const [filteredAreas, setFilteredAreas] = useState(areas);
-
+  const [selectedSectorFilter, setSelectedSectorFilter] = useState('todos');
+  const [filteredSectors, setFilteredSectors] = useState(sectors);
+  console.log(sectors);
   // Obtener valores únicos para los selects
-  const uniqueClients = Array.from(new Set(areas.map((area) => area.cliente)));
+  const uniqueClients = [
+    ...new Map(
+      sectors.flatMap((sector) => sector.sector_customer.map((c) => c.customer_id)).map((client) => [client.id, client])
+    ).values(),
+  ];
 
-  // Obtener provincias únicas de las áreas originales
-  const uniqueProvinces = Array.from(new Set(areas.flatMap((area) => area.provincias))).sort();
+  console.log(uniqueClients);
+  // Obtener sectores únicos de las áreas originales
+  const uniqueSectors = Array.from(new Set(sectors.map((sector) => sector.name))).sort();
 
   // Aplicar filtros
   useEffect(() => {
-    let result = [...areas];
+    let result = [...sectors];
     // Filtro por nombre
     if (filterByName) {
       const searchTerm = filterByName.toLowerCase();
-      result = result.filter((area) => area.nombre.toLowerCase().includes(searchTerm));
+      result = result.filter((sector) => sector.name.toLowerCase().includes(searchTerm));
     }
 
     // Filtro por cliente
     if (selectedClient !== 'todos') {
-      result = result.filter((area) => area.cliente === selectedClient);
+      result = result.filter((sector) => sector.sector_customer[0].customer_id.name === selectedClient);
     }
 
-    // Filtro por provincia
-    if (selectedProvince !== 'todos') {
-      result = result.filter((area) => area.provincias.includes(selectedProvince));
+    // Filtro por sector
+    if (selectedSectorFilter !== 'todos') {
+      result = result.filter((sector) => sector.name === selectedSectorFilter);
     }
 
-    setFilteredAreas(result);
+    setFilteredSectors(result);
     setCurrentPage(1); // Resetear a la primera página al filtrar
-  }, [areas, filterByName, selectedClient, selectedProvince]);
+  }, [sectors, filterByName, selectedClient, selectedSectorFilter]);
 
   // Calcular paginación
-  const totalPages = Math.ceil(filteredAreas.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredSectors.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredAreas.slice(startIndex, endIndex);
-
-  const handleEdit = (area: AreaTableProp['areas'][number]) => {
-    setSelectedArea(area);
+  const currentItems = filteredSectors.slice(startIndex, endIndex).map((sector) => {
+    const customer = customers.find((customer) => customer.id === sector.customer_id);
+    return { ...sector, customer_name: customer?.name };
+  });
+  console.log(currentItems);
+  const handleEdit = (sector: Sector) => {
+    setSelectedSector(sector);
     setMode('edit');
   };
 
@@ -82,10 +96,9 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
       setCurrentPage(page);
     }
   };
-
   return (
     <div className="ml-4 space-y-4">
-      <h2 className="text-xl font-bold">Areas</h2>
+      <h2 className="text-xl font-bold">Sectores</h2>
 
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -105,22 +118,22 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
             <SelectContent>
               <SelectItem value="todos">Todos los clientes</SelectItem>
               {uniqueClients.map((cliente) => (
-                <SelectItem key={cliente} value={cliente}>
-                  {cliente}
+                <SelectItem key={cliente.id} value={cliente.name}>
+                  {cliente.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={selectedProvince} onValueChange={setSelectedProvince}>
+          <Select value={selectedSectorFilter} onValueChange={setSelectedSectorFilter}>
             <SelectTrigger>
-              <SelectValue placeholder="Filtrar por provincia" />
+              <SelectValue placeholder="Filtrar por sector" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="todos">Todas las provincias</SelectItem>
-              {uniqueProvinces.map((provincia) => (
-                <SelectItem key={provincia} value={provincia}>
-                  {provincia}
+              <SelectItem value="todos">Todos los sectores</SelectItem>
+              {uniqueSectors.map((sector) => (
+                <SelectItem key={sector} value={sector}>
+                  {sector}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -136,43 +149,20 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
               <TableHead>Nombre</TableHead>
               <TableHead>Cliente</TableHead>
               <TableHead>Descripción</TableHead>
-              <TableHead>Provincias</TableHead>
               <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {currentItems.length > 0 ? (
-              currentItems.map((area) => (
-                <TableRow key={area.id}>
-                  <TableCell className="font-medium">{area.nombre}</TableCell>
-                  <TableCell>{area.cliente}</TableCell>
-                  <TableCell>{area.descripcion_corta}</TableCell>
-                  {/* <TableCell>{area.provincias.join(', ')}</TableCell> */}
-                  <TableCell>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="truncate max-w-[200px] cursor-pointer">
-                            <Badge>
-                              {area.provincias[0]}
-                              {area.provincias.length > 1 && ` +${area.provincias.length - 1}`}
-                            </Badge>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="flex flex-col ">
-                            {area.provincias.map((provincia) => (
-                              <span key={provincia}>{provincia}</span>
-                            ))}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
+              currentItems.map((sector) => (
+                <TableRow key={sector.id}>
+                  <TableCell className="font-medium">{sector.name}</TableCell>
+                  <TableCell>{sector.sector_customer[0]?.customer_id.name}</TableCell>
+                  <TableCell>{sector.descripcion_corta}</TableCell>
 
                   <TableCell>
                     <Button
-                      onClick={() => handleEdit(area)}
+                      onClick={() => handleEdit(sector)}
                       size="sm"
                       variant="ghost"
                       //   className="text-blue-600 hover:text-blue-800"
@@ -194,7 +184,7 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
       </div>
 
       {/* Paginación */}
-      {filteredAreas.length > itemsPerPage && (
+      {filteredSectors.length > itemsPerPage && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>
@@ -240,4 +230,4 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
   );
 }
 
-export default AreaTable;
+export default SectorTable;

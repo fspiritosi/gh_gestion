@@ -337,3 +337,107 @@ export async function updateEquipmentCustomer(values: any) {
     return { status: 500, body: 'Unexpected server error.' };
   }
 }
+
+export async function fetchAllSectors() {
+  const supabase = supabaseServer();
+  try {
+    const { data: sectors, error } = await supabase
+      .from('sectors' as any)
+      .select('*,sector_customer(sector_id(id,name), customer_id(id,name))');
+    if (error) {
+      console.error(error);
+      return { sectors: [], error: 'Error al obtener los sectores' };
+    }
+    return { sectors, error: null };
+  } catch (error) {
+    console.error(error);
+    return { sectors: [], error: 'Error al obtener los sectores' };
+  }
+}
+
+export async function createSector(values: any) {
+  const supabase = supabaseServer();
+  try {
+    const { data: sector, error: sectorError } = await supabase
+      .from('sectors' as any)
+      .insert({
+        name: values.name,
+        descripcion_corta: values.descripcion_corta,
+      })
+      .select('*');
+
+    if (sectorError) {
+      return { status: 500, body: 'Internal Server Error' };
+    }
+
+    const sectorId = sector?.[0]?.id;
+
+    const { error: sectorCustomerError } = await supabase.from('sector_customer' as any).insert({
+      sector_id: sectorId,
+      customer_id: values.customer_id,
+    });
+
+    if (sectorCustomerError) {
+      await supabase
+        .from('sectors' as any)
+        .delete()
+        .match({ id: sectorId });
+      return { status: 500, body: 'Internal Server Error' };
+    }
+
+    // revalidatePath('/dashboard/company/actualCompany');
+    return { status: 200, body: 'Sector creado satisfactoriamente' };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { status: 400, body: JSON.stringify(error.errors) };
+    }
+    console.error(error);
+    return { status: 500, body: 'Internal Server Error' };
+  }
+}
+
+export async function updateSector(values: any) {
+  const supabase = supabaseServer();
+
+  try {
+    const { data: sector, error: sectorError } = await supabase
+      .from('sectors' as any)
+      .update({
+        name: values.name,
+        descripcion_corta: values.descripcion_corta,
+      })
+      .eq('id', values.id)
+      .select('*');
+
+    if (sectorError) {
+      return { status: 500, body: 'Internal Server Error' };
+    }
+
+    const customerIds = Array.isArray(values.customer_id) ? values.customer_id : [values.customer_id];
+
+    const customers = customerIds.map((id: string) => ({
+      sector_id: values.id,
+      customer_id: id,
+    }));
+
+    const { error: deleteError } = await supabase
+      .from('sector_customer' as any)
+      .delete()
+      .eq('sector_id', values.id);
+
+    if (deleteError) {
+      return { status: 500, body: 'Internal Server Error' };
+    }
+
+    const { error: insertError } = await supabase.from('sector_customer' as any).insert(customers);
+
+    if (insertError) {
+      return { status: 500, body: 'Internal Server Error' };
+    }
+
+    return { status: 200, body: 'Sector actualizado satisfactoriamente' };
+  } catch (error) {
+    console.error(error);
+    return { status: 500, body: 'Internal Server Error' };
+  }
+}

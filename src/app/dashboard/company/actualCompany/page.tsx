@@ -65,11 +65,11 @@ export default async function CompanyPage() {
         },
       },
       {
-        value: 'customers',
-        name: 'Clientes',
+        value: 'comerce',
+        name: 'Comercial',
         restricted: [''],
         content: {
-          title: 'Clientes',
+          title: 'Comercial',
           //description: 'Lista de clientes de la empresa',
           buttonActioRestricted: [''],
           buttonAction: (
