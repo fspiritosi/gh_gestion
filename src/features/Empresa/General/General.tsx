@@ -4,7 +4,7 @@ import EditCompanyButton from '@/components/EditCompanyButton';
 import { RegisterWithRole } from '@/components/RegisterWithRole';
 import ViewcomponentInternal from '@/components/ViewComponentInternal';
 import CompanyComponent from '@/features/Empresa/General/components/company/CompanyComponent';
-import DangerZoneComponent from '@/features/Empresa/General/components/company/DangerZoneComponent';
+// import DangerZoneComponent from '@/features/Empresa/General/components/company/DangerZoneComponent';
 import { cookies } from 'next/headers';
 import UsersTabComponent from '../Usuarios/UsersTabComponent';
 import { fetchAllCostCenters, fetchAllSectors, getCompany } from './actions/actions';
@@ -31,7 +31,7 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: <EditCompanyButton companyId={company_id?.toString() ?? ''} />,
-          component: [<CompanyComponent company={companyData[0]} />, <DangerZoneComponent />],
+          component: <CompanyComponent company={companyData[0]} />,
         },
       },
       {
