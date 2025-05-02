@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
 const ItemsSchema = z.object({
   customer_id: z.string().nonempty(),
   customer_service_id: z.string().nonempty(),
@@ -395,10 +395,10 @@ export default function ServiceItemsForm({
             </FormItem>
           )}
         />
-        <Button className="mt-4" type="submit">
-          {isEditing ? 'Editar' : 'Cargar'}
+        <Button className="mt-4" type="submit" variant={'gh_orange'}>
+          {isEditing ? 'Editar' : 'Crear'}
         </Button>
-        <Button className="mt-4 ml-2" type="button" variant={'destructive'} onClick={handleCancel}>
+        <Button className="mt-4 ml-2" type="button" variant={'outline'} onClick={handleCancel}>
           Cancelar
         </Button>
         {isEditing && (

@@ -1,6 +1,6 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../../../components/ui/tabs';
 import ServiceItemsTable from './ServiceItemsTable';
 import ServiceTable from './ServiceTable';
 interface measure_unit {
@@ -50,7 +50,7 @@ export default async function ServiceComponent() {
     <Tabs defaultValue="services">
       <TabsList className="mb-2 bg-gh_contrast/50">
         <TabsTrigger value="services" className="text-gh_orange font-semibold">
-          Servicios
+          Contratos
         </TabsTrigger>
         <TabsTrigger value="servicesItems" className="text-gh_orange font-semibold">
           Items

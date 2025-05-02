@@ -1,16 +1,21 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
+import { useState } from 'react';
 interface Sector {
   id: string;
   name: string;
   is_active: boolean;
 }
 function OrganigramTable({ sectors, onEdit }: { sectors: Sector[]; onEdit: (sector: Sector) => void }) {
+  const [filteredData, setFilteredData] = useState<Sector[]>([]);
   return (
     <div className="flex flex-col gap-4 p-4">
-      <h2 className="text-xl font-bold">Sectores</h2>
-
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold">Sectores</h2>
+        <VerActivosButton data={sectors} filterKey="is_active" onFilteredChange={setFilteredData} />
+      </div>
       <div className="overflow-x-auto max-h-96 overflow-y-auto w-full">
         <Table>
           <TableHeader>
@@ -21,8 +26,8 @@ function OrganigramTable({ sectors, onEdit }: { sectors: Sector[]; onEdit: (sect
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sectors?.length > 0 ? (
-              sectors.map((sector) => (
+            {filteredData?.length > 0 ? (
+              filteredData.map((sector) => (
                 <TableRow key={sector.id}>
                   <TableCell className="font-medium">{sector.name}</TableCell>
                   <TableCell>

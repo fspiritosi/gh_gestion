@@ -20,12 +20,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Customers from '../../../../features/Empresa/Clientes/Customers';
+import Contact from '../../../../features/Empresa/Clientes/components/contacts/Contact';
 import { columns } from './components/columns';
 import { columnsGuests } from './components/columnsGuests';
 import { DataTable } from './components/data-table';
 import { columnsDocuments } from './components/document-colums';
 import { ItemCompany } from './components/itemCompany';
-import Contact from './contact/Contact';
 import Cct from './covenant/CctComponent';
 export default function page() {
   const router = useRouter();

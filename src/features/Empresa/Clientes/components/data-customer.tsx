@@ -82,7 +82,7 @@ export function DataCustomers<TData, TValue>({
   }, [columns]);
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})
@@ -148,7 +148,7 @@ export function DataCustomers<TData, TValue>({
         <div className="flex items-center py-4 flex-wrap gap-y-2 overflow-auto">
           <Input
             placeholder="Buscar por nombre"
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+            value={(table?.getColumn('name')?.getFilterValue() as string) ?? ''}
             onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
             className="max-w-sm"
           />
