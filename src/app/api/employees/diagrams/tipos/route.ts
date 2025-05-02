@@ -26,14 +26,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const supabase = supabaseServer();
-  const { name, color, short_description, work_active } = await request.json();
+  const { name, color, short_description, work_active, is_active } = await request.json();
   const searchParams = request.nextUrl.searchParams;
   const company_id = searchParams.get('actual');
 
   try {
     const { data, error } = await supabase
       .from('diagram_type')
-      .insert([{ name, company_id, color, short_description, work_active }] as any);
+      .insert([{ name, company_id, color, short_description, work_active, is_active }] as any);
 
     if (!error) {
       return Response.json(data);
@@ -46,13 +46,13 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const supabase = supabaseServer();
-  const { id, name, color, short_description, work_active } = await request.json();
+  const { id, name, color, short_description, work_active, is_active } = await request.json();
   const searchParams = request.nextUrl.searchParams;
 
   try {
     const { data, error } = await supabase
       .from('diagram_type')
-      .update({ name, color, short_description, work_active })
+      .update({ name, color, short_description, work_active, is_active })
       .eq('id', id);
 
     if (!error) {

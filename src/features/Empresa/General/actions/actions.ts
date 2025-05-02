@@ -50,13 +50,16 @@ export async function fetchAllCostCenters() {
   return data;
 }
 
-export const createCostCenter = async (costCenter: { name: string }) => {
+export const createCostCenter = async (costCenter: { name: string; is_active: boolean }) => {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) throw new Error('No company ID found');
 
-  const { data, error } = await supabase.from('cost_center').insert({ name: costCenter.name }).returns<CostCenter[]>();
+  const { data, error } = await supabase
+    .from('cost_center')
+    .insert({ name: costCenter.name, is_active: costCenter.is_active })
+    .returns<CostCenter[]>();
 
   if (error) {
     console.error('Error creating cost center:', error);
@@ -73,7 +76,7 @@ export const updateCostCenter = async (costCenter: { id: string; name: string; i
 
   const { data, error } = await supabase
     .from('cost_center')
-    .update({ name: costCenter.name })
+    .update({ name: costCenter.name, is_active: costCenter.is_active })
     .eq('id', costCenter.id)
     .returns<CostCenter[]>();
 

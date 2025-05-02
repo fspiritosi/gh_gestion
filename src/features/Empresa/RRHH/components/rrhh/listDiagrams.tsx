@@ -95,9 +95,6 @@ export default function ListDiagrams({
         <div className="flex justify-between">
           <h2 className="text-xl font-bold">Diagramas de Trabajo</h2>
           <div className="flex justify-end">
-            {/* <Button variant="gh_orange" size="sm" onClick={() => setShowActive((prev) => !prev)} className="w-fit">
-              {showActive ? 'Ver inactivos' : 'Ver activos'}
-            </Button> */}
             <VerActivosButton data={data} filterKey="is_active" onFilteredChange={setFilteredData} />
           </div>
         </div>

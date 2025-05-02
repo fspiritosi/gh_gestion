@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
 const ServiceSchema = z
   .object({
     id: z.string().optional(),
@@ -320,10 +320,10 @@ export default function ServicesForm({
             </FormItem>
           )}
         />
-        <Button className="mt-4" type="submit">
-          {isEditing ? 'Editar' : 'Cargar'}
+        <Button className="mt-4" type="submit" variant={'gh_orange'}>
+          {isEditing ? 'Editar' : 'Crear'}
         </Button>
-        <Button className="mt-4 ml-2" type="button" onClick={handleCancel} variant={'destructive'}>
+        <Button className="mt-4 ml-2" type="button" onClick={handleCancel} variant={'outline'}>
           Cancelar
         </Button>
         {isEditing && (

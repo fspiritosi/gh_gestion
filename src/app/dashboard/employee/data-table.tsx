@@ -16,7 +16,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
-
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
 import { ColumnVisibilityToggle } from '@/components/ColumnVisibilityToggle';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -363,7 +363,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
             </DropdownMenuContent>
           </DropdownMenu> */}
 
-          <ColumnVisibilityToggle table={table} />
+          <ColumnVisibilityToggle table={table} storageKey="employeeColumns" role={role} />
           {/* <BtnXlsDownload fn={(data: any) => data} dataToDownload={data} nameFile={'Empleados'} /> */}
         </div>
       </div>

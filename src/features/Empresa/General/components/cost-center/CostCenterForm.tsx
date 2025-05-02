@@ -12,7 +12,7 @@ import { createCostCenter, updateCostCenter } from '../../actions/actions';
 const CostCenterSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, { message: 'Debe ingresar el nombre del centro de costo' }),
-  is_active: z.string().optional(),
+  is_active: z.boolean().optional(),
 });
 
 function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter | null }) {
@@ -20,7 +20,7 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
     resolver: zodResolver(CostCenterSchema),
     defaultValues: {
       name: '',
-      is_active: '',
+      is_active: false,
     },
   });
 
@@ -35,14 +35,14 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
       reset({
         id: editingCostCenter.id,
         name: editingCostCenter.name,
-        is_active: editingCostCenter.is_active ? 'true' : 'false',
+        is_active: editingCostCenter.is_active ? true : false,
       });
       setIsEditing(true);
     } else {
       reset({
         id: '',
         name: '',
-        is_active: '',
+        is_active: false,
       });
       setIsEditing(false);
     }
@@ -51,7 +51,7 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
   const onSubmit = async (values: z.infer<typeof CostCenterSchema>) => {
     toast.promise(
       async () => {
-        await createCostCenter({ name: values.name });
+        await createCostCenter({ name: values.name, is_active: values.is_active! });
       },
       {
         loading: 'Creando centro de costo...',
@@ -68,12 +68,13 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
   };
 
   const onUpdate = async (values: z.infer<typeof CostCenterSchema>) => {
+    console.log(values, 'values');
     toast.promise(
       async () => {
         await updateCostCenter({
           id: values.id!,
           name: values.name,
-          is_active: values.is_active === 'true' ? true : false,
+          is_active: values.is_active! ? true : false,
         });
       },
       {
@@ -102,7 +103,7 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
     reset({
       id: '',
       name: '',
-      is_active: '',
+      is_active: false,
     });
     setIsEditing(false);
   };
@@ -137,7 +138,11 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
             <FormItem className="space-y-3">
               <FormLabel>Activo</FormLabel>
               <FormControl>
-                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex  space-x-1">
+                <RadioGroup
+                  onValueChange={(value) => field.onChange(value === 'true')}
+                  value={field.value ? 'true' : 'false'}
+                  className="flex  space-x-1"
+                >
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
                       <RadioGroupItem value="true" />

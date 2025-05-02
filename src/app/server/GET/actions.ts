@@ -977,3 +977,19 @@ export const fetchDiagramsTypes = async () => {
   }
   return data;
 };
+
+export const fetchAllProvinces = async () => {
+  try {
+    const supabase = supabaseServer();
+    const { data, error } = await supabase.from('provinces').select('*');
+
+    if (error) {
+      console.error('Error fetching provinces:', error);
+      return [];
+    }
+    return data;
+  } catch (error) {
+    console.error('Error fetching provinces:', error);
+    return [];
+  }
+};

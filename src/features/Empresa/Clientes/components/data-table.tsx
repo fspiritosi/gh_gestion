@@ -387,16 +387,16 @@ export function DataTable<TData, TValue>({
                             />
                           ) : cell.column.id === 'status' ? (
                             <Badge
-                            variant={
-                              cell.getValue() === 'Completo'
-                                ? 'success'
-                                : cell.getValue() === 'Completo con doc vencida'
-                                  ? 'yellow'
-                                  : 'destructive'
-                            }
-                          >
-                            {cell.getValue() as React.ReactNode}
-                          </Badge>
+                              variant={
+                                cell.getValue() === 'Completo'
+                                  ? 'success'
+                                  : cell.getValue() === 'Completo con doc vencida'
+                                    ? 'yellow'
+                                    : 'destructive'
+                              }
+                            >
+                              {cell.getValue() as React.ReactNode}
+                            </Badge>
                           ) : (
                             (flexRender(cell.column.columnDef.cell, cell.getContext()) as React.ReactNode)
                           )}

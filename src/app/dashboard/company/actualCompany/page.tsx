@@ -1,4 +1,3 @@
-import ServiceComponent from '@/components/Services/ServiceComponent';
 import CompanySkeleton from '@/components/Skeletons/CompanySkeleton';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
@@ -6,8 +5,8 @@ import General from '@/features/Empresa/General/General';
 import RrhhComponent from '@/features/Empresa/RRHH/components/rrhh/rrhhComponent';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import Contacts from './contact/Contact';
-import Customers from './customers/Customers';
+// import Customers from '../../../../features/Empresa/Clientes/Customers';
+import ComercialTab from '@/features/Empresa/Clientes/ComercialTab';
 
 export default async function CompanyPage({ searchParams }: { searchParams: { tab: string; subtab?: string } }) {
   console.log(searchParams, 'searchParams');
@@ -58,11 +57,11 @@ export default async function CompanyPage({ searchParams }: { searchParams: { ta
       //   },
       // },
       {
-        value: 'customers',
-        name: 'Clientes',
+        value: 'comerce',
+        name: 'Comercial',
         restricted: [''],
         content: {
-          title: 'Clientes',
+          title: 'Comercial',
           //description: 'Lista de clientes de la empresa',
           buttonActioRestricted: [''],
           buttonAction: (
@@ -73,28 +72,30 @@ export default async function CompanyPage({ searchParams }: { searchParams: { ta
               Registrar Cliente
             </Link>
           ),
-          component: <Customers />,
-        },
-      },
-      {
-        value: 'contacts',
-        name: 'Contactos',
-        restricted: [''],
-        content: {
-          title: 'Contactos',
-          //description: 'Lista de contactos de la empresa',
-          buttonActioRestricted: [''],
-          buttonAction: (
-            <Link
-              href={'/dashboard/company/contact/action?action=new'}
-              className={buttonVariants({ variant: 'gh_orange', size: 'sm', className: 'font-semibold' })}
-            >
-              Registrar Contacto
-            </Link>
+          component: (
+            <ComercialTab tabValue="comerce" subtab={searchParams?.subtab} localStorageName="customersColumns" />
           ),
-          component: <Contacts />,
         },
       },
+      // {
+      //   value: 'contacts',
+      //   name: 'Contactos',
+      //   restricted: [''],
+      //   content: {
+      //     title: 'Contactos',
+      //     //description: 'Lista de contactos de la empresa',
+      //     buttonActioRestricted: [''],
+      //     buttonAction: (
+      //       <Link
+      //         href={'/dashboard/company/contact/action?action=new'}
+      //         className={buttonVariants({ variant: 'gh_orange', size: 'sm', className: 'font-semibold' })}
+      //       >
+      //         Registrar Contacto
+      //       </Link>
+      //     ),
+      //     component: <Contacts />,
+      //   },
+      // },
       // {
       //   value: 'covenant',
       //   name: 'Convenios colectivos de trabajo',
@@ -119,18 +120,18 @@ export default async function CompanyPage({ searchParams }: { searchParams: { ta
       //     component: <CreatedForm />,
       //   },
       // },
-      {
-        value: 'service',
-        name: 'Contratos',
-        restricted: [''],
-        content: {
-          title: 'Contratos o Servicios',
-          //description: 'Crear y ver servicios de la empresa',
-          buttonActioRestricted: [''],
-          buttonAction: '',
-          component: <ServiceComponent />,
-        },
-      },
+      // {
+      //   value: 'service',
+      //   name: 'Contratos',
+      //   restricted: [''],
+      //   content: {
+      //     title: 'Contratos o Servicios',
+      //     //description: 'Crear y ver servicios de la empresa',
+      //     buttonActioRestricted: [''],
+      //     buttonAction: '',
+      //     component: <ServiceComponent />,
+      //   },
+      // },
       {
         value: 'rrhh',
         name: 'RRHH',
@@ -140,7 +141,7 @@ export default async function CompanyPage({ searchParams }: { searchParams: { ta
           //description: 'Crear y ver RRHH de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <RrhhComponent />,
+          component: <RrhhComponent tabValue="rrhh" subtab={searchParams?.subtab} localStorageName="rrhhColumns" />,
         },
       },
       // {

@@ -1,6 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Input } from '../ui/input';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 interface DiagramNewTypeFormProps {
   selectedDiagram?: any;
@@ -27,6 +28,7 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
     color: z.string().min(1, { message: 'Por favor selecciona un color para la novedad' }),
     id: z.string().optional(),
     work_active: z.boolean().optional(),
+    is_active: z.boolean().optional(),
   });
 
   type NewDiagramType = z.infer<typeof NewDiagramType>;
@@ -40,10 +42,13 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
       color: '',
       id: '',
       work_active: false,
+      is_active: false,
     },
   });
 
   async function onSubmit(values: NewDiagramType) {
+    values.short_description = values.short_description.toUpperCase();
+
     const method = diagramToEdit ? 'PUT' : 'POST';
     const url = diagramToEdit
       ? `${URL}/api/employees/diagrams/tipos`
@@ -89,6 +94,7 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
         color: selectedDiagram.color,
         id: selectedDiagram.id,
         work_active: selectedDiagram.work_active,
+        is_active: selectedDiagram.is_active,
       });
       setDiagramToEdit(true);
     } else {
@@ -98,6 +104,7 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
         color: '',
         id: '',
         work_active: false,
+        is_active: false,
       });
       setDiagramToEdit(false);
     }
@@ -156,6 +163,38 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="is_active"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel>Activo</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={(value) => field.onChange(value === 'true')}
+                  value={field.value ? 'true' : 'false'}
+                  className="flex space-x-1"
+                >
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="true" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Activo</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="false" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Inactivo</FormLabel>
+                  </FormItem>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {!diagramToEdit ? (
           <div className="flex gap-x-4">
             <Button variant="gh_orange" className="mt-4" type="submit">
