@@ -123,7 +123,7 @@ function SectorForm({ customers, mode, setMode, selectedSector, setSelectedSecto
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 w-[300px]">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 w-[300px]">
         <h2 className="text-xl font-bold mb-4">{mode === 'create' ? 'Crear Sector' : 'Editar Sector'}</h2>
 
         <FormField

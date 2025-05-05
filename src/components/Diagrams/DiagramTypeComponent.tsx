@@ -37,7 +37,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   }, [selectDiagramType]);
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="ml-2">
+    <ResizablePanelGroup direction="horizontal" className="">
       <ResizablePanel>
         <DiagramNewTypeForm
           selectedDiagram={selectDiagramType}

@@ -114,7 +114,7 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
         <h2 className="text-xl font-bold mb-4">{isEditing ? 'Editar Centro de Costo' : 'Crear Centro de Costo'}</h2>
 
         <FormField

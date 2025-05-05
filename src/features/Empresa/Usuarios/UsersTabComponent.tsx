@@ -66,7 +66,7 @@ export default async function UsersTabComponent() {
   return (
     <div>
       <Tabs defaultValue="employ" className="w-full">
-        <TabsList className="ml-8 bg-gh_contrast/50">
+        <TabsList className=" bg-gh_contrast/50">
           <TabsTrigger value="employ" className="text-gh_orange font-semibold">
             Empleados
           </TabsTrigger>
@@ -75,12 +75,12 @@ export default async function UsersTabComponent() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="employ">
-          <div className="p-8">
+          <div className="py-8">
             <DataTable data={data || []} columns={columns} />
           </div>
         </TabsContent>
         <TabsContent value="guests">
-          <div className="p-8">
+          <div className="py-8">
             <DataTable data={guestsData || []} columns={columnsGuests} />
           </div>
         </TabsContent>

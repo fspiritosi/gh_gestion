@@ -145,7 +145,7 @@ export function DataCustomers<TData, TValue>({
   return (
     <div>
       <div>
-        <div className="flex items-center py-4 flex-wrap gap-y-2 overflow-auto">
+        <div className="flex items-center pb-4 flex-wrap gap-y-2 overflow-auto">
           <Input
             placeholder="Buscar por nombre"
             value={(table?.getColumn('name')?.getFilterValue() as string) ?? ''}

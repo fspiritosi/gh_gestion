@@ -86,7 +86,7 @@ export default async function DocumentTabComponent() {
   });
   return (
     <div>
-      <div className="px-8 pb-8">
+      <div className="py-8">
         <DataTable isDocuments data={documentCompany || []} columns={columnsDocuments} />
       </div>
     </div>

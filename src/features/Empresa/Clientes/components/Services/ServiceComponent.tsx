@@ -63,7 +63,7 @@ export default async function ServiceComponent() {
           <div>No hay servicios</div>
         )}
       </TabsContent>
-      <TabsContent value="servicesItems">
+      <TabsContent value="servicesItems" className="px-0 ">
         {services ? (
           <ServiceItemsTable
             measure_units={measure_units as any}

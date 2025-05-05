@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import Link from 'next/link';
-import GoogleButton from './componentsLogin/GoogleButton';
 import { LoginButton } from './componentsLogin/LoginButton';
 export default async function Login() {
   return (
@@ -73,7 +72,7 @@ export default async function Login() {
                 <Link href="/reset_password" className="text-md m-auto">
                   ¿Olvidaste tu contraseña? <span className="text-blue-400 ml-1 ">restablecela aquí </span>
                 </Link>
-                <GoogleButton />
+                {/* <GoogleButton /> */}
               </form>
             </CardContent>
           </div>

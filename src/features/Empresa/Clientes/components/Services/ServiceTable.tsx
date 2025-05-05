@@ -95,12 +95,12 @@ const ServiceTable = ({ services, customers, company_id }: ServiceTableProps) =>
   }, []);
 
   return (
-    <ResizablePanelGroup className="pl-6 flex flex-col gap-2" direction="horizontal">
+    <ResizablePanelGroup className="flex flex-col gap-2" direction="horizontal">
       <ResizablePanel>
         <ServicesForm customers={customers as any} editingService={editingService as any} company_id={company_id} />
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel className="pl-6 min-w-[500px] flex flex-col gap-2" defaultSize={70}>
+      <ResizablePanel className="min-w-[500px] flex flex-col gap-2" defaultSize={70}>
         <div>
           <div className="flex space-x-4">
             <Select onValueChange={(value) => setSelectedCustomer(value)} value={selectedCustomer} defaultValue="all">
