@@ -51,10 +51,12 @@ export default async function ViewcomponentInternal({ viewData }: { viewData: Vi
         </TabsList>
         {viewData.tabsValues.map((tab, index) => (
           <TabsContent key={crypto.randomUUID()} value={tab.value}>
-            <div className="flex gap-4 py-2 flex-wrap justify-start">
-              {tab.content.buttonActioRestricted?.includes(role) ? false : tab.content.buttonAction}
-            </div>
-            <div className="py-4 ">{tab.content.component}</div>
+            {tab.content.buttonAction && (
+              <div className="flex gap-4 py-2 flex-wrap justify-start">
+                {tab.content.buttonActioRestricted?.includes(role) ? false : tab.content.buttonAction}
+              </div>
+            )}
+            <div className="py-2">{tab.content.component}</div>
           </TabsContent>
         ))}
       </Tabs>
