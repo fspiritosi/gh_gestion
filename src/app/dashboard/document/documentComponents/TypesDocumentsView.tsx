@@ -16,7 +16,7 @@ function TypesDocumentsView({
   personas?: boolean;
   equipos?: boolean;
   empresa?: boolean;
-  tabValue: string;
+  tabValue?: string;
   subtab?: string;
 }) {
   const document_types = useCountriesStore((state) => state.companyDocumentTypes);

@@ -9,9 +9,9 @@ import EquipmentTabs from '../document/documentComponents/EquipmentTabs';
 import TypesDocumentAction from '../document/documentComponents/TypesDocumentAction';
 import TypesDocumentsView from '../document/documentComponents/TypesDocumentsView';
 import EquipmentListTabs from './equipmentComponentes/EquipmentListTabs';
-export default async function Equipment() {
+export default async function Equipment({ searchParams }: { searchParams: { tab: string; subtab?: string } }) {
   const viewData = {
-    defaultValue: 'equipos',
+    defaultValue: searchParams?.tab || 'equipos',
     path: '/dashboard/equipment',
     tabsValues: [
       {
@@ -26,7 +26,7 @@ export default async function Equipment() {
             <div className="flex gap-4 flex-wrap pl-6">
               <Link
                 href="/dashboard/equipment/action?action=new"
-                className={[' py-2 px-4 rounded', buttonVariants({ variant: 'default' })].join(' ')}
+                className={[' py-2 rounded', buttonVariants({ variant: 'default' })].join(' ')}
               >
                 Agregar nuevo equipo
               </Link>
@@ -48,7 +48,7 @@ export default async function Equipment() {
               <DocumentNav onlyEmployees />
             </div>
           ),
-          component: <EquipmentTabs />,
+          component: <EquipmentTabs tabValue="Documentos de equipos" />,
         },
       },
       {
@@ -71,7 +71,15 @@ export default async function Equipment() {
           title: 'Mantenimiento de unidades',
           description: 'Genera solicitudes de mantenimiento para tus equipos',
           buttonActioRestricted: [''],
-          component: <RepairTypes type_of_repair_new_entry created_solicitudes defaultValue="created_solicitudes" />,
+          component: (
+            <RepairTypes
+              type_of_repair_new_entry
+              created_solicitudes
+              defaultValue="created_solicitudes"
+              tabValue={searchParams?.tab}
+              subtab={searchParams?.subtab}
+            />
+          ),
         },
       },
       // {

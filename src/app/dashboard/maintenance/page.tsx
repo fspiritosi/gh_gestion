@@ -2,7 +2,7 @@ import RepairsSkeleton from '@/components/Skeletons/RepairsSkeleton';
 import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
 import { Suspense } from 'react';
-function MantenimientoPage() {
+function MantenimientoPage({ tabValue, subtab }: { subtab?: string; tabValue: string }) {
   const viewData = {
     defaultValue: 'type_of_repairs',
     path: '/dashboard/maintenance',
@@ -23,6 +23,8 @@ function MantenimientoPage() {
               type_of_repair_new_entry2
               type_of_repair_new_entry3
               mechanic
+              subtab={subtab}
+              tabValue={tabValue}
             />
           ),
         },

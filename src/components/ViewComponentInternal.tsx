@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 import Link from 'next/link';
 
-interface ViewDataObj {
+export interface ViewDataObj {
   defaultValue: string;
   path: string;
   tabsValues: {
