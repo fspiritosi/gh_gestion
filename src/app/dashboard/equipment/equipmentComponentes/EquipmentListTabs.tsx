@@ -1,8 +1,10 @@
 import { fetchAllEquipment } from '@/app/server/GET/actions';
-import ViewcomponentInternal from '@/components/ViewComponentInternal';
+import ViewcomponentInternal, { ViewDataObj } from '@/components/ViewComponentInternal';
+import { buttonVariants } from '@/components/ui/button';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getActualRole } from '@/lib/utils';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 import { EquipmentColums } from '../columns';
 import { EquipmentTable } from '../data-equipment';
 
@@ -14,8 +16,8 @@ async function EquipmentListTabs({
 }: {
   inactives?: boolean;
   actives?: boolean;
-  tabValue?: string;
-  subtab?: string;
+  tabValue: string;
+  subtab: string | undefined;
 }) {
   const equipments = await fetchAllEquipment();
   const cookiesStore = cookies();
@@ -30,7 +32,7 @@ async function EquipmentListTabs({
   const onlyNoVehicles = equipments?.filter((v) => v.types_of_vehicles.id == '2');
   // const data = setVehiclesToShow(equipments);
 
-  const viewData = {
+  const viewData: ViewDataObj = {
     defaultValue: subtab || 'all',
     path: '/dashboard/equipment',
     tabsValues: [
@@ -39,7 +41,18 @@ async function EquipmentListTabs({
         name: 'Todos los equipos',
         restricted: [''],
         tab: tabValue,
+
         content: {
+          buttonAction: (
+            <div className="flex flex-wrap">
+              <Link
+                href="/dashboard/equipment/action?action=new"
+                className={[' py-2 rounded', buttonVariants({ variant: 'default' })].join(' ')}
+              >
+                Agregar nuevo equipo
+              </Link>
+            </div>
+          ),
           title: 'Todos los equipos',
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
@@ -53,7 +66,16 @@ async function EquipmentListTabs({
         tab: tabValue,
         content: {
           title: 'Solo vehículos',
-          //description: 'Información de la empresa',
+          buttonAction: (
+            <div className="flex flex-wrap">
+              <Link
+                href="/dashboard/equipment/action?action=new"
+                className={[' py-2 rounded', buttonVariants({ variant: 'default' })].join(' ')}
+              >
+                Agregar nuevo equipo
+              </Link>
+            </div>
+          ),
           buttonActioRestricted: [''],
           component: <EquipmentTable role={role} columns={EquipmentColums || []} data={onlyVehicles || []} />,
         },
@@ -65,7 +87,16 @@ async function EquipmentListTabs({
         tab: tabValue,
         content: {
           title: 'Otros',
-          //description: 'Información de la empresa',
+          buttonAction: (
+            <div className="flex flex-wrap">
+              <Link
+                href="/dashboard/equipment/action?action=new"
+                className={[' py-2 rounded', buttonVariants({ variant: 'default' })].join(' ')}
+              >
+                Agregar nuevo equipo
+              </Link>
+            </div>
+          ),
           buttonActioRestricted: [''],
           component: <EquipmentTable role={role} columns={EquipmentColums || []} data={onlyNoVehicles || []} />,
         },

@@ -1,10 +1,19 @@
-import { CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ViewcomponentInternal, { ViewDataObj } from '@/components/ViewComponentInternal';
 import { CompanyDocumentsType, useLoggedUserStore } from '@/store/loggedUser';
 import { DataTable } from '../../company/actualCompany/components/data-table';
 import { columnsDocuments } from '../../company/actualCompany/components/document-colums';
 
-function CompanyTabs({ companyData }: { companyData: CompanyDocumentsType[] }) {
+function CompanyTabs({
+  subtab,
+  tabValue,
+  path,
+  companyData,
+}: {
+  subtab?: string;
+  tabValue: string;
+  path: string;
+  companyData: CompanyDocumentsType[];
+}) {
   const ownerUser = useLoggedUserStore.getState().profile;
   const sharedUsersAll = useLoggedUserStore.getState().sharedUsers;
   const sharedUsers =
@@ -76,25 +85,75 @@ function CompanyTabs({ companyData }: { companyData: CompanyDocumentsType[] }) {
         private: document.id_document_types.private,
       };
     });
+
+  const viewData: ViewDataObj = {
+    defaultValue: subtab || 'permanentes',
+    path: path,
+    tabsValues: [
+      {
+        value: 'permanentes',
+        name: 'Documentos permanentes',
+        restricted: [''],
+        tab: tabValue,
+        content: {
+          title: 'Documentos permanentes',
+          //description: 'Información de la empresa',
+          buttonActioRestricted: [''],
+          // buttonAction: (
+          //   <div className="flex gap-4 flex-wrap">
+          //     <DocumentNav />
+          //   </div>
+          // ),
+          component: (
+            <div>
+              <DataTable isDocuments data={documentCompany || []} columns={columnsDocuments} />
+            </div>
+          ),
+        },
+      },
+      {
+        value: 'mensuales',
+        name: 'Documentos mensuales',
+        restricted: [''],
+        tab: tabValue,
+        content: {
+          title: 'Solo vehículos',
+          //description: 'Información de la empresa',
+          buttonActioRestricted: [''],
+          // buttonAction: (
+          //   <div className="flex gap-4 flex-wrap">
+          //     <DocumentNav />
+          //   </div>
+          // ),
+          component: (
+            <div>
+              <DataTable isDocuments data={documentCompanyMensual || []} columns={columnsDocuments} />
+            </div>
+          ),
+        },
+      },
+    ],
+  };
   return (
-    <Tabs defaultValue="permanentes">
-      <CardContent>
-        <TabsList>
-          <TabsTrigger value="permanentes">Documentos permanentes</TabsTrigger>
-          <TabsTrigger value="mensuales">Documentos mensuales</TabsTrigger>
-        </TabsList>
-      </CardContent>
-      <TabsContent value="permanentes">
-        <div className="p-4">
-          <DataTable isDocuments data={documentCompany || []} columns={columnsDocuments} />
-        </div>
-      </TabsContent>
-      <TabsContent value="mensuales">
-        <div className="p-4">
-          <DataTable isDocuments data={documentCompanyMensual || []} columns={columnsDocuments} />
-        </div>
-      </TabsContent>
-    </Tabs>
+    <ViewcomponentInternal viewData={viewData} />
+    // <Tabs defaultValue="permanentes">
+    //   <CardContent className="px-0 pt-1">
+    //     <TabsList>
+    //       <TabsTrigger value="permanentes">Documentos permanentes</TabsTrigger>
+    //       <TabsTrigger value="mensuales">Documentos mensuales</TabsTrigger>
+    //     </TabsList>
+    //   </CardContent>
+    //   <TabsContent value="permanentes">
+    //     <div>
+    //       <DataTable isDocuments data={documentCompany || []} columns={columnsDocuments} />
+    //     </div>
+    //   </TabsContent>
+    //   <TabsContent value="mensuales">
+    //     <div>
+    //       <DataTable isDocuments data={documentCompanyMensual || []} columns={columnsDocuments} />
+    //     </div>
+    //   </TabsContent>
+    // </Tabs>
   );
 }
 

@@ -6,13 +6,13 @@ import { ExpiredColums } from '../../colums';
 import { ColumnsMonthly } from '../../columsMonthly';
 import { ExpiredDataTable } from '../../data-table';
 
-async function EmployeeDocumentsTabs({ tabValue, subtab }: { tabValue: string; subtab?: string }) {
+async function EmployeeDocumentsTabs({ tabValue, subtab, path }: { tabValue: string; subtab?: string; path: string }) {
   const monthlyDocuments = (await fetchEmployeeMonthlyDocuments()).map(formatEmployeeDocuments);
   const permanentDocuments = (await fetchEmployeePermanentDocuments()).map(formatEmployeeDocuments);
 
   const viewData = {
     defaultValue: subtab || 'permanentes',
-    path: '/dashboard/employee',
+    path: path,
     tabsValues: [
       {
         value: 'permanentes',

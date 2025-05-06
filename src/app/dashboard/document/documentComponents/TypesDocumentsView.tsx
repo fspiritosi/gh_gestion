@@ -5,6 +5,7 @@ import { useCountriesStore } from '@/store/countries';
 import { useState } from 'react';
 import DocumentsTable from './DocumentsTable'; // Asumo que este componente existe
 import FilterHeader from './FilterComponent';
+import TypesDocumentAction from './TypesDocumentAction';
 
 function TypesDocumentsView({
   personas,
@@ -168,13 +169,18 @@ function TypesDocumentsView({
   };
 
   return (
-    <CardContent>
+    <CardContent className="px-0 pt-1">
       <Tabs defaultValue={optionValue} className="w-full">
-        <TabsList>
-          {personas && <TabsTrigger value="Personas">Personas ({filteredDocPersonas?.length})</TabsTrigger>}
-          {equipos && <TabsTrigger value="Equipos">Equipos ({filteredDocEquipos?.length})</TabsTrigger>}
-          {empresa && <TabsTrigger value="Empresa">Empresa ({filteredDocEmpresa?.length})</TabsTrigger>}
-        </TabsList>
+        <div className="flex flex-col w-fit gap-2">
+          <TabsList className="w-fit">
+            {personas && <TabsTrigger value="Personas">Personas ({filteredDocPersonas?.length})</TabsTrigger>}
+            {equipos && <TabsTrigger value="Equipos">Equipos ({filteredDocEquipos?.length})</TabsTrigger>}
+            {empresa && <TabsTrigger value="Empresa">Empresa ({filteredDocEmpresa?.length})</TabsTrigger>}
+          </TabsList>
+          <div>
+            <TypesDocumentAction optionChildrenProp="Persona" />
+          </div>
+        </div>
         {personas && (
           <TabsContent value="Personas">
             <DocumentsTable data={filteredDocPersonas} filters={filters.personas}>

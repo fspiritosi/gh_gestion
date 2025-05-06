@@ -1,4 +1,3 @@
-import DocumentNav from '@/components/DocumentNav';
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
@@ -32,7 +31,7 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
               </Link>
             </div>
           ),
-          component: <EquipmentListTabs />,
+          component: <EquipmentListTabs tabValue="equipos" subtab={searchParams.subtab} />,
         },
       },
       {
@@ -43,12 +42,10 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
           title: 'Documentos cargados',
           description: 'Aquí encontrarás todos los documentos de tus equipos',
           buttonActioRestricted: [''],
-          buttonAction: (
-            <div className="flex gap-4 flex-wrap pl-6">
-              <DocumentNav onlyEmployees />
-            </div>
+
+          component: (
+            <EquipmentTabs path="/dashboard/equipment" tabValue="Documentos de equipos" subtab={searchParams.subtab} />
           ),
-          component: <EquipmentTabs tabValue="Documentos de equipos" />,
         },
       },
       {
@@ -60,7 +57,7 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
           buttonActioRestricted: [''],
           description: 'Tipos de documentos auditables',
           buttonAction: <TypesDocumentAction optionChildrenProp="Equipos" />,
-          component: <TypesDocumentsView equipos />,
+          component: <TypesDocumentsView equipos tabValue="Tipos de documentos" subtab={searchParams.subtab} />,
         },
       },
       {
@@ -76,7 +73,7 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
               type_of_repair_new_entry
               created_solicitudes
               defaultValue="created_solicitudes"
-              tabValue={searchParams?.tab}
+              tabValue="type_of_repairs"
               subtab={searchParams?.subtab}
             />
           ),

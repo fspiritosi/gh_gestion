@@ -38,7 +38,13 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
               <DocumentNav onlyEmployees />
             </div>
           ),
-          component: <EmployeeDocumentsTabs tabValue="Documentos de empleados" subtab={searchParams?.subtab} />,
+          component: (
+            <EmployeeDocumentsTabs
+              path="/dashboard/employee"
+              tabValue="Documentos de empleados"
+              subtab={searchParams?.subtab}
+            />
+          ),
         },
       },
       {

@@ -1,17 +1,18 @@
 import { fetchMonthlyDocumentsEquipment, fetchPermanentDocumentsEquipment } from '@/app/server/GET/actions';
-import ViewcomponentInternal from '@/components/ViewComponentInternal';
+import DocumentNav from '@/components/DocumentNav';
+import ViewcomponentInternal, { ViewDataObj } from '@/components/ViewComponentInternal';
 import { formatVehiculesDocuments } from '@/lib/utils';
 import { ExpiredColums } from '../../colums';
 import { ColumnsMonthly } from '../../columsMonthly';
 import { ExpiredDataTable } from '../../data-table';
 
-async function EquipmentTabs({ subtab, tabValue }: { subtab?: string; tabValue: string }) {
+async function EquipmentTabs({ subtab, tabValue, path }: { subtab?: string; tabValue: string; path: string }) {
   const monthlyDocuments = (await fetchMonthlyDocumentsEquipment()).map(formatVehiculesDocuments);
   const permanentDocuments = (await fetchPermanentDocumentsEquipment()).map(formatVehiculesDocuments);
 
-  const viewData = {
+  const viewData: ViewDataObj = {
     defaultValue: subtab || 'permanentes',
-    path: '/dashboard/equipment',
+    path: path,
     tabsValues: [
       {
         value: 'permanentes',
@@ -22,6 +23,11 @@ async function EquipmentTabs({ subtab, tabValue }: { subtab?: string; tabValue: 
           title: 'Todos los equipos',
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
+          buttonAction: (
+            <div className="flex gap-4 flex-wrap">
+              <DocumentNav onlyEquipment />
+            </div>
+          ),
           component: (
             <ExpiredDataTable
               data={permanentDocuments || []}
@@ -44,6 +50,11 @@ async function EquipmentTabs({ subtab, tabValue }: { subtab?: string; tabValue: 
           title: 'Solo vehículos',
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
+          buttonAction: (
+            <div className="flex gap-4 flex-wrap">
+              <DocumentNav onlyEquipment />
+            </div>
+          ),
           component: (
             <ExpiredDataTable
               data={monthlyDocuments || []}
