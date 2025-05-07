@@ -28,8 +28,6 @@ async function ComercialTab({
     console.error('Error al obtener los contratistas:', error);
   }
   const contractorCompanies = customers?.filter((company: any) => company.company_id.toString() === actualCompany);
-  console.log(tabValue, 'tabValue');
-  console.log(subtab, 'subtab hijo');
   const viewData = {
     defaultValue: subtab || 'customers',
     path: '/dashboard/company/actualCompany',

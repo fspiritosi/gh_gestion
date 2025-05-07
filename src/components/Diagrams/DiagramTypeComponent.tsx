@@ -12,7 +12,6 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   const [selectDiagramType, setSelectDiagramType] = useState<{}>({});
   const [diagramToEdit, setDiagramToEdit] = useState(false);
   const [filteredData, setFilteredData] = useState<any[]>([]);
-  console.log(diagrams_types, 'diagrams_types');
 
   function setDiagram(data: any) {
     setSelectDiagramType(data);

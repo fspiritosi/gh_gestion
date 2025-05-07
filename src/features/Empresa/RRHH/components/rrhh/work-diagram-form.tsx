@@ -34,24 +34,22 @@ const WorkDiagramSchema = z.object({
   inactive_novelty: z.string().optional(),
 });
 
-interface DiagramType {
-  id: string;
-  created_at: string;
-  name: string;
-  company_id: string;
-  color: string;
-  short_description: string;
-  work_active: boolean;
-}
-
-type DiagramsTypes = DiagramType[];
+// interface DiagramType {
+//   id: string;
+//   created_at: string;
+//   name: string;
+//   company_id: string;
+//   color: string;
+//   short_description: string;
+//   work_active: boolean;
+// }
 
 type WorkDiagramFormValues = z.infer<typeof WorkDiagramSchema>;
 
 interface WorkDiagramFormProps {
   diagram?: any | null;
   mode: 'create' | 'edit';
-  diagramsTypes?: DiagramsTypes | null;
+  diagramsTypes?: DiagramType[] | null;
   setMode: React.Dispatch<React.SetStateAction<'create' | 'edit'>>;
 }
 
