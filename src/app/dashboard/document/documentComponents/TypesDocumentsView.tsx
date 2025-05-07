@@ -94,7 +94,7 @@ function TypesDocumentsView({
         ? [
             {
               value: 'Personas',
-              name: `Personas (${filteredDocPersonas?.length ?? 0})`,
+              name: `Personas (${filteredDocPersonas?.length || 0})`,
               tab: tabValue,
               restricted: [''],
               content: {
@@ -119,7 +119,7 @@ function TypesDocumentsView({
         ? [
             {
               value: 'Equipos',
-              name: `Equipos (${filteredDocEquipos?.length ?? 0})`,
+              name: `Equipos (${filteredDocEquipos?.length || 0})`,
               tab: tabValue,
               restricted: [''],
               content: {
@@ -144,7 +144,7 @@ function TypesDocumentsView({
         ? [
             {
               value: 'Empresa',
-              name: `Empresa (${filteredDocEmpresa?.length ?? 0})`,
+              name: `Empresa (${filteredDocEmpresa?.length || 0})`,
               tab: tabValue,
               restricted: [''],
               content: {
@@ -173,9 +173,9 @@ function TypesDocumentsView({
       <Tabs defaultValue={optionValue} className="w-full">
         <div className="flex flex-col w-fit gap-2">
           <TabsList className="w-fit">
-            {personas && <TabsTrigger value="Personas">Personas ({filteredDocPersonas?.length})</TabsTrigger>}
-            {equipos && <TabsTrigger value="Equipos">Equipos ({filteredDocEquipos?.length})</TabsTrigger>}
-            {empresa && <TabsTrigger value="Empresa">Empresa ({filteredDocEmpresa?.length})</TabsTrigger>}
+            {personas && <TabsTrigger value="Personas">Personas ({filteredDocPersonas?.length || 0})</TabsTrigger>}
+            {equipos && <TabsTrigger value="Equipos">Equipos ({filteredDocEquipos?.length || 0})</TabsTrigger>}
+            {empresa && <TabsTrigger value="Empresa">Empresa ({filteredDocEmpresa?.length || 0})</TabsTrigger>}
           </TabsList>
           <div>
             <TypesDocumentAction optionChildrenProp="Persona" />
