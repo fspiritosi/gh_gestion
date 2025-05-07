@@ -73,7 +73,7 @@ export function DataCustomers<TData, TValue>({
     const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
     if (valorGuardado.length) {
       setColumnVisibility(
-        columns.reduce((acc: any, column: any) => {
+        columns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})

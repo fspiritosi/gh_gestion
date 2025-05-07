@@ -102,7 +102,7 @@ export function ExpiredDataTable<TData, TValue>({
     const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
     if (valorGuardado.length) {
       setColumnVisibility(
-        columns.reduce((acc: any, column: any) => {
+        columns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
@@ -112,7 +112,7 @@ export function ExpiredDataTable<TData, TValue>({
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})

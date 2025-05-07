@@ -67,7 +67,7 @@ export function DataTable<TData, TValue>({
     'allocated_to',
   ];
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})

@@ -16,7 +16,7 @@ const chartConfig = {
 
 export function EquipmentSolicitudesDates({ solicitudes }: { solicitudes: RepairRequest[] }) {
   // Procesar los datos para obtener las fechas de ingreso
-  const admissionData = solicitudes.reduce(
+  const admissionData = solicitudes?.reduce(
     (acc, employee) => {
       const month = moment(employee.created_at).locale('es').format('MMMM'); // Asegurando que el mes esté en español
       if (!acc[month]) {

@@ -83,7 +83,7 @@ export default function SideBar({ Allinks, role }: { Allinks: any; role: string 
     },
   ];
 
-  const activeLink = Allinks33.reduce(
+  const activeLink = Allinks33?.reduce(
     (bestMatch: any, link: any) => {
       const match = pathName.match(link.regex);
       const matchLength = match ? match[0].length : 0;

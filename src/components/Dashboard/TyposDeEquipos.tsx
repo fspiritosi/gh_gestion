@@ -8,7 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 
 export function EquipemtTypesChart({ equipments }: { equipments: VehicleWithBrand[] }) {
   // Agregar conteo de empleados por nivel de educación (dinámicamente)
-  const educationData = equipments.reduce((acc: any, employee: any) => {
+  const educationData = equipments?.reduce((acc: any, employee: any) => {
     if (employee.type.name) {
       acc[employee.type.name] = (acc[employee.type.name] || 0) + 1;
     }
@@ -21,7 +21,7 @@ export function EquipemtTypesChart({ equipments }: { equipments: VehicleWithBran
   }));
 
   // Generar colores dinámicos (opcional, puedes ajustar esto si prefieres colores fijos)
-  const chartConfig = chartData.reduce(
+  const chartConfig = chartData?.reduce(
     (acc, item, index) => {
       acc[item.categoria] = {
         label: item.categoria,
@@ -52,9 +52,7 @@ export function EquipemtTypesChart({ equipments }: { equipments: VehicleWithBran
         <div className="flex gap-2 font-medium leading-none">
           Tendencia al alza del 5.2% este mes <TrendingUp className="h-4 w-4" />
         </div>
-        <div className="leading-none text-muted-foreground">
-          Mostrando un total de {equipments.length} equipos
-        </div>
+        <div className="leading-none text-muted-foreground">Mostrando un total de {equipments.length} equipos</div>
       </CardFooter>
     </Card>
   );
