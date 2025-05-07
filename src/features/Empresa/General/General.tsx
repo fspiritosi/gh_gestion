@@ -16,7 +16,6 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
   const costCenters = await fetchAllCostCenters();
   const companyData = await getCompany();
   const sectors = await fetchAllSectors();
-  console.log(subtab, 'subtab hijo');
   const viewData = {
     defaultValue: subtab || 'company',
     path: '/dashboard/company/actualCompany',

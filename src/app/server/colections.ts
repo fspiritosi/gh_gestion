@@ -253,4 +253,8 @@ declare global {
   interface ContractorEmployeeWithEmployee extends Omit<ContractorEmployee, 'employee_id'> {
     employee_id: Employee;
   }
+  interface SharedCompanyWithCompany extends Omit<ShareCompanyUsers, 'company_id'> {
+    // Anteriormente: DocumentEquipmentWithRelationsIncludesCompany
+    company_id: Company; // Anteriormente: CompanyWithRelations
+  }
 }

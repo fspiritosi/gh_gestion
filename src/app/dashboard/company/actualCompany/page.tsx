@@ -9,7 +9,6 @@ import { Suspense } from 'react';
 import ComercialTab from '@/features/Empresa/Clientes/ComercialTab';
 
 export default async function CompanyPage({ searchParams }: { searchParams: { tab: string; subtab?: string } }) {
-  console.log(searchParams, 'searchParams');
   const viewData = {
     defaultValue: searchParams?.tab || 'general',
     path: '/dashboard/company/actualCompany',

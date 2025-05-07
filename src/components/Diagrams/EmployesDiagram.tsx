@@ -20,13 +20,13 @@ async function EmployesDiagram({ tabValue, subtab }: { subtab?: string; tabValue
   const activeEmploees = setEmployeesToShow(employees?.filter((e: any) => e.is_active));
 
   const { data: diagrams } = await fetch(`${URL}/api/employees/diagrams`).then((e) => e.json());
-  const { data: diagrams_types } = await fetch(
-    `${URL}/api/employees/diagrams/tipos?actual=${company_id}&user=${user?.id}`
-  ).then((e) => e.json());
 
   const employees2 = await fetchAllActivesEmployees();
   const diagrams2 = await fetchDiagrams();
-  const diagrams_types2 = await fetchDiagramsTypes();
+
+  console.log('antes de los diagramas');
+  const diagrams_types = await fetchDiagramsTypes();
+  console.log(diagrams_types, 'despues de los diagramas');
 
   const viewData = {
     defaultValue: subtab || 'old',
@@ -53,9 +53,7 @@ async function EmployesDiagram({ tabValue, subtab }: { subtab?: string; tabValue
           title: 'Cargar Diagrama',
           //description: 'Lista de documentos a nombre de la empresa',
           buttonActioRestricted: [''],
-          component: (
-            <DiagramFormUpdated employees={employees2} diagrams={diagrams2} diagrams_types={diagrams_types2} />
-          ),
+          component: <DiagramFormUpdated employees={employees2} diagrams={diagrams2} diagrams_types={diagrams_types} />,
         },
       },
       {

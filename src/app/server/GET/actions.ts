@@ -962,14 +962,19 @@ export const fetchDiagramsByEmployeeId = async (employeeId: string) => {
 };
 
 export const fetchDiagramsTypes = async () => {
-  const supabase = supabaseServer();
   const cookiesStore = cookies();
+  const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
+  console.log(company_id, 'company_id');
   if (!company_id) return [];
   const { data, error } = await supabase
     .from('diagram_type')
     .select('*')
     .eq('company_id', company_id || '');
+
+  console.log(data, 'data');
+
+  console.log(error, 'error');
 
   if (error) {
     console.error('Error fetching diagrams types:', error);

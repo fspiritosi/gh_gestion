@@ -11,15 +11,15 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { SkeletonTable } from './skeletonTable';
 import { VerActivosButton } from './verActivosButton';
-interface DiagramType {
-  id: string;
-  created_at: string;
-  name: string;
-  company_id: string;
-  color: string;
-  short_description: string;
-  work_active: boolean;
-}
+// interface DiagramType {
+//   id: string;
+//   created_at: string;
+//   name: string;
+//   company_id: string;
+//   color: string;
+//   short_description: string;
+//   work_active: boolean;
+// }
 // interface Diagram {
 //   id: string;
 //   created_at: string;

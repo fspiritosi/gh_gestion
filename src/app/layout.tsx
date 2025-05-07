@@ -14,6 +14,11 @@ const popinsFont = Poppins({
 export const metadata: Metadata = {
   title: 'Grupo Horizonte',
   description: 'Gestión para las empresas',
+  icons: {
+    icon: '/gh_logo.png',
+    shortcut: '/gh_logo.png',
+    apple: '/gh_logo.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

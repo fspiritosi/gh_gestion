@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CardTitle } from './ui/card';
 
 export default function SideBar({ Allinks, role }: { Allinks: any; role: string }) {
   const isAuditor = role === 'Auditor';
@@ -100,8 +99,7 @@ export default function SideBar({ Allinks, role }: { Allinks: any; role: string 
     >
       <div className={cn('flex items-center p-2 justify-center')}>
         <span className="text-white text-xl flex items-center gap-2 relative overflow-hidden">
-          <img src="/logo-azul.png" alt="codeControl logo" className="size-11 relative block" />
-          <CardTitle className="relative block text-black dark:text-white">Grupo Horizonte</CardTitle>
+          <img src="/gh_logo.png" alt="codeControl logo" className=" relative block" />
         </span>
       </div>
       <ul className="mt-4">

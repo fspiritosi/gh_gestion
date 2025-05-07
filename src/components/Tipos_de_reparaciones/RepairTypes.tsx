@@ -53,8 +53,6 @@ async function RepairTypes({
   const message =
     'El kilometraje de las unidades seleccionadas no se podran modificar durante la carga multiple, si desea cargar el kilometraje de las unidades seleccionadas, por favor haga la carga individual de cada una de ellas.';
 
-  console.log(subtab, 'tabValue');
-
   const viewData: ViewDataObj = {
     defaultValue: subtab || 'created_solicitudes',
     path: path || '/dashboard/equipment',
