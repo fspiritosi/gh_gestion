@@ -44,6 +44,7 @@ declare global {
   type contractor = DB['public']['Tables']['contractors']['Row'];
   type customers = DB['public']['Tables']['customers']['Row'];
   type ShareCompanyUsers = DB['public']['Tables']['share_company_users']['Row'];
+  type EquipmentsClient = DB['public']['Tables']['equipos_clientes']['Row'];
 
   //! Enums
   type RepairStatusEnum = DB['public']['Enums']['repair_state']; // Anteriormente: EnumOfRepairStatus

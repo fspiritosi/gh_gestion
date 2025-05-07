@@ -273,7 +273,7 @@ export async function fetchAreasWithProvinces() {
 export async function fetchEquipmentsCustomers() {
   const supabase = supabaseServer();
   try {
-    const { data: equipments, error } = await supabase.from('equipos_clientes' as any).select('*');
+    const { data: equipments, error } = await supabase.from('equipos_clientes').select('*');
     if (error) {
       console.error(error);
       return { equipments: [], error: 'Error al obtener los equipos' };
