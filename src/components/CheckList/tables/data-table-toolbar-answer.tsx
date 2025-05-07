@@ -4,16 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Cross2Icon, PersonIcon } from '@radix-ui/react-icons';
 import { Table } from '@tanstack/react-table';
 
-import { DataTableFacetedFilter } from './data-table-faceted-filter';
-import { DataTableViewOptions } from './data-table-view-options';
 import { DataTableAnswersFacetedFilter } from './data-table-answers-filters';
+import { DataTableViewOptions } from './data-table-view-options';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
 }
 
 export function DataTableToolbarAnswer<TData>({ table }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters?.length > 0;
 
   const uniqueChofer = table.getColumn('Chofer')?.getFacetedUniqueValues()
     ? Array.from(

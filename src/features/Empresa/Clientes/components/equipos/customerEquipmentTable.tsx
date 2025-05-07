@@ -83,7 +83,7 @@ function CustomerEquipmentTable({
   }, [customerEquipments, filterByName, selectedCustomer, selectedTypes]);
 
   // Calcular paginación
-  const totalPages = Math.ceil(filteredCustomerEquipments.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredCustomerEquipments?.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   console.log(customers);
@@ -163,7 +163,7 @@ function CustomerEquipmentTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentItems.length > 0 ? (
+            {currentItems?.length > 0 ? (
               currentItems.map((customerEquipment) => (
                 <TableRow key={customerEquipment.id}>
                   <TableCell className="font-medium">{customerEquipment.name}</TableCell>
@@ -193,7 +193,7 @@ function CustomerEquipmentTable({
       </div>
 
       {/* Paginación */}
-      {filteredCustomerEquipments.length > itemsPerPage && (
+      {filteredCustomerEquipments?.length > itemsPerPage && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>

@@ -457,7 +457,7 @@ export function FormDisplay({ campos, setCampos, fetchForms, selectedForm, creat
   };
   const [disabled, setDisabled] = useState(false);
 
-  const formObject = campos.length ? buildFormData(campos, true) : [];
+  const formObject = campos?.length ? buildFormData(campos, true) : [];
   return (
     <ScrollArea className="min-h-[60vh] px-8 py-5 overflow-auto  rounded-e-xl rounded">
       <div className="flex justify-between items-center">
@@ -484,7 +484,7 @@ export function FormDisplay({ campos, setCampos, fetchForms, selectedForm, creat
           campos.map((campo, index) => <div key={crypto.randomUUID()}>{renderizarCampo(campo, index)}</div>)
         )}
         <div className="flex w-full justify-center">
-          <Button disabled={campos.length < 2 || created} onClick={handleCreateCheckList}>
+          <Button disabled={campos?.length < 2 || created} onClick={handleCreateCheckList}>
             {created ? 'Editar formulario' : 'Crear formulario'}
           </Button>
         </div>

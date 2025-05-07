@@ -52,7 +52,7 @@ export function EquipemtTypesChart({ equipments }: { equipments: VehicleWithBran
         <div className="flex gap-2 font-medium leading-none">
           Tendencia al alza del 5.2% este mes <TrendingUp className="h-4 w-4" />
         </div>
-        <div className="leading-none text-muted-foreground">Mostrando un total de {equipments.length} equipos</div>
+        <div className="leading-none text-muted-foreground">Mostrando un total de {equipments?.length} equipos</div>
       </CardFooter>
     </Card>
   );

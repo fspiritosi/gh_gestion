@@ -69,7 +69,7 @@ const generateChartData = (categoryConfig: any, forms: any[]) => {
 
     return {
       month: month,
-      respuestas: filteredForms.length,
+      respuestas: filteredForms?.length,
     };
   });
 };
@@ -381,7 +381,7 @@ function CreatedForm() {
 
         const respuesta = JSON.parse(formItem.answer)[field.title.replace(/\s+/g, '_')];
 
-        if (field.opciones && field.opciones.length > 0) {
+        if (field.opciones && field.opciones?.length > 0) {
           if (printEmpty) {
             // Si printEmpty es true, mostrar todas las opciones en un grid
             yOffset = drawOptionsGrid(field.opciones, yOffset);

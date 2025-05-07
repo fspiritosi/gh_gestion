@@ -233,7 +233,7 @@ export const VehicleInspectionLayout = ({
 
     items.forEach((item: any) => {
       if (item.title) {
-        if (currentSection.length > 0) {
+        if (currentSection?.length > 0) {
           sections.push([...currentSection]);
         }
         currentSection = [item];
@@ -242,7 +242,7 @@ export const VehicleInspectionLayout = ({
       }
     });
 
-    if (currentSection.length > 0) {
+    if (currentSection?.length > 0) {
       sections.push(currentSection);
     }
 
@@ -258,10 +258,10 @@ export const VehicleInspectionLayout = ({
     let isLeftColumn = true;
 
     // Procesar todas las secciones excepto las últimas 3
-    for (let i = 0; i < sections.length - 3; i++) {
+    for (let i = 0; i < sections?.length - 3; i++) {
       const section = sections[i];
 
-      if (currentColumnItems + section.length > ITEMS_PER_COLUMN) {
+      if (currentColumnItems + section?.length > ITEMS_PER_COLUMN) {
         if (isLeftColumn) {
           isLeftColumn = false;
           currentColumnItems = 0;
@@ -278,11 +278,11 @@ export const VehicleInspectionLayout = ({
       } else {
         currentPage.rightItems.push(...section);
       }
-      currentColumnItems += section.length;
+      currentColumnItems += section?.length;
     }
 
     // Si hay items en la página actual y no está vacía, la guardamos
-    if (currentPage.leftItems.length > 0 || currentPage.rightItems.length > 0) {
+    if (currentPage.leftItems?.length > 0 || currentPage.rightItems?.length > 0) {
       pages.push(currentPage);
     }
 
@@ -407,12 +407,16 @@ export const VehicleInspectionLayout = ({
     </View>
   );
 
-  console.log( singurl ? 'siiiii' : data.conductor ?'nooooo' : 'nulllll')
-  console.log( singurl,'singurl')
-  console.log(data.conductor,'conductor')
+  console.log(singurl ? 'siiiii' : data.conductor ? 'nooooo' : 'nulllll');
+  console.log(singurl, 'singurl');
+  console.log(data.conductor, 'conductor');
   const renderSignature = () => (
     <View style={styles.signatureContainer}>
-      {singurl && !singurl.endsWith('_files/') ? <Image style={styles.signatureImage} src={singurl} /> : data.conductor ? <Text>Sin firma</Text> : null}
+      {singurl && !singurl.endsWith('_files/') ? (
+        <Image style={styles.signatureImage} src={singurl} />
+      ) : data.conductor ? (
+        <Text>Sin firma</Text>
+      ) : null}
       <Text style={styles.signatureText}>FIRMA DEL CONDUCTOR</Text>
     </View>
   );
@@ -423,11 +427,11 @@ export const VehicleInspectionLayout = ({
         <Page key={`page-${pageIndex}`} size="A4" style={styles.page}>
           <View style={styles.border} fixed />
           <View style={styles.contentWrapper}>
-            {renderHeader(pageIndex + 1, pages.length)}
+            {renderHeader(pageIndex + 1, pages?.length)}
             {pageIndex === 0 && renderInfoGrid()}
             {renderTerminology()}
             {renderTableColumns(pageItems)}
-            {pageIndex === pages.length - 1 && (
+            {pageIndex === pages?.length - 1 && (
               <>
                 <View style={styles.footer}>
                   <View style={styles.observacionesRow}>

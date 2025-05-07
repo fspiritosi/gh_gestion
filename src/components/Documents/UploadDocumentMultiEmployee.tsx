@@ -268,7 +268,7 @@ function UploadDocumentMultiEmployee({
                               (documentType) => documentType.id === form.getValues('id_document_types')
                             )?.name;
                             const documenExtension = file.name.split('.').pop();
-                            if (!employees.length || !documentName || !documenExtension) return;
+                            if (!employees?.length || !documentName || !documenExtension) return;
                             setSelectedFileName(file.name);
                             const period = form.getValues('period');
                             const expiredDate = form.getValues('validity')

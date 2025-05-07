@@ -604,7 +604,7 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
       const values = row.original.allocated_to;
       const customers = useCountriesStore((state) => state.customers || []);
 
-      if (!values || values.length === 0) {
+      if (!values || values?.length === 0) {
         return <Badge variant="outline">Sin afectar</Badge>;
       }
 
@@ -621,7 +621,7 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
               <div className="truncate max-w-[200px] cursor-pointer">
                 <Badge>
                   {first}
-                  {matchedCustomers.length > 1 && ` +${matchedCustomers.length - 1}`}
+                  {matchedCustomers?.length > 1 && ` +${matchedCustomers?.length - 1}`}
                 </Badge>
               </div>
             </TooltipTrigger>

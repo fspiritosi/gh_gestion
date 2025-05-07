@@ -13,7 +13,7 @@ export function DataTablePagination<TData>({ table, isDocuments }: DataTablePagi
   return (
     <div className="flex items-center justify-between px-2">
       <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredRowModel().rows.length}
+        {table.getFilteredRowModel().rows?.length}
         {isDocuments ? ' Documento(s)' : ' Usuario(s)'}{' '}
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">

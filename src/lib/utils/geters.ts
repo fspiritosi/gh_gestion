@@ -19,9 +19,9 @@ export async function getTotalResourses() {
     const equipments = await fetchAllEquipmentWithBrand();
 
     return {
-      totalResourses: employees.length + equipments.length,
-      employees: employees.length,
-      vehicles: equipments.length,
+      totalResourses: employees?.length + equipments?.length,
+      employees: employees?.length,
+      vehicles: equipments?.length,
     };
   }
 

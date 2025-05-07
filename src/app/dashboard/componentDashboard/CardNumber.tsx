@@ -28,15 +28,15 @@ function CardNumber({
       {nameData === 'Empleados totales'
         ? employees?.length || 0
         : nameData === 'Empleados Avalados'
-          ? eAvalados.length
+          ? eAvalados?.length
           : nameData === 'Empleados No Avalados'
-            ? eNoAvalados.length
+            ? eNoAvalados?.length
             : nameData === 'Vehículos totales'
               ? equipment?.length || 0
               : nameData === 'Vehículos Avalados'
-                ? equiAvalados.length
+                ? equiAvalados?.length
                 : nameData === 'Vehículos No Avalados'
-                  ? equiNoAvalados.length
+                  ? equiNoAvalados?.length
                   : 0}
     </Badge>
   );

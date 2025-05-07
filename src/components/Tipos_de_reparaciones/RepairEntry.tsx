@@ -411,7 +411,7 @@ export default function RepairNewEntry({
                 <FormField
                   control={form.control}
                   name="kilometer"
-                  // disabled={limittedEquipment ? false : allRepairs.length > 0}
+                  // disabled={limittedEquipment ? false : allRepairs?.length > 0}
                   render={({ field }) => (
                     <FormItem className={cn(typeOfEquipment === 'Vehículos' ? '' : 'hidden')}>
                       <FormLabel>Kilometraje</FormLabel>

@@ -1,11 +1,11 @@
 import { supabaseServer } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 // export async function PUT(request: NextRequest) {
 //   const supabase = supabaseServer();
 //   const { rows, daily_report_id } = await request.json(); // Recibe las filas y el daily_report_id
 
-//   if (!rows || rows.length === 0) {
+//   if (!rows || rows?.length === 0) {
 //     return new Response(JSON.stringify({ error: 'No se enviaron filas de reporte.' }), { status: 400 });
 //   }
 
@@ -73,7 +73,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //         employee_id
 //       }));
 
-//       if (employeeData.length > 0) {
+//       if (employeeData?.length > 0) {
 //         const { error: employeeError } = await supabase
 //           .from('dailyreportemployeerelations')
 //           .insert(employeeData);
@@ -94,7 +94,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //         equipment_id
 //       }));
 
-//       if (equipmentData.length > 0) {
+//       if (equipmentData?.length > 0) {
 //         const { error: equipmentError } = await supabase
 //           .from('dailyreportequipmentrelations')
 //           .insert(equipmentData);
@@ -117,14 +117,11 @@ import { NextRequest, NextResponse } from 'next/server';
 //   }
 // }
 
-
-
-
 // export async function PUT(request: NextRequest) {
 //   const supabase = supabaseServer();
 //   const { rows, daily_report_id } = await request.json(); // Nos aseguramos de recibir el daily_report_id
 
-//   if (!rows || rows.length === 0) {
+//   if (!rows || rows?.length === 0) {
 //     return new Response(JSON.stringify({ error: 'No se enviaron filas de reporte.' }), { status: 400 });
 //   }
 
@@ -214,7 +211,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //       employee_id
 //     }));
 
-//     if (employeeData.length > 0) {
+//     if (employeeData?.length > 0) {
 //       const { error: employeeError } = await supabase
 //         .from('dailyreportemployeerelations')
 //         .insert(employeeData);
@@ -235,7 +232,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //       equipment_id
 //     }));
 
-//     if (equipmentData.length > 0) {
+//     if (equipmentData?.length > 0) {
 //       const { error: equipmentError } = await supabase
 //         .from('dailyreportequipmentrelations')
 //         .insert(equipmentData);
@@ -257,7 +254,7 @@ export async function PUT(request: NextRequest) {
   const supabase = supabaseServer();
   let { rows, daily_report_id } = await request.json();
 
-  if (!rows || rows.length === 0) {
+  if (!rows || rows?.length === 0) {
     return new Response(JSON.stringify({ error: 'No se enviaron filas de reporte.' }), { status: 400 });
   }
 
@@ -289,7 +286,7 @@ export async function PUT(request: NextRequest) {
 
         if (error) throw new Error(`Error al insertar nueva fila: ${JSON.stringify(error)}`);
 
-        if (!data || data.length === 0) {
+        if (!data || data?.length === 0) {
           throw new Error('Error al insertar nueva fila: No se recibieron datos.');
         }
         const newRowId = data[0].id;
@@ -323,48 +320,47 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error en la transacción:', error);
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-    return new Response(JSON.stringify({ error: `Error al actualizar el reporte diario: ${errorMessage}` }), { status: 500 });
+    return new Response(JSON.stringify({ error: `Error al actualizar el reporte diario: ${errorMessage}` }), {
+      status: 500,
+    });
   }
 }
 
-async function insertEmployeeAndEquipmentRelations(supabase: any, rowId: string, employees: string[], equipment: string[]) {
+async function insertEmployeeAndEquipmentRelations(
+  supabase: any,
+  rowId: string,
+  employees: string[],
+  equipment: string[]
+) {
   try {
     // Actualizar relaciones con empleados
-    await supabase
-      .from('dailyreportemployeerelations')
-      .delete()
-      .eq('daily_report_row_id', rowId);
+    await supabase.from('dailyreportemployeerelations').delete().eq('daily_report_row_id', rowId);
 
-    if (employees && employees.length > 0) {
+    if (employees && employees?.length > 0) {
       const employeeData = employees.map((employee_id: string) => ({
         daily_report_row_id: rowId,
-        employee_id
+        employee_id,
       }));
 
-      const { error: employeeError } = await supabase
-        .from('dailyreportemployeerelations')
-        .insert(employeeData);
+      const { error: employeeError } = await supabase.from('dailyreportemployeerelations').insert(employeeData);
 
-      if (employeeError) throw new Error(`Error al insertar relaciones con empleados: ${JSON.stringify(employeeError)}`);
+      if (employeeError)
+        throw new Error(`Error al insertar relaciones con empleados: ${JSON.stringify(employeeError)}`);
     }
 
     // Actualizar relaciones con equipos
-    await supabase
-      .from('dailyreportequipmentrelations')
-      .delete()
-      .eq('daily_report_row_id', rowId);
+    await supabase.from('dailyreportequipmentrelations').delete().eq('daily_report_row_id', rowId);
 
-    if (equipment && equipment.length > 0) {
+    if (equipment && equipment?.length > 0) {
       const equipmentData = equipment.map((equipment_id: string) => ({
         daily_report_row_id: rowId,
-        equipment_id
+        equipment_id,
       }));
 
-      const { error: equipmentError } = await supabase
-        .from('dailyreportequipmentrelations')
-        .insert(equipmentData);
+      const { error: equipmentError } = await supabase.from('dailyreportequipmentrelations').insert(equipmentData);
 
-      if (equipmentError) throw new Error(`Error al insertar relaciones con equipos: ${JSON.stringify(equipmentError)}`);
+      if (equipmentError)
+        throw new Error(`Error al insertar relaciones con equipos: ${JSON.stringify(equipmentError)}`);
     }
   } catch (error) {
     if (error instanceof Error) {
@@ -374,10 +370,3 @@ async function insertEmployeeAndEquipmentRelations(supabase: any, rowId: string,
     }
   }
 }
-
-  
-
-  
-  
-  
-  

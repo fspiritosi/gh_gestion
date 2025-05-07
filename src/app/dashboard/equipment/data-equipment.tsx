@@ -78,7 +78,7 @@ export function EquipmentTable<TData, TValue>({
       const newColumns = valorGuardado.filter((col: string) => col !== 'allocated_to');
       localStorage.setItem('equipmentColumns', JSON.stringify(newColumns));
     }
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
         defaultColumns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] =
@@ -111,7 +111,7 @@ export function EquipmentTable<TData, TValue>({
         valorGuardado = valorGuardado.filter((col: string) => col !== 'allocated_to');
         localStorage.setItem('savedColumns', JSON.stringify(valorGuardado));
       }
-      return valorGuardado.length ? valorGuardado : defaultVisibleColumns;
+      return valorGuardado?.length ? valorGuardado : defaultVisibleColumns;
     }
     return defaultVisibleColumns;
   });
@@ -124,7 +124,7 @@ export function EquipmentTable<TData, TValue>({
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem('savedColumns') || '[]');
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
         defaultColumns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
@@ -246,7 +246,7 @@ export function EquipmentTable<TData, TValue>({
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem('savedColumns') || '');
-    if (!valorGuardado.length) {
+    if (!valorGuardado?.length) {
       localStorage.setItem('savedColumns', JSON.stringify(defaultVisibleColumns1));
     } else {
       localStorage.setItem(
@@ -509,7 +509,7 @@ export function EquipmentTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={defaultColumns.length} className="h-24 text-center">
+                <TableCell colSpan={defaultColumns?.length} className="h-24 text-center">
                   {loader ? (
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between">

@@ -14,7 +14,7 @@ export const buildFormData = (campos: any[] | null, isPreview: boolean): FormFie
   });
 
   if (isPreview) {
-    if (campos && campos.length > 0) {
+    if (campos && campos?.length > 0) {
       campos?.forEach((campo: any) => {
         if (campo.tipo === 'Seccion') {
           formArray.push({
@@ -93,7 +93,7 @@ export const buildFormData = (campos: any[] | null, isPreview: boolean): FormFie
       });
     }
   } else {
-    if (campos && campos.length > 0 && campos[0]?.form) {
+    if (campos && campos?.length > 0 && campos[0]?.form) {
       campos[0].form?.forEach((campo: any) => {
         if (campo.tipo === 'Seccion') {
           formArray.push({

@@ -81,7 +81,7 @@ export default function ContactRegister({ id }: { id: string }) {
         if (error) {
           console.error('Error fetching contact:', error);
         } else {
-          if (data && data.length > 0) {
+          if (data && data?.length > 0) {
             const contact = data[0];
             setContactData(contact);
             setValue('contact_name', contact.contact_name || '');

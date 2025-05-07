@@ -39,7 +39,7 @@ export default function ContractTypeTable({ contractTypes, onEdit }: ContractTyp
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredContractTypes.length > 0 ? (
+            {filteredContractTypes?.length > 0 ? (
               filteredContractTypes.map((contractType) => (
                 <TableRow key={contractType.id}>
                   <TableCell className="font-medium">{contractType.name}</TableCell>

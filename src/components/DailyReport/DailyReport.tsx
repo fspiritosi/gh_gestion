@@ -388,7 +388,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     );
 
     // Solo actualizar el estado si la lista filtrada es diferente
-    if (customersWithServices.length !== customers.length) {
+    if (customersWithServices?.length !== customers?.length) {
       setCustomers(customersWithServices);
     }
   }, [customers, services, reportData]);
@@ -680,7 +680,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       const { data: rowData } = await rowResponse.json();
       const rowId = rowData[0].id; // Asegúrate de que esto sea correcto
 
-      if (data.employees && data.employees.length > 0) {
+      if (data.employees && data.employees?.length > 0) {
         await fetch('/api/daily-report/dailyreportemployeerelations', {
           method: 'POST',
           headers: {
@@ -695,7 +695,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
         });
       }
 
-      if (data.equipment && data.equipment.length > 0) {
+      if (data.equipment && data.equipment?.length > 0) {
         await fetch('/api/daily-report/dailyreportequipmentrelations', {
           method: 'POST',
           headers: {
@@ -818,7 +818,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       const equipmentToRemove = currentEquipment.filter((rel: any) => !data.equipment?.includes(rel.equipment_id));
 
       // Eliminar relaciones no utilizadas
-      if (employeesToRemove.length > 0) {
+      if (employeesToRemove?.length > 0) {
         await fetch('/api/daily-report/dailyreportemployeerelations', {
           method: 'DELETE',
           headers: {
@@ -831,7 +831,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
         });
       }
 
-      if (equipmentToRemove.length > 0) {
+      if (equipmentToRemove?.length > 0) {
         await fetch('/api/daily-report/dailyreportequipmentrelations', {
           method: 'DELETE',
           headers: {
@@ -861,7 +861,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       const existingEmployee = await existingRelationEmployeeResponse.json();
 
       // Actualizar relaciones con nuevos datos
-      if (data.employees && !existingEmployee.exists && data.employees.length > 0) {
+      if (data.employees && !existingEmployee.exists && data.employees?.length > 0) {
         await fetch('/api/daily-report/dailyreportemployeerelations', {
           method: 'POST',
           headers: {
@@ -893,7 +893,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       );
       const existingEquipment = await existingRelationEquipmentResponse.json();
 
-      if (data.equipment && !existingEquipment.exists && data.equipment.length > 0) {
+      if (data.equipment && !existingEquipment.exists && data.equipment?.length > 0) {
         await fetch('/api/daily-report/dailyreportequipmentrelations', {
           method: 'POST',
           headers: {
@@ -1089,7 +1089,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       }));
 
       // Crear nuevas relaciones de empleados para la nueva fila
-      if (currentEmployees.length > 0) {
+      if (currentEmployees?.length > 0) {
         await fetch('/api/daily-report/dailyreportemployeerelations', {
           method: 'POST',
           headers: {
@@ -1105,7 +1105,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       }
 
       // Crear nuevas relaciones de equipos para la nueva fila
-      if (currentEquipment.length > 0) {
+      if (currentEquipment?.length > 0) {
         await fetch('/api/daily-report/dailyreportequipmentrelations', {
           method: 'POST',
           headers: {

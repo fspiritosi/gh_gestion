@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({ columns, data, isDocuments }: DataTab
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns?.length} className="h-24 text-center">
                   Sin resultados
                 </TableCell>
               </TableRow>

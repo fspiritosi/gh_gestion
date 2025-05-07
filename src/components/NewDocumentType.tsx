@@ -70,7 +70,7 @@ export default function NewDocumentType({
 
   const selectOptions = optionChildrenProp === 'all' ? 'Personas, Equipos o Empresa' : optionChildrenProp;
 
-  const isOptional = items.length < 5;
+  const isOptional = items?.length < 5;
   const FormSchema = z.object({
     name: z
       .string({ required_error: 'Este campo es requerido' })
@@ -105,7 +105,7 @@ export default function NewDocumentType({
       mandatory: undefined,
       explired: undefined,
       special: undefined,
-      applies: selectOptions === 'all' ? undefined : selectOptions as "Empresa" | "Persona" | "Equipos" | undefined,
+      applies: selectOptions === 'all' ? undefined : (selectOptions as 'Empresa' | 'Persona' | 'Equipos' | undefined),
     },
   });
 
