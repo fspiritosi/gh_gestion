@@ -91,9 +91,9 @@ export default function RepairNewEntryMultiple({
       (id) => equipment.find((equip) => equip.id === id)?.domain || equipment.find((equip) => equip.id === id)?.serie
     );
 
-    const hasOpenRepair = allRepairs.filter((e) => domainsOrSeries.includes(e.domain) && e.repair === repairTypeId);
+    const hasOpenRepair = allRepairs?.filter((e) => domainsOrSeries.includes(e.domain) && e.repair === repairTypeId);
 
-    if (hasOpenRepair.length > 0) {
+    if (hasOpenRepair?.length > 0) {
       toast.error(
         `Los equipos con los siguientes dominios o series ya tienen una solicitud de reparacion a ser registrada ${hasOpenRepair
           ?.map((e) => e.domain)
@@ -491,7 +491,7 @@ export default function RepairNewEntryMultiple({
               })}
             </TableBody>
           </Table>
-          {allRepairs.length > 0 && (
+          {allRepairs?.length > 0 && (
             <Button
               onClick={() => {
                 createRepair();
@@ -600,7 +600,7 @@ export default function RepairNewEntryMultiple({
             </CardContent>
           </Card>
 
-          {allRepairs.length > 0 && (
+          {allRepairs?.length > 0 && (
             <Button
               onClick={() => {
                 createRepair();

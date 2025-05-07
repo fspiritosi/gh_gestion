@@ -356,7 +356,7 @@ export default function RepairNewEntry({
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              disabled={limittedEquipment ? false : allRepairs.length > 0}
+                              disabled={limittedEquipment ? false : allRepairs?.length > 0}
                               variant="outline"
                               role="combobox"
                               className={cn('justify-between', !field.value && 'text-muted-foreground')}
@@ -417,7 +417,7 @@ export default function RepairNewEntry({
                       <FormLabel>Kilometraje</FormLabel>
                       <FormControl>
                         <Input
-                          disabled={limittedEquipment ? false : allRepairs.length > 0}
+                          disabled={limittedEquipment ? false : allRepairs?.length > 0}
                           {...field}
                           placeholder="Kilometraje"
                           value={field.value === undefined || field.value === null ? '' : field.value.toString()}
@@ -597,7 +597,7 @@ export default function RepairNewEntry({
               })}
             </TableBody>
           </Table>
-          {allRepairs.length > 0 && (
+          {allRepairs?.length > 0 && (
             <Button
               onClick={() => {
                 createRepair();
@@ -716,7 +716,7 @@ export default function RepairNewEntry({
             </CardContent>
           </Card>
 
-          {allRepairs.length > 0 && (
+          {allRepairs?.length > 0 && (
             <Button
               onClick={() => {
                 createRepair();
