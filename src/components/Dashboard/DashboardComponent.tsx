@@ -32,7 +32,7 @@ export default async function DashboardComponent() {
             </section>
             <Card className="col-span-3 flex flex-col justify-between overflow-hidden">
               <div>
-                <CardHeader className="flex flex-row items-start bg-muted dark:bg-muted/50 border-b-2">
+                <CardHeader className="flex flex-row items-start bg-gh dark:bg-muted/50 border-b-2">
                   <div className="grid gap-1">
                     <CardTitle className="flex items-center text-lg ">Proximos vencimientos</CardTitle>
                     <CardDescription className="capitalize">
@@ -59,7 +59,7 @@ export default async function DashboardComponent() {
                   </Tabs>
                 </div>
               </div>
-              <CardFooter className="flex flex-row items-center border-t bg-muted dark:bg-muted/50 px-6 py-3"></CardFooter>
+              <CardFooter className="flex flex-row items-center border-t bg-gh dark:bg-muted/50 px-6 py-3"></CardFooter>
             </Card>
           </section>
         </TabsContent>

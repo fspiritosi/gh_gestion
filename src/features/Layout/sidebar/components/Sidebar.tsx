@@ -44,7 +44,7 @@ export function Sidebar({ role, userModules }: SidebarProps) {
           {/* <CardTitle className="relative block text-black dark:text-white">Grupo Horizonte</CardTitle> */}
         </span>
       </div>
-      <ul className="mt-[35px]">
+      <ul className="mt-[27px]">
         {filteredLinks.map((link) => (
           <Link
             key={link.name}

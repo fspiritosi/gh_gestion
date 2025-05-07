@@ -58,7 +58,7 @@ export const MissingDocumentList = () => {
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="flex flex-row items-start bg-muted dark:bg-muted/50 border-b-2">
+      <CardHeader className="flex flex-row items-start bg-gh  dark:bg-muted/50 border-b-2">
         <div className="grid gap-1">
           <CardTitle className="flex items-center text-lg ">
             Documentos Pendientes{' '}
@@ -77,7 +77,7 @@ export const MissingDocumentList = () => {
         <Card className="flex flex-col overflow-hidden text-muted-foreground">
           <Accordion type="single" collapsible>
             <AccordionItem value="item-1">
-              <AccordionTrigger className="px-2  border-b-2 bg-muted dark:bg-muted/50">
+              <AccordionTrigger className="px-2  border-b-2 bg-gh  dark:bg-muted/50">
                 <div className="flex items-center justify-between w-full pr-5">
                   <div className="flex dark:text-white text-black">
                     Empleados <PersonIcon className="stroke-1  ml-2" />
@@ -141,7 +141,7 @@ export const MissingDocumentList = () => {
         <Card className="flex flex-col overflow-hidden text-muted-foreground">
           <Accordion type="single" collapsible>
             <AccordionItem value="item-1">
-              <AccordionTrigger className="px-2 dark:text-white border-b-2 bg-muted dark:bg-muted/50">
+              <AccordionTrigger className="px-2 dark:text-white border-b-2 bg-gh  dark:bg-muted/50">
                 <div className="flex items-center justify-between w-full pr-5">
                   <div className="flex dark:text-white text-black">
                     Vehículos <CarIcon className="stroke-1  ml-2" />
@@ -153,7 +153,7 @@ export const MissingDocumentList = () => {
                   )}
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="h-fit bg-muted dark:bg-muted/50 max-h-[60vh] overflow-y-auto">
+              <AccordionContent className="h-fit bg-gh dark:bg-muted/50 max-h-[60vh] overflow-y-auto">
                 {allValuesToShow?.vehicles?.length > 0 &&
                   allValuesToShow.vehicles?.map((item: any, index) => {
                     return (
@@ -198,7 +198,7 @@ export const MissingDocumentList = () => {
           </Accordion>
         </Card>
       </CardContent>
-      <CardFooter className="flex flex-row items-center border-t bg-muted dark:bg-muted/50 px-6 py-3"></CardFooter>
+      <CardFooter className="flex flex-row items-center border-t bg-gh dark:bg-muted/50 px-6 py-3"></CardFooter>
     </Card>
   );
 };
