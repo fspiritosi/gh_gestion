@@ -49,45 +49,41 @@ export function DataTableFacetedFilter<TData, TValue>({
   employees,
   equipment,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-    
-   let facets = column?.getFacetedUniqueValues() as Map<any, any>;
-   
-const normalizedFacets = Array.from(facets).reduce((acc, [key, value]) => {
-    // Convertimos la clave a una cadena y eliminamos espacios
-    const normalizedKey = (typeof key === 'string') ? key.trim() : String(key);
-   
-    // Dividir claves combinadas separadas por coma
-    const keys = normalizedKey.split(',').map(k => k.trim());
-   
-    // Iterar sobre cada clave descompuesta
-    keys.forEach(singleKey => {
-        // Tratar claves vacías explícitamente como " " (cadena con espacio)
-        const keyToUse = singleKey === '' ? [] : singleKey;
+  let facets = column?.getFacetedUniqueValues() as Map<any, any>;
 
-        // Convertir a string siempre, para asegurar representación correcta en el Map
-        const formattedKey = String(keyToUse);
-        
-        // Sumar valores si la clave ya existe
-        if (acc.has(formattedKey)) {
-            acc.set(formattedKey, acc.get(formattedKey) + value);
-        } else {
-            // Si no existe, agregarla al acumulador con el valor inicial
-            acc.set(formattedKey, value);
-        }
+  const normalizedFacets = Array.from(facets)?.reduce((acc, [key, value]) => {
+    // Convertimos la clave a una cadena y eliminamos espacios
+    const normalizedKey = typeof key === 'string' ? key.trim() : String(key);
+
+    // Dividir claves combinadas separadas por coma
+    const keys = normalizedKey.split(',').map((k) => k.trim());
+
+    // Iterar sobre cada clave descompuesta
+    keys.forEach((singleKey) => {
+      // Tratar claves vacías explícitamente como " " (cadena con espacio)
+      const keyToUse = singleKey === '' ? [] : singleKey;
+
+      // Convertir a string siempre, para asegurar representación correcta en el Map
+      const formattedKey = String(keyToUse);
+
+      // Sumar valores si la clave ya existe
+      if (acc.has(formattedKey)) {
+        acc.set(formattedKey, acc.get(formattedKey) + value);
+      } else {
+        // Si no existe, agregarla al acumulador con el valor inicial
+        acc.set(formattedKey, value);
+      }
     });
 
     return acc;
-}, new Map());
+  }, new Map());
 
   // Mostrar el resultado
-  
- facets = normalizedFacets;
-  
+
+  facets = normalizedFacets;
 
   const selectedValues = new Set(column?.getFilterValue() as string[]);
-  
 
-  
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -121,7 +117,6 @@ const normalizedFacets = Array.from(facets).reduce((acc, [key, value]) => {
                                 : getEquipmentNames([option.label], equipment as any) !== 'Unknown'
                                   ? getEquipmentNames([option.label], equipment as any)
                                   : option.label}
-                                 
                       </Badge>
                     ))
                 )}
@@ -147,9 +142,9 @@ const normalizedFacets = Array.from(facets).reduce((acc, [key, value]) => {
                       } else {
                         selectedValues.add(option.value);
                       }
-                       
+
                       const filterValues = Array.from(selectedValues);
-                       
+
                       column?.setFilterValue(filterValues.length ? filterValues : undefined);
                     }}
                   >

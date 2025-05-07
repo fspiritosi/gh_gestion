@@ -91,7 +91,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
     const valorGuardado = JSON.parse(localStorage.getItem('employeeColumns') || '[]');
     if (valorGuardado.length) {
       setColumnVisibility(
-        defaultColumns.reduce((acc: any, column: any) => {
+        defaultColumns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})

@@ -41,18 +41,13 @@ interface DataCategoryProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[] | any;
   data: TData[];
   localStorageName: string;
-  
 }
 
-export function DataCategory<TData, TValue>({
-  columns,
-  data,
-  localStorageName,
-}: DataCategoryProps<TData, TValue>) {
+export function DataCategory<TData, TValue>({ columns, data, localStorageName }: DataCategoryProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const defaultVisibleColumns = ['name', 'guild_id', 'covenant_id'];
   const [showInactive, setShowInactive] = useState(false);
-  
+
   const [defaultVisibleColumns1, setDefaultVisibleColumns1] = useState(() => {
     if (typeof window !== 'undefined') {
       const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
@@ -71,7 +66,7 @@ export function DataCategory<TData, TValue>({
     const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
     if (valorGuardado.length) {
       setColumnVisibility(
-        columns.reduce((acc: any, column: any) => {
+        columns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
@@ -80,7 +75,7 @@ export function DataCategory<TData, TValue>({
   }, [columns]);
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})
@@ -88,7 +83,7 @@ export function DataCategory<TData, TValue>({
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const loader = useLoggedUserStore((state) => state.isLoading);
- 
+
   const allOptions = {
     name: createOptions('name'),
     guild_id: createOptions('guild_id'),
@@ -100,7 +95,6 @@ export function DataCategory<TData, TValue>({
   }
 
   const selectHeader = {
-    
     guild_id: {
       name: 'guild_id',
       option: allOptions.guild_id,
@@ -111,7 +105,6 @@ export function DataCategory<TData, TValue>({
       option: allOptions.covenant_id,
       label: 'Convenio',
     },
-    
   };
 
   let table = useReactTable({
@@ -130,7 +123,6 @@ export function DataCategory<TData, TValue>({
       columnFilters,
     },
   });
-  
 
   const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
     setColumnVisibility((prev) => ({
@@ -153,13 +145,11 @@ export function DataCategory<TData, TValue>({
       name: 'Todos',
       guild_id: 'Todos',
       covenant_id: 'Todos',
-      
     });
-    
   };
   const maxRows = ['20', '40', '60', '80', '100'];
   const [selectValues, setSelectValues] = useState<{ [key: string]: string }>({});
- 
+
   return (
     <div>
       <div className="flex items-center py-4 flex-wrap gap-y-2 overflow-auto">
@@ -211,7 +201,6 @@ export function DataCategory<TData, TValue>({
                           className="capitalize  text-red-400"
                           checked={showInactive}
                           onClick={() => setShowInactive(!showInactive)}
-                          
                         >
                           {column.columnDef.header}
                         </DropdownMenuCheckboxItem>

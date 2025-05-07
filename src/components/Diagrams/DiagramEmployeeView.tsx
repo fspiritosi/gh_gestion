@@ -99,7 +99,7 @@ function DiagramEmployeeView({
 
   /*---------------------FIN FILTROS DE FECHA --------------------------------- */
 
-  const groupedDiagrams = diagrams.reduce((acc: any, diagram: any) => {
+  const groupedDiagrams = diagrams?.reduce((acc: any, diagram: any) => {
     const employee = activeEmployees.find((emp: any) => emp.id === diagram.employee_id);
     if (employee) {
       if (!acc[diagram.employee_id]) {

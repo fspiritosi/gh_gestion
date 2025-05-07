@@ -1,4 +1,4 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { EditModal } from './EditDocumenTypeModal';
 
 interface DocumentsTableProps {
@@ -12,18 +12,16 @@ interface DocumentsTableProps {
     mandatory: string;
     private: string;
   };
-  children: React.ReactNode;  
+  children: React.ReactNode;
 }
 
-const DocumentsTable = ({ data, filters,children }: DocumentsTableProps) => (
+const DocumentsTable = ({ data, filters, children }: DocumentsTableProps) => (
   <Table>
     <TableHeader>
-      <TableRow>
-     {children}
-      </TableRow>
+      <TableRow>{children}</TableRow>
     </TableHeader>
     <TableBody>
-      {data.map((doc) => (
+      {data?.map((doc) => (
         <TableRow key={doc.id}>
           <TableCell>{doc.name}</TableCell>
           <TableCell className="text-center">{doc.multiresource ? 'Si' : 'No'}</TableCell>
@@ -32,8 +30,9 @@ const DocumentsTable = ({ data, filters,children }: DocumentsTableProps) => (
           <TableCell className="text-center">{doc.explired ? 'Si' : 'No'}</TableCell>
           <TableCell className="text-center">{doc.mandatory ? 'Si' : 'No'}</TableCell>
           <TableCell className="text-center">{doc.private ? 'Si' : 'No'}</TableCell>
-          <TableCell className="text-center"><EditModal Equipo={doc}  /></TableCell>
-          
+          <TableCell className="text-center">
+            <EditModal Equipo={doc} />
+          </TableCell>
         </TableRow>
       ))}
     </TableBody>

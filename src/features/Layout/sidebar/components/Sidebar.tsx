@@ -25,7 +25,7 @@ export function Sidebar({ role, userModules }: SidebarProps) {
 
   // Use the reduce method to find the best match (most specific)
   const activeLink =
-    linksWithRegex.reduce(
+    linksWithRegex?.reduce(
       (bestMatch: { link: any; matchLength: number }, link: any) => {
         const match = pathName.match(link.regex);
         const matchLength = match ? match[0].length : 0;
