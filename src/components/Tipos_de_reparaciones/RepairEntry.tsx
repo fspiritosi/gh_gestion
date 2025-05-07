@@ -63,7 +63,7 @@ export default function RepairNewEntry({
   const router = useRouter();
   const [allRepairs, setAllRepairs] = useState<FormValues>([]);
   const [typeOfEquipment, setTypeOfEquipment] = useState<string | undefined>(
-    equipment?.find((equip) => equip.id === default_equipment_id)?.types_of_vehicles
+    equipment?.find((equip) => equip.id === default_equipment_id)?.types_of_vehicles || ''
   );
   const [selectedEquipment, setSelectedEquipment] = useState<ReturnType<typeof setVehiclesToShow>[0] | undefined>(
     equipment?.find((equip) => equip.id === default_equipment_id)
@@ -378,14 +378,14 @@ export default function RepairNewEntry({
                                 {equipment?.map((equip) => {
                                   return (
                                     <CommandItem
-                                      value={equip.domain ?? equip.serie}
+                                      value={equip.domain || equip.serie || ''}
                                       key={equip.intern_number}
                                       onSelect={() => {
                                         form.setValue('vehicle_id', equip.id);
-                                        form.setValue('domain', equip.domain ?? equip.serie);
-                                        form.setValue('kilometer', equip.kilometer);
+                                        form.setValue('domain', equip.domain || equip.serie || '');
+                                        form.setValue('kilometer', equip.kilometer || '');
 
-                                        setTypeOfEquipment(equip.types_of_vehicles);
+                                        setTypeOfEquipment(equip.types_of_vehicles || '');
                                         setSelectedEquipment(equip);
                                       }}
                                     >
