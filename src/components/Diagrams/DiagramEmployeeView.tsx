@@ -118,7 +118,7 @@ function DiagramEmployeeView({
   }, [activeEmployees, form]);
 
   useEffect(() => {
-    const employeesWithDiagrams = Object.keys(groupedDiagrams)?.map((employeeId) => {
+    const employeesWithDiagrams = Object.keys(groupedDiagrams || {})?.map((employeeId) => {
       const employeeDiagrams = groupedDiagrams[employeeId];
       const employee = employeeDiagrams[0].employees;
       return employee.id;
@@ -143,8 +143,8 @@ function DiagramEmployeeView({
     // 3. Datos de cada empleado
     const employeesToExport =
       selectedResources.length > 0
-        ? Object.keys(groupedDiagrams)?.filter((employeeId) => selectedResources.includes(employeeId))
-        : Object.keys(groupedDiagrams);
+        ? Object.keys(groupedDiagrams || {})?.filter((employeeId) => selectedResources.includes(employeeId))
+        : Object.keys(groupedDiagrams || {});
 
     employeesToExport.forEach((employeeId) => {
       const employeeDiagrams = groupedDiagrams[employeeId];
@@ -347,7 +347,7 @@ function DiagramEmployeeView({
 
         <TableBody>
           {selectedResources.length > 0
-            ? Object.keys(groupedDiagrams)
+            ? Object.keys(groupedDiagrams || {})
                 ?.filter((employeeId) => selectedResources.includes(employeeId))
                 ?.map((employeeId, index) => {
                   const employeeDiagrams = groupedDiagrams[employeeId];
@@ -377,7 +377,7 @@ function DiagramEmployeeView({
                     </TableRow>
                   );
                 })
-            : Object.keys(groupedDiagrams)
+            : Object.keys(groupedDiagrams || {})
                 ?.filter((employeeId) => initialResources.includes(employeeId))
                 ?.map((employeeId, index) => {
                   const employeeDiagrams = groupedDiagrams[employeeId];
