@@ -63,7 +63,7 @@ function DiagramEmployeeView({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const resourceIds = selectedResources.map((resource) => {
+    const resourceIds = selectedResources?.map((resource) => {
       const employee = activeEmployees.find((element: any) => element.document === resource);
       return employee?.id;
     });
@@ -118,7 +118,7 @@ function DiagramEmployeeView({
   }, [activeEmployees, form]);
 
   useEffect(() => {
-    const employeesWithDiagrams = Object.keys(groupedDiagrams).map((employeeId) => {
+    const employeesWithDiagrams = Object.keys(groupedDiagrams)?.map((employeeId) => {
       const employeeDiagrams = groupedDiagrams[employeeId];
       const employee = employeeDiagrams[0].employees;
       return employee.id;
@@ -143,7 +143,7 @@ function DiagramEmployeeView({
     // 3. Datos de cada empleado
     const employeesToExport =
       selectedResources.length > 0
-        ? Object.keys(groupedDiagrams).filter((employeeId) => selectedResources.includes(employeeId))
+        ? Object.keys(groupedDiagrams)?.filter((employeeId) => selectedResources.includes(employeeId))
         : Object.keys(groupedDiagrams);
 
     employeesToExport.forEach((employeeId) => {
@@ -258,7 +258,7 @@ function DiagramEmployeeView({
                             <CommandGroup className="overflow-auto max-h-[60vh]">
                               {filteredResources
                                 ?.sort((a: any, b: any) => a.full_name.localeCompare(b.full_name))
-                                .map((person: any) => {
+                                ?.map((person: any) => {
                                   const key = /^\d+$/.test(inputValue) ? person.id : person.full_name;
                                   const value = /^\d+$/.test(inputValue) ? person.id : person.full_name;
                                   return (
@@ -338,7 +338,7 @@ function DiagramEmployeeView({
       <Table>
         <TableHeader>
           <TableHead>Empleado</TableHead>
-          {mes.map((d, index) => (
+          {mes?.map((d, index) => (
             <TableHead key={crypto.randomUUID()} className="text-center">
               {d.getDate() + '/' + (d.getMonth() + 1)}
             </TableHead>
@@ -348,8 +348,8 @@ function DiagramEmployeeView({
         <TableBody>
           {selectedResources.length > 0
             ? Object.keys(groupedDiagrams)
-                .filter((employeeId) => selectedResources.includes(employeeId))
-                .map((employeeId, index) => {
+                ?.filter((employeeId) => selectedResources.includes(employeeId))
+                ?.map((employeeId, index) => {
                   const employeeDiagrams = groupedDiagrams[employeeId];
                   const employee = employeeDiagrams[0].employees; // Asumimos que todos los diagramas tienen el mismo empleado
                   return (
@@ -357,7 +357,7 @@ function DiagramEmployeeView({
                       <TableCell>
                         {employee.lastname}, {employee.firstname}
                       </TableCell>
-                      {mes.map((day, dayIndex) => {
+                      {mes?.map((day, dayIndex) => {
                         const diagram = employeeDiagrams.find(
                           (diagram: any) =>
                             diagram.day === day.getDate() &&
@@ -378,8 +378,8 @@ function DiagramEmployeeView({
                   );
                 })
             : Object.keys(groupedDiagrams)
-                .filter((employeeId) => initialResources.includes(employeeId))
-                .map((employeeId, index) => {
+                ?.filter((employeeId) => initialResources.includes(employeeId))
+                ?.map((employeeId, index) => {
                   const employeeDiagrams = groupedDiagrams[employeeId];
                   const employee = employeeDiagrams[0].employees; // Asumimos que todos los diagramas tienen el mismo empleado
                   return (
@@ -387,7 +387,7 @@ function DiagramEmployeeView({
                       <TableCell>
                         {employee.lastname}, {employee.firstname}
                       </TableCell>
-                      {mes.map((day, dayIndex) => {
+                      {mes?.map((day, dayIndex) => {
                         const diagram = employeeDiagrams.find(
                           (diagram: any) =>
                             diagram.day === day.getDate() &&
