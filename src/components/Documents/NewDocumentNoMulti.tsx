@@ -48,7 +48,7 @@ async function NewDocumentNoMulti({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button>Documento No Multirecurso</Button>
+        <Button variant="gh_orange">Documento No Multirecurso</Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-full">
         <InfoComponent

@@ -82,7 +82,6 @@ function DiagramFormUpdated({
     },
   });
 
-
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     const { employee_id, dateRange, diagram_type } = data;
 
@@ -156,7 +155,6 @@ function DiagramFormUpdated({
 
     setErrorsDiagrams(errors);
     setSuccesDiagrams(successes);
-
   };
 
   const updateDiagram = async (diagramToUpdate: ErrorToCreate) => {
@@ -354,10 +352,11 @@ function DiagramFormUpdated({
   }, [form.watch('diagram_type'), form.watch('employee_id'), form.watch('dateRange.from'), form.watch('dateRange.to')]);
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="pt-6">
+    <ResizablePanelGroup direction="horizontal" className="">
       <ResizablePanel className="">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
+            <h2 className="text-xl font-bold mb-4">{'Generar Diagrama'}</h2>
             <div className="flex flex-col space-y-3 px-2">
               <FormField
                 control={form.control}

@@ -303,16 +303,16 @@ export function ExpiredDataTable<TData, TValue>({
   };
 
   return (
-    <div className="mb-10 grid px-4 rounded-lg max-w-[100vw] overflow-x-auto">
+    <div className="mb-10 grid rounded-lg max-w-[100vw] overflow-x-auto">
       <div className="flex justify-between items-end">
         <div className="flex flex-wrap items-end pb-4 gap-y-4 overflow-x-auto w-full">
           <Input
             placeholder={vehicles ? 'Buscar por dominio o numero interno' : 'Buscar por nombre de empleado'}
             value={(table.getColumn('resource')?.getFilterValue() as string) ?? ''}
             onChange={(event) => table.getColumn('resource')?.setFilterValue(event.target.value)}
-            className="max-w-sm ml-2"
+            className="max-w-sm"
           />
-          <div className="flex items-start gap-2 flex-wrap gap-y-2 justify-start">
+          <div className="flex items-start gap-2 flex-wrap justify-start">
             <Button variant="outline" size="default" className="ml-2 self-end" onClick={handleClearFilters}>
               Limpiar filtros
             </Button>

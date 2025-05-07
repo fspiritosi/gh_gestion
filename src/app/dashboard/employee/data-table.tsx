@@ -292,7 +292,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
 
   return (
     <div className="w-full grid grid-cols-1">
-      <div className="flex items-center py-4 flex-wrap gap-y-2 overflow-auto">
+      <div className="flex items-center py-4 pt-0 flex-wrap gap-y-2 overflow-auto">
         <Input
           placeholder="Buscar por nombre"
           value={(table.getColumn('full_name')?.getFilterValue() as string) ?? ''}

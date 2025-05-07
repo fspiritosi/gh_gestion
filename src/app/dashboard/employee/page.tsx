@@ -2,8 +2,6 @@ import EmployesDiagram from '@/components/Diagrams/EmployesDiagram';
 import DocumentNav from '@/components/DocumentNav';
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import Viewcomponent from '@/components/ViewComponent';
-import { buttonVariants } from '@/components/ui/button';
-import Link from 'next/link';
 import { Suspense } from 'react';
 import CovenantTreeFile from '../company/actualCompany/covenant/CovenantTreeFile';
 import EmployeeDocumentsTabs from '../document/documentComponents/EmployeeDocumentsTabs';
@@ -11,9 +9,9 @@ import EmployeeListTabs from '../document/documentComponents/EmployeeListTabs';
 import TypesDocumentAction from '../document/documentComponents/TypesDocumentAction';
 import TypesDocumentsView from '../document/documentComponents/TypesDocumentsView';
 
-const EmployeePage = async () => {
+const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; subtab?: string } }) => {
   const viewData = {
-    defaultValue: 'employees',
+    defaultValue: searchParams?.tab || 'employees',
     path: '/dashboard/employee',
     tabsValues: [
       {
@@ -24,17 +22,7 @@ const EmployeePage = async () => {
           title: 'Empleados',
           description: 'Aquí encontrarás todos empleados',
           buttonActioRestricted: ['Invitado'],
-          buttonAction: (
-            <div className="flex gap-4 flex-wrap pl-6">
-              <Link
-                href="/dashboard/employee/action?action=new"
-                className={['py-2 px-4 rounded', buttonVariants({ variant: 'default' })].join(' ')}
-              >
-                Agregar nuevo empleado
-              </Link>
-            </div>
-          ),
-          component: <EmployeeListTabs actives inactives />,
+          component: <EmployeeListTabs tabValue="employees" subtab={searchParams?.subtab} actives inactives />,
         },
       },
       {
@@ -50,7 +38,13 @@ const EmployeePage = async () => {
               <DocumentNav onlyEmployees />
             </div>
           ),
-          component: <EmployeeDocumentsTabs />,
+          component: (
+            <EmployeeDocumentsTabs
+              path="/dashboard/employee"
+              tabValue="Documentos de empleados"
+              subtab={searchParams?.subtab}
+            />
+          ),
         },
       },
       {
@@ -61,7 +55,7 @@ const EmployeePage = async () => {
           title: 'Diagramas de personal',
           description: 'Carga de novedades de trabajo del personal',
           buttonActioRestricted: [''],
-          component: <EmployesDiagram />,
+          component: <EmployesDiagram tabValue="diagrams" subtab={searchParams?.subtab} />,
         },
       },
       {

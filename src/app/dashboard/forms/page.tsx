@@ -1,7 +1,6 @@
 import { fetchAllEquipment, fetchCustomForms } from '@/app/server/GET/actions';
 import ChecklistTable from '@/components/CheckList/ListOfChecklist';
 import Viewcomponent from '@/components/ViewComponent';
-import { ReportModal } from './components/ReportModal';
 async function MantenimientoPage() {
   const checklists = await fetchCustomForms();
   const vehicles = await fetchAllEquipment();
@@ -19,8 +18,8 @@ async function MantenimientoPage() {
           title: 'Tipos de checklist',
           description: 'Aqui encontraras los checkList de mantenimiento',
           buttonActioRestricted: ['Invitado'],
-          buttonAction: <ReportModal vehicles={vehicles} checklists={checklists} />,
-          component: <ChecklistTable checklists={checklists} />,
+          // buttonAction: <ReportModal vehicles={vehicles} checklists={checklists} />,
+          component: <ChecklistTable vehicles={vehicles} checklists={checklists} />,
         },
       },
       // {

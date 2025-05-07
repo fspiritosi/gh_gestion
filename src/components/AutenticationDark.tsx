@@ -3,15 +3,15 @@ import Link from 'next/link';
 
 function AutenticationDark() {
   return (
-    <div className=" dark:z-40 hidden flex-col bg-muted p-10  lg:flex dark:border-r min-h-screen text-black dark:bg-neutral-950 ">
-      <div className="absolute border-r-white/15 border-r-2 top-0 left-0 h-full w-full  bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
+    <div className="dark:z-40 hidden flex-col p-10 lg:flex dark:border-r min-h-screen text-black dark:bg-slate-950">
+      <div className="absolute border-r-white/15 border-r-2 top-0 left-0 h-full w-full dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(255,167,38,0.15),rgba(30,41,59,0.9))]"></div>
       <Link className="relative z-20 flex items-center font-bold text-2xl dark:text-white" href="/">
         <Image
-          src="https://zktcbhhlcksopklpnubj.supabase.co/storage/v1/object/public/logo/24417298440.png"
+          src="/gh_logo.png"
           alt="Logo de codecontrol"
-          className=" size-12 mr-4 relative z-40"
-          width={120}
-          height={120}
+          className="mr-4 relative z-40 w-40"
+          width={100}
+          height={100}
         />
         Grupo Horizonte
       </Link>

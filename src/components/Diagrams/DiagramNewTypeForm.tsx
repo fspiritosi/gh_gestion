@@ -112,7 +112,7 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-[300px]">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-[300px]">
         <h2 className="text-xl font-bold mb-4">{diagramToEdit ? 'Editar Novedad' : 'Crear Novedad'}</h2>
         <FormField
           control={form.control}
