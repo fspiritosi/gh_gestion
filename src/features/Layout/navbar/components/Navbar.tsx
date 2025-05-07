@@ -8,7 +8,7 @@ import { _UserMenu } from './ui/_UserMenu';
 
 export function Navbar({ user, notifications, companies }: NavbarClientProps) {
   return (
-    <nav className="flex flex-shrink items-center justify-end sm:justify-between bg-gh text-foreground pr-4 py-4 mb-2 px-7 pl-0">
+    <nav className="flex flex-shrink items-center justify-end sm:justify-between dark:bg-slate-950 bg-gh text-foreground pr-4 py-4 px-7 pl-0">
       <div className="items-center flex gap-6">
         <_SidebarToggle />
         <_CompanySelector
