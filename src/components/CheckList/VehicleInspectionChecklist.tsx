@@ -131,7 +131,7 @@ const createChecklistSchema = (items: any) => {
   const schema: any = {};
   Object.entries(items).forEach(([section, sectionItems]: any) => {
     schema[section] = z.object(
-      sectionItems.reduce((acc: any, item: any) => {
+      sectionItems?.reduce((acc: any, item: any) => {
         acc[item] = z
           .string({
             required_error: 'Este campo es requerido',

@@ -66,7 +66,7 @@ export async function PUT(request: NextRequest) {
   }
 
   // Verificar que haya datos para actualizar
-  if (Object.keys(updateData).length === 0) {
+  if (Object.keys(updateData)?.length === 0) {
     return new Response(JSON.stringify({ error: 'No data provided for update.' }), { status: 400 });
   }
 
@@ -120,7 +120,7 @@ export async function DELETE(request: NextRequest) {
     const results = await Promise.all(deletePromises);
 
     const errors = results.filter((result) => result.error);
-    if (errors.length > 0) {
+    if (errors?.length > 0) {
       throw new Error(JSON.stringify(errors.map((error) => error.error)));
     }
 

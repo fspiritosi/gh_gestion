@@ -47,7 +47,7 @@ export const MultiSelectWithFilters: React.FC<MultiSelectWithFiltersProps> = ({
       <PopoverTrigger asChild>
         <Button variant={'outline'} disabled={disabled} className="flex justify-between items-center h-6">
           <span>
-            {internalSelectedItems.length > 0 ? `${internalSelectedItems.length} ${placeholder}` : placeholder}
+            {internalSelectedItems?.length > 0 ? `${internalSelectedItems?.length} ${placeholder}` : placeholder}
           </span>
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

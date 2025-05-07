@@ -90,7 +90,7 @@ export default function ViewDailysReports() {
     return sortOrder === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
   });
 
-  const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredReports?.length / itemsPerPage);
   const currentReports = filteredReports.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (page: number) => {
@@ -115,11 +115,11 @@ export default function ViewDailysReports() {
       setDailyReports(data.dailyReports);
     } catch (error) {
       console.error('Error fetching reports:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los reportes diarios.',
-        variant: 'destructive',
-      });
+      // toast({
+      //   title: 'Error',
+      //   description: 'No se pudieron cargar los reportes diarios.',
+      //   variant: 'destructive',
+      // });
     } finally {
       setIsLoading(false);
     }

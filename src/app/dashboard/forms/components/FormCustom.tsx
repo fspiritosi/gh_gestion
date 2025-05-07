@@ -1007,7 +1007,6 @@ export function FormCustom({
   const handleTypeChange = (value: string, index: number, sectionIndex?: number) => {
     const newCampos = [...campos];
 
-
     // Modificar la estructura de newCampos si el tipo es 'Seccion'
     const updatedCampos = newCampos.map((item, i) => {
       if (item.tipo === 'Seccion' && item.sectionCampos) {

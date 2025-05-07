@@ -33,23 +33,18 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { supabaseBrowser } from '@/lib/supabase/browser';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { supabaseBrowser } from '@/lib/supabase/browser';
 
 interface DataCctProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[] | any;
   data: TData[];
   localStorageName: string;
-  
 }
 
-export function DataCct<TData, TValue>({
-  columns,
-  data,
-  localStorageName,
-}: DataCctProps<TData, TValue>) {
+export function DataCct<TData, TValue>({ columns, data, localStorageName }: DataCctProps<TData, TValue>) {
   const supabase = supabaseBrowser();
   const [sorting, setSorting] = useState<SortingState>([]);
   const defaultVisibleColumns = ['name', 'guild_id'];
@@ -57,7 +52,7 @@ export function DataCct<TData, TValue>({
   const [defaultVisibleColumns1, setDefaultVisibleColumns1] = useState(() => {
     if (typeof window !== 'undefined') {
       const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-      return valorGuardado.length ? valorGuardado : defaultVisibleColumns;
+      return valorGuardado?.length ? valorGuardado : defaultVisibleColumns;
     }
     return defaultVisibleColumns;
   });
@@ -70,20 +65,18 @@ export function DataCct<TData, TValue>({
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
-        columns.reduce((acc: any, column: any) => {
+        columns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
       );
     }
-
-
   }, [columns]);
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})
@@ -91,7 +84,7 @@ export function DataCct<TData, TValue>({
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const loader = useLoggedUserStore((state) => state.isLoading);
- 
+
   const allOptions = {
     name: createOptions('name'),
     guild_id: createOptions('guild_id'),
@@ -102,13 +95,11 @@ export function DataCct<TData, TValue>({
   }
 
   const selectHeader = {
-    
     guild_id: {
       name: 'guild_id',
       option: allOptions.guild_id,
       label: 'Gremio',
     },
-    
   };
 
   let table = useReactTable({
@@ -127,7 +118,6 @@ export function DataCct<TData, TValue>({
       columnFilters,
     },
   });
- 
 
   const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
     setColumnVisibility((prev) => ({
@@ -149,13 +139,10 @@ export function DataCct<TData, TValue>({
     setSelectValues({
       name: 'Todos',
       guild_id: 'Todos',
-     
     });
-    
   };
   const maxRows = ['20', '40', '60', '80', '100'];
   const [selectValues, setSelectValues] = useState<{ [key: string]: string }>({});
-  
 
   return (
     <div>
@@ -208,7 +195,6 @@ export function DataCct<TData, TValue>({
                           className="capitalize  text-red-400"
                           checked={showInactive}
                           onClick={() => setShowInactive(!showInactive)}
-                          
                         >
                           {column.columnDef.header}
                         </DropdownMenuCheckboxItem>
@@ -340,7 +326,7 @@ export function DataCct<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns?.length} className="h-24 text-center">
                   {loader ? (
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between">

@@ -334,7 +334,7 @@ export const useLoggedUserStore = create<State>((set, get) => {
       selectedCompany = get()?.allCompanies.filter((company) => company.by_defect);
       //console.log('selectedCompany', selectedCompany);
 
-      if (data.length > 1) {
+      if (data?.length > 1) {
         if (selectedCompany) {
           //
           setActualCompany(selectedCompany[0]);
@@ -343,16 +343,16 @@ export const useLoggedUserStore = create<State>((set, get) => {
         }
       }
 
-      if (data.length === 1) {
+      if (data?.length === 1) {
         set({ showMultiplesCompaniesAlert: false });
         setActualCompany(data[0]);
       }
 
-      if (data.length === 0 && share_company_users?.length! > 0) {
+      if (data?.length === 0 && share_company_users?.length! > 0) {
         setActualCompany(share_company_users?.[0]?.company_id);
       }
 
-      if (data.length === 0 && share_company_users?.length === 0) {
+      if (data?.length === 0 && share_company_users?.length === 0) {
         const actualPath = window.location.pathname;
 
         if (actualPath !== '/dashboard/company/new') {

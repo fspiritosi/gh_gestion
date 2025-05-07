@@ -49,7 +49,7 @@ export function DataContacts<TData, TValue>({ columns, data, localStorageName }:
   const [defaultVisibleColumns1, setDefaultVisibleColumns1] = useState(() => {
     if (typeof window !== 'undefined') {
       const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-      return valorGuardado.length ? valorGuardado : defaultVisibleColumns;
+      return valorGuardado?.length ? valorGuardado : defaultVisibleColumns;
     }
     return defaultVisibleColumns;
   });
@@ -62,9 +62,9 @@ export function DataContacts<TData, TValue>({ columns, data, localStorageName }:
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
-        columns.reduce((acc: any, column: any) => {
+        columns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
@@ -73,7 +73,7 @@ export function DataContacts<TData, TValue>({ columns, data, localStorageName }:
   }, [columns]);
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})
@@ -307,7 +307,7 @@ export function DataContacts<TData, TValue>({ columns, data, localStorageName }:
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns?.length} className="h-24 text-center">
                   {loader ? (
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between">

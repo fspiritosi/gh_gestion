@@ -50,7 +50,7 @@ interface DataEquipmentProps<TData, TValue> {
 export function EquipmentTable<TData, TValue>({
   columns,
   data,
-  role
+  role,
   // showInactive,
   // setShowInactive,
   // allCompany,
@@ -63,10 +63,11 @@ export function EquipmentTable<TData, TValue>({
 
   useEffect(() => {
     // Filtrar las columnas basado en el rol
-    const filteredColumns = role === 'Invitado' 
-      ? columns.filter((col: any) => col.accessorKey !== 'status' && col.accessorKey !== 'allocated_to')
-      : columns;
-    
+    const filteredColumns =
+      role === 'Invitado'
+        ? columns.filter((col: any) => col.accessorKey !== 'status' && col.accessorKey !== 'allocated_to')
+        : columns;
+
     setDefaultColumns(filteredColumns);
   }, [columns, role]);
 
@@ -77,12 +78,13 @@ export function EquipmentTable<TData, TValue>({
       const newColumns = valorGuardado.filter((col: string) => col !== 'allocated_to');
       localStorage.setItem('equipmentColumns', JSON.stringify(newColumns));
     }
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
-        defaultColumns.reduce((acc: any, column: any) => {
-          acc[column.accessorKey] = role === 'Invitado' 
-            ? valorGuardado.includes(column.accessorKey) && column.accessorKey !== 'allocated_to'
-            : valorGuardado.includes(column.accessorKey);
+        defaultColumns?.reduce((acc: any, column: any) => {
+          acc[column.accessorKey] =
+            role === 'Invitado'
+              ? valorGuardado.includes(column.accessorKey) && column.accessorKey !== 'allocated_to'
+              : valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
       );
@@ -99,7 +101,7 @@ export function EquipmentTable<TData, TValue>({
     'status',
     'intern_number',
     'condition',
-    ...(role !== 'Invitado' ? ['allocated_to'] : [])
+    ...(role !== 'Invitado' ? ['allocated_to'] : []),
   ];
 
   const [defaultVisibleColumns1, setDefaultVisibleColumns1] = useState(() => {
@@ -109,7 +111,7 @@ export function EquipmentTable<TData, TValue>({
         valorGuardado = valorGuardado.filter((col: string) => col !== 'allocated_to');
         localStorage.setItem('savedColumns', JSON.stringify(valorGuardado));
       }
-      return valorGuardado.length ? valorGuardado : defaultVisibleColumns;
+      return valorGuardado?.length ? valorGuardado : defaultVisibleColumns;
     }
     return defaultVisibleColumns;
   });
@@ -122,9 +124,9 @@ export function EquipmentTable<TData, TValue>({
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem('savedColumns') || '[]');
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
-        defaultColumns.reduce((acc: any, column: any) => {
+        defaultColumns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
@@ -135,10 +137,10 @@ export function EquipmentTable<TData, TValue>({
   useEffect(() => {
     // Set initial column visibility based on role
     if (role === 'Invitado') {
-      setColumnVisibility(prev => ({
+      setColumnVisibility((prev) => ({
         ...prev,
         status: false,
-        allocated_to: false
+        allocated_to: false,
       }));
     }
   }, [role]);
@@ -220,7 +222,7 @@ export function EquipmentTable<TData, TValue>({
       name: 'type',
       option: allOptions.type,
       label: 'Tipo',
-    }
+    },
   };
 
   const table = useReactTable({
@@ -244,7 +246,7 @@ export function EquipmentTable<TData, TValue>({
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem('savedColumns') || '');
-    if (!valorGuardado.length) {
+    if (!valorGuardado?.length) {
       localStorage.setItem('savedColumns', JSON.stringify(defaultVisibleColumns1));
     } else {
       localStorage.setItem(
@@ -507,7 +509,7 @@ export function EquipmentTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={defaultColumns.length} className="h-24 text-center">
+                <TableCell colSpan={defaultColumns?.length} className="h-24 text-center">
                   {loader ? (
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between">

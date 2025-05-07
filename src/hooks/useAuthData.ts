@@ -56,7 +56,7 @@ export const useAuthData = () => {
       const email = localStorage.getItem('email');
       const user = (await filterByEmail(email)) as profileUser[];
 
-      if (user.length === 0) throw new Error('Usuario no encontrado');
+      if (user?.length === 0) throw new Error('Usuario no encontrado');
       localStorage.removeItem('email');
 
       const { data, error } = await supabase.auth.admin.updateUserById(user[0].credential_id, { password });

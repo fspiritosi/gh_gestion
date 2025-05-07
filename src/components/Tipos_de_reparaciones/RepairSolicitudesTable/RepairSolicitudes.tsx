@@ -22,8 +22,7 @@ export default async function RepairSolicitudes({
     ? (repair_solicitudes as RepairsSolicituds).filter((repair) => repair.equipment_id.id === default_equipment_id)
     : (repair_solicitudes as RepairsSolicituds);
 
-
-  const repairsFormatted = Allrepairs.map((repair) => {
+  const repairsFormatted = Allrepairs?.map((repair) => {
     return {
       id: repair.id,
       title: repair.reparation_type.name,
@@ -57,5 +56,5 @@ export default async function RepairSolicitudes({
     };
   });
 
-  return <DataTable data={repairsFormatted} columns={mechanic ? mechanicColums : repairSolicitudesColums} />;
+  return <DataTable data={repairsFormatted || []} columns={mechanic ? mechanicColums : repairSolicitudesColums} />;
 }

@@ -329,7 +329,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
           // Si la reparación actualizada es un estado de cierre
           if (endingStates.includes(status)) {
             // Si no hay más reparaciones pendientes, el vehículo está operativo
-            if (pendingRepairs.length === 0) {
+            if (pendingRepairs?.length === 0) {
               newStatus = 'operativo';
               //console.log('1 operativo (Es un estado de cierre y no hay más reparaciones pendientes)');
             } else {
@@ -421,7 +421,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
         // Si la reparación actualizada es un estado de cierre
         if (endingStates.includes(status)) {
           // Si no hay más reparaciones pendientes, el vehículo está operativo
-          if (pendingRepairs.length === 0) {
+          if (pendingRepairs?.length === 0) {
             newStatus = 'operativo';
             //console.log('1 operativo (Es un estado de cierre y no hay más reparaciones pendientes)');
           } else {
@@ -828,7 +828,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
               <div className="grid gap-2">
                 <CardTitle>
                   Kilometros totales de la reparacion:{' '}
-                  {repairLogs[repairLogs.length - 1].kilometer - repairLogs[0].kilometer} kms
+                  {repairLogs[repairLogs?.length - 1].kilometer - repairLogs[0].kilometer} kms
                 </CardTitle>
               </div>
               <div className="relative flex flex-col gap-4 justify-start  w-full">
@@ -845,7 +845,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
                         <div
                           className={cn(
                             'relative  flex max-h-[40px] max-w-[40px] size-10 items-center justify-center rounded-full  text-primary-foreground aspect-square flex-shrink-0',
-                            index + 1 === repairLogs.length ? 'bg-primary' : 'bg-muted-foreground'
+                            index + 1 === repairLogs?.length ? 'bg-primary' : 'bg-muted-foreground'
                           )}
                         >
                           {index + 1}

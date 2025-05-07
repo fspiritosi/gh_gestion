@@ -22,7 +22,7 @@ export function ComponentStatusEquipment({ equipments }: { equipments: VehicleWi
   }, [equipments]);
 
   // Configuración del gráfico
-  const chartConfig: ChartConfig = statusData.reduce((config, { status }, index) => {
+  const chartConfig: ChartConfig = statusData?.reduce((config, { status }, index) => {
     config[status] = {
       label: status,
       color: `hsl(${index * 60}, 70%, 50%)`,

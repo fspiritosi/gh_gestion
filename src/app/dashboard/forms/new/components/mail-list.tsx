@@ -647,7 +647,7 @@ export function FormDisplay({ campos }: MailDisplayProps) {
         {campos.map((campo, index) => (
           <div key={crypto.randomUUID()}>{renderizarCampo(campo, index)}</div>
         ))}
-        <Button disabled={campos.length < 2}>Crear formulario</Button>
+        <Button disabled={campos?.length < 2}>Crear formulario</Button>
       </div>
     </ScrollArea>
   );

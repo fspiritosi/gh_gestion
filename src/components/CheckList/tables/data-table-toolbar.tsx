@@ -6,16 +6,15 @@ import { Cross2Icon } from '@radix-ui/react-icons';
 import { Table } from '@tanstack/react-table';
 
 import { frecuencias } from './data';
-import { DataTableFacetedFilter } from './data-table-faceted-filter';
-import { DataTableViewOptions } from './data-table-view-options';
 import { DataTableAnswersFacetedFilter } from './data-table-answers-filters';
+import { DataTableViewOptions } from './data-table-view-options';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
 }
 
 export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters?.length > 0;
 
   const uniqueFrequencies = table.getColumn('Frecuencia')?.getFacetedUniqueValues()
     ? Array.from(

@@ -14,21 +14,21 @@ export type generic = {
   created_at: string;
 };
 interface State {
-  countries: generic[]
-  provinces: Province[]
-  cities: Province[]
-  fetchCities: (provinceId: any) => void
-  hierarchy: generic[]
-  workDiagram: generic[]
-  customers: generic[]
-  contacts: generic[]
-  mandatoryDocuments: MandatoryDocuments
-  documentTypes: (company_id?: string) => void
-  companyDocumentTypes: Equipo
-  fetchContractors: () => void // Añadir esta función al estado
-  fetchContacts: () => void
-  subscribeToCustomersChanges: () => () => void
-  subscribeToContactsChanges: () => () => void
+  countries: generic[];
+  provinces: Province[];
+  cities: Province[];
+  fetchCities: (provinceId: any) => void;
+  hierarchy: generic[];
+  workDiagram: generic[];
+  customers: generic[];
+  contacts: generic[];
+  mandatoryDocuments: MandatoryDocuments;
+  documentTypes: (company_id?: string) => void;
+  companyDocumentTypes: Equipo;
+  fetchContractors: () => void; // Añadir esta función al estado
+  fetchContacts: () => void;
+  subscribeToCustomersChanges: () => () => void;
+  subscribeToContactsChanges: () => () => void;
 }
 
 export const useCountriesStore = create<State>((set, get) => {
@@ -87,17 +87,15 @@ export const useCountriesStore = create<State>((set, get) => {
   };
 
   const fetchContacts = async () => {
-      const { data:contacts, error } = await supabase
-        .from('contacts')
-        .select('*, customers(id, name)')
-        // .eq('company_id', actualCompany?.id)
-        
-      if (error) {
-        console.error('Error fetching customers:', error)
-      } else {
-        set({ contacts: contacts || [] })
-      }
+    const { data: contacts, error } = await supabase.from('contacts').select('*, customers(id, name)');
+    // .eq('company_id', actualCompany?.id)
+
+    if (error) {
+      console.error('Error fetching customers:', error);
+    } else {
+      set({ contacts: contacts || [] });
     }
+  };
 
   const documentTypes = async (id: string | undefined) => {
     const company_id = id ?? useLoggedUserStore?.getState?.()?.actualCompany?.id;
@@ -111,7 +109,7 @@ export const useCountriesStore = create<State>((set, get) => {
 
     const groupedData = document_types
       ?.filter((item) => item['mandatory'] === true)
-      .reduce((acc: Record<string, any[]>, item) => {
+      ?.reduce((acc: Record<string, any[]>, item) => {
         (acc[item['applies']] = acc[item['applies']] || []).push(item);
         return acc;
       }, {}) as MandatoryDocuments;
@@ -121,43 +119,37 @@ export const useCountriesStore = create<State>((set, get) => {
   };
 
   const subscribeToCustomersChanges = () => {
-    const channel = supabase.channel('custom-all-channel')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'customers' },
-        (payload) => {
-          fetchContractors() // Actualiza el estado global
-        }
-      )
-      .subscribe()
+    const channel = supabase
+      .channel('custom-all-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, (payload) => {
+        fetchContractors(); // Actualiza el estado global
+      })
+      .subscribe();
 
     return () => {
-      channel.unsubscribe()
-    }
-  }
+      channel.unsubscribe();
+    };
+  };
 
   const subscribeToContactsChanges = () => {
-    const channel = supabase.channel('custom-all-channel')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'contacts' },
-        (payload) => {
-          fetchContacts() // Actualiza el estado global
-        }
-      )
-      .subscribe()
+    const channel = supabase
+      .channel('custom-all-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contacts' }, (payload) => {
+        fetchContacts(); // Actualiza el estado global
+      })
+      .subscribe();
 
     return () => {
-      channel.unsubscribe()
-    }
-  }
+      channel.unsubscribe();
+    };
+  };
 
-  fetchContractors()
-  fetchContacts()
-  fetchworkDiagram()
-  fetchHierarchy()
-  fetchCountrys()
-  fetchProvinces()
+  fetchContractors();
+  fetchContacts();
+  fetchworkDiagram();
+  fetchHierarchy();
+  fetchCountrys();
+  fetchProvinces();
   return {
     countries: get()?.countries,
     provinces: get()?.provinces,
@@ -171,8 +163,8 @@ export const useCountriesStore = create<State>((set, get) => {
     documentTypes: (company_id?: string | undefined) => documentTypes(company_id || ''),
     companyDocumentTypes: get()?.companyDocumentTypes,
     fetchContractors,
-    fetchContacts, 
-    subscribeToCustomersChanges, 
+    fetchContacts,
+    subscribeToCustomersChanges,
     subscribeToContactsChanges,
-  }
-})
+  };
+});

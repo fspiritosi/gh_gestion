@@ -15,8 +15,8 @@ export function ColumnVisibilityToggle<TData>({ table, storageKey, role }: Colum
   const allColumns = table.getAllColumns().filter((col) => col.getCanHide());
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
 
-  const allSelected = visibleColumns.length === allColumns.length;
-  const someSelected = visibleColumns.length > 0 && !allSelected;
+  const allSelected = visibleColumns?.length === allColumns?.length;
+  const someSelected = visibleColumns?.length > 0 && !allSelected;
 
   const selectAllRef = useRef<HTMLInputElement>(null);
 

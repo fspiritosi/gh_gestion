@@ -50,7 +50,7 @@ export function _NotificationItem({ notification, formattedDate }: NotificationI
         <div>
           <p className="text-sm font-medium leading-none first-letter:uppercase">{getNotificationMessage()}</p>
           <CardDescription>
-            {notification.description.length > 50
+            {notification.description?.length > 50
               ? notification.description.substring(0, 50) + '...'
               : notification.description}
           </CardDescription>

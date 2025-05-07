@@ -28,7 +28,6 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function CompanieChart(data: any) {
-
   const dataChart = [
     {
       browser: 'activas',
@@ -61,7 +60,7 @@ export function CompanieChart(data: any) {
                     return (
                       <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
                         <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-3xl font-bold">
-                          {data.length}
+                          {data?.length}
                         </tspan>
                         <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
                           Recursos Totales

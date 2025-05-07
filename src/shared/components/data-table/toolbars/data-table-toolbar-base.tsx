@@ -40,13 +40,13 @@ export function DataTableToolbarBase<TData>({
   extraActions,
   tableId, // Recibimos tableId
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters?.length > 0;
   const columnVisibility = table.getState().columnVisibility;
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        {searchableColumns.length > 0 &&
+        {searchableColumns?.length > 0 &&
           searchableColumns.map((column) => {
             const tableColumn = table.getColumn(column.columnId);
             // Solo mostrar el campo de búsqueda si la columna está visible
@@ -61,7 +61,7 @@ export function DataTableToolbarBase<TData>({
             ) : null;
           })}
 
-        {filterableColumns.length > 0 &&
+        {filterableColumns?.length > 0 &&
           filterableColumns.map((column) => {
             const tableColumn = table.getColumn(column.columnId);
             // Solo mostrar el filtro si la columna está visible

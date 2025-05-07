@@ -129,7 +129,7 @@ export default function SimpleDocument({
           };
         });
 
-        for (let index = 0; index < documents.length; index++) {
+        for (let index = 0; index < documents?.length; index++) {
           const document = documents[index];
           const appliesName: any =
             (employees?.find(
@@ -313,7 +313,7 @@ export default function SimpleDocument({
     setIsMontlhy(documentInfo?.is_it_montlhy);
   }, [defaultDocumentId, documenTypes]);
 
-  const [openPopovers, setOpenPopovers] = useState(Array(fields.length).fill(false));
+  const [openPopovers, setOpenPopovers] = useState(Array(fields?.length).fill(false));
   const handleTypeFilter = (value: string) => {
     if (value === 'Ambos') setDocumentTypes(allTypesDocuments);
     if (value === 'Permanentes') setDocumentTypes(allTypesDocuments?.filter((e) => !e.is_it_montlhy) || []);
@@ -406,7 +406,7 @@ export default function SimpleDocument({
                                     />
                                     <CommandEmpty>
                                       {filteredResources?.length === 0 &&
-                                        inputValue.length > 0 &&
+                                        inputValue?.length > 0 &&
                                         'No se encontraron resultados'}
                                     </CommandEmpty>
                                     <CommandGroup>
@@ -716,7 +716,7 @@ export default function SimpleDocument({
                       </div>
                     )}
 
-                    {fields.length > 1 && (
+                    {fields?.length > 1 && (
                       <Button
                         variant={'destructive'}
                         onClick={() => {

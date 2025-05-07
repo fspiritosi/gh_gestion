@@ -230,17 +230,17 @@
 //         acordeon3.push(error);
 //       }
 //     }
-//     if (acordeon1.length > 0) {
+//     if (acordeon1?.length > 0) {
 //       setAccordion1Errors(true);
 //     } else {
 //       setAccordion1Errors(false);
 //     }
-//     if (acordeon2.length > 0) {
+//     if (acordeon2?.length > 0) {
 //       setAccordion2Errors(true);
 //     } else {
 //       setAccordion2Errors(false);
 //     }
-//     if (acordeon3.length > 0) {
+//     if (acordeon3?.length > 0) {
 //       setAccordion3Errors(true);
 //     } else {
 //       setAccordion3Errors(false);
@@ -1940,17 +1940,17 @@ export default function EmployeeComponent({
         acordeon3.push(error);
       }
     }
-    if (acordeon1.length > 0) {
+    if (acordeon1?.length > 0) {
       setAccordion1Errors(true);
     } else {
       setAccordion1Errors(false);
     }
-    if (acordeon2.length > 0) {
+    if (acordeon2?.length > 0) {
       setAccordion2Errors(true);
     } else {
       setAccordion2Errors(false);
     }
-    if (acordeon3.length > 0) {
+    if (acordeon3?.length > 0) {
       setAccordion3Errors(true);
     } else {
       setAccordion3Errors(false);

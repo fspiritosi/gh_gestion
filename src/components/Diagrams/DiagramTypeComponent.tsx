@@ -28,7 +28,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   }
 
   useEffect(() => {
-    if (Object.keys(selectDiagramType).length === 0) {
+    if (Object.keys(selectDiagramType || {})?.length === 0) {
       setDiagramToEdit(false);
     } else {
       setDiagramToEdit(true);

@@ -25,7 +25,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //     }
 
 //     let reportId;
-//     if (existingReports.length > 0) {
+//     if (existingReports?.length > 0) {
 //       // Parte diario ya existe
 //       reportId = existingReports[0].id;
 //     } else {
@@ -35,7 +35,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //         .insert([{ date, status, company_id }])
 //         .select();
 
-//       if (error || !data || data.length === 0) {
+//       if (error || !data || data?.length === 0) {
 //         throw new Error(`Error creando parte diario: ${error?.message || 'No se pudo crear el parte diario'}`);
 //       }
 
@@ -43,7 +43,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //     }
 
 //     // Agregar filas a la tabla dailyreportrow
-//     if (rows && rows.length > 0) {
+//     if (rows && rows?.length > 0) {
 //       const rowsToInsert = rows.map((row: any) => ({
 //         ...row,
 //         dailyreport_id: reportId,
@@ -54,7 +54,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //         .insert(rowsToInsert)
 //         .select();
 
-//       if (rowsError || !rowsData || rowsData.length === 0) {
+//       if (rowsError || !rowsData || rowsData?.length === 0) {
 //         throw new Error(`Error agregando filas: ${rowsError?.message || 'No se pudieron agregar las filas'}`);
 //       }
 //     }
@@ -99,7 +99,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //           throw new Error(`Error al validar la fecha: ${existingReportsError.message}`);
 //         }
 
-//         if (existingReports.length > 0) {
+//         if (existingReports?.length > 0) {
 //           throw new Error(`Ya existe un parte diario con la fecha ${date}`);
 //         }
 
@@ -109,7 +109,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //           .insert([{ date, status, company_id }])
 //           .select();
 
-//         if (error || !data || data.length === 0) {
+//         if (error || !data || data?.length === 0) {
 //           throw new Error(`Error creando parte diario: ${error?.message || 'No se pudo crear el parte diario'}`);
 //         }
 
@@ -160,7 +160,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //       }
 
 //       // 3. Relacionar empleados en dailyReportEmployeeRelations
-//       if (employees && employees.length > 0) {
+//       if (employees && employees?.length > 0) {
 //         const employeeRelations = employees.flatMap((employee: { id: any; }) =>
 //           dailyReportRowIds.map(rowId => ({
 //             daily_report_row_id: rowId,
@@ -178,7 +178,7 @@ import { NextRequest, NextResponse } from 'next/server';
 //       }
 
 //       // 4. Relacionar equipos en dailyReportEquipmentRelations
-//       if (equipment && equipment.length > 0) {
+//       if (equipment && equipment?.length > 0) {
 //         const equipmentRelations = equipment.flatMap((equip: { id: any; }) =>
 //           dailyReportRowIds.map(rowId => ({
 //             daily_report_row_id: rowId, // Usa el ID de la fila correspondiente
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
         throw new Error(`Error al validar la fecha: ${existingReportsError.message}`);
       }
 
-      if (existingReports.length > 0) {
+      if (existingReports?.length > 0) {
         throw new Error(`Ya existe un parte diario con la fecha ${date}`);
       }
 
@@ -242,7 +242,7 @@ export async function POST(request: NextRequest) {
         .insert([{ date, status, company_id }])
         .select();
 
-      if (error || !data || data.length === 0) {
+      if (error || !data || data?.length === 0) {
         throw new Error(`Error creando parte diario: ${error?.message || 'No se pudo crear el parte diario'}`);
       }
 
@@ -255,7 +255,7 @@ export async function POST(request: NextRequest) {
         .eq('id', editingId)
         .select();
 
-      if (error || !data || data.length === 0) {
+      if (error || !data || data?.length === 0) {
         throw new Error(`Error editando parte diario: ${error?.message || 'No se pudo editar el parte diario'}`);
       }
 
@@ -293,7 +293,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Relacionar empleados en dailyReportEmployeeRelations
-    if (employees && employees.length > 0) {
+    if (employees && employees?.length > 0) {
       const employeeRelations = employees.flatMap((employee: { id: any }) =>
         dailyReportRowIds.map((rowId) => ({
           daily_report_row_id: rowId,
@@ -311,7 +311,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Relacionar equipos en dailyReportEquipmentRelations
-    if (equipment && equipment.length > 0) {
+    if (equipment && equipment?.length > 0) {
       const equipmentRelations = equipment.flatMap((equip: { id: any }) =>
         dailyReportRowIds.map((rowId) => ({
           daily_report_row_id: rowId, // Usa el ID de la fila correspondiente

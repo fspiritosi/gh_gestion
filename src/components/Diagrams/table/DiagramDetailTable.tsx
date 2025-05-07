@@ -52,7 +52,7 @@ export function DiagramDetailTable<TData, TValue>({ columns, data, historyData }
       filtered = filtered.filter((item: any) => item.date === formattedSelectedDate);
     }
 
-    if (selectedRows.length > 0) {
+    if (selectedRows?.length > 0) {
       const selectedDates = selectedRows.map((date) => moment(date).format('DD/MM/YYYY'));
       filtered = filtered.filter((item: any) => selectedDates.includes(item.date));
     }
@@ -85,7 +85,7 @@ export function DiagramDetailTable<TData, TValue>({ columns, data, historyData }
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const totalPages = Math.ceil(filteredHistoryData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredHistoryData?.length / itemsPerPage);
   console.log(columns);
   const handleItemsPerPageChange = (value: string) => {
     setItemsPerPage(Number(value));
@@ -103,7 +103,7 @@ export function DiagramDetailTable<TData, TValue>({ columns, data, historyData }
   const paginatedData = filteredHistoryData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
-    if (selectedRows.length > 0) {
+    if (selectedRows?.length > 0) {
       const selectedDates = selectedRows.map((date) => moment(date).format('DD/MM/YYYY'));
       const filteredData = historyData.filter((item: any) => selectedDates.includes(item.date));
       setFilteredHistoryData(filteredData);
@@ -169,7 +169,7 @@ export function DiagramDetailTable<TData, TValue>({ columns, data, historyData }
                       className="hover:cursor-pointer"
                       style={{
                         color: (row.original as any).color,
-                        opacity: selectedRows.length > 0 && !isSelected ? 0.5 : 1,
+                        opacity: selectedRows?.length > 0 && !isSelected ? 0.5 : 1,
                       }}
                       data-state={isSelected && 'selected'}
                       onClick={() => handleRowClick((row.original as any).created_at)}
@@ -182,7 +182,7 @@ export function DiagramDetailTable<TData, TValue>({ columns, data, historyData }
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell colSpan={columns?.length} className="h-24 text-center">
                     Sin resultados
                   </TableCell>
                 </TableRow>

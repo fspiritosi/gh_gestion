@@ -351,8 +351,7 @@ export default function DynamicChecklistForm({
                 <BackButton />
               )}
               {defaultAnswer && (
-                <PDFPreviewDialog
-                >
+                <PDFPreviewDialog>
                   <div className="h-full w-full bg-white">
                     <TransporteSPANAYCHKHYS04
                       data={{

@@ -78,7 +78,7 @@ export default function CovenantComponent({ id }: { id: string }) {
         if (error) {
           console.error('Error fetching category:', error);
         } else {
-          if (data && data.length > 0) {
+          if (data && data?.length > 0) {
             const category = data[0];
             setCategoryData(category);
             setValue('name', category.name || '');

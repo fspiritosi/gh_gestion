@@ -14,7 +14,7 @@ interface DataTableToolbarProps<TData> {
 }
 
 export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters?.length > 0;
   const equipment = table.getColumn('domain')?.getFacetedUniqueValues();
   const formattedEquipment = equipment
     ? Array.from(equipment.keys()).map((key) => ({

@@ -1,11 +1,12 @@
 'use client';
 
 import { format } from 'date-fns';
-import { CalendarIcon, CheckCircle2, Clock, FileDown, Truck } from 'lucide-react';
+import { CalendarIcon, CheckCircle2, Clock, Truck } from 'lucide-react';
 import moment from 'moment';
 import 'moment/locale/es';
 import { useState } from 'react';
 
+import BtnXlsDownload from '@/components/BtnXlsDownload';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -17,7 +18,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { es } from 'date-fns/locale';
-import BtnXlsDownload from '@/components/BtnXlsDownload';
 
 interface VehicleChecklistReportProps {
   onClose: () => void;
@@ -71,9 +71,9 @@ export function VehicleChecklistReport({ checklists, vehicles }: VehicleChecklis
 
   // Función para obtener el conductor de una respuesta
   const getDriverFromResponse = (response: CheckListWithAnswer) => {
-    return response.form_answers.find(answer => 
-      (answer.answer as { chofer?: string })?.chofer
-    )?.answer as { chofer: string } | undefined;
+    return response.form_answers.find((answer) => (answer.answer as { chofer?: string })?.chofer)?.answer as
+      | { chofer: string }
+      | undefined;
   };
 
   // Función para verificar si un vehículo tiene respuesta en una fecha o semana específica
@@ -169,8 +169,8 @@ export function VehicleChecklistReport({ checklists, vehicles }: VehicleChecklis
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       reportData = reportData.filter(
-        item =>
-          (item.conductor?.toLowerCase().includes(searchLower)) ||
+        (item) =>
+          item.conductor?.toLowerCase().includes(searchLower) ||
           item.dominio?.toLowerCase().includes(searchLower) ||
           item.intern_number?.toLowerCase().includes(searchLower) ||
           `${item.vehicle.brand.name} ${item.vehicle.model.name}`.toLowerCase().includes(searchLower)
@@ -317,7 +317,7 @@ export function VehicleChecklistReport({ checklists, vehicles }: VehicleChecklis
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.length === 0 ? (
+                {filteredData?.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-4 text-gray-500">
                       No se encontraron resultados

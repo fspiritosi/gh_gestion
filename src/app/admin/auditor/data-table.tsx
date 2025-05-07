@@ -54,7 +54,7 @@ export function AuditorDataTable<TData, TValue>({ columns, data }: DataTableProp
   ];
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})
@@ -319,7 +319,7 @@ export function AuditorDataTable<TData, TValue>({ columns, data }: DataTableProp
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns?.length} className="h-24 text-center">
                   No hay documentos para auditar
                 </TableCell>
               </TableRow>

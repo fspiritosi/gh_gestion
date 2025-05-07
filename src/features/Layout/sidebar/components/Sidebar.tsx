@@ -25,10 +25,10 @@ export function Sidebar({ role, userModules }: SidebarProps) {
 
   // Use the reduce method to find the best match (most specific)
   const activeLink =
-    linksWithRegex.reduce(
+    linksWithRegex?.reduce(
       (bestMatch: { link: any; matchLength: number }, link: any) => {
         const match = pathName.match(link.regex);
-        const matchLength = match ? match[0].length : 0;
+        const matchLength = match ? match[0]?.length : 0;
         return matchLength > bestMatch.matchLength ? { link, matchLength } : bestMatch;
       },
       { link: null, matchLength: 0 }
@@ -44,7 +44,7 @@ export function Sidebar({ role, userModules }: SidebarProps) {
           {/* <CardTitle className="relative block text-black dark:text-white">Grupo Horizonte</CardTitle> */}
         </span>
       </div>
-      <ul className="mt-[35px]">
+      <ul className="mt-[27px]">
         {filteredLinks.map((link) => (
           <Link
             key={link.name}
@@ -52,8 +52,8 @@ export function Sidebar({ role, userModules }: SidebarProps) {
             className={cn(
               'flex items-center p-4 cursor-pointer transition-all duration-500 rounded-s-full lisidebar relative',
               link.name === activeLink
-                ? 'dark:bg-slate-900 activesidebar before:shadow-custom-white after:shadow-custom-white-inverted'
-                : 'hover:bg-slate-800',
+                ? 'dark:bg-slate-900 bg-gh_contrast activesidebar before:shadow-custom-white after:shadow-custom-white-inverted'
+                : 'hover:bg-gh-contrast dark:hover:bg-slate-800',
               isActiveSidebar ? 'ml-0' : 'ml-4'
             )}
           >

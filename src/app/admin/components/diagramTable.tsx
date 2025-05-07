@@ -76,7 +76,7 @@ export default async function DiagramTable() {
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Mostrando <strong>1-{diagrams!.length < 10 ? diagrams?.length : '10'}</strong> of{' '}
+          Mostrando <strong>1-{diagrams!?.length < 10 ? diagrams?.length : '10'}</strong> of{' '}
           <strong>{diagrams?.length}</strong> diagramas
         </div>
       </CardFooter>

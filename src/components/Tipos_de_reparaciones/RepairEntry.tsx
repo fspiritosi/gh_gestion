@@ -63,7 +63,7 @@ export default function RepairNewEntry({
   const router = useRouter();
   const [allRepairs, setAllRepairs] = useState<FormValues>([]);
   const [typeOfEquipment, setTypeOfEquipment] = useState<string | undefined>(
-    equipment?.find((equip) => equip.id === default_equipment_id)?.types_of_vehicles
+    equipment?.find((equip) => equip.id === default_equipment_id)?.types_of_vehicles || ''
   );
   const [selectedEquipment, setSelectedEquipment] = useState<ReturnType<typeof setVehiclesToShow>[0] | undefined>(
     equipment?.find((equip) => equip.id === default_equipment_id)
@@ -236,12 +236,12 @@ export default function RepairNewEntry({
           const condition = vehicle_id?.condition;
 
           const data = await Promise.all(
-            allRepairs.map(async (e) => {
+            allRepairs?.map(async (e) => {
               const user_images = e.files
                 ? await Promise.all(
                     e.files
                       .filter((image) => image)
-                      .map((image, index) => formatImages(image, e.domain, e.repair, index))
+                      ?.map((image, index) => formatImages(image, e.domain, e.repair, index))
                   )
                 : null;
 
@@ -300,8 +300,8 @@ export default function RepairNewEntry({
             e.files
               ? await Promise.all(
                   e.files
-                    .filter((image) => image)
-                    .map((image, index) => formatImagesUrl(image, e.domain, e.repair, index))
+                    ?.filter((image) => image)
+                    ?.map((image, index) => formatImagesUrl(image, e.domain, e.repair, index))
                 )
               : null;
           });
@@ -356,7 +356,7 @@ export default function RepairNewEntry({
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              disabled={limittedEquipment ? false : allRepairs.length > 0}
+                              disabled={limittedEquipment ? false : allRepairs?.length > 0}
                               variant="outline"
                               role="combobox"
                               className={cn('justify-between', !field.value && 'text-muted-foreground')}
@@ -378,14 +378,14 @@ export default function RepairNewEntry({
                                 {equipment?.map((equip) => {
                                   return (
                                     <CommandItem
-                                      value={equip.domain ?? equip.serie}
+                                      value={equip.domain || equip.serie || ''}
                                       key={equip.intern_number}
                                       onSelect={() => {
                                         form.setValue('vehicle_id', equip.id);
-                                        form.setValue('domain', equip.domain ?? equip.serie);
-                                        form.setValue('kilometer', equip.kilometer);
+                                        form.setValue('domain', equip.domain || equip.serie || '');
+                                        form.setValue('kilometer', equip.kilometer || '');
 
-                                        setTypeOfEquipment(equip.types_of_vehicles);
+                                        setTypeOfEquipment(equip.types_of_vehicles || '');
                                         setSelectedEquipment(equip);
                                       }}
                                     >
@@ -411,13 +411,13 @@ export default function RepairNewEntry({
                 <FormField
                   control={form.control}
                   name="kilometer"
-                  // disabled={limittedEquipment ? false : allRepairs.length > 0}
+                  // disabled={limittedEquipment ? false : allRepairs?.length > 0}
                   render={({ field }) => (
                     <FormItem className={cn(typeOfEquipment === 'Vehículos' ? '' : 'hidden')}>
                       <FormLabel>Kilometraje</FormLabel>
                       <FormControl>
                         <Input
-                          disabled={limittedEquipment ? false : allRepairs.length > 0}
+                          disabled={limittedEquipment ? false : allRepairs?.length > 0}
                           {...field}
                           placeholder="Kilometraje"
                           value={field.value === undefined || field.value === null ? '' : field.value.toString()}
@@ -462,7 +462,7 @@ export default function RepairNewEntry({
                             <CommandList>
                               <CommandEmpty>No se encontró ningún tipo de reparación.</CommandEmpty>
                               <CommandGroup>
-                                {tipo_de_mantenimiento.map((item) => (
+                                {tipo_de_mantenimiento?.map((item) => (
                                   <CommandItem
                                     value={item.name}
                                     key={item.id}
@@ -518,7 +518,7 @@ export default function RepairNewEntry({
                 >
                   Imagenes de la reparacion
                   <CarouselContent>
-                    {Array.from({ length: 3 }).map((_, index) => (
+                    {Array.from({ length: 3 })?.map((_, index) => (
                       <CarouselItem key={crypto.randomUUID()} className="basis-1/3 ">
                         <div className="p-1">
                           <Card className="hover:cursor-pointer" onClick={() => handleCardClick(index)}>
@@ -566,7 +566,7 @@ export default function RepairNewEntry({
               </TableRow>
             </TableHeader>
             <TableBody className="overflow-x-auto">
-              {allRepairs.map((field) => {
+              {allRepairs?.map((field) => {
                 const repair = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                 return (
                   <TableRow key={field.provicionalId}>
@@ -575,8 +575,8 @@ export default function RepairNewEntry({
                         {repair?.name}
                         <div className="flex -space-x-2">
                           {field.user_images
-                            .filter((url) => url)
-                            .map((url) => (
+                            ?.filter((url) => url)
+                            ?.map((url) => (
                               <Avatar key={url} className="border-black border size-8 ">
                                 <AvatarImage src={url || ''} alt="Preview de la reparacion" />
                                 <AvatarFallback>CN</AvatarFallback>
@@ -597,7 +597,7 @@ export default function RepairNewEntry({
               })}
             </TableBody>
           </Table>
-          {allRepairs.length > 0 && (
+          {allRepairs?.length > 0 && (
             <Button
               onClick={() => {
                 createRepair();
@@ -633,7 +633,7 @@ export default function RepairNewEntry({
                   <p className="text-sm text-muted-foreground">Condicion: {vehicle?.condition}</p>
                 </div>
                 <ul className="w-full">
-                  {allRepairs.map((field, index) => {
+                  {allRepairs?.map((field, index) => {
                     const repair = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                     const maintenance = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                     const priority = criticidad.find((priority) => priority.value === repair?.criticity);
@@ -684,8 +684,8 @@ export default function RepairNewEntry({
                                   </div>
                                   <div className="flex -space-x-2 mt-2">
                                     {field.user_images
-                                      .filter((url) => url)
-                                      .map((url) => (
+                                      ?.filter((url) => url)
+                                      ?.map((url) => (
                                         <Avatar key={url} className="border-black border size-8 ">
                                           <AvatarImage src={url || ''} alt="Preview de la reparacion" />
                                           <AvatarFallback>CN</AvatarFallback>
@@ -716,7 +716,7 @@ export default function RepairNewEntry({
             </CardContent>
           </Card>
 
-          {allRepairs.length > 0 && (
+          {allRepairs?.length > 0 && (
             <Button
               onClick={() => {
                 createRepair();

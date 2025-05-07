@@ -13,7 +13,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -41,21 +40,16 @@ interface DataCctProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[] | any;
   data: TData[];
   localStorageName: string;
-  
 }
 
-export function DataGuild<TData, TValue>({
-  columns,
-  data,
-  localStorageName,
-}: DataCctProps<TData, TValue>) {
+export function DataGuild<TData, TValue>({ columns, data, localStorageName }: DataCctProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const defaultVisibleColumns = ['name'];
   const [showInactive, setShowInactive] = useState(false);
   const [defaultVisibleColumns1, setDefaultVisibleColumns1] = useState(() => {
     if (typeof window !== 'undefined') {
       const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-      return valorGuardado.length ? valorGuardado : defaultVisibleColumns;
+      return valorGuardado?.length ? valorGuardado : defaultVisibleColumns;
     }
     return defaultVisibleColumns;
   });
@@ -68,9 +62,9 @@ export function DataGuild<TData, TValue>({
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
-        columns.reduce((acc: any, column: any) => {
+        columns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
@@ -79,7 +73,7 @@ export function DataGuild<TData, TValue>({
   }, [columns]);
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})
@@ -143,13 +137,11 @@ export function DataGuild<TData, TValue>({
 
     setSelectValues({
       name: 'Todos',
-      
     });
-    
   };
   const maxRows = ['20', '40', '60', '80', '100'];
   const [selectValues, setSelectValues] = useState<{ [key: string]: string }>({});
- 
+
   return (
     <div>
       <div className="flex items-center py-4 flex-wrap gap-y-2 overflow-auto">
@@ -201,7 +193,6 @@ export function DataGuild<TData, TValue>({
                           className="capitalize  text-red-400"
                           checked={showInactive}
                           onClick={() => setShowInactive(!showInactive)}
-                          
                         >
                           {column.columnDef.header}
                         </DropdownMenuCheckboxItem>
@@ -246,8 +237,7 @@ export function DataGuild<TData, TValue>({
                                     className="max-w-sm"
                                   />
                                 </div>
-                              ) 
-                              : (
+                              ) : (
                                 <div className="flex justify-center">
                                   <Select
                                     value={selectValues[header.id]}
@@ -314,19 +304,18 @@ export function DataGuild<TData, TValue>({
                           ) : (
                             'No disponible'
                           )
-                        ) 
-                        // : cell.column.id === 'status' ? (
-                        //   <Badge variant={cell.getValue() === 'No avalado' ? 'destructive' : 'success'}>
-                        //     {cell.getValue() as React.ReactNode}
-                        //   </Badge>
-                        // ) : cell.column.id === 'domain' ? (
-                        //   !cell.getValue() ? (
-                        //     'No posee'
-                        //   ) : (
-                        //     (cell.getValue() as React.ReactNode)
-                        //   )
-                        // ) 
-                        : (
+                        ) : (
+                          // : cell.column.id === 'status' ? (
+                          //   <Badge variant={cell.getValue() === 'No avalado' ? 'destructive' : 'success'}>
+                          //     {cell.getValue() as React.ReactNode}
+                          //   </Badge>
+                          // ) : cell.column.id === 'domain' ? (
+                          //   !cell.getValue() ? (
+                          //     'No posee'
+                          //   ) : (
+                          //     (cell.getValue() as React.ReactNode)
+                          //   )
+                          // )
                           flexRender(cell.column.columnDef.cell, cell.getContext())
                         )}
                       </TableCell>
@@ -336,7 +325,7 @@ export function DataGuild<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns?.length} className="h-24 text-center">
                   {loader ? (
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between">
