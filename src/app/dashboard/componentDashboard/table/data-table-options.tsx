@@ -47,7 +47,6 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-
 const formSchema = z.object({
   reason_for_termination: z.string({
     required_error: 'La razón de la baja es requerida.',
@@ -206,7 +205,7 @@ export function DataTableOptions({ row }: any) {
   const handleDownload = async (path: string, fileName: string, resourceName: string) => {
     toast.promise(
       async () => {
-        const { data, error } = await supabase.storage.from('document_files').download(path);
+        const { data, error } = await supabase.storage.from('document-files').download(path);
 
         if (error) {
           throw new Error(handleSupabaseError(error.message));
@@ -442,4 +441,3 @@ export function DataTableOptions({ row }: any) {
     </DropdownMenu>
   );
 }
-

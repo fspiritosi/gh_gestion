@@ -12,14 +12,14 @@ import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu';
+import { FileDown } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import * as XLSX from 'xlsx';
 import { z } from 'zod';
+import InfoComponent from '../InfoComponent';
 import { Button } from '../ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from '../ui/form';
-
-import * as XLSX from 'xlsx';
-import InfoComponent from '../InfoComponent';
 
 type Checked = DropdownMenuCheckboxItemProps['checked'];
 type DiamgramParsed = {
@@ -112,21 +112,6 @@ function DiagramEmployeeView({
 
   /*---------------------INICIO DESCARGA DE ARCHIVO ---------------------------*/
 
-  function createAndDownloadFile(data: any) {
-    const mes = generarDiasEntreFechas({ fechaInicio, fechaFin });
-    // const dataToDownload = mes.map((dato: any) => ({
-    //   Empleado: '',
-    //   fecha: dato,
-    // }));
-    const dataToDownload = [{ Empleado: mes.map((dato: any) => dato) }];
-
-    const worksheet = XLSX.utils.json_to_sheet(dataToDownload);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Dates');
-
-    XLSX.writeFile(workbook, 'Diagramas.xlsx', { compression: true });
-  }
-
   useEffect(() => {
     form.reset();
     setSelectedResources([]);
@@ -142,6 +127,81 @@ function DiagramEmployeeView({
   }, []);
 
   //console.log('grupedDiagrams', groupedDiagrams);
+  function exportDiagramasToExcel(
+    groupedDiagrams: Record<string, any[]>,
+    activeEmployees: any[],
+    selectedResources: string[],
+    mes: Date[]
+  ) {
+    // 1. Preparar los datos en formato Excel
+    const dataToDownload = [];
+
+    // 2. Encabezados (primera fila)
+    const headers = ['Empleado', ...mes.map((day) => format(day, 'dd/MM', { locale: es }))];
+    dataToDownload.push(headers);
+
+    // 3. Datos de cada empleado
+    const employeesToExport =
+      selectedResources.length > 0
+        ? Object.keys(groupedDiagrams).filter((employeeId) => selectedResources.includes(employeeId))
+        : Object.keys(groupedDiagrams);
+
+    employeesToExport.forEach((employeeId) => {
+      const employeeDiagrams = groupedDiagrams[employeeId];
+      const employee = employeeDiagrams[0].employees;
+      const rowData = [`${employee.lastname}, ${employee.firstname}`];
+
+      mes.forEach((day) => {
+        const diagram = employeeDiagrams.find(
+          (d: any) => d.day === day.getDate() && d.month === day.getMonth() + 1 && d.year === day.getFullYear()
+        );
+        rowData.push(diagram?.diagram_type.short_description || '');
+      });
+
+      dataToDownload.push(rowData);
+    });
+
+    // 4. Crear hoja de cálculo
+    const worksheet = XLSX.utils.aoa_to_sheet(dataToDownload);
+
+    // 5. Añadir estilos (colores de fondo)
+    employeesToExport.forEach((_, rowIndex) => {
+      mes.forEach((_, colIndex) => {
+        const cellAddress = XLSX.utils.encode_cell({ r: rowIndex + 1, c: colIndex + 1 });
+        const employeeId = employeesToExport[rowIndex];
+        const day = mes[colIndex];
+
+        const diagram = groupedDiagrams[employeeId]?.find(
+          (d: any) => d.day === day.getDate() && d.month === day.getMonth() + 1 && d.year === day.getFullYear()
+        );
+
+        if (diagram?.diagram_type?.color) {
+          const rgbColor = hexToRgb(diagram.diagram_type.color);
+          if (!worksheet[cellAddress]) worksheet[cellAddress] = {};
+          worksheet[cellAddress].s = {
+            fill: {
+              patternType: 'solid',
+              fgColor: { rgb: rgbColor },
+              bgColor: { rgb: rgbColor },
+            },
+          };
+        }
+      });
+    });
+
+    // 6. Crear y descargar archivo
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Diagramas');
+
+    const dateStamp = format(new Date(), 'MMdd');
+    XLSX.writeFile(workbook, `Diagramas_${dateStamp}.xlsx`, { compression: true });
+  }
+
+  // Función auxiliar para convertir colores HEX a RGB (necesario para Excel)
+  function hexToRgb(hex: string) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `FF${result[1]}${result[2]}${result[3]}` : 'FFFFFFFF'; // Blanco por defecto en caso de error
+  }
 
   return (
     <div>
@@ -349,6 +409,16 @@ function DiagramEmployeeView({
                 })}
         </TableBody>
       </Table>
+      <div className="py-2 w-full flex justify-start gap-4">
+        {/* Tus controles existentes... */}
+
+        <Button
+          variant="outline"
+          onClick={() => exportDiagramasToExcel(groupedDiagrams, activeEmployees, selectedResources, mes)}
+        >
+          <FileDown className="mr-2 h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }

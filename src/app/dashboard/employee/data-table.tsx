@@ -1,12 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
@@ -22,7 +16,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
-
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
+import { ColumnVisibilityToggle } from '@/components/ColumnVisibilityToggle';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -39,11 +34,11 @@ import { useLoggedUserStore } from '@/store/loggedUser';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[] | any;
-  data: TData[];  
-  role?:string | null  
+  data: TData[];
+  role?: string | null;
 }
 
-export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableProps<TData, TValue>) {
+export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -63,10 +58,11 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
 
   useEffect(() => {
     // Filtrar las columnas basado en el rol
-    const filteredColumns = role === 'Invitado' 
-      ? columns.filter((col: any) => col.accessorKey !== 'status' && col.accessorKey !== 'allocated_to')
-      : columns;
-    
+    const filteredColumns =
+      role === 'Invitado'
+        ? columns.filter((col: any) => col.accessorKey !== 'status' && col.accessorKey !== 'allocated_to')
+        : columns;
+
     setDefaultColumns(filteredColumns);
   }, [columns, role]);
 
@@ -78,13 +74,11 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
         valorGuardado = valorGuardado.filter((col: string) => col !== 'allocated_to');
         localStorage.setItem('employeeColumns', JSON.stringify(valorGuardado));
       }
-      return valorGuardado.length ? valorGuardado : defaultVisibleColumns.filter(col => 
-        role === 'Invitado' ? col !== 'allocated_to' : true
-      );
+      return valorGuardado.length
+        ? valorGuardado
+        : defaultVisibleColumns.filter((col) => (role === 'Invitado' ? col !== 'allocated_to' : true));
     }
-    return role === 'Invitado' 
-      ? defaultVisibleColumns.filter(col => col !== 'allocated_to')
-      : defaultVisibleColumns;
+    return role === 'Invitado' ? defaultVisibleColumns.filter((col) => col !== 'allocated_to') : defaultVisibleColumns;
   });
 
   useEffect(() => {
@@ -108,10 +102,10 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
   useEffect(() => {
     // Set initial column visibility based on role
     if (role === 'Invitado') {
-      setColumnVisibility(prev => ({
+      setColumnVisibility((prev) => ({
         ...prev,
         status: false,
-        allocated_to: false
+        allocated_to: false,
       }));
     }
   }, [role]);
@@ -143,7 +137,7 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
     province: createOptions('province'),
     affiliate_status: createOptions('affiliate_status'),
     city: createOptions('city'),
-    hierrical_position: createOptions('hierrical_position'),
+    // hierrical_position: createOptions('hierrical_position'),
     workflow_diagram: createOptions('workflow_diagram'),
     status: createOptions('status'),
     guild: createOptions('guild'),
@@ -165,7 +159,7 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
     hierarchical_position: {
       name: 'hierarchical_position',
       option: allOptions.hierarchical_position,
-      label: 'Posición jerárquica',
+      label: 'Sector',
     },
     type_of_contract: {
       name: 'type_of_contract',
@@ -217,11 +211,11 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
       option: allOptions.city,
       label: 'Ciudad',
     },
-    hierrical_position: {
-      name: 'hierrical_position',
-      option: allOptions.hierrical_position,
-      label: 'Posición jerárquica',
-    },
+    // hierrical_position: {
+    //   name: 'hierrical_position',
+    //   option: allOptions.hierrical_position,
+    //   label: 'Sector',
+    // },
     workflow_diagram: {
       name: 'workflow_diagram',
       option: allOptions.workflow_diagram,
@@ -284,7 +278,7 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
       province: 'Todos',
       affiliate_status: 'Todos',
       city: 'Todos',
-      hierrical_position: 'Todos',
+      // hierrical_position: 'Todos',
       status: 'Todos',
       guild: 'Todos',
       covenants: 'Todos',
@@ -298,7 +292,7 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
 
   return (
     <div className="w-full grid grid-cols-1">
-      <div className="flex items-center py-4 flex-wrap gap-y-2 overflow-auto">
+      <div className="flex items-center py-4 pt-0 flex-wrap gap-y-2 overflow-auto">
         <Input
           placeholder="Buscar por nombre"
           value={(table.getColumn('full_name')?.getFilterValue() as string) ?? ''}
@@ -326,7 +320,7 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
             </SelectContent>
           </Select>
 
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Columnas</Button>
             </DropdownMenuTrigger>
@@ -367,7 +361,9 @@ export function EmployeesTable<TData, TValue>({ columns, data,role }: DataTableP
                   );
                 })}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
+
+          <ColumnVisibilityToggle table={table} storageKey="employeeColumns" role={role} />
           {/* <BtnXlsDownload fn={(data: any) => data} dataToDownload={data} nameFile={'Empleados'} /> */}
         </div>
       </div>

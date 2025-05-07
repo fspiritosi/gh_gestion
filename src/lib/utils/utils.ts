@@ -1,4 +1,3 @@
-import { id } from 'date-fns/locale';
 import {
   CompaniesTableOptions,
   DocumentsTableOptions,
@@ -67,7 +66,7 @@ export const setEmployeesToShow = (employees: any) => {
       cuil: employees?.cuil,
       document_number: employees?.document_number,
       hierarchical_position: employees?.hierarchical_position?.name,
-      company_position: employees?.company_position,
+      company_position: employees?.company_position?.name,
       normal_hours: employees?.normal_hours,
       type_of_contract: employees?.type_of_contract,
       allocated_to: employees?.allocated_to,
@@ -83,10 +82,12 @@ export const setEmployeesToShow = (employees: any) => {
       street: employees?.street,
       street_number: employees?.street_number,
       province: employees?.province?.name?.trim(),
+      country: employees?.country?.name?.trim(),
       postal_code: employees?.postal_code,
       phone: employees?.phone,
       file: employees?.file,
       date_of_admission: employees?.date_of_admission,
+      born_date: employees?.born_date,
       affiliate_status: employees?.affiliate_status,
       city: employees?.city?.name?.trim(),
       hierrl_position: employees?.hierarchical_position?.name,
@@ -100,9 +101,10 @@ export const setEmployeesToShow = (employees: any) => {
       guild_id: employees?.guild?.id,
       covenants_id: employees?.covenant?.id,
       category_id: employees?.category?.id,
-      guild: employees?.guild?.name,
-      covenants: employees?.covenant?.name,
-      category: employees?.category?.name,
+      guild: employees?.guild_id?.name,
+      covenants: employees?.covenants_id?.name,
+      category: employees?.category_id?.name,
+      cost_center_id: employees?.cost_center_id,
     };
   });
 

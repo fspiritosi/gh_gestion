@@ -297,6 +297,11 @@ export const accordionSchema = z
     nationality: z.string({
       required_error: 'La nacionalidad es requerida',
     }),
+    born_date: z
+      .date({
+        required_error: 'La fecha de nacimiento es requerida',
+      })
+      .or(z.string()),
     cuil: z
       .string({ required_error: 'El cuil es requerido' })
       .refine((value) => /^\d{11}$/.test(value), {
@@ -420,6 +425,7 @@ export const accordionSchema = z
         required_error: 'La fecha de ingreso es requerida',
       })
       .or(z.string()),
+    cost_center_id: z.string().optional(),
   })
   .superRefine((data, context) => {
     if (!data.cuil.includes(data.document_number)) {
@@ -773,25 +779,30 @@ export const covenantSchema = z.object({
   category: z.string().optional(),
 });
 
-export const dailyReportSchema = z.object({
-  customer: z.string().nonempty('El cliente es obligatorio'),
-  services: z.string().nonempty('El servicio es obligatorio'),
-  item: z.string().nonempty('El item es obligatorio'),
-  employees: z.array(z.string()).optional(),
-  equipment: z.array(z.string()).optional(),
-  working_day: z.string().optional(),
-  start_time: z.string().optional(),
-  end_time: z.string().optional(),
-  status: z.string().optional(),
-  description: z.string().optional(),
-  document_path: z.string().optional(),
-}).refine((data) => {
-  if (data.working_day === 'por horario') {
-    return data.start_time && data.end_time;
-  }
-  return true;
-}, {
-  message: 'Debe ingresar start_time y end_time si working_day es igual a "por horario".',
-  path: ['start_time', 'end_time'],
-});
+export const dailyReportSchema = z
+  .object({
+    customer: z.string().nonempty('El cliente es obligatorio'),
+    services: z.string().nonempty('El servicio es obligatorio'),
+    item: z.string().nonempty('El item es obligatorio'),
+    employees: z.array(z.string()).optional(),
+    equipment: z.array(z.string()).optional(),
+    working_day: z.string().optional(),
+    start_time: z.string().optional(),
+    end_time: z.string().optional(),
+    status: z.string().optional(),
+    description: z.string().optional(),
+    document_path: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.working_day === 'por horario') {
+        return data.start_time && data.end_time;
+      }
+      return true;
+    },
+    {
+      message: 'Debe ingresar start_time y end_time si working_day es igual a "por horario".',
+      path: ['start_time', 'end_time'],
+    }
+  );
 export type SharedCompanies = z.infer<typeof SharedCompaniesSchema>;

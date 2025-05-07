@@ -53,9 +53,9 @@ import { cn } from '@/lib/utils';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import JSZip from 'jszip';
 import { ArrowUpDown, DownloadIcon } from 'lucide-react';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import moment from 'moment';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -239,13 +239,13 @@ export function ExpiredDataTable<TData, TValue>({
       return; // Clase por defecto si no está vencido
     } else {
       if (!row.original.validity) return;
-  
+
       const validityDateStr = row.original.validity; // Obtener la fecha en formato "dd/mm/yyyy"
 
       const validityDate = moment(validityDateStr);
       const currentDate = moment();
       const differenceInDays = validityDate.diff(currentDate, 'days');
-  
+
       if (differenceInDays < 0) {
         return 'bg-red-100 dark:bg-red-100/30 hover:bg-red-100/30'; // Vencido
       } else if (differenceInDays <= 7) {
@@ -268,7 +268,7 @@ export function ExpiredDataTable<TData, TValue>({
 
         const files = await Promise.all(
           documentToDownload?.map(async (doc: any) => {
-            const { data, error } = await supabase.storage.from('document_files').download(doc.document_url);
+            const { data, error } = await supabase.storage.from('document-files').download(doc.document_url);
 
             if (error) {
               // console.log('Salio este error', error);
@@ -303,16 +303,16 @@ export function ExpiredDataTable<TData, TValue>({
   };
 
   return (
-    <div className="mb-10 grid px-4 rounded-lg max-w-[100vw] overflow-x-auto">
+    <div className="mb-10 grid rounded-lg max-w-[100vw] overflow-x-auto">
       <div className="flex justify-between items-end">
         <div className="flex flex-wrap items-end pb-4 gap-y-4 overflow-x-auto w-full">
           <Input
             placeholder={vehicles ? 'Buscar por dominio o numero interno' : 'Buscar por nombre de empleado'}
             value={(table.getColumn('resource')?.getFilterValue() as string) ?? ''}
             onChange={(event) => table.getColumn('resource')?.setFilterValue(event.target.value)}
-            className="max-w-sm ml-2"
+            className="max-w-sm"
           />
-          <div className="flex items-start gap-2 flex-wrap gap-y-2 justify-start">
+          <div className="flex items-start gap-2 flex-wrap justify-start">
             <Button variant="outline" size="default" className="ml-2 self-end" onClick={handleClearFilters}>
               Limpiar filtros
             </Button>

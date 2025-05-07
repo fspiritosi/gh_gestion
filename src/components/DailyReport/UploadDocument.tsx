@@ -46,7 +46,7 @@
 //         const fileName = `${day}-${remitoNumber}.${fileExtension}`;
 
 //         const { data, error } = await supabase.storage
-//             .from('daily_reports')
+//             .from('daily-reports')
 //             .upload(`${filePath}/${fileName}`, selectedFile, { cacheControl: '10', upsert: true});
 
 //         if (error) {
@@ -185,7 +185,7 @@ const UploadDocument: React.FC<UploadDocumentProps> = ({
       // const erroneousFilePath = `${companyName}/erroneos/${currentFilePath}`;
 
       const { error: moveError } = await supabase.storage
-        .from('daily_reports')
+        .from('daily-reports')
         .move(currentFilePath!, erroneousFilePath);
       {
         upsert: true;
@@ -199,7 +199,7 @@ const UploadDocument: React.FC<UploadDocumentProps> = ({
     }
 
     const { data, error } = await supabase.storage
-      .from('daily_reports')
+      .from('daily-reports')
       .upload(`${filePath}/${fileName}`, selectedFile, { cacheControl: '10', upsert: true });
 
     if (error) {

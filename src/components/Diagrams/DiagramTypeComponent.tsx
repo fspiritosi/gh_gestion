@@ -1,9 +1,8 @@
 'use client';
+import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
-import { Button } from '@/components/ui/button';
-
+import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { useEffect, useState } from 'react';
 import { DiagramNewTypeForm } from './DiagramNewTypeForm';
 
@@ -11,13 +10,15 @@ import BtnXlsDownload from '../BtnXlsDownload';
 
 function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[] }) {
   const [selectDiagramType, setSelectDiagramType] = useState<{}>({});
+  const [diagramToEdit, setDiagramToEdit] = useState(false);
+  const [filteredData, setFilteredData] = useState<any[]>([]);
 
   function setDiagram(data: any) {
     setSelectDiagramType(data);
   }
 
   function createDataToDownload(data: any) {
-    const dataToDownload = data.map((dato: any) => ({
+    const dataToDownload = data?.map((dato: any) => ({
       nombre: dato.name,
       color: dato.color,
       descCorta: dato.short_description,
@@ -27,16 +28,28 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   }
 
   useEffect(() => {
-    setSelectDiagramType({});
-  }, []);
+    if (Object.keys(selectDiagramType).length === 0) {
+      setDiagramToEdit(false);
+    } else {
+      setDiagramToEdit(true);
+    }
+  }, [selectDiagramType]);
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="pt-6">
+    <ResizablePanelGroup direction="horizontal" className="">
       <ResizablePanel>
-        <DiagramNewTypeForm selectedDiagram={selectDiagramType} />
+        <DiagramNewTypeForm
+          selectedDiagram={selectDiagramType}
+          diagramToEdit={diagramToEdit}
+          setDiagramToEdit={setDiagramToEdit}
+        />
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel className="pl-6 min-w-[600px]" defaultSize={70}>
+        <div className="flex justify-between">
+          <h2 className="text-xl font-bold">Tipos de Novedades</h2>
+          <VerActivosButton data={diagrams_types} filterKey="is_active" onFilteredChange={setFilteredData} />
+        </div>
         <Table>
           <TableCaption>Lista de novedades de diagrama</TableCaption>
           <TableHeader>
@@ -50,7 +63,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
             </TableRow>
           </TableHeader>
           <TableBody>
-            {diagrams_types.map((diagramType: any) => (
+            {filteredData?.map((diagramType: any) => (
               <TableRow key={diagramType.name}>
                 <TableCell>{diagramType.name}</TableCell>
 

@@ -157,7 +157,7 @@ export default function MultiResourceDocument({
         const tableName = resource === 'equipo' ? 'documents_equipment' : 'documents_employees';
 
         const { data } = await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .list(`${formatedCompanyName}-(${currentCompany?.company_cuit})/multirecursos/${formatedAppliesPath}/`, {
             search: `${formatedDocumentTypeName}`,
           });
@@ -197,7 +197,7 @@ export default function MultiResourceDocument({
         });
 
         await supabase.storage
-          .from('document_files')
+          .from('document-files')
           .upload(
             `${formatedCompanyName}-(${currentCompany?.company_cuit})/multirecursos/${formatedAppliesPath}/${formatedDocumentTypeName}-(${hasExpiredDate}).${fileExtension}`,
             file,

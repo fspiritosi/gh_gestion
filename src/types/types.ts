@@ -123,6 +123,7 @@ export type Employee = {
   lastname: string;
   firstname: string;
   nationality: string | undefined;
+  born_date: Date | undefined | string;
   cuil: string; //!si
   document_type: string | undefined;
   document_number: string; //!si
@@ -697,6 +698,25 @@ export type FormattedGuild = {
   type: 'sindicato';
   id: string;
   children: FormattedCovenant[];
+};
+
+export type WorkDiagram = {
+  id: string;
+  name: string;
+  is_active: boolean;
+  active_working_days: number;
+  inactive_working_days: number;
+  active_novelty: string | undefined;
+  inactive_novelty: string | undefined;
+  company_id: string;
+  created_at: string;
+};
+export type Position = {
+  id: string;
+  created_at: string;
+  name: string;
+  hierarchical_position_id: string;
+  is_active: boolean;
 };
 
 // Tipo para la función de salida completa

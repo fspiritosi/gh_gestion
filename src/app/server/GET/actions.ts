@@ -72,7 +72,7 @@ export const fetchSingEmployee = async (employeesId: string) => {
     return null;
   }
 
-  const data2 = supabase.storage.from('document_files').getPublicUrl(employeeSingDocument?.[0]?.document_path || '');
+  const data2 = supabase.storage.from('document-files').getPublicUrl(employeeSingDocument?.[0]?.document_path || '');
 
   console.log('data', data2);
 
@@ -107,17 +107,26 @@ export const fetchAllEmployees = async (role?: string) => {
   if (role === 'Invitado') {
     const { data, error } = await supabase
       .from('share_company_users')
-      .select(`*,customer_id(*,contractor_employee(*,employee_id(*)))`)
+      .select(
+        `*,
+        customer_id(*,contractor_employee(*,employee_id(*)))`
+      )
       .eq('profile_id', user?.id || '')
       .eq('company_id', company_id)
       .returns<ShareCompanyUsersWithRelations[]>();
 
     const employees = data?.[0].customer_id?.contractor_employee;
     const allEmployees = employees?.map((employee) => employee.employee_id);
+
     return allEmployees || [];
   }
 
-  const { data, error } = await supabase.from('employees').select('*').eq('company_id', company_id);
+  const { data, error } = await supabase
+    .from('employees')
+    .select(
+      '*,guild_id(name),covenants_id(name),category_id(name),company_position(name),hierarchical_position(name),city(name),province(name),workflow_diagram(name),birthplace(name)'
+    )
+    .eq('company_id', company_id);
 
   if (error) {
     console.error('Error fetching employees:', error);
@@ -437,21 +446,21 @@ export const getDocumentEmployeesById = async (id: string) => {
           `
     )
     .eq('id', id);
-    return documents_employee;
-}
+  return documents_employee;
+};
 export const getDocumentEquipmentById = async (id: string) => {
   const supabase = supabaseServer();
   let { data: documents_vehicle } = await supabase
-      .from('documents_equipment')
-      .select(
-        `
+    .from('documents_equipment')
+    .select(
+      `
       *,
       document_types(*),
       applies(*,brand(name),model(name),type_of_vehicle(name), company_id(*,province_id(name)))`
-      )
-      .eq('id', id);
-      return documents_vehicle;
-}
+    )
+    .eq('id', id);
+  return documents_vehicle;
+};
 // Equipment-related actions
 export const fetchAllEquipment = async (company_equipment_id?: string) => {
   const cookiesStore = cookies();
@@ -621,21 +630,21 @@ export const fetchEquipmentById = async (id: string) => {
   if (!company_id) return [];
 
   const { data: vehicleData, error } = await supabase
-      .from('vehicles')
-      .select('*, brand_vehicles(name), model_vehicles(name),types_of_vehicles(name),type(name)')
-      .eq('id', id);
+    .from('vehicles')
+    .select('*, brand_vehicles(name), model_vehicles(name),types_of_vehicles(name),type(name)')
+    .eq('id', id);
 
   if (error) console.log('eroor', error);
 
   const vehicle = vehicleData?.map((item: any) => ({
-      ...item,
-      type_of_vehicle: item.types_of_vehicles.name,
-      brand: item.brand_vehicles.name,
-      model: item.model_vehicles.name,
-      type: item.type.name,
-    }));
-    return vehicle;
-}
+    ...item,
+    type_of_vehicle: item.types_of_vehicles.name,
+    brand: item.brand_vehicles.name,
+    model: item.model_vehicles.name,
+    type: item.type.name,
+  }));
+  return vehicle;
+};
 // Repair-related actions
 export const fetchAllOpenRepairRequests = async () => {
   const cookiesStore = cookies();
@@ -953,18 +962,39 @@ export const fetchDiagramsByEmployeeId = async (employeeId: string) => {
 };
 
 export const fetchDiagramsTypes = async () => {
-  const supabase = supabaseServer();
   const cookiesStore = cookies();
+  const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
+  console.log(company_id, 'company_id');
   if (!company_id) return [];
   const { data, error } = await supabase
     .from('diagram_type')
     .select('*')
     .eq('company_id', company_id || '');
 
+  console.log(data, 'data');
+
+  console.log(error, 'error');
+
   if (error) {
     console.error('Error fetching diagrams types:', error);
     return [];
   }
   return data;
+};
+
+export const fetchAllProvinces = async () => {
+  try {
+    const supabase = supabaseServer();
+    const { data, error } = await supabase.from('provinces').select('*');
+
+    if (error) {
+      console.error('Error fetching provinces:', error);
+      return [];
+    }
+    return data;
+  } catch (error) {
+    console.error('Error fetching provinces:', error);
+    return [];
+  }
 };

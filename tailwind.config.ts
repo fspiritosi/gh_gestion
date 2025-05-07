@@ -15,8 +15,8 @@ const config = {
     },
     extend: {
       boxShadow: {
-        'custom-white': '10px 10px 0px 10px hsl(var(--muted))',
-        'custom-white-inverted': '10px -10px 0 10px hsl(var(--muted))',
+        'custom-white': '10px 10px 0px 10px hsl(--slate-700)',
+        'custom-white-inverted': '10px -10px 0 10px hsl(var(--slate-700))',
       },
       width: {
         'sidebar-open': '16rem', // w-64
@@ -26,7 +26,10 @@ const config = {
         cardMedia: '1227px',
       },
       colors: {
-        codecontrol: '#3597C7',
+        gh_contrast: '#e8e8e8',
+        gh: '#fff',
+        gh_orange: '#ff9800',
+        gh_dark_bg: 'hsl(var(--slate-700))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

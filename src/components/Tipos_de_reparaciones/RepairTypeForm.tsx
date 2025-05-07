@@ -171,7 +171,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     <ResizablePanelGroup direction="horizontal" className="pt-6">
       <ResizablePanel>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(selectedRepair ? onUpdate : onSubmit)} className="space-y-8 p-3">
+          <form onSubmit={form.handleSubmit(selectedRepair ? onUpdate : onSubmit)} className="space-y-4 pt-3 pr-3">
             <FormField
               control={form.control}
               name="name"
@@ -342,7 +342,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
                   <TableCell>{repair.name}</TableCell>
                   <TableCell>{repair.type_of_maintenance}</TableCell>
                   <TableCell className="font-medium">
-                    <Badge variant={badgeVariant} className='font-bold'>
+                    <Badge variant={badgeVariant} className="font-bold">
                       {' '}
                       {priority?.icon && <priority.icon className="mr-2 h-4 w-4 font-bold" />}
                       {repair.criticity}

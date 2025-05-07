@@ -33,7 +33,7 @@ export default function InitState({
       useLoggedUserStore.setState({ credentialUser: user });
       //profile
       useLoggedUserStore.setState({ profile: credentialUser || [] });
-      useLoggedUserStore.setState({ codeControlRole: credentialUser?.[0].role });
+      useLoggedUserStore.setState({ codeControlRole: credentialUser?.[0]?.role });
       //companies
       useLoggedUserStore.setState({ sharedCompanies: share_company_users as SharedCompanies });
       const role = share_company_users?.find((e: any) => e.profile_id === user?.id);
@@ -52,7 +52,6 @@ export default function InitState({
         const company = share_company_users?.find(
           (company: any) => company.company_id.id === JSON.parse(savedCompany)
         )?.company_id;
-
 
         if (company) {
           useLoggedUserStore.getState().setActualCompany(company);

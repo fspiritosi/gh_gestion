@@ -9,6 +9,7 @@ import { cookies } from 'next/headers';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getRole } from '@/lib/utils/getRole';
 import VehiclesForm, { generic } from '../../../../components/VehiclesForm';
+import { fetchAllCostCenter } from '../../employee/action/actions/actions';
 
 export default async function EquipmentFormAction({ searchParams }: { searchParams: any }) {
   const supabase = supabaseServer();
@@ -57,6 +58,8 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
     .select('*')
     .or(`company_id.eq.${company_id?.value},company_id.is.null`);
 
+  const allCostCenter = await fetchAllCostCenter();
+
   const role = await getRole();
   console.log('role action equipment', role);
   return (
@@ -72,12 +75,14 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
           vehicle={vehicle?.[0]}
           types={types as generic[]}
           brand_vehicles={brand_vehicles}
+          allCostCenter={allCostCenter}
         >
           <TabsContent value="documents">
             <DocumentEquipmentComponent id={vehicle?.[0]?.id} role={role as string} />
           </TabsContent>
           <TabsContent value="repairs" className="px-3 py-2">
             <RepairTypes
+              tabValue="created_solicitudes"
               equipment_id={searchParams.id}
               type_of_repair_new_entry
               created_solicitudes

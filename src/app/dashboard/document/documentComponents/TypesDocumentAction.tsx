@@ -22,7 +22,11 @@ function TypesDocumentAction({ optionChildrenProp }: { optionChildrenProp: strin
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild className="mr-4">
-        {role !== 'Invitado' && <Button>Crear nuevo</Button>}
+        {role !== 'Invitado' && (
+          <Button variant="gh_orange" size={'sm'} className="font-semibold">
+            Crear Documento
+          </Button>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

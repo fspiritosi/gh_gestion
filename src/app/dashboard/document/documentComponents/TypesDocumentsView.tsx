@@ -5,15 +5,20 @@ import { useCountriesStore } from '@/store/countries';
 import { useState } from 'react';
 import DocumentsTable from './DocumentsTable'; // Asumo que este componente existe
 import FilterHeader from './FilterComponent';
+import TypesDocumentAction from './TypesDocumentAction';
 
 function TypesDocumentsView({
   personas,
   equipos,
   empresa,
+  tabValue,
+  subtab,
 }: {
   personas?: boolean;
   equipos?: boolean;
   empresa?: boolean;
+  tabValue?: string;
+  subtab?: string;
 }) {
   const document_types = useCountriesStore((state) => state.companyDocumentTypes);
 
@@ -81,14 +86,101 @@ function TypesDocumentsView({
   const optionValue =
     personas && equipos && empresa ? 'Personas' : personas ? 'Personas' : equipos ? 'Equipos' : 'Empresa';
 
+  const viewData = {
+    defaultValue: subtab || (personas ? 'Personas' : equipos ? 'Equipos' : 'Empresa'),
+    path: '/dashboard/document/types',
+    tabsValues: [
+      ...(personas
+        ? [
+            {
+              value: 'Personas',
+              name: `Personas (${filteredDocPersonas?.length ?? 0})`,
+              tab: tabValue,
+              restricted: [''],
+              content: {
+                title: 'Documentos de Personas',
+                description: '',
+                buttonActioRestricted: [''],
+                buttonAction: '',
+                component: (
+                  <DocumentsTable data={filteredDocPersonas} filters={filters.personas}>
+                    <FilterHeader
+                      filters={filters.personas}
+                      docOptions={docOptions}
+                      onFilterChange={(name, value) => handleFilterChange('personas', name, value)}
+                    />
+                  </DocumentsTable>
+                ),
+              },
+            },
+          ]
+        : []),
+      ...(equipos
+        ? [
+            {
+              value: 'Equipos',
+              name: `Equipos (${filteredDocEquipos?.length ?? 0})`,
+              tab: tabValue,
+              restricted: [''],
+              content: {
+                title: 'Documentos de Equipos',
+                description: '',
+                buttonActioRestricted: [''],
+                buttonAction: '',
+                component: (
+                  <DocumentsTable data={filteredDocEquipos} filters={filters.equipos}>
+                    <FilterHeader
+                      filters={filters.equipos}
+                      docOptions={docOptions}
+                      onFilterChange={(name, value) => handleFilterChange('equipos', name, value)}
+                    />
+                  </DocumentsTable>
+                ),
+              },
+            },
+          ]
+        : []),
+      ...(empresa
+        ? [
+            {
+              value: 'Empresa',
+              name: `Empresa (${filteredDocEmpresa?.length ?? 0})`,
+              tab: tabValue,
+              restricted: [''],
+              content: {
+                title: 'Documentos de Empresa',
+                description: '',
+                buttonActioRestricted: [''],
+                buttonAction: '',
+                component: (
+                  <DocumentsTable data={filteredDocEmpresa} filters={filters.empresa}>
+                    <FilterHeader
+                      filters={filters.empresa}
+                      docOptions={docOptions}
+                      onFilterChange={(name, value) => handleFilterChange('empresa', name, value)}
+                    />
+                  </DocumentsTable>
+                ),
+              },
+            },
+          ]
+        : []),
+    ],
+  };
+
   return (
-    <CardContent>
+    <CardContent className="px-0 pt-1">
       <Tabs defaultValue={optionValue} className="w-full">
-        <TabsList>
-          {personas && <TabsTrigger value="Personas">Personas ({filteredDocPersonas?.length})</TabsTrigger>}
-          {equipos && <TabsTrigger value="Equipos">Equipos ({filteredDocEquipos?.length})</TabsTrigger>}
-          {empresa && <TabsTrigger value="Empresa">Empresa ({filteredDocEmpresa?.length})</TabsTrigger>}
-        </TabsList>
+        <div className="flex flex-col w-fit gap-2">
+          <TabsList className="w-fit">
+            {personas && <TabsTrigger value="Personas">Personas ({filteredDocPersonas?.length})</TabsTrigger>}
+            {equipos && <TabsTrigger value="Equipos">Equipos ({filteredDocEquipos?.length})</TabsTrigger>}
+            {empresa && <TabsTrigger value="Empresa">Empresa ({filteredDocEmpresa?.length})</TabsTrigger>}
+          </TabsList>
+          <div>
+            <TypesDocumentAction optionChildrenProp="Persona" />
+          </div>
+        </div>
         {personas && (
           <TabsContent value="Personas">
             <DocumentsTable data={filteredDocPersonas} filters={filters.personas}>

@@ -55,7 +55,7 @@ import { Separator } from './ui/separator';
 export default function NavBar() {
   const sharedCompanies = useLoggedUserStore((state) => state.sharedCompanies);
   const allCompanies = useLoggedUserStore((state) => state.allCompanies);
-  const actualCompany = useLoggedUserStore((state) => state.actualCompany)
+  const actualCompany = useLoggedUserStore((state) => state.actualCompany);
   const setNewDefectCompany = useLoggedUserStore((state) => state.setNewDefectCompany);
   const supabase = supabaseBrowser();
   const actualUser = useLoggedUserStore((state) => state.profile);
@@ -148,14 +148,14 @@ export default function NavBar() {
   };
 
   return (
-    <nav className=" flex flex-shrink items-center justify-end sm:justify-between  text-white pr-4 py-4 mb-2">
+    <nav className=" flex flex-shrink items-center justify-end sm:justify-between  text-white pr-4 py-4 mb-2 ">
       <div className=" items-center hidden sm:flex gap-6">
         <button onClick={handleCloseSidebar} className="text-white relative w-fit ml-7 ">
-          <HamburgerMenuIcon className="size-8 text-black font-bold" />
+          <HamburgerMenuIcon className="size-8 text-black font-bold dark:text-white" />
         </button>
         <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className="text-black dark:text-white">
+            <PopoverTrigger asChild className="text-black dark:text-white dark:bg-slate-800">
               <Button
                 variant="outline"
                 role="combobox"
@@ -164,7 +164,11 @@ export default function NavBar() {
                 className={'min-w-[200px] justify-between'}
               >
                 <Avatar className="mr-2 size-5 rounded-full">
-                  <AvatarImage src={actualCompany?.company_logo} alt={actualCompany?.company_name} className="size-5 object-contain" />
+                  <AvatarImage
+                    src={actualCompany?.company_logo}
+                    alt={actualCompany?.company_name}
+                    className="size-5 object-contain"
+                  />
                   <AvatarFallback className="uppercase">
                     {!actualCompany && <Loader className="animate-spin" />}
                     {actualCompany &&
@@ -196,7 +200,11 @@ export default function NavBar() {
                           className="text-sm"
                         >
                           <Avatar className="mr-2 h-5 w-5 object-contain ">
-                            <AvatarImage src={team.logo} alt={team.label} className="size-5 rounded-full object-contain" />
+                            <AvatarImage
+                              src={team.logo}
+                              alt={team.label}
+                              className="size-5 rounded-full object-contain"
+                            />
                             <AvatarFallback>compañia</AvatarFallback>
                           </Avatar>
                           {team.label}

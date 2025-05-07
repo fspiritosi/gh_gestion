@@ -42,10 +42,9 @@ export function DataTableToolbarExpiringDocument<TData>({ table }: DataTableTool
           .rows.map((row) => row.original)
           .filter((row: any) => row.state !== 'pendiente') as any;
 
-
         const files = await Promise.all(
           documentToDownload?.map(async (doc: any) => {
-            const { data, error } = await supabase.storage.from('document_files').download(doc.document_url);
+            const { data, error } = await supabase.storage.from('document-files').download(doc.document_url);
 
             if (error) {
               // console.log('Salio este error', error);
