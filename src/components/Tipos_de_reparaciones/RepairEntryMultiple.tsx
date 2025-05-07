@@ -362,7 +362,7 @@ export default function RepairNewEntryMultiple({
                                   const isSelected = selectedEquipmentss?.includes(equip.id);
                                   return (
                                     <CommandItem
-                                      value={equip.domain ?? equip.serie}
+                                      value={equip.domain || equip.serie || ''}
                                       key={equip.intern_number}
                                       onSelect={() => {
                                         const updatedEquipment = isSelected
