@@ -1,8 +1,10 @@
 'use client';
 import { Label, Pie, PieChart } from 'recharts';
 
+import { fetchAllEquipmentWithBrand } from '@/app/server/GET/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { fetchAllEmployees } from '@/shared/actions/employees.actions';
 import cookie from 'js-cookie';
 import { useEffect, useState } from 'react';
 
@@ -58,8 +60,10 @@ export function ResoursesChart() {
 
   useEffect(() => {
     async function getResources() {
-      const { employees } = await fetch(`${URL}/api/employees?actual=${company_id}`).then((e) => e.json());
-      const { equipments } = await fetch(`${URL}/api/equipment?actual=${company_id}`).then((e) => e.json());
+      // const { employees } = await fetch(`${URL}/api/employees?actual=${company_id}`).then((e) => e.json());
+      const employees = await fetchAllEmployees();
+      // const { equipments } = await fetch(`${URL}/api/equipment?actual=${company_id}`).then((e) => e.json());
+      const equipments = await fetchAllEquipmentWithBrand();
 
       setData({
         totalResourses: employees?.length + equipments?.length,

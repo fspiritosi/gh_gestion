@@ -1,9 +1,7 @@
 'use client';
-import { fetchAllProvinces } from '@/app/server/GET/actions';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { fechAllCustomers, fetchAreasWithProvinces } from '@/features/Empresa/Clientes/actions/create';
+import { fechAllCustomers } from '@/features/Empresa/Clientes/actions/create';
 import { useEffect, useState } from 'react';
-import { AreaTableSkeleton } from './area_clientes/AreaTableSkeleton';
 import AreaForm from './area_clientes/areaForm';
 import AreaTable from './area_clientes/areaTable';
 
@@ -27,32 +25,31 @@ interface Cliente {
   name: string;
 }
 
-function CustomerTab() {
-  const [customers, setCustomers] = useState<Cliente[]>([]);
-  const [provinces, setProvinces] = useState<any[]>([]);
-  const [areas, setAreas] = useState<any[]>([]);
+function CustomerTab({ customers2, provinces, areas }: { customers2: Cliente[]; provinces: any[]; areas: any[] }) {
+  const [customers, setCustomers] = useState<Cliente[]>(customers2);
+  // const [provinces, setProvinces] = useState<any[]>([]);
+  // const [areas, setAreas] = useState<any[]>([]);
   const [selectedArea, setSelectedArea] = useState<any | null>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
-  const [isLoading, setIsLoading] = useState(true);
 
   // Carga los datos al montar el componente
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const { customers } = await fechAllCustomers();
-        const provinces = await fetchAllProvinces();
-        const areas = await fetchAreasWithProvinces();
+  // useEffect(() => {
+  // const loadData = async () => {
+  // try {
+  // const { customers } = await fechAllCustomers();
+  // const provinces = await fetchAllProvinces();
+  // const areas = await fetchAreasWithProvinces();
 
-        setCustomers(customers || []);
-        setProvinces(provinces || []);
-        setAreas(areas.areasWithProvinces || []);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error cargando datos:', error);
-      }
-    };
-    loadData();
-  }, []);
+  // setCustomers(customers || []);
+  // setProvinces(provinces || []);
+  //       // setAreas(areas.areasWithProvinces || []);
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       console.error('Error cargando datos:', error);
+  //     }
+  //   };
+  //   loadData();
+  // }, []);
 
   // Lógica para actualizar clientes cuando cambia selectedArea
   useEffect(() => {
@@ -84,17 +81,13 @@ function CustomerTab() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={60}>
-          {!isLoading ? (
-            <AreaTable
-              areas={formatedAreas}
-              selectedArea={selectedArea}
-              setSelectedArea={setSelectedArea}
-              setMode={setMode}
-              mode={mode}
-            />
-          ) : (
-            <AreaTableSkeleton />
-          )}
+          <AreaTable
+            areas={formatedAreas}
+            selectedArea={selectedArea}
+            setSelectedArea={setSelectedArea}
+            setMode={setMode}
+            mode={mode}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

@@ -1,4 +1,5 @@
-import { Customers, Employee, Equipment, Items, Services } from '@/components/DailyReport/DailyReport';
+import { fetchAllEquipmentWithBrand } from '@/app/server/GET/actions';
+import { Customers, Employee, Items, Services } from '@/components/DailyReport/DailyReport';
 import {
   getCustomerName,
   getEmployeeNames,
@@ -31,7 +32,7 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   services?: Services[];
   items?: Items[];
   employees?: Employee[];
-  equipment?: Equipment[];
+  equipment?: Awaited<ReturnType<typeof fetchAllEquipmentWithBrand>>;
   options: {
     label: string;
     value: string;

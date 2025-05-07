@@ -1,4 +1,5 @@
-import { Customers, Employee, Equipment, Items, Services } from '../DailyReport';
+import { fetchAllEquipmentWithBrand } from '@/app/server/GET/actions';
+import { Customers, Employee, Items, Services } from '../DailyReport';
 
 export const getCustomerName = (customerId: string, customers: Customers[]): string => {
   const customer = customers?.find((c) => c.id === customerId);
@@ -24,7 +25,10 @@ export const getEmployeeNames = (employeeIds: string[], employees: Employee[]) =
     .join(', ');
 };
 
-export const getEquipmentNames = (equipmentIds: string[], equipment: Equipment[]) => {
+export const getEquipmentNames = (
+  equipmentIds: string[],
+  equipment: Awaited<ReturnType<typeof fetchAllEquipmentWithBrand>>
+) => {
   return equipmentIds
     ?.map((id) => {
       const eq = equipment?.find((e) => e.id === id);

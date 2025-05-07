@@ -1,4 +1,4 @@
-import { fetchAllEquipment, fetchCustomForms } from '@/app/server/GET/actions';
+import { fetchAllEquipment, fetchAllEquipmentWithBrand, fetchCustomForms } from '@/app/server/GET/actions';
 import QrActionSelector from '@/components/QR/AcctionSelector';
 import { supabaseServer } from '@/lib/supabase/server';
 import { setVehiclesToShow } from '@/lib/utils/utils';
@@ -28,7 +28,8 @@ export default async function Home({
   }
 
   let role: any;
-  const { equipments } = await fetch(`${URL}/api/equipment/${params.id}`).then((e) => e.json());
+  // const { equipments } = await fetch(`${URL}/api/equipment/${params.id}`).then((e) => e.json());
+  const equipments = await fetchAllEquipmentWithBrand();
 
   if (user?.id) {
     const { shared_user } = await fetch(
@@ -56,9 +57,9 @@ export default async function Home({
 
   const vehiclesFormatted = setVehiclesToShow(equipments || []) || [];
 
-  const checklists = await fetchCustomForms(equipments[0].company_id);
+  const checklists = await fetchCustomForms(equipments[0]?.company_id || '');
 
-  const equipmentsForComboBox = (await fetchAllEquipment(equipments[0].company_id)).map((equipment) => ({
+  const equipmentsForComboBox = (await fetchAllEquipment(equipments[0].company_id || '')).map((equipment) => ({
     label: equipment.domain
       ? `${equipment.domain} - ${equipment.intern_number}`
       : `${equipment.serie} - ${equipment.intern_number}`,
