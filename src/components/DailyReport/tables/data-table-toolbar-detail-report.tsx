@@ -1,29 +1,20 @@
 'use client';
 
-import { DataTableFacetedFilter } from '@/components/DailyReport/tables/data-table-faceted-filter';
 import { DataTableViewOptions } from '@/components/CheckList/tables/data-table-view-options';
-import { Button } from '@/components/ui/button';
-import {
-  CalendarIcon,
-  CheckIcon,
-  Cross2Icon,
-  FileTextIcon,
-  GearIcon,
-  PersonIcon,
-} from '@radix-ui/react-icons';
-import { Table } from '@tanstack/react-table';
-import { useState, useEffect } from 'react';
-import moment from 'moment';
 import { DatePicker } from '@/components/DailyReport/DatePicker';
+import { DataTableFacetedFilter } from '@/components/DailyReport/tables/data-table-faceted-filter';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon, CheckIcon, Cross2Icon, FileTextIcon, GearIcon, PersonIcon } from '@radix-ui/react-icons';
+import { Table } from '@tanstack/react-table';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
 }
 
-export function DataTableToolbarDetailReport<TData>({
-  table,
-}: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+export function DataTableToolbarDetailReport<TData>({ table }: DataTableToolbarProps<TData>) {
+  const isFiltered = table.getState().columnFilters?.length > 0;
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
@@ -62,13 +53,11 @@ export function DataTableToolbarDetailReport<TData>({
       const formattedStartDate = moment(startDate).format('DD/MM/YYYY');
       const formattedEndDate = moment(endDate).format('DD/MM/YYYY');
       table.getColumn('Fecha')?.setFilterValue([formattedStartDate, formattedEndDate]);
-      
+
       const filteredData = table.getFilteredRowModel().rows.filter((row) => {
         const rowDate = moment((row.original as { date: string }).date, 'YYYY/MM/DD');
         return rowDate.isBetween(startDate, endDate, undefined, '[]');
       });
-      
-     
     }
   };
 
@@ -81,61 +70,33 @@ export function DataTableToolbarDetailReport<TData>({
       <div className="flex flex-1 items-center space-x-2">
         {table.getColumn('Fecha') && (
           <div className="flex items-center space-x-2">
-            <DatePicker
-              date={startDate}
-              setDate={setStartDate}
-              label="Fecha de inicio"
-            />
-            <DatePicker
-              date={endDate}
-              setDate={setEndDate}
-              label="Fecha de fin"
-            />
+            <DatePicker date={startDate} setDate={setStartDate} label="Fecha de inicio" />
+            <DatePicker date={endDate} setDate={setEndDate} label="Fecha de fin" />
           </div>
         )}
         {table.getColumn('Cliente') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('Cliente')}
-            title="Clientes"
-            options={clientOptions}
-          />
+          <DataTableFacetedFilter column={table.getColumn('Cliente')} title="Clientes" options={clientOptions} />
         )}
         {table.getColumn('Servicios') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('Servicios')}
-            title="Servicios"
-            options={servicesOptions}
-          />
+          <DataTableFacetedFilter column={table.getColumn('Servicios')} title="Servicios" options={servicesOptions} />
         )}
         {table.getColumn('Item') && (
-          <DataTableFacetedFilter 
-            column={table.getColumn('Item')} 
-            title="Items" 
-            options={itemOptions} 
-          />
+          <DataTableFacetedFilter column={table.getColumn('Item')} title="Items" options={itemOptions} />
         )}
         {table.getColumn('Jornada') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('Jornada')}
-            title="Jornada"
-            options={workingDayOptions}
-          />
+          <DataTableFacetedFilter column={table.getColumn('Jornada')} title="Jornada" options={workingDayOptions} />
         )}
         {table.getColumn('Estado') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('Estado')}
-            title="Estado"
-            options={statusOptions}
-          />
+          <DataTableFacetedFilter column={table.getColumn('Estado')} title="Estado" options={statusOptions} />
         )}
         {isFiltered && (
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => {
               table.resetColumnFilters();
               setStartDate(undefined);
               setEndDate(undefined);
-            }} 
+            }}
             className="h-8 px-2 lg:px-3"
           >
             Limpiar filtros

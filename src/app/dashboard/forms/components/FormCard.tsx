@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerTrigger } from '@/components/ui/drawer';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FormUseChart } from './FormUseChart';
 import { SubmitCustomForm } from './SubmitCustomForm';
 
@@ -16,7 +15,6 @@ function FormCard({
   chartData: any;
   fetchAnswers?: () => Promise<void>;
 }) {
-
   // Encuentra el índice del formulario actual en el chartData
 
   return (

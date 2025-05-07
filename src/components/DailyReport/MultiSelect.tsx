@@ -51,7 +51,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
       <PopoverTrigger asChild className="w-full max-w-xs">
         <Button variant={'outline'} disabled={disabled} className="flex justify-between items-center w-full">
           <span>
-            {internalSelectedItems?.length > 0 ? `${internalSelectedItems.length} ${placeholder}` : placeholder}
+            {internalSelectedItems?.length > 0 ? `${internalSelectedItems?.length} ${placeholder}` : placeholder}
           </span>
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

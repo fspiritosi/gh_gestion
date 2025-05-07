@@ -319,7 +319,7 @@ export function AuditorDataTable<TData, TValue>({ columns, data }: DataTableProp
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns?.length} className="h-24 text-center">
                   No hay documentos para auditar
                 </TableCell>
               </TableRow>

@@ -90,7 +90,6 @@ export default function EditCompanyButton({ defaultImage = null }: EditCompanyBu
             throw new Error(handleSupabaseError(error.message));
           }
         }
-
       },
       {
         loading: 'Actualiazando Compañía',

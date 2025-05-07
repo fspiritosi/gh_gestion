@@ -60,7 +60,7 @@ export default function NavBar() {
   const supabase = supabaseBrowser();
   const actualUser = useLoggedUserStore((state) => state.profile);
   const notifications = useLoggedUserStore((state) => state.notifications);
-  const avatarUrl = actualUser && actualUser.length > 0 ? actualUser[0] : '';
+  const avatarUrl = actualUser && actualUser?.length > 0 ? actualUser[0] : '';
 
   const handleLogout = async () => {
     try {
@@ -112,7 +112,7 @@ export default function NavBar() {
     {
       label: 'Compañia actual',
       teams:
-        totalCompanies.length === 1
+        totalCompanies?.length === 1
           ? totalCompanies
               // ?.filter(companyItem => companyItem?.id === actualCompanyId)
               ?.map((companyItem) => ({
@@ -131,7 +131,7 @@ export default function NavBar() {
     {
       label: 'Otras compañias',
       teams:
-        totalCompanies.length === 1
+        totalCompanies?.length === 1
           ? []
           : totalCompanies
               ?.filter((companyItem) => companyItem?.id !== actualCompanyId)
@@ -326,7 +326,7 @@ export default function NavBar() {
                             </p>
 
                             <CardDescription>
-                              {notification?.description.length > 50
+                              {notification?.description?.length > 50
                                 ? notification?.description.substring(0, 50) + '...'
                                 : notification?.description}
                             </CardDescription>

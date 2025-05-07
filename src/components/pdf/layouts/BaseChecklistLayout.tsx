@@ -205,7 +205,7 @@ export const BaseChecklistLayout = ({
   singurl,
 }: BaseChecklistProps) => {
   const itemsPerPage = 30;
-  const pages = Math.ceil(data.items.length / itemsPerPage);
+  const pages = Math.ceil(data.items?.length / itemsPerPage);
 
   console.log('singurl', singurl);
 

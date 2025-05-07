@@ -31,7 +31,7 @@ interface DataTableToolbarProps<TData> {
 }
 
 export function DataTableToolbarExpiringDocument<TData>({ table }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters?.length > 0;
   const supabase = supabaseBrowser();
   const handleDownloadAll = async () => {
     toast.promise(
@@ -139,7 +139,7 @@ export function DataTableToolbarExpiringDocument<TData>({ table }: DataTableTool
         <AlertDialogTrigger asChild>
           <Button
             disabled={
-              table.getFilteredRowModel().rows.filter((row: any) => row.original.state !== 'pendiente').length === 0
+              table.getFilteredRowModel().rows.filter((row: any) => row.original.state !== 'pendiente')?.length === 0
             }
             className="mr-3"
             variant={'outline'}
@@ -152,11 +152,12 @@ export function DataTableToolbarExpiringDocument<TData>({ table }: DataTableTool
           <AlertDialogHeader>
             <AlertDialogTitle>
               Estas a punto de descargar{' '}
-              {table.getFilteredRowModel().rows.filter((row: any) => row.original.state !== 'pendiente').length}{' '}
+              {table.getFilteredRowModel().rows.filter((row: any) => row.original.state !== 'pendiente')?.length}{' '}
               documentos
             </AlertDialogTitle>
             <AlertDialogDescription className="max-h-[65vh] overflow-y-auto">
-              {table.getFilteredRowModel().rows.filter((row: any) => row.original.state === 'pendiente').length > 0 && (
+              {table.getFilteredRowModel().rows.filter((row: any) => row.original.state === 'pendiente')?.length >
+                0 && (
                 <div>
                   <CardDescription className="underline">
                     Alerta: Hay documentos que estan pendientes y no se descargarán
@@ -166,7 +167,7 @@ export function DataTableToolbarExpiringDocument<TData>({ table }: DataTableTool
                       <AccordionTrigger className="text-red-600">
                         {
                           table.getFilteredRowModel().rows.filter((row: any) => row.original.state === 'pendiente')
-                            .length
+                            ?.length
                         }{' '}
                         Documentos pendientes
                       </AccordionTrigger>
@@ -193,7 +194,7 @@ export function DataTableToolbarExpiringDocument<TData>({ table }: DataTableTool
                   <AccordionTrigger className="text-green-600">
                     {' '}
                     {
-                      table.getFilteredRowModel().rows.filter((row: any) => row.original.state !== 'pendiente').length
+                      table.getFilteredRowModel().rows.filter((row: any) => row.original.state !== 'pendiente')?.length
                     }{' '}
                     Documentos presentados
                   </AccordionTrigger>

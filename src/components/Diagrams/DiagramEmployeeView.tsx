@@ -142,7 +142,7 @@ function DiagramEmployeeView({
 
     // 3. Datos de cada empleado
     const employeesToExport =
-      selectedResources.length > 0
+      selectedResources?.length > 0
         ? Object.keys(groupedDiagrams || {})?.filter((employeeId) => selectedResources.includes(employeeId))
         : Object.keys(groupedDiagrams || {});
 
@@ -223,7 +223,7 @@ function DiagramEmployeeView({
                               role="combobox"
                               className={cn('justify-between', !field.value && 'text-muted-foreground')}
                             >
-                              {`${selectedResources.length || '0'} empleados seleccionados`}
+                              {`${selectedResources?.length || '0'} empleados seleccionados`}
                               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -346,7 +346,7 @@ function DiagramEmployeeView({
         </TableHeader>
 
         <TableBody>
-          {selectedResources.length > 0
+          {selectedResources?.length > 0
             ? Object.keys(groupedDiagrams || {})
                 ?.filter((employeeId) => selectedResources.includes(employeeId))
                 ?.map((employeeId, index) => {

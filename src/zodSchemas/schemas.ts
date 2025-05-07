@@ -17,7 +17,7 @@ const getAllFiles = async (legajo: string) => {
     // .eq('company_id', data?.[0].id)
     .eq('file', legajo);
 
-  if (employee && employee.length > 0) {
+  if (employee && employee?.length > 0) {
     return true;
   } else {
     return true;
@@ -27,7 +27,7 @@ const getAllFiles = async (legajo: string) => {
 const validateDuplicatedCuil = async (cuil: string) => {
   const { data: employees } = await supabase.from('company').select('*').eq('company_cuit', cuil);
 
-  if (employees && employees.length > 0) {
+  if (employees && employees?.length > 0) {
     return false;
   } else {
     return true;

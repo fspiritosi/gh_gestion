@@ -327,7 +327,7 @@ export async function updateEquipmentCustomer(values: any) {
       return { status: 500, body: error.message };
     }
 
-    if (!equipment || equipment.length === 0) {
+    if (!equipment || equipment?.length === 0) {
       return { status: 404, body: 'Equipo no encontrado o no actualizado.' };
     }
 

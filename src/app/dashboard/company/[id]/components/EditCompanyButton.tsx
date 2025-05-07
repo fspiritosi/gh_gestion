@@ -38,15 +38,12 @@ export default function EditCompanyButton() {
   const clientAccion = async (formData: FormData) => {
     // const values = Object.fromEntries(formData.entries())
     // const result = await companySchema.safeParseAsync(values)
-
-
     // Object.keys(values).forEach(key => {
     //   const element = document.getElementById(`${key}_error`)
     //   if (element) {
     //     element.innerText = ''
     //   }
     // })
-
     // if (!result.success) {
     //   result.error.issues.forEach(issue => {
     //     const element = document.getElementById(`${issue.path}_error`)
@@ -55,7 +52,6 @@ export default function EditCompanyButton() {
     //       element.style.color = 'red'
     //     }
     //   })
-
     //   Object.keys(values).forEach(key => {
     //     if (!result.error.issues.some(issue => issue.path.includes(key))) {
     //       const element = document.getElementById(`${key}_error`)
@@ -66,15 +62,12 @@ export default function EditCompanyButton() {
     //   })
     //   return
     // }
-
     // toast.promise(
     //   async () => {
     //     const cuit = formData.get('company_cuit') as string
     //     const fileExtension = imageFile?.name.split('.').pop()
     //     const logoUrl = `${url}/logo/${cuit}.${fileExtension}`
-
     //     const { data, error } = await AddCompany(formData, logoUrl)
-
     //     if (data && data?.length > 0) {
     //       if (imageFile) {
     //         const fileExtension = imageFile?.name.split('.').pop()
@@ -87,7 +80,6 @@ export default function EditCompanyButton() {
     //         )
     //         await uploadImage(renamedFile, 'logo')
     //       }
-
     //       const { data: company, error: companyError } = await supabase
     //         .from('company')
     //         .select(
@@ -133,18 +125,14 @@ export default function EditCompanyButton() {
     //       `,
     //         )
     //         .eq('owner_id', data?.[0]?.owner_id)
-
     //       // await handleUpload(result.data.company_cuit as string)
-
     //       const actualCompany = company?.filter(
     //         company => company.id === data?.[0]?.id,
     //       )
-
     //       useLoggedUserStore.setState({
     //         actualCompany: actualCompany?.[0] as Company[0],
     //       })
     //       useLoggedUserStore.setState({ allCompanies: company as Company })
-
     //       router.push('/dashboard')
     //     }
     //   },

@@ -23,7 +23,7 @@ export default function AdminBreadcrumb() {
             <BreadcrumbLink asChild>
               <Link href={`/admin/${paso}`}>{paso}</Link>
             </BreadcrumbLink>
-            {pasos.length - 1 === index ? null : <BreadcrumbSeparator />}
+            {pasos?.length - 1 === index ? null : <BreadcrumbSeparator />}
           </BreadcrumbItem>
         ))}
       </BreadcrumbList>

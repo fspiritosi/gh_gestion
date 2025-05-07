@@ -1,14 +1,14 @@
 'use client';
 
 import { DataTableColumnHeader } from '@/components/CheckList/tables/data-table-column-header';
+import { Customers, Items, Services } from '@/components/DailyReport/DailyReport';
+import UploadDocument from '@/components/DailyReport/UploadDocument';
+import { getCustomerName, getItemName, getServiceName } from '@/components/DailyReport/utils/utils';
 import { Button } from '@/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
+import { FilePenLine, Trash2 } from 'lucide-react';
 import moment from 'moment';
 import { DailyReportItem } from '../DailyReport';
-import { FilePenLine, Trash2 } from 'lucide-react';
-import  UploadDocument  from '@/components/DailyReport/UploadDocument';
-import { Customers, Services, Items, Employee, Equipment} from '@/components/DailyReport/DailyReport';
-import { getCustomerName, getServiceName, getItemName,  getEmployeeNames ,getEquipmentNames  } from '@/components/DailyReport/utils/utils';
 
 export const dailyColumns = (
   handleViewDocument: (documentPath: string, row_id?: string) => void,
@@ -59,17 +59,15 @@ export const dailyColumns = (
     id: 'Empleados',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Empleados" />,
     cell: ({ row }) => {
-      
       return <div className="flex  items-center">{row.getValue('Empleados')}</div>;
     },
     filterFn: (row, id, value) => {
-     
       // return value.includes(row.getValue(id));
-     
-    if (value.includes(null)) {
-      return (row.getValue(id) as string[]).length === 0;
-    }
-    return value.some((val: string) => (row.getValue(id) as string[]).includes(val));
+
+      if (value.includes(null)) {
+        return (row.getValue(id) as string[])?.length === 0;
+      }
+      return value.some((val: string) => (row.getValue(id) as string[]).includes(val));
     },
   },
   {
@@ -81,9 +79,9 @@ export const dailyColumns = (
     },
     filterFn: (row, id, value) => {
       // return value.includes(row.getValue(id));
-      
+
       if (value.includes(null)) {
-        return (row.getValue(id) as string[]).length === 0;
+        return (row.getValue(id) as string[])?.length === 0;
       }
       return value.some((val: string) => (row.getValue(id) as string[]).includes(val));
     },
@@ -168,11 +166,9 @@ export const dailyColumns = (
     header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
     cell: ({ row }) => {
       const report = row.original; // Aquí puedes acceder a los datos del reporte en la fila actual
-  
+
       return report.document_path ? (
-        <Button onClick={() => handleViewDocument(report.document_path || '', report.id || '')}>
-          Ver Documento
-        </Button>
+        <Button onClick={() => handleViewDocument(report.document_path || '', report.id || '')}>Ver Documento</Button>
       ) : (
         canEdit && (
           <>
@@ -206,6 +202,5 @@ export const dailyColumns = (
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
-  }
-  
+  },
 ];

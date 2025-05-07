@@ -427,7 +427,7 @@ function DiagramFormUpdated({
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel className="pl-6 min-w-[600px] flex flex-col gap-4" defaultSize={70}>
-        {errorsDiagrams.length > 0 && (
+        {errorsDiagrams?.length > 0 && (
           <Card className="bg-red-50">
             <CardHeader>
               <CardTitle>Diagramas duplicados</CardTitle>
@@ -468,7 +468,7 @@ function DiagramFormUpdated({
                 ))}
               </Table>
             </CardContent>
-            {errorsDiagrams.length > 1 && (
+            {errorsDiagrams?.length > 1 && (
               <CardFooter className="flex justify-around">
                 <Button variant={'default'} onClick={() => updateAll(errorsDiagrams)}>
                   Actualizar Todos
@@ -480,7 +480,7 @@ function DiagramFormUpdated({
             )}
           </Card>
         )}
-        {succesDiagrams.length > 0 && (
+        {succesDiagrams?.length > 0 && (
           <Card className="">
             <CardHeader>
               <CardTitle>Diagramas correctos</CardTitle>
@@ -524,7 +524,7 @@ function DiagramFormUpdated({
                 ))}
               </Table>
             </CardContent>
-            {succesDiagrams.length > 1 && (
+            {succesDiagrams?.length > 1 && (
               <CardFooter className="flex justify-around">
                 <Button variant={'success'} onClick={() => createAll(succesDiagrams)}>
                   Crear Todos

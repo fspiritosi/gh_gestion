@@ -84,7 +84,7 @@ export const MissingDocumentList = () => {
                   </div>
                   {allValuesToShow?.employees?.length > 0 && (
                     <Badge className="ml-2" variant="destructive">
-                      {allValuesToShow.employees.length}
+                      {allValuesToShow.employees?.length}
                     </Badge>
                   )}
                 </div>
@@ -148,7 +148,7 @@ export const MissingDocumentList = () => {
                   </div>
                   {allValuesToShow?.vehicles?.length > 0 && (
                     <Badge className="ml-2" variant="destructive">
-                      {allValuesToShow.vehicles.length}
+                      {allValuesToShow.vehicles?.length}
                     </Badge>
                   )}
                 </div>

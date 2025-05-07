@@ -212,12 +212,11 @@ async function SideBarContainer() {
           link.name.toLowerCase() !== 'empresa' &&
           link.name.toLowerCase() !== 'operaciones' &&
           link.name.toLowerCase() !== 'mantenimiento' &&
-          link.name.toLowerCase() !== 'documentación' 
-          // link.name.toLowerCase() !== 'dashboard'
+          link.name.toLowerCase() !== 'documentación'
+        // link.name.toLowerCase() !== 'dashboard'
       );
       return;
     }
-
 
     userData?.modulos?.length === 0
       ? (liksToShow = Allinks)

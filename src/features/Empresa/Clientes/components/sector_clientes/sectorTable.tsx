@@ -78,7 +78,7 @@ function SectorTable({ customers, sectors, selectedSector, setSelectedSector, se
   }, [sectors, filterByName, selectedClient, selectedSectorFilter]);
 
   // Calcular paginación
-  const totalPages = Math.ceil(filteredSectors.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredSectors?.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredSectors.slice(startIndex, endIndex).map((sector) => {
@@ -153,7 +153,7 @@ function SectorTable({ customers, sectors, selectedSector, setSelectedSector, se
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentItems.length > 0 ? (
+            {currentItems?.length > 0 ? (
               currentItems.map((sector) => (
                 <TableRow key={sector.id}>
                   <TableCell className="font-medium">{sector.name}</TableCell>
@@ -184,7 +184,7 @@ function SectorTable({ customers, sectors, selectedSector, setSelectedSector, se
       </div>
 
       {/* Paginación */}
-      {filteredSectors.length > itemsPerPage && (
+      {filteredSectors?.length > itemsPerPage && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>

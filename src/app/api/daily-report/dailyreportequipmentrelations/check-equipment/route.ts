@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       throw new Error(JSON.stringify(error));
     }
 
-    const exists = dailyreportequipmentrelations && dailyreportequipmentrelations.length > 0;
+    const exists = dailyreportequipmentrelations && dailyreportequipmentrelations?.length > 0;
 
     return NextResponse.json({ exists });
   } catch (error) {

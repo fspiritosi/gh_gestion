@@ -36,7 +36,7 @@ export function _CompanySelector({ sharedCompanies, allCompanies, currentCompany
       Cookies.set('actualComp', allCompanies[0]?.id || sharedCompanies[0]?.id);
     }
 
-    // if (!selectedCompany && (allCompanies.length > 0 || sharedCompanies.length > 0)) {
+    // if (!selectedCompany && (allCompanies?.length > 0 || sharedCompanies?.length > 0)) {
     //   const firstCompany = allCompanies[0] || sharedCompanies[0];
     //   setSelectedCompany(firstCompany);
     //   console.log(firstCompany);
@@ -58,7 +58,7 @@ export function _CompanySelector({ sharedCompanies, allCompanies, currentCompany
     {
       label: 'Compañia actual',
       teams:
-        totalCompanies.length === 1
+        totalCompanies?.length === 1
           ? totalCompanies?.map((company) => ({
               label: company?.company_name,
               value: company?.id,
@@ -75,7 +75,7 @@ export function _CompanySelector({ sharedCompanies, allCompanies, currentCompany
     {
       label: 'Otras compañias',
       teams:
-        totalCompanies.length === 1
+        totalCompanies?.length === 1
           ? []
           : totalCompanies
               ?.filter((company) => company?.id !== selectedCompany?.id)

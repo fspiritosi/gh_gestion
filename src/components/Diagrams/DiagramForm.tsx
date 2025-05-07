@@ -188,7 +188,7 @@ export function DiagramForm({
     if (from === 's') {
       const successDiagramDeleteOne = succesDiagrams.filter((_, i) => i !== index);
       // Actualizar los estados solo si hay cambios
-      if (successDiagramDeleteOne.length !== succesDiagrams.length) {
+      if (successDiagramDeleteOne?.length !== succesDiagrams?.length) {
         setSuccesDiagrams(successDiagramDeleteOne);
       }
     }
@@ -197,7 +197,7 @@ export function DiagramForm({
       // Filtrar el elemento específico por índice en errorsDiagrams
       const errorDiagramDeleteOne = errorsDiagrams.filter((_, i) => i !== index);
 
-      if (errorDiagramDeleteOne.length !== errorsDiagrams.length) {
+      if (errorDiagramDeleteOne?.length !== errorsDiagrams?.length) {
         setErrorsDiagrams(errorDiagramDeleteOne);
       }
     }
@@ -259,7 +259,7 @@ export function DiagramForm({
     setErrorsDiagrams([...errorsDiagrams, ...errorToCreate]);
   }
 
-  console.log('errors',form.formState.errors);
+  console.log('errors', form.formState.errors);
 
   return (
     <ResizablePanelGroup direction="horizontal" className="pt-6">
@@ -426,7 +426,7 @@ export function DiagramForm({
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel className="pl-6 min-w-[600px] flex flex-col gap-4" defaultSize={70}>
-        {errorsDiagrams.length > 0 && (
+        {errorsDiagrams?.length > 0 && (
           <Card className="bg-red-50">
             <CardHeader>
               <CardTitle>Diagramas duplicados</CardTitle>
@@ -467,7 +467,7 @@ export function DiagramForm({
                 ))}
               </Table>
             </CardContent>
-            {errorsDiagrams.length > 1 && (
+            {errorsDiagrams?.length > 1 && (
               <CardFooter className="flex justify-around">
                 <Button variant={'default'} onClick={() => updateAll(errorsDiagrams)}>
                   Actualizar Todos
@@ -479,7 +479,7 @@ export function DiagramForm({
             )}
           </Card>
         )}
-        {succesDiagrams.length > 0 && (
+        {succesDiagrams?.length > 0 && (
           <Card className="">
             <CardHeader>
               <CardTitle>Diagramas correctos</CardTitle>
@@ -517,7 +517,7 @@ export function DiagramForm({
                 ))}
               </Table>
             </CardContent>
-            {succesDiagrams.length > 1 && (
+            {succesDiagrams?.length > 1 && (
               <CardFooter className="flex justify-around">
                 <Button variant={'success'} onClick={() => createAll(succesDiagrams)}>
                   Crear Todos

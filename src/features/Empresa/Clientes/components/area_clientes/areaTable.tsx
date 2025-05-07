@@ -67,7 +67,7 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
   }, [areas, filterByName, selectedClient, selectedProvince]);
 
   // Calcular paginación
-  const totalPages = Math.ceil(filteredAreas.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAreas?.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredAreas.slice(startIndex, endIndex);
@@ -141,7 +141,7 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentItems.length > 0 ? (
+            {currentItems?.length > 0 ? (
               currentItems.map((area) => (
                 <TableRow key={area.id}>
                   <TableCell className="font-medium">{area.nombre}</TableCell>
@@ -155,7 +155,7 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
                           <div className="truncate max-w-[200px] cursor-pointer">
                             <Badge>
                               {area.provincias[0]}
-                              {area.provincias.length > 1 && ` +${area.provincias.length - 1}`}
+                              {area.provincias?.length > 1 && ` +${area.provincias?.length - 1}`}
                             </Badge>
                           </div>
                         </TooltipTrigger>
@@ -194,7 +194,7 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
       </div>
 
       {/* Paginación */}
-      {filteredAreas.length > itemsPerPage && (
+      {filteredAreas?.length > itemsPerPage && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>

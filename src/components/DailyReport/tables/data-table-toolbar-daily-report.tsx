@@ -25,7 +25,7 @@ export function DataTableToolbarDailyReport<TData>({
   employees,
   equipment,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters?.length > 0;
 
   // const getUniqueValues = (columnId: string) => {
   //   return table.getColumn(columnId)?.getFacetedUniqueValues()
@@ -45,7 +45,7 @@ export function DataTableToolbarDailyReport<TData>({
             Array.from((table.getColumn(columnId)?.getFacetedUniqueValues() as any)?.keys()) // Aplanar arrays anidados
               .map((item: any) => {
                 // Convertir claves vacías en 'sin completar'
-                if (Array.isArray(item) && item.length === 0) {
+                if (Array.isArray(item) && item?.length === 0) {
                   return null;
                 }
                 // Manejar claves combinadas separadas por coma

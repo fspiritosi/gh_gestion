@@ -28,7 +28,7 @@ function CostCenterTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.length > 0 ? (
+            {filteredData?.length > 0 ? (
               filteredData.map((costCenter) => (
                 <TableRow key={costCenter.id}>
                   <TableCell className="font-medium">{costCenter.name}</TableCell>

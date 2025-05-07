@@ -19,14 +19,9 @@ import * as React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { DataTablePagination } from '@/components/CheckList/tables/data-table-pagination';
+import { formatTime } from '@/components/DailyReport/utils/utils';
 import { useRouter } from 'next/navigation';
 import { DataTableToolbarDetailReport } from './data-table-toolbar-detail-report';
-import { Customers, Services, Items, Employee, Equipment } from '@/components/DailyReport/DailyReport';
-import { getCustomerName, getServiceName, getItemName, getEmployeeNames, getEquipmentNames, formatTime } from '@/components/DailyReport/utils/utils';
-import { Badge } from '@/components/ui/badge';
-import { se } from 'date-fns/locale';
-import { serialize } from 'v8';
-import moment from 'moment';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -37,17 +32,17 @@ interface DataTableProps<TData, TValue> {
   // employees: Employee[]
   // equipment: Equipment[]
   // companyName: string;
-//   handleViewDocument: (documentPath: string, row_id?: string) => Promise<void>;
+  //   handleViewDocument: (documentPath: string, row_id?: string) => Promise<void>;
 }
 
-export function DetailTable<TData, TValue>({ 
-    columns, 
-    data, 
-    // customers, 
-    // services, 
-    // items, 
-    // employees, 
-    // equipment 
+export function DetailTable<TData, TValue>({
+  columns,
+  data,
+  // customers,
+  // services,
+  // items,
+  // employees,
+  // equipment
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -75,19 +70,18 @@ export function DetailTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
-  
+
   const router = useRouter();
-  
- 
+
   return (
     <div className="space-y-4 mt-4">
-      <DataTableToolbarDetailReport 
-      // equipment={equipment} 
-      // employees={employees} 
-      // items={items} 
-      // services={services} 
-      // customers={customers} 
-      table={table} 
+      <DataTableToolbarDetailReport
+        // equipment={equipment}
+        // employees={employees}
+        // items={items}
+        // services={services}
+        // customers={customers}
+        table={table}
       />
       <div className="rounded-md border">
         <Table>
@@ -117,18 +111,16 @@ export function DetailTable<TData, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                    {cell.column.id === 'Hora inicio' || cell.column.id === 'Hora fin' ? (
-                      formatTime(cell.getValue() as string)
-                    ) : (
-                      flexRender(cell.column.columnDef.cell, cell.getContext())
-                    )}
+                      {cell.column.id === 'Hora inicio' || cell.column.id === 'Hora fin'
+                        ? formatTime(cell.getValue() as string)
+                        : flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns?.length} className="h-24 text-center">
                   Sin resultados
                 </TableCell>
               </TableRow>

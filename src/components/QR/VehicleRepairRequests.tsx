@@ -79,8 +79,7 @@ export default function VehicleRepairRequests({
                     <strong>Equipo:</strong> {request.equipment_id.brand.name} {request.equipment_id.model.name}
                   </div>
                   <div>
-                    <strong>Fecha:</strong>{' '}
-                    {moment(request.created_at, 'YYYY-MM-DD').format('DD/MM/YYYY')}
+                    <strong>Fecha:</strong> {moment(request.created_at, 'YYYY-MM-DD').format('DD/MM/YYYY')}
                   </div>
                   <div>
                     <strong>Estado de la solicitud:</strong> <Badge variant={'outline'}>{request.state}</Badge>
