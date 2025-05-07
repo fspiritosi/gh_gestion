@@ -72,7 +72,7 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
       },
       {
         value: 'covenant',
-        name: 'Convenios colectivos de trabajo',
+        name: 'CCT',
         restricted: ['Invitado'],
         content: {
           title: 'Convenios colectivos de trabajo',
