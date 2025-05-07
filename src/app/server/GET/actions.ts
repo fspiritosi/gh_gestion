@@ -462,6 +462,31 @@ export const getDocumentEquipmentById = async (id: string) => {
   return documents_vehicle;
 };
 // Equipment-related actions
+
+export const fetchAllEquipmentWithBrand = async () => {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  if (!company_id) return [];
+
+  let { data: equipments, error } = await supabase
+    .from('vehicles')
+    .select(
+      `*,
+    types_of_vehicles(name),
+    brand_vehicles(name),
+    type(name),
+    model_vehicles(name)`
+    )
+    .eq('company_id', company_id);
+
+  if (error) {
+    console.error('Error fetching equipment:', error);
+    return [];
+  }
+  return equipments || [];
+};
+
 export const fetchAllEquipment = async (company_equipment_id?: string) => {
   const cookiesStore = cookies();
   const supabase = supabaseServer();

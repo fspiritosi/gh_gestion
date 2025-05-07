@@ -1,3 +1,4 @@
+import { fetchAllEquipmentWithBrand } from '@/app/server/GET/actions';
 import { supabaseServer } from '@/lib/supabase/server';
 import { setVehiclesToShow } from '@/lib/utils/utils';
 import { TypeOfRepair } from '@/types/types';
@@ -9,6 +10,7 @@ import RepairNewEntry from './RepairEntry';
 import RepairNewEntryMultiple from './RepairEntryMultiple';
 import RepairSolicitudes from './RepairSolicitudesTable/RepairSolicitudes';
 import { RepairTypeForm } from './RepairTypeForm';
+import { fetchAllTypesOfRepairs } from './actions/actions';
 
 async function RepairTypes({
   type_of_repair_new_entry,
@@ -42,12 +44,14 @@ async function RepairTypes({
   } = await supabase.auth.getUser();
   const coockiesStore = cookies();
   const company_id = coockiesStore.get('actualComp')?.value;
-  const { types_of_repairs } = await fetch(`${URL}/api/repairs?actual=${company_id}`).then((res) => res.json());
-  const { equipments } = await fetch(`${URL}/api/equipment?actual=${company_id}&user=${user?.id}`).then((e) =>
-    e.json()
-  );
+  // const { types_of_repairs } = await fetch(`${URL}/api/repairs?actual=${company_id}`).then((res) => res.json());
+  const types_of_repairs = await fetchAllTypesOfRepairs();
+  // const { equipments } = await fetch(`${URL}/api/equipment?actual=${company_id}&user=${user?.id}`).then((e) =>
+  //   e.json()
+  // );
+  const equipments = await fetchAllEquipmentWithBrand();
   const vehiclesFormatted = equipment_id
-    ? setVehiclesToShow(equipments.filter((e: any) => e.id === equipment_id)) || []
+    ? setVehiclesToShow(equipments?.filter((e: any) => e.id === equipment_id)) || []
     : setVehiclesToShow(equipments) || [];
 
   const message =

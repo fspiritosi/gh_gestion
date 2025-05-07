@@ -1,10 +1,10 @@
+import { fetchAllEquipmentWithBrand } from '@/app/server/GET/actions';
 import {
   CompaniesTableOptions,
   DocumentsTableOptions,
   EmployeesTableOptions,
   VehiclesTableOptions,
 } from '@/types/types';
-import { Vehicle } from '@/zodSchemas/schemas';
 import { supabaseServer } from '../supabase/server';
 export const formatDate = (dateString: string) => {
   if (!dateString) return 'No vence';
@@ -202,7 +202,7 @@ export const DOCUMENTS_TABLE: DocumentsTableOptions = {
   private: 'Privados',
   special: 'Especiales',
 };
-export const setVehiclesToShow = (vehicles: Vehicle) => {
+export const setVehiclesToShow = (vehicles: Awaited<ReturnType<typeof fetchAllEquipmentWithBrand>>) => {
   return vehicles?.map((item) => ({
     ...item,
     types_of_vehicles: item.types_of_vehicles?.name,
