@@ -4,12 +4,11 @@
 import { Button } from '@/components/ui/button';
 // import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 // import { Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 // import { columns, type Diagram } from './column';
 // import { DataTable } from './data-table';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { SkeletonTable } from './skeletonTable';
 import { VerActivosButton } from './verActivosButton';
 // interface DiagramType {
 //   id: string;
@@ -43,59 +42,68 @@ export default function ListDiagrams({
   diagramsTypes,
   onEdit,
   onModeChange,
+  data,
 }: {
   diagramsTypes: DiagramType[];
   onEdit: (diagram: Diagram) => void;
   onModeChange: (mode: 'create' | 'edit') => void;
+  data: WorkflowDiagram[];
 }) {
-  const [data, setData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   // const [showActive, setShowActive] = useState(true);
   const [filteredData, setFilteredData] = useState<Diagram[]>([]);
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/work-diagrams`);
-      const data = await response.json();
 
-      const newData = data.diagrams.map((diagram: Diagram) => {
-        const active_novelty = diagramsTypes.find((dt) => dt.id === diagram.active_novelty);
-        const inactive_novelty = diagramsTypes.find((dt) => dt.id === diagram.inactive_novelty);
-        return {
-          ...diagram,
-          active_novelty: active_novelty ? active_novelty.name : '',
-          inactive_novelty: inactive_novelty ? inactive_novelty.name : '',
-        };
-      });
-      setData(newData);
+  console.log(diagramsTypes, 'diagramsTypes');
+  // const fetchData = async () => {
+  //   try {
+  //     const data = await fetchAllWorkDiagrams();
 
-      if (response.ok) {
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.error('Error fetching diagrams:', error);
-    }
-  };
+  //     const newData = data.map((diagram) => {
+  //       const active_novelty = diagramsTypes.find((dt) => dt.id === diagram.active_novelty);
+  //       const inactive_novelty = diagramsTypes.find((dt) => dt.id === diagram.inactive_novelty);
+  //       return {
+  //         ...diagram,
+  //         active_novelty: active_novelty ? active_novelty.name : '',
+  //         inactive_novelty: inactive_novelty ? inactive_novelty.name : '',
+  //       };
+  //     });
+  //     setData(newData);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  //     setIsLoading(false);
+  //   } catch (error) {
+  //     setIsLoading(false);
+  //     console.error('Error fetching diagrams:', error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
 
   // const filteredData = showActive
   //   ? data.filter((d: Diagram) => d.is_active)
   //   : data.filter((d: Diagram) => !d.is_active);
   // console.log(filteredData, 'filteredData');
-  return isLoading ? (
-    <SkeletonTable />
-  ) : (
+  return (
     <div className="mx-auto ml-4">
       <div className="flex flex-col">
         <div className="flex justify-between">
           <h2 className="text-xl font-bold">Diagramas de Trabajo</h2>
           <div className="flex justify-end">
-            <VerActivosButton data={data} filterKey="is_active" onFilteredChange={setFilteredData} />
+            <VerActivosButton
+              data={
+                data.map((d) => {
+                  const active_novelty = diagramsTypes.find((dt) => dt.id === d.active_novelty);
+                  const inactive_novelty = diagramsTypes.find((dt) => dt.id === d.inactive_novelty);
+                  return {
+                    ...d,
+                    active_novelty: active_novelty ? active_novelty.name : '',
+                    inactive_novelty: inactive_novelty ? inactive_novelty.name : '',
+                  };
+                }) as any
+              }
+              filterKey="is_active"
+              onFilteredChange={setFilteredData}
+            />
           </div>
         </div>
         <div className="overflow-x-auto max-h-96 overflow-y-auto w-full">

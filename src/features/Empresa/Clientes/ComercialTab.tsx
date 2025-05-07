@@ -10,7 +10,7 @@ import SectorTabs from '@/features/Empresa/Clientes/components/sector_clientes/s
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { supabase } from '../../../../supabase/supabase';
-import { fechAllCustomers, fetchAreasWithProvinces } from './actions/create';
+import { fechAllCustomers, fetchAllSectors, fetchAreasWithProvinces } from './actions/create';
 import { columns } from './components/columns';
 
 async function ComercialTab({
@@ -34,6 +34,7 @@ async function ComercialTab({
   const { customers } = await fechAllCustomers();
   const provinces = await fetchAllProvinces();
   const areas = await fetchAreasWithProvinces();
+  const sectors = await fetchAllSectors();
   const viewData = {
     defaultValue: subtab || 'customers',
     path: '/dashboard/company/actualCompany',
@@ -102,7 +103,7 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <SectorTabs customers={contractorCompanies || []} />,
+          component: <SectorTabs customers={contractorCompanies || []} sectors={sectors.sectors || []} />,
         },
       },
       {

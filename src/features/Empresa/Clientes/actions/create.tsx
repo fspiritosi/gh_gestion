@@ -343,7 +343,9 @@ export async function fetchAllSectors() {
   try {
     const { data: sectors, error } = await supabase
       .from('sectors' as any)
-      .select('*,sector_customer(sector_id(id,name), customer_id(id,name))');
+      .select('*,sector_customer(sector_id(id,name), customer_id(id,name))')
+      .returns<SectorWithCustomers[]>();
+
     if (error) {
       console.error(error);
       return { sectors: [], error: 'Error al obtener los sectores' };

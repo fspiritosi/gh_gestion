@@ -8,6 +8,7 @@ import DiagramTypesTab from '@/features/Empresa/RRHH/components/rrhh/diagramType
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import PositionsTab from '../rrhh/company_positions/positionsTab';
+import { fetchAllWorkDiagrams } from './actions/actions';
 
 interface DiagramType {
   id: string;
@@ -44,6 +45,7 @@ export default async function RrhhComponent({
   // const employees2 = await fetchAllActivesEmployees();
   // const diagrams2 = await fetchDiagrams();
   // const diagrams_types2 = await fetchDiagramsTypes();
+  const diagrams = await fetchAllWorkDiagrams();
   const viewData = {
     defaultValue: subtab || 'listado',
     path: '/dashboard/company/actualCompany',
@@ -58,7 +60,7 @@ export default async function RrhhComponent({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <DiagramTypesTab diagrams_types={diagrams_types} />,
+          component: <DiagramTypesTab data={diagrams} diagrams_types={diagrams_types} />,
         },
       },
       {

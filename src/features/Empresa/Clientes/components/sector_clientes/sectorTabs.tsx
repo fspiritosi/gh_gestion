@@ -1,37 +1,23 @@
 'use client';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { fetchAllSectors } from '@/features/Empresa/Clientes/actions/create';
-import { AreaTableSkeleton } from '@/features/Empresa/Clientes/components/area_clientes/AreaTableSkeleton';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import SectorForm from './sectorForm';
 import SectorTable from './sectorTable';
 
-interface Sector {
-  id: string;
-  name: string;
-  descripcion_corta: string;
-  customer_id: string;
-  sector_customer: Array<{
-    customer_id: {
-      id: string;
-      name: string;
-    };
-  }>;
-}
-function SectorTabs({ customers }: { customers: any[] }) {
-  const [SelectedSector, setSelectedSector] = useState<Sector | null>(null);
+function SectorTabs({ customers, sectors }: { customers: any[]; sectors: SectorWithCustomers[] }) {
+  const [SelectedSector, setSelectedSector] = useState<SectorWithCustomers | null>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
-  const [sectorsFetched, setSectorsFetched] = useState<Sector[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const fetchSectors = async () => {
-    const { sectors: Sector } = await fetchAllSectors();
-    setSectorsFetched(Sector || []);
-    setIsLoading(false);
-  };
+  // const [sectorsFetched, setSectorsFetched] = useState<Sector[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const fetchSectors = async () => {
+  //   const { sectors: Sector } = await fetchAllSectors();
+  //   setSectorsFetched(Sector || []);
+  //   setIsLoading(false);
+  // };
 
-  useEffect(() => {
-    fetchSectors();
-  }, []);
+  // useEffect(() => {
+  //   fetchSectors();
+  // }, []);
 
   return (
     <div>
@@ -39,7 +25,7 @@ function SectorTabs({ customers }: { customers: any[] }) {
         <ResizablePanel defaultSize={40}>
           <SectorForm
             customers={customers}
-            sectors={sectorsFetched}
+            sectors={sectors}
             mode={mode}
             setMode={setMode}
             selectedSector={SelectedSector}
@@ -48,18 +34,14 @@ function SectorTabs({ customers }: { customers: any[] }) {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={60}>
-          {!isLoading ? (
-            <SectorTable
-              customers={customers}
-              sectors={sectorsFetched}
-              selectedSector={SelectedSector}
-              setSelectedSector={setSelectedSector}
-              setMode={setMode}
-              mode={mode}
-            />
-          ) : (
-            <AreaTableSkeleton />
-          )}
+          <SectorTable
+            customers={customers}
+            sectors={sectors}
+            selectedSector={SelectedSector}
+            setSelectedSector={setSelectedSector}
+            setMode={setMode}
+            mode={mode}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

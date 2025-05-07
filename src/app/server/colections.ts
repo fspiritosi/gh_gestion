@@ -14,6 +14,7 @@ declare global {
   type EmployeeDocument = DB['public']['Tables']['documents_employees']['Row']; // Anteriormente: DocumentEmployees
   type Employee = DB['public']['Tables']['employees']['Row']; // Anteriormente: Employees
   type EquipmentDocument = DB['public']['Tables']['documents_equipment']['Row']; // Anteriormente: DocumentEquipment
+  type Diagram = DB['public']['Tables']['work-diagram']['Row']; // Anteriormente: Diagram
   type ContractorEmployee = DB['public']['Tables']['contractor_employee']['Row']; // Anteriormente: ContractorEmployee
   type Customer = DB['public']['Tables']['customers']['Row']; // Anteriormente: Customers
   type VehicleModel = DB['public']['Tables']['model_vehicles']['Row']; // Anteriormente: Model
@@ -28,6 +29,7 @@ declare global {
   type EmployeeDiagramInsert = DB['public']['Tables']['employees_diagram']['Insert']; // Anteriormente: DiagramEmployee
   type DiagramType = DB['public']['Tables']['diagram_type']['Row']; // Anteriormente: DiagramType
   type City = DB['public']['Tables']['cities']['Row']; // Anteriormente: City
+  type Sector = DB['public']['Tables']['sectors']['Row']; // Anteriormente: Sector
   type Province = DB['public']['Tables']['provinces']['Row']; // Anteriormente: Province
   type WorkflowDiagram = DB['public']['Tables']['work-diagram']['Row']; // Anteriormente: WorkflowDiagram
   type HierarchicalPosition = DB['public']['Tables']['hierarchy']['Row']; // Anteriormente: HierarchicalPosition
@@ -257,5 +259,19 @@ declare global {
   interface SharedCompanyWithCompany extends Omit<ShareCompanyUsers, 'company_id'> {
     // Anteriormente: DocumentEquipmentWithRelationsIncludesCompany
     company_id: Company; // Anteriormente: CompanyWithRelations
+  }
+
+  // .select('*,sector_customer(sector_id(id,name), customer_id(id,name))')
+  interface SectorWithCustomers extends Omit<Sector, 'sector_customer'> {
+    sector_customer: Array<{
+      sector_id: {
+        id: string;
+        name: string;
+      };
+      customer_id: {
+        id: string;
+        name: string;
+      };
+    }>;
   }
 }
