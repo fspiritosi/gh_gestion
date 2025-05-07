@@ -56,5 +56,5 @@ export default async function RepairSolicitudes({
     };
   });
 
-  return <DataTable data={repairsFormatted} columns={mechanic ? mechanicColums : repairSolicitudesColums} />;
+  return <DataTable data={repairsFormatted || []} columns={mechanic ? mechanicColums : repairSolicitudesColums} />;
 }
