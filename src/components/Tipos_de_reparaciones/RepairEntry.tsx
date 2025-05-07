@@ -236,12 +236,12 @@ export default function RepairNewEntry({
           const condition = vehicle_id?.condition;
 
           const data = await Promise.all(
-            allRepairs.map(async (e) => {
+            allRepairs?.map(async (e) => {
               const user_images = e.files
                 ? await Promise.all(
                     e.files
                       .filter((image) => image)
-                      .map((image, index) => formatImages(image, e.domain, e.repair, index))
+                      ?.map((image, index) => formatImages(image, e.domain, e.repair, index))
                   )
                 : null;
 
@@ -300,8 +300,8 @@ export default function RepairNewEntry({
             e.files
               ? await Promise.all(
                   e.files
-                    .filter((image) => image)
-                    .map((image, index) => formatImagesUrl(image, e.domain, e.repair, index))
+                    ?.filter((image) => image)
+                    ?.map((image, index) => formatImagesUrl(image, e.domain, e.repair, index))
                 )
               : null;
           });
@@ -462,7 +462,7 @@ export default function RepairNewEntry({
                             <CommandList>
                               <CommandEmpty>No se encontró ningún tipo de reparación.</CommandEmpty>
                               <CommandGroup>
-                                {tipo_de_mantenimiento.map((item) => (
+                                {tipo_de_mantenimiento?.map((item) => (
                                   <CommandItem
                                     value={item.name}
                                     key={item.id}
@@ -518,7 +518,7 @@ export default function RepairNewEntry({
                 >
                   Imagenes de la reparacion
                   <CarouselContent>
-                    {Array.from({ length: 3 }).map((_, index) => (
+                    {Array.from({ length: 3 })?.map((_, index) => (
                       <CarouselItem key={crypto.randomUUID()} className="basis-1/3 ">
                         <div className="p-1">
                           <Card className="hover:cursor-pointer" onClick={() => handleCardClick(index)}>
@@ -566,7 +566,7 @@ export default function RepairNewEntry({
               </TableRow>
             </TableHeader>
             <TableBody className="overflow-x-auto">
-              {allRepairs.map((field) => {
+              {allRepairs?.map((field) => {
                 const repair = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                 return (
                   <TableRow key={field.provicionalId}>
@@ -575,8 +575,8 @@ export default function RepairNewEntry({
                         {repair?.name}
                         <div className="flex -space-x-2">
                           {field.user_images
-                            .filter((url) => url)
-                            .map((url) => (
+                            ?.filter((url) => url)
+                            ?.map((url) => (
                               <Avatar key={url} className="border-black border size-8 ">
                                 <AvatarImage src={url || ''} alt="Preview de la reparacion" />
                                 <AvatarFallback>CN</AvatarFallback>
@@ -633,7 +633,7 @@ export default function RepairNewEntry({
                   <p className="text-sm text-muted-foreground">Condicion: {vehicle?.condition}</p>
                 </div>
                 <ul className="w-full">
-                  {allRepairs.map((field, index) => {
+                  {allRepairs?.map((field, index) => {
                     const repair = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                     const maintenance = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                     const priority = criticidad.find((priority) => priority.value === repair?.criticity);
@@ -684,8 +684,8 @@ export default function RepairNewEntry({
                                   </div>
                                   <div className="flex -space-x-2 mt-2">
                                     {field.user_images
-                                      .filter((url) => url)
-                                      .map((url) => (
+                                      ?.filter((url) => url)
+                                      ?.map((url) => (
                                         <Avatar key={url} className="border-black border size-8 ">
                                           <AvatarImage src={url || ''} alt="Preview de la reparacion" />
                                           <AvatarFallback>CN</AvatarFallback>

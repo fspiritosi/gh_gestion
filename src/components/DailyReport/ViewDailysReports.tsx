@@ -115,11 +115,11 @@ export default function ViewDailysReports() {
       setDailyReports(data.dailyReports);
     } catch (error) {
       console.error('Error fetching reports:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los reportes diarios.',
-        variant: 'destructive',
-      });
+      // toast({
+      //   title: 'Error',
+      //   description: 'No se pudieron cargar los reportes diarios.',
+      //   variant: 'destructive',
+      // });
     } finally {
       setIsLoading(false);
     }
