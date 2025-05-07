@@ -319,7 +319,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredRepairs.map((repair) => {
+            {filteredRepairs?.map((repair) => {
               const { criticity } = repair;
               const priority = criticidad.find((priority) => priority.value === criticity);
               const badgeVariant =
