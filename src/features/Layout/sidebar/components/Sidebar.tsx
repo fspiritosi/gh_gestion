@@ -52,7 +52,7 @@ export function Sidebar({ role, userModules }: SidebarProps) {
             className={cn(
               'flex items-center p-4 cursor-pointer transition-all duration-500 rounded-s-full lisidebar relative',
               link.name === activeLink
-                ? 'dark:bg-slate-900 activesidebar before:shadow-custom-white after:shadow-custom-white-inverted'
+                ? 'dark:bg-slate-900 bg-gh_contrast activesidebar before:shadow-custom-white after:shadow-custom-white-inverted'
                 : 'hover:bg-slate-800',
               isActiveSidebar ? 'ml-0' : 'ml-4'
             )}
