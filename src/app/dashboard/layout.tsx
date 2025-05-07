@@ -1,6 +1,7 @@
 // import { AlertComponent } from '@/components/AlertComponent'
-import NavBar from '@/components/NavBar';
-import SideBarContainer from '@/components/SideBarContainer';
+// import SideBarContainer from '@/components/SideBarContainer';
+import NavbarFeat from '@/features/Layout/navbar/NavbarFeat';
+import SidebarFeat from '@/features/Layout/sidebar/SidebarFeat';
 import { Inter } from 'next/font/google';
 import '../globals.css';
 const font = Inter({ subsets: ['latin'] });
@@ -9,10 +10,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className={`grid grid-rows-[auto,1fr] grid-cols-[auto,1fr] h-screen `}>
       <div className="row-span-2 ">
-        <SideBarContainer />
+        <SidebarFeat />
       </div>
       <div className="border-r border-b border-muted/50 dark:bg-slate-950 mb-2">
-        <NavBar />
+        {/* <NavBar /> */}
+        <NavbarFeat />
       </div>
       <div>{children}</div>
     </div>

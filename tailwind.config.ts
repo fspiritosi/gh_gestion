@@ -15,8 +15,8 @@ const config = {
     },
     extend: {
       boxShadow: {
-        'custom-white': '10px 10px 0px 10px hsl(var(--muted))',
-        'custom-white-inverted': '10px -10px 0 10px hsl(var(--muted))',
+        'custom-white': '10px 10px 0px 10px hsl(--slate-700)',
+        'custom-white-inverted': '10px -10px 0 10px hsl(var(--slate-700))',
       },
       width: {
         'sidebar-open': '16rem', // w-64

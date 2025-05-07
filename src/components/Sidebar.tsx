@@ -100,7 +100,6 @@ export default function SideBar({ Allinks, role }: { Allinks: any; role: string 
       <div className={cn('flex items-center p-2 justify-center')}>
         <span className="text-white text-xl flex items-center gap-2 relative overflow-hidden">
           <img src="/gh_logo.png" alt="codeControl logo" className=" relative block" />
-          {/* <CardTitle className="relative block text-black dark:text-white">Grupo Horizonte</CardTitle> */}
         </span>
       </div>
       <ul className="mt-4">
