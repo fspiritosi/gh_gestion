@@ -30,7 +30,7 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: <EditCompanyButton companyId={company_id?.toString() ?? ''} />,
-          component: <CompanyComponent company={companyData[0]} />,
+          component: <CompanyComponent company={companyData[0] as any} />,
         },
       },
       {
