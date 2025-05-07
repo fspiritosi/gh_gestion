@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={`${popinsFont.className} bg-gh_contrast`}>
+      <body className={`${popinsFont.className} bg-gh_contrast dark:bg-slate-900`}>
         <ThemeProvider attribute="class" defaultTheme="ligth" enableSystem disableTransitionOnChange>
           <Toaster />
           <Sonner richColors={true} />

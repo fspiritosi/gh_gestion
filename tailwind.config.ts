@@ -29,6 +29,7 @@ const config = {
         gh_contrast: '#e8e8e8',
         gh: '#fff',
         gh_orange: '#ff9800',
+        gh_dark_bg: 'hsl(var(--slate-700))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

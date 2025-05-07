@@ -11,10 +11,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="row-span-2 ">
         <SideBarContainer />
       </div>
-      <div className="border-r border-b border-muted/50">
+      <div className="border-r border-b border-muted/50 dark:bg-slate-950 mb-2">
         <NavBar />
       </div>
-      <div >{children}</div>
+      <div>{children}</div>
     </div>
   );
 }

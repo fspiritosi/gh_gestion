@@ -34,7 +34,7 @@ export default async function ViewcomponentInternal({ viewData }: { viewData: Vi
   return (
     <div className="flex flex-col gap-6 py-1 h-full ">
       <Tabs defaultValue={viewData.defaultValue}>
-        <TabsList className="flex gap-1 justify-start w-fit bg-gh_contrast/50">
+        <TabsList className="flex gap-1 justify-start w-fit bg-gh_contrast/50 dark:bg-slate-900">
           {viewData.tabsValues.map((tab, index) => {
             if (tab.restricted.includes(role)) return;
             return (
