@@ -2,7 +2,7 @@ import TypesDocumentAction from '@/app/dashboard/document/documentComponents/Typ
 import DocumentTabComponent from '@/components/DocumentTabComponent';
 import EditCompanyButton from '@/components/EditCompanyButton';
 import { RegisterWithRole } from '@/components/RegisterWithRole';
-import ViewcomponentInternal from '@/components/ViewComponentInternal';
+import Viewcomponent from '@/components/ViewComponent';
 import CompanyComponent from '@/features/Empresa/General/components/company/CompanyComponent';
 // import DangerZoneComponent from '@/features/Empresa/General/components/company/DangerZoneComponent';
 import { cookies } from 'next/headers';
@@ -98,7 +98,7 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
 
   return (
     <div className=" ">
-      <ViewcomponentInternal viewData={viewData} />
+      <Viewcomponent viewData={viewData} />
       {/* <Tabs defaultValue="company" className="w-full">
         <TabsList className="mb-2 bg-gh_contrast/50">
           <TabsTrigger className="text-gh_orange font-semibold" value="company">

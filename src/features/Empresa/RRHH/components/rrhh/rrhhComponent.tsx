@@ -121,31 +121,6 @@ export default async function RrhhComponent({
   return (
     <div>
       <ViewComponentInternal viewData={viewData} />
-      {/* <Tabs defaultValue="listado">
-        <TabsList>
-          <TabsTrigger value="listado">Tipos de Diagramas</TabsTrigger>
-          <TabsTrigger value="diagrams">Tipos de Novedades</TabsTrigger>
-          <TabsTrigger value="convenios">CCT</TabsTrigger>
-          <TabsTrigger value="contract-types">Tipos de Contrato</TabsTrigger>
-          <TabsTrigger value="positions">Puestos</TabsTrigger>
-        </TabsList>
-        <TabsContent value="listado"> */}
-      {/* <ListDiagrams diagramsTypes={diagrams_types} /> */}
-      {/* <DiagramTypesTab diagrams_types={diagrams_types} />
-        </TabsContent>
-        <TabsContent value="diagrams">
-          <DiagramTypeComponent diagrams_types={diagrams_types} />
-        </TabsContent>
-        <TabsContent value="convenios">
-          <CovenantTreeFile />
-        </TabsContent>
-        <TabsContent value="contract-types" className="">
-          <ContractTypesTab allContractTypes={allContractTypes} />
-        </TabsContent>
-        <TabsContent value="positions">
-          <PositionsTab />
-        </TabsContent>
-      </Tabs> */}
     </div>
   );
 }
