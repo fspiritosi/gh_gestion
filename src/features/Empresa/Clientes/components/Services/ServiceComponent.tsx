@@ -30,10 +30,39 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
   } = await supabase.auth.getUser();
   const cookiesStore = cookies();
   const company_id = cookiesStore.get('actualComp')?.value || '';
-  const { customers } = await fetch(`${URL}/api/company/customers?actual=${company_id}`).then((e) => e.json());
+  console.log(company_id, 'company_id');
+
+  // const { customers } = await fetch(`${URL}/api/company/customers?actual=${company_id}`).then((e) => e.json());
+  let customers: any = [];
+  try {
+    const res = await fetch(`${URL}/api/company/customers?actual=${company_id}`);
+
+    if (!res.ok) {
+      throw new Error(`Error al obtener clientes: ${res.statusText}`);
+    } else {
+      const data = await res.json();
+      customers = data?.customers || [];
+    }
+  } catch (error) {
+    console.error('Error inesperado al obtener clientes:', error);
+  }
+
   const filterCustomers = customers?.filter((client: customer) => client.is_active === true);
 
-  const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
+  let services: any[] = [];
+
+  try {
+    const res2 = await fetch(`${URL}/api/services?actual=${company_id}`);
+
+    if (!res2.ok) {
+      console.error(`Error al obtener servicios: ${res2.statusText}`);
+    } else {
+      const data2 = await res2.json();
+      services = data2?.services || [];
+    }
+  } catch (error) {
+    console.error('Error inesperado al obtener servicios:', error);
+  }
 
   const service = services?.find((s: any) => s.id === id);
 
