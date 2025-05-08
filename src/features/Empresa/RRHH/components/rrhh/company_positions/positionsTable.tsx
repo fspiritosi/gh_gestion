@@ -1,8 +1,10 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { useState } from 'react';
+
 interface Position {
   id: string;
   created_at: string;
@@ -52,12 +54,29 @@ function PositionsTable({
               <TableRow key={position.id}>
                 <TableCell className="font-medium">{position.name}</TableCell>
                 <TableCell>
-                  {(Array.isArray(position.hierarchical_position_id)
-                    ? position.hierarchical_position_id
-                    : [position.hierarchical_position_id]
-                  )
-                    .map((id: string) => hierarchicalPositions.find((h: any) => h.id === id)?.name || '-')
-                    .join(', ') || '-'}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="truncate max-w-[200px] cursor-pointer">
+                          <Badge>
+                            {hierarchicalPositions.find((h: any) => h.id === position.hierarchical_position_id[0])
+                              ?.name || '-'}
+                            {position.hierarchical_position_id.length > 1 &&
+                              ` +${position.hierarchical_position_id.length - 1}`}
+                          </Badge>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="flex flex-col ">
+                          {hierarchicalPositions
+                            .filter((h: any) => position.hierarchical_position_id.includes(h.id))
+                            .map((hierarchicalPosition) => (
+                              <span key={hierarchicalPosition.id}>{hierarchicalPosition.name}</span>
+                            ))}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </TableCell>
                 <TableCell>
                   <Badge variant={position.is_active ? 'success' : 'default'}>
