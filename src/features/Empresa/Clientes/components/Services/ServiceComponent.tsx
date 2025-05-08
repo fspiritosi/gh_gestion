@@ -33,8 +33,8 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
   const { customers } = await fetch(`${URL}/api/company/customers?actual=${company_id}`).then((e) => e.json());
   const filterCustomers = customers?.filter((client: customer) => client.is_active === true);
 
-  // const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
-  const services: any = [];
+  const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
+
   const service = services?.find((s: any) => s.id === id);
 
   // const {measure_units}= await fetch(`${URL}/api/meassure`).then((e) => e.json());
