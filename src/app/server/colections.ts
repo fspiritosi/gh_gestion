@@ -4,6 +4,7 @@ import type { Database as DB } from '../../../database.types';
 declare global {
   // Tipos de tablas
   type Database = DB;
+  type TypeOfRepair = DB['public']['Tables']['types_of_repairs']['Row'];
   type ContractType = DB['public']['Tables']['types_of_contract']['Row'];
   type CostCenter = DB['public']['Tables']['cost_center']['Row'];
   type Vehicle = DB['public']['Tables']['vehicles']['Row']; // Anteriormente: Vehicles
@@ -252,5 +253,9 @@ declare global {
 
   interface ContractorEmployeeWithEmployee extends Omit<ContractorEmployee, 'employee_id'> {
     employee_id: Employee;
+  }
+  interface SharedCompanyWithCompany extends Omit<ShareCompanyUsers, 'company_id'> {
+    // Anteriormente: DocumentEquipmentWithRelationsIncludesCompany
+    company_id: Company; // Anteriormente: CompanyWithRelations
   }
 }

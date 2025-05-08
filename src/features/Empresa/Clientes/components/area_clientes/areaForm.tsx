@@ -135,7 +135,7 @@ function AreaForm({ customers, provinces, mode, setMode, selectedArea, setSelect
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 w-[300px]">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 w-[300px]">
         <h2 className="text-xl font-bold mb-4">{mode === 'create' ? 'Crear Area' : 'Editar Area'}</h2>
 
         <FormField

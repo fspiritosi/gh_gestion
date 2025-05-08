@@ -41,7 +41,7 @@ const generateChartData = (categoryConfig: any, forms: any[]) => {
     const item = categoryConfig[month.replace(/_/g, ' ')] || { color: 'defaultColor' }; // Asegurar que item no sea undefined
     return {
       month: month, // Usar el nombre del mes como identificador
-      respuestas: form ? (form.form_answers.length === 0 ? 1 : form.form_answers.length) : 10, // Asignar valor a desktop
+      respuestas: form ? (form.form_answers?.length === 0 ? 1 : form.form_answers?.length) : 10, // Asignar valor a desktop
       fill: item.color, // Usar el color especificado en categoryConfig o un color por defecto
     };
   });

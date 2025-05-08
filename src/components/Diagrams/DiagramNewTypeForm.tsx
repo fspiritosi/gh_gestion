@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { createDiagramType, updateDiagramType } from '@/features/Empresa/RRHH/tabs/TiposDeNovedades/actions/actions';
 import { zodResolver } from '@hookform/resolvers/zod';
-import cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,22 +18,18 @@ interface DiagramNewTypeFormProps {
   diagramToEdit: boolean;
   setDiagramToEdit: (value: boolean) => void;
 }
+export const NewDiagramType = z.object({
+  name: z.string().min(1, { message: 'El nombre de la novedad no puede estar vacío' }),
+  short_description: z.string().min(1, { message: 'La descripción dorta no puede estar vacía' }),
+  color: z.string().min(1, { message: 'Por favor selecciona un color para la novedad' }),
+  id: z.string().optional(),
+  work_active: z.boolean().optional(),
+  is_active: z.boolean().optional(),
+});
 
+export type NewDiagramType = z.infer<typeof NewDiagramType>;
 export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramToEdit }: DiagramNewTypeFormProps) {
-  const company_id = cookies.get('actualComp');
-  const URL = process.env.NEXT_PUBLIC_BASE_URL;
-  const NewDiagramType = z.object({
-    name: z.string().min(1, { message: 'El nombre de la novedad no puede estar vacío' }),
-    short_description: z.string().min(1, { message: 'La descripción dorta no puede estar vacía' }),
-    color: z.string().min(1, { message: 'Por favor selecciona un color para la novedad' }),
-    id: z.string().optional(),
-    work_active: z.boolean().optional(),
-    is_active: z.boolean().optional(),
-  });
-
-  type NewDiagramType = z.infer<typeof NewDiagramType>;
   const router = useRouter();
-
   const form = useForm<NewDiagramType>({
     resolver: zodResolver(NewDiagramType),
     defaultValues: {
@@ -50,18 +46,18 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
     values.short_description = values.short_description.toUpperCase();
 
     const method = diagramToEdit ? 'PUT' : 'POST';
-    const url = diagramToEdit
-      ? `${URL}/api/employees/diagrams/tipos`
-      : `${URL}/api/employees/diagrams/tipos?actual=${company_id}`;
+    // const url = diagramToEdit
+    //   ? `${URL}/api/employees/diagrams/tipos`
+    //   : `${URL}/api/employees/diagrams/tipos?actual=${company_id}`;
 
     toast.promise(
       async () => {
-        const data = JSON.stringify(values);
-        const response = await fetch(url, {
-          method,
-          body: data,
-        });
-        return response;
+        console.log('method', method);
+        if (method === 'PUT') {
+          await updateDiagramType(values);
+        } else {
+          await createDiagramType(values);
+        }
       },
       {
         loading: 'Cargando...',
@@ -112,7 +108,7 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-[300px]">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-[300px]">
         <h2 className="text-xl font-bold mb-4">{diagramToEdit ? 'Editar Novedad' : 'Crear Novedad'}</h2>
         <FormField
           control={form.control}

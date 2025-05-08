@@ -63,7 +63,7 @@ function DiagramEmployeeView({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const resourceIds = selectedResources.map((resource) => {
+    const resourceIds = selectedResources?.map((resource) => {
       const employee = activeEmployees.find((element: any) => element.document === resource);
       return employee?.id;
     });
@@ -99,7 +99,7 @@ function DiagramEmployeeView({
 
   /*---------------------FIN FILTROS DE FECHA --------------------------------- */
 
-  const groupedDiagrams = diagrams.reduce((acc: any, diagram: any) => {
+  const groupedDiagrams = diagrams?.reduce((acc: any, diagram: any) => {
     const employee = activeEmployees.find((emp: any) => emp.id === diagram.employee_id);
     if (employee) {
       if (!acc[diagram.employee_id]) {
@@ -118,7 +118,7 @@ function DiagramEmployeeView({
   }, [activeEmployees, form]);
 
   useEffect(() => {
-    const employeesWithDiagrams = Object.keys(groupedDiagrams).map((employeeId) => {
+    const employeesWithDiagrams = Object.keys(groupedDiagrams || {})?.map((employeeId) => {
       const employeeDiagrams = groupedDiagrams[employeeId];
       const employee = employeeDiagrams[0].employees;
       return employee.id;
@@ -142,9 +142,9 @@ function DiagramEmployeeView({
 
     // 3. Datos de cada empleado
     const employeesToExport =
-      selectedResources.length > 0
-        ? Object.keys(groupedDiagrams).filter((employeeId) => selectedResources.includes(employeeId))
-        : Object.keys(groupedDiagrams);
+      selectedResources?.length > 0
+        ? Object.keys(groupedDiagrams || {})?.filter((employeeId) => selectedResources.includes(employeeId))
+        : Object.keys(groupedDiagrams || {});
 
     employeesToExport.forEach((employeeId) => {
       const employeeDiagrams = groupedDiagrams[employeeId];
@@ -223,7 +223,7 @@ function DiagramEmployeeView({
                               role="combobox"
                               className={cn('justify-between', !field.value && 'text-muted-foreground')}
                             >
-                              {`${selectedResources.length || '0'} empleados seleccionados`}
+                              {`${selectedResources?.length || '0'} empleados seleccionados`}
                               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -258,7 +258,7 @@ function DiagramEmployeeView({
                             <CommandGroup className="overflow-auto max-h-[60vh]">
                               {filteredResources
                                 ?.sort((a: any, b: any) => a.full_name.localeCompare(b.full_name))
-                                .map((person: any) => {
+                                ?.map((person: any) => {
                                   const key = /^\d+$/.test(inputValue) ? person.id : person.full_name;
                                   const value = /^\d+$/.test(inputValue) ? person.id : person.full_name;
                                   return (
@@ -338,7 +338,7 @@ function DiagramEmployeeView({
       <Table>
         <TableHeader>
           <TableHead>Empleado</TableHead>
-          {mes.map((d, index) => (
+          {mes?.map((d, index) => (
             <TableHead key={crypto.randomUUID()} className="text-center">
               {d.getDate() + '/' + (d.getMonth() + 1)}
             </TableHead>
@@ -346,10 +346,10 @@ function DiagramEmployeeView({
         </TableHeader>
 
         <TableBody>
-          {selectedResources.length > 0
-            ? Object.keys(groupedDiagrams)
-                .filter((employeeId) => selectedResources.includes(employeeId))
-                .map((employeeId, index) => {
+          {selectedResources?.length > 0
+            ? Object.keys(groupedDiagrams || {})
+                ?.filter((employeeId) => selectedResources.includes(employeeId))
+                ?.map((employeeId, index) => {
                   const employeeDiagrams = groupedDiagrams[employeeId];
                   const employee = employeeDiagrams[0].employees; // Asumimos que todos los diagramas tienen el mismo empleado
                   return (
@@ -357,7 +357,7 @@ function DiagramEmployeeView({
                       <TableCell>
                         {employee.lastname}, {employee.firstname}
                       </TableCell>
-                      {mes.map((day, dayIndex) => {
+                      {mes?.map((day, dayIndex) => {
                         const diagram = employeeDiagrams.find(
                           (diagram: any) =>
                             diagram.day === day.getDate() &&
@@ -377,9 +377,9 @@ function DiagramEmployeeView({
                     </TableRow>
                   );
                 })
-            : Object.keys(groupedDiagrams)
-                .filter((employeeId) => initialResources.includes(employeeId))
-                .map((employeeId, index) => {
+            : Object.keys(groupedDiagrams || {})
+                ?.filter((employeeId) => initialResources.includes(employeeId))
+                ?.map((employeeId, index) => {
                   const employeeDiagrams = groupedDiagrams[employeeId];
                   const employee = employeeDiagrams[0].employees; // Asumimos que todos los diagramas tienen el mismo empleado
                   return (
@@ -387,7 +387,7 @@ function DiagramEmployeeView({
                       <TableCell>
                         {employee.lastname}, {employee.firstname}
                       </TableCell>
-                      {mes.map((day, dayIndex) => {
+                      {mes?.map((day, dayIndex) => {
                         const diagram = employeeDiagrams.find(
                           (diagram: any) =>
                             diagram.day === day.getDate() &&

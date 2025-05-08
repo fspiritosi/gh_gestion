@@ -82,6 +82,7 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
           </TabsContent>
           <TabsContent value="repairs" className="px-3 py-2">
             <RepairTypes
+              tabValue="created_solicitudes"
               equipment_id={searchParams.id}
               type_of_repair_new_entry
               created_solicitudes

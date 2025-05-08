@@ -13,7 +13,7 @@ import {
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useLoggedUserStore } from '@/store/loggedUser';
-import { TypeOfRepair } from '@/types/types';
+// import { TypeOfRepair } from '@/types/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, useEffect, useState } from 'react';
@@ -27,14 +27,14 @@ import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Textarea } from '../ui/textarea';
 import { criticidad } from './RepairSolicitudesTable/data';
-export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfRepair }) {
+export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfRepair[] }) {
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
   const company_id = useLoggedUserStore((state) => state.actualCompany)?.id;
   const [filterText, setFilterText] = useState('');
   const [filterCriticidad, setFilterCriticidad] = useState('All');
   const [filterMaintenance, setFilterMaintenance] = useState('All');
   const [filteredRepairs, setFilteredRepairs] = useState(types_of_repairs);
-  const [selectedRepair, setSelectedRepair] = useState<TypeOfRepair[0] | null>(null);
+  const [selectedRepair, setSelectedRepair] = useState<TypeOfRepair | null>(null);
   const router = useRouter();
 
   const typeOfRepair = z.object({
@@ -136,7 +136,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     const data = types_of_repairs.filter((repair) => {
       const matchesText =
         repair.name.toLowerCase().includes(filterText.toLowerCase()) ||
-        repair.criticity.toLowerCase().includes(filterText.toLowerCase()) ||
+        repair.criticity?.toLowerCase().includes(filterText.toLowerCase()) ||
         repair.description.toLowerCase().includes(filterText.toLowerCase());
 
       const matchesCriticidad = filterCriticidad === 'All' || repair.criticity === filterCriticidad;
@@ -147,12 +147,12 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     setFilteredRepairs(data);
   }, [filterText, filterCriticidad, filterMaintenance, types_of_repairs]);
 
-  const handleModify = (repair: TypeOfRepair[0]) => {
+  const handleModify = (repair: TypeOfRepair) => {
     setSelectedRepair(repair);
     form.setValue('name', repair.name);
     form.setValue('description', repair.description);
-    form.setValue('criticity', repair.criticity);
-    form.setValue('type_of_maintenance', repair.type_of_maintenance);
+    form.setValue('criticity', repair.criticity || ('' as any));
+    form.setValue('type_of_maintenance', repair.type_of_maintenance || 'Correctivo');
   };
 
   const handleFilterCriticidadChange = (value: string) => {
@@ -171,7 +171,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     <ResizablePanelGroup direction="horizontal" className="pt-6">
       <ResizablePanel>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(selectedRepair ? onUpdate : onSubmit)} className="space-y-8 p-3">
+          <form onSubmit={form.handleSubmit(selectedRepair ? onUpdate : onSubmit)} className="space-y-4 pt-3 pr-3">
             <FormField
               control={form.control}
               name="name"
@@ -319,7 +319,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredRepairs.map((repair) => {
+            {filteredRepairs?.map((repair) => {
               const { criticity } = repair;
               const priority = criticidad.find((priority) => priority.value === criticity);
               const badgeVariant =
@@ -342,7 +342,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
                   <TableCell>{repair.name}</TableCell>
                   <TableCell>{repair.type_of_maintenance}</TableCell>
                   <TableCell className="font-medium">
-                    <Badge variant={badgeVariant} className='font-bold'>
+                    <Badge variant={badgeVariant} className="font-bold">
                       {' '}
                       {priority?.icon && <priority.icon className="mr-2 h-4 w-4 font-bold" />}
                       {repair.criticity}

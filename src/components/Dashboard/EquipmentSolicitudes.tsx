@@ -22,7 +22,7 @@ export function EquipmentSolicitudes({ solicitudes }: { solicitudes: RepairReque
   }, [solicitudes]);
 
   // Configuración del gráfico
-  const chartConfig: ChartConfig = companyPositionData.reduce((config, { position }, index) => {
+  const chartConfig: ChartConfig = companyPositionData?.reduce((config, { position }, index) => {
     config[position] = {
       label: position,
       color: `hsl(${index * 60}, 70%, 50%)`,
@@ -30,7 +30,7 @@ export function EquipmentSolicitudes({ solicitudes }: { solicitudes: RepairReque
     return config;
   }, {} as ChartConfig);
 
-  const totalEmployees = companyPositionData.reduce((acc, { count }) => acc + count, 0);
+  const totalEmployees = companyPositionData?.reduce((acc, { count }) => acc + count, 0);
 
   return (
     <Card className="flex flex-col">

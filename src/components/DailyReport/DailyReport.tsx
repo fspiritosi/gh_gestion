@@ -36,6 +36,7 @@ import DocumentView from './DocumentView';
 import { dailyColumns } from './tables/DailyReportColumns';
 import { TypesOfCheckListTable } from './tables/data-table-dily-report';
 // import { Customers, Services, Items, Employee, Equipment} from '@/components/DailyReport/DailyReport';
+import { fetchAllEquipmentWithBrand } from '@/app/server/GET/actions';
 import {
   getCustomerName,
   getEmployeeNames,
@@ -219,8 +220,10 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
   const [customerEmployees, setCustomerEmployees] = useState<Employee[]>([]);
   const [startTime, setStartTime] = useState<string>('');
   const [endTime, setEndTime] = useState<string>('');
-  const [equipment, setEquipment] = useState<Equipment[]>([]);
-  const [customerEquipment, setCustomerEquipment] = useState<Equipment[]>([]);
+  const [equipment, setEquipment] = useState<Awaited<ReturnType<typeof fetchAllEquipmentWithBrand>>>([]);
+  const [customerEquipment, setCustomerEquipment] = useState<Awaited<ReturnType<typeof fetchAllEquipmentWithBrand>>>(
+    []
+  );
   const [services, setServices] = useState<Services[]>([]);
   const [customerServices, setCustomerServices] = useState<Services[]>([]);
   const [selectedService, setSelectedService] = useState<Services | null>(null);
@@ -302,13 +305,11 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
 
   async function fetchEquipment() {
     try {
-      const response = await fetch(`${URL}/api/equipment/?actual=${company_id}`);
-      if (!response.ok) {
-        throw new Error(`Error en la solicitud: ${response.statusText}`);
-      }
-      const data = await response.json();
-      const equipment = data.equipments;
-      const activeEquipment = equipment.filter((eq: Equipment) => eq.is_active);
+      // const response = await fetch(`${URL}/api/equipment/?actual=${company_id}`);
+      const equipments = await fetchAllEquipmentWithBrand();
+
+      const equipment = equipments;
+      const activeEquipment = equipment.filter((eq) => eq.is_active);
       setEquipment(activeEquipment);
       return equipment;
     } catch (error) {
@@ -387,7 +388,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
     );
 
     // Solo actualizar el estado si la lista filtrada es diferente
-    if (customersWithServices.length !== customers.length) {
+    if (customersWithServices?.length !== customers?.length) {
       setCustomers(customersWithServices);
     }
   }, [customers, services, reportData]);
@@ -438,7 +439,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       });
       setCustomerEmployees(filteredEmployees);
 
-      const filteredEquipment = equipment.filter((equipment: Equipment) => {
+      const filteredEquipment = equipment.filter((equipment) => {
         const isAllocatedToCustomer = equipment.allocated_to?.includes(customer.id);
         const isNotUnderRepair = !(equipment.condition === 'en reparación' || equipment.condition === 'no operativo');
         return isAllocatedToCustomer && isNotUnderRepair;
@@ -679,7 +680,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       const { data: rowData } = await rowResponse.json();
       const rowId = rowData[0].id; // Asegúrate de que esto sea correcto
 
-      if (data.employees && data.employees.length > 0) {
+      if (data.employees && data.employees?.length > 0) {
         await fetch('/api/daily-report/dailyreportemployeerelations', {
           method: 'POST',
           headers: {
@@ -694,7 +695,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
         });
       }
 
-      if (data.equipment && data.equipment.length > 0) {
+      if (data.equipment && data.equipment?.length > 0) {
         await fetch('/api/daily-report/dailyreportequipmentrelations', {
           method: 'POST',
           headers: {
@@ -817,7 +818,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       const equipmentToRemove = currentEquipment.filter((rel: any) => !data.equipment?.includes(rel.equipment_id));
 
       // Eliminar relaciones no utilizadas
-      if (employeesToRemove.length > 0) {
+      if (employeesToRemove?.length > 0) {
         await fetch('/api/daily-report/dailyreportemployeerelations', {
           method: 'DELETE',
           headers: {
@@ -830,7 +831,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
         });
       }
 
-      if (equipmentToRemove.length > 0) {
+      if (equipmentToRemove?.length > 0) {
         await fetch('/api/daily-report/dailyreportequipmentrelations', {
           method: 'DELETE',
           headers: {
@@ -860,7 +861,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       const existingEmployee = await existingRelationEmployeeResponse.json();
 
       // Actualizar relaciones con nuevos datos
-      if (data.employees && !existingEmployee.exists && data.employees.length > 0) {
+      if (data.employees && !existingEmployee.exists && data.employees?.length > 0) {
         await fetch('/api/daily-report/dailyreportemployeerelations', {
           method: 'POST',
           headers: {
@@ -892,7 +893,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       );
       const existingEquipment = await existingRelationEquipmentResponse.json();
 
-      if (data.equipment && !existingEquipment.exists && data.equipment.length > 0) {
+      if (data.equipment && !existingEquipment.exists && data.equipment?.length > 0) {
         await fetch('/api/daily-report/dailyreportequipmentrelations', {
           method: 'POST',
           headers: {
@@ -1088,7 +1089,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       }));
 
       // Crear nuevas relaciones de empleados para la nueva fila
-      if (currentEmployees.length > 0) {
+      if (currentEmployees?.length > 0) {
         await fetch('/api/daily-report/dailyreportemployeerelations', {
           method: 'POST',
           headers: {
@@ -1104,7 +1105,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
       }
 
       // Crear nuevas relaciones de equipos para la nueva fila
-      if (currentEquipment.length > 0) {
+      if (currentEquipment?.length > 0) {
         await fetch('/api/daily-report/dailyreportequipmentrelations', {
           method: 'POST',
           headers: {
@@ -1302,7 +1303,7 @@ export default function DailyReport({ reportData, allReport }: DailyReportProps)
                           <FormItem>
                             <FormLabel className="block w-full max-w-xs">Equipos</FormLabel>
                             <MultiSelect
-                              multiEmp={customerEquipment.map((eq: Equipment) => ({
+                              multiEmp={customerEquipment.map((eq) => ({
                                 id: eq.id,
                                 intern_number: eq.intern_number.toString(),
                               }))}

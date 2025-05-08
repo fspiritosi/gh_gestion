@@ -18,7 +18,7 @@ export function validarCUIL(cuil: string) {
   cuil = cuil.replace(/[-\s]/g, '');
 
   // Verifica la longitud
-  if (cuil.length !== 11) {
+  if (cuil?.length !== 11) {
     return false;
   }
 

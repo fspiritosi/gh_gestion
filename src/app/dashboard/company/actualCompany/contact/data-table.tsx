@@ -13,7 +13,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -43,18 +42,14 @@ interface DataContactsProps<TData, TValue> {
   localStorageName: string;
 }
 
-export function DataContacts<TData, TValue>({
-  columns,
-  data,
-  localStorageName,
-}: DataContactsProps<TData, TValue>) {
+export function DataContacts<TData, TValue>({ columns, data, localStorageName }: DataContactsProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const defaultVisibleColumns = ['contact_name', 'constact_email', 'contact_phone', 'contact_charge', 'customers.name'];
   const [showInactive, setShowInactive] = useState(false);
   const [defaultVisibleColumns1, setDefaultVisibleColumns1] = useState(() => {
     if (typeof window !== 'undefined') {
       const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-      return valorGuardado.length ? valorGuardado : defaultVisibleColumns;
+      return valorGuardado?.length ? valorGuardado : defaultVisibleColumns;
     }
     return defaultVisibleColumns;
   });
@@ -67,9 +62,9 @@ export function DataContacts<TData, TValue>({
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
-        columns.reduce((acc: any, column: any) => {
+        columns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
@@ -78,7 +73,7 @@ export function DataContacts<TData, TValue>({
   }, [columns]);
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns.reduce((acc: any, column: any) => {
+    columns?.reduce((acc: any, column: any) => {
       acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
       return acc;
     }, {})
@@ -120,7 +115,6 @@ export function DataContacts<TData, TValue>({
       columnFilters,
     },
   });
-  
 
   const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
     setColumnVisibility((prev) => ({
@@ -142,17 +136,14 @@ export function DataContacts<TData, TValue>({
     setSelectValues({
       customers_id: 'Todos',
       //is_active: 'todos',
-      
     });
-    
   };
   const maxRows = ['20', '40', '60', '80', '100'];
   const [selectValues, setSelectValues] = useState<{ [key: string]: string }>({});
-  
 
   return (
     <div>
-      <div className="flex items-center py-4 flex-wrap gap-y-2 overflow-auto">
+      <div className="flex items-center pb-4 flex-wrap gap-y-2 overflow-auto">
         <Input
           placeholder="Buscar por Nombre"
           value={(table.getColumn('contact_name')?.getFilterValue() as string) ?? ''}
@@ -196,11 +187,7 @@ export function DataContacts<TData, TValue>({
                   if (column.id === 'showUnavaliableContacts') {
                     return (
                       <>
-                        <DropdownMenuCheckboxItem
-                          key={column.id}
-                          className="capitalize  text-red-400"
-                         
-                        >
+                        <DropdownMenuCheckboxItem key={column.id} className="capitalize  text-red-400">
                           {column.columnDef.header}
                         </DropdownMenuCheckboxItem>
                       </>
@@ -303,12 +290,15 @@ export function DataContacts<TData, TValue>({
                         key={cell.id}
                         className={`text-center whitespace-nowrap ${is_active ? '' : 'text-red-500'}`}
                       >
-                        {cell.column.id === 'contact_name' ?(
-                          <Link className='hover:underline' href={`/dashboard/company/actualCompany/contact/action?action=view&id=${(cell.row.original as any)?.id}`}>
+                        {cell.column.id === 'contact_name' ? (
+                          <Link
+                            className="hover:underline"
+                            href={`/dashboard/company/actualCompany/contact/action?action=view&id=${(cell.row.original as any)?.id}`}
+                          >
                             {cell.getValue() as React.ReactNode}
-                          </Link> 
-                        ):
-                          (flexRender(cell.column.columnDef.cell, cell.getContext())
+                          </Link>
+                        ) : (
+                          flexRender(cell.column.columnDef.cell, cell.getContext())
                         )}
                       </TableCell>
                     ) : null;
@@ -317,7 +307,7 @@ export function DataContacts<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns?.length} className="h-24 text-center">
                   {loader ? (
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between">

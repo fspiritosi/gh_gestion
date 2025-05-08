@@ -46,7 +46,7 @@ async function NewDocumentMulti({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button>Documento Multirecurso</Button>
+        <Button variant="gh_orange">Documento Multirecurso</Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-full">
         <InfoComponent

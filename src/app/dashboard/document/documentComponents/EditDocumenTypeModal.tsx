@@ -254,7 +254,7 @@ export function EditModal({ Equipo }: Props) {
         };
         const table = tableNames[Equipo.applies as 'Equipos' | 'Persona'];
 
-        if (resourcesToInsert.length > 0) {
+        if (resourcesToInsert?.length > 0) {
           const {
             data: { user },
           } = await supabase.auth.getUser();
@@ -518,7 +518,7 @@ export function EditModal({ Equipo }: Props) {
         </div>
 
         <AlertDialog>
-          <AlertDialogTrigger disabled={!(resourcesToInsert.length > 0) || Equipo.applies === 'Empresa'} asChild>
+          <AlertDialogTrigger disabled={!(resourcesToInsert?.length > 0) || Equipo.applies === 'Empresa'} asChild>
             <Button className="self-end">Generar Alertas de documento</Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="max-h-[90vh] overflow-y-auto">
@@ -528,7 +528,7 @@ export function EditModal({ Equipo }: Props) {
                 Esta acción generara una alerta en todos los recursos que no las tengan generadas.
               </AlertDialogDescription>
               <AlertDialogDescription>
-                {resourcesToInsert.length > 0 ? (
+                {resourcesToInsert?.length > 0 ? (
                   <>
                     <CardTitle className="text-md underline mb-1">
                       Los siguientes recursos no tienen la alerta generada:

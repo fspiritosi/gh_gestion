@@ -1,11 +1,4 @@
 import { Customers, Employee, Equipment, Items, Services } from '@/components/DailyReport/DailyReport';
-import {
-  getCustomerName,
-  getEmployeeNames,
-  getEquipmentNames,
-  getItemName,
-  getServiceName,
-} from '@/components/DailyReport/utils/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -104,7 +97,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                       // console.log('selectedValues', selectedValues);
                       const filterValues = Array.from(selectedValues);
                       // console.log('filterValues', filterValues);
-                      column?.setFilterValue(filterValues.length ? filterValues : undefined);
+                      column?.setFilterValue(filterValues?.length ? filterValues : undefined);
                     }}
                   >
                     <div
@@ -116,9 +109,9 @@ export function DataTableFacetedFilter<TData, TValue>({
                       <CheckIcon className={cn('h-4 w-4')} />
                     </div>
                     {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
-                    
-                      <span>{option.label}</span>
-                    
+
+                    <span>{option.label}</span>
+
                     {/* {getServiceName(option.label, services as any) !== 'Unknown' && (
                       <span>{getServiceName(option.label, services as any)}</span>
                     )}

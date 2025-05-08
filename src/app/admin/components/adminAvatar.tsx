@@ -15,7 +15,7 @@ import {
 import { useLoggedUserStore } from '@/store/loggedUser';
 export default function AdminAvatar() {
   const actualUser = useLoggedUserStore((state) => state.profile);
-  const avatarUrl = actualUser && actualUser.length > 0 ? actualUser[0] : '';
+  const avatarUrl = actualUser && actualUser?.length > 0 ? actualUser[0] : '';
 
   const handleLogout = async () => {
     try {

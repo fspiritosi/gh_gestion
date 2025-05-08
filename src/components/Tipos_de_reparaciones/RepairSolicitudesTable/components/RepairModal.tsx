@@ -83,7 +83,7 @@ function RepairModal({ row, onlyView, action }: { row: any; onlyView?: boolean; 
     // Si la reparación actualizada es un estado de cierre
     if (endingStates.includes('Cancelado')) {
       // Si no hay más reparaciones pendientes, el vehículo está operativo
-      if (pendingRepairs.length === 0) {
+      if (pendingRepairs?.length === 0) {
         newStatus = 'operativo';
       } else {
         // Si hay otras reparaciones pendientes, calcular el estado basado en ellas
@@ -198,8 +198,8 @@ function RepairModal({ row, onlyView, action }: { row: any; onlyView?: boolean; 
             </div>
           </div>
           <div className="mx-auto w-[90%]">
-            {imageUrl.length > 0 && <Badge className="text-sm mb-2"> Imagenes del vehiculo a reparar</Badge>}
-            {imageUrl.length > 0 && (
+            {imageUrl?.length > 0 && <Badge className="text-sm mb-2"> Imagenes del vehiculo a reparar</Badge>}
+            {imageUrl?.length > 0 && (
               <Carousel className="w-full">
                 <CarouselContent>
                   {imageUrl.map((image, index) => (
@@ -269,7 +269,7 @@ function RepairModal({ row, onlyView, action }: { row: any; onlyView?: boolean; 
                     <div
                       className={cn(
                         'relative  flex max-h-[40px] max-w-[40px] size-10 items-center justify-center rounded-full  text-primary-foreground aspect-square flex-shrink-0',
-                        index + 1 === row.original.repairlogs.length ? 'bg-primary' : 'bg-muted-foreground'
+                        index + 1 === row.original.repairlogs?.length ? 'bg-primary' : 'bg-muted-foreground'
                       )}
                     >
                       {index + 1}

@@ -371,7 +371,7 @@ export default function MultiResourceDocument({
                           role="combobox"
                           className={cn('justify-between', !field.value && 'text-muted-foreground')}
                         >
-                          {`${selectedResources.length || '0'} recursos seleccionados`}
+                          {`${selectedResources?.length || '0'} recursos seleccionados`}
                           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>

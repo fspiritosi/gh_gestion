@@ -74,7 +74,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
         valorGuardado = valorGuardado.filter((col: string) => col !== 'allocated_to');
         localStorage.setItem('employeeColumns', JSON.stringify(valorGuardado));
       }
-      return valorGuardado.length
+      return valorGuardado?.length
         ? valorGuardado
         : defaultVisibleColumns.filter((col) => (role === 'Invitado' ? col !== 'allocated_to' : true));
     }
@@ -89,9 +89,9 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
 
   useEffect(() => {
     const valorGuardado = JSON.parse(localStorage.getItem('employeeColumns') || '[]');
-    if (valorGuardado.length) {
+    if (valorGuardado?.length) {
       setColumnVisibility(
-        defaultColumns.reduce((acc: any, column: any) => {
+        defaultColumns?.reduce((acc: any, column: any) => {
           acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
           return acc;
         }, {})
@@ -292,7 +292,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
 
   return (
     <div className="w-full grid grid-cols-1">
-      <div className="flex items-center py-4 flex-wrap gap-y-2 overflow-auto">
+      <div className="flex items-center py-4 pt-0 flex-wrap gap-y-2 overflow-auto">
         <Input
           placeholder="Buscar por nombre"
           value={(table.getColumn('full_name')?.getFilterValue() as string) ?? ''}
@@ -484,7 +484,7 @@ export function EmployeesTable<TData, TValue>({ columns, data, role }: DataTable
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={defaultColumns.length} className="h-24 text-center">
+                <TableCell colSpan={defaultColumns?.length} className="h-24 text-center">
                   {loader ? (
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between">

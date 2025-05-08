@@ -2,13 +2,12 @@ import { fetchAllActivesEmployees, fetchDiagrams, fetchDiagramsTypes } from '@/a
 import { supabaseServer } from '@/lib/supabase/server';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import { cookies } from 'next/headers';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import ViewcomponentInternal from '../ViewComponentInternal';
 import DiagramEmployeeView from './DiagramEmployeeView';
-import { DiagramForm } from './DiagramForm';
 import DiagramFormUpdated from './DiagramFormUpdated';
 import DiagramTypeComponent from './DiagramTypeComponent';
 
-async function EmployesDiagram() {
+async function EmployesDiagram({ tabValue, subtab }: { subtab?: string; tabValue: string }) {
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
   const supabase = supabaseServer();
   const {
@@ -21,33 +20,77 @@ async function EmployesDiagram() {
   const activeEmploees = setEmployeesToShow(employees?.filter((e: any) => e.is_active));
 
   const { data: diagrams } = await fetch(`${URL}/api/employees/diagrams`).then((e) => e.json());
-  const { data: diagrams_types } = await fetch(
-    `${URL}/api/employees/diagrams/tipos?actual=${company_id}&user=${user?.id}`
-  ).then((e) => e.json());
 
   const employees2 = await fetchAllActivesEmployees();
   const diagrams2 = await fetchDiagrams();
-  const diagrams_types2 = await fetchDiagramsTypes();
 
+  console.log('antes de los diagramas');
+  const diagrams_types = await fetchDiagramsTypes();
+  console.log(diagrams_types, 'despues de los diagramas');
+
+  const viewData = {
+    defaultValue: subtab || 'old',
+    path: '/dashboard/employee',
+    tabsValues: [
+      {
+        value: 'old',
+        name: 'Diagrama Cargados',
+        restricted: [''],
+        tab: tabValue,
+        content: {
+          title: 'Diagrama Cargados',
+          //description: 'Información de la empresa',
+          buttonActioRestricted: [''],
+          component: <DiagramEmployeeView diagrams={diagrams} activeEmployees={activeEmploees} />,
+        },
+      },
+      {
+        value: 'new',
+        name: 'Cargar Diagrama',
+        restricted: [''],
+        tab: tabValue,
+        content: {
+          title: 'Cargar Diagrama',
+          //description: 'Lista de documentos a nombre de la empresa',
+          buttonActioRestricted: [''],
+          component: <DiagramFormUpdated employees={employees2} diagrams={diagrams2} diagrams_types={diagrams_types} />,
+        },
+      },
+      {
+        value: 'newsTypes',
+        name: 'Tipos de Novedades',
+        restricted: [''],
+        tab: tabValue,
+        content: {
+          title: 'Tipos de Novedades',
+          //description: 'Lista de usuarios de la empresa',
+          buttonActioRestricted: [''],
+          buttonAction: '',
+          component: <DiagramTypeComponent diagrams_types={diagrams_types} />,
+        },
+      },
+    ],
+  };
   return (
-    <Tabs defaultValue="old">
-      <TabsList>
-        <TabsTrigger value="old">Diagrama Cargados</TabsTrigger>
-        <TabsTrigger value="new">Cargar Diagrama</TabsTrigger>
-        <TabsTrigger value="newsTypes">Tipos de Novedades</TabsTrigger>
-      </TabsList>
-      <TabsContent value="old">
-        <DiagramEmployeeView diagrams={diagrams} activeEmployees={activeEmploees} />
-      </TabsContent>
-      <TabsContent value="new">
-        {/* <DiagramForm activeEmploees={activeEmploees} diagrams={diagrams} diagrams_types={diagrams_types} /> */}
-        <DiagramFormUpdated employees={employees2} diagrams={diagrams2} diagrams_types={diagrams_types2} />
-      </TabsContent>
-      <TabsContent value="newsTypes">
-        <DiagramTypeComponent diagrams_types={diagrams_types} />
-      </TabsContent>
-      {/* <DiagramForm activeEmploees={activeEmploees} diagrams={diagrams} diagrams_types={diagrams_types} /> */}
-    </Tabs>
+    <ViewcomponentInternal viewData={viewData} />
+    // <Tabs defaultValue="old">
+    //   <TabsList>
+    //     <TabsTrigger value="old">Diagrama Cargados</TabsTrigger>
+    //     <TabsTrigger value="new">Cargar Diagrama</TabsTrigger>
+    //     <TabsTrigger value="newsTypes">Tipos de Novedades</TabsTrigger>
+    //   </TabsList>
+    //   <TabsContent value="old">
+    //     <DiagramEmployeeView diagrams={diagrams} activeEmployees={activeEmploees} />
+    //   </TabsContent>
+    //   <TabsContent value="new">
+    //     {/* <DiagramForm activeEmploees={activeEmploees} diagrams={diagrams} diagrams_types={diagrams_types} /> */}
+    //     <DiagramFormUpdated employees={employees2} diagrams={diagrams2} diagrams_types={diagrams_types2} />
+    //   </TabsContent>
+    //   <TabsContent value="newsTypes">
+    //     <DiagramTypeComponent diagrams_types={diagrams_types} />
+    //   </TabsContent>
+    //   {/* <DiagramForm activeEmploees={activeEmploees} diagrams={diagrams} diagrams_types={diagrams_types} /> */}
+    // </Tabs>
   );
 }
 

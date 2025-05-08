@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import Link from 'next/link';
-import GoogleButton from './componentsLogin/GoogleButton';
 import { LoginButton } from './componentsLogin/LoginButton';
 export default async function Login() {
   return (
@@ -14,13 +13,7 @@ export default async function Login() {
         <RenderBanner />
         <div className="lg:p-8 relative z-50   md:p-8 pt-7 p-0 flex flex-col justify-center items-center w-full">
           <Link className="relative z-20 lg:hidden items-center font-bold text-2xl flex" href="/">
-            <Image
-              src="https://zktcbhhlcksopklpnubj.supabase.co/storage/v1/object/public/logo/24417298440.png"
-              alt="Logo de codecontrol"
-              className="size-12 mr-4"
-              width={120}
-              height={120}
-            />
+            <Image src="/gh_logo.png" alt="Logo de codecontrol" className=" mr-4" width={120} height={120} />
             Grupo Horizonte
           </Link>
           <div className="w-full overflow-y-auto ">
@@ -66,14 +59,14 @@ export default async function Login() {
                 <div className="flex w-full justify-center flex-col items-center gap-2">
                   <LoginButton />
                   <Link href="/register" className="text-md">
-                    ¿No tienes una cuenta? <span className="text-blue-400 ml-1 ">Créate una aquí</span>
+                    ¿No tienes una cuenta? <span className="text-gh_orange ml-1 ">Créate una aquí</span>
                   </Link>
                 </div>
                 <Separator orientation="horizontal" className="my-2 w-[70%] self-center" />
                 <Link href="/reset_password" className="text-md m-auto">
-                  ¿Olvidaste tu contraseña? <span className="text-blue-400 ml-1 ">restablecela aquí </span>
+                  ¿Olvidaste tu contraseña? <span className="text-gh_orange ml-1 ">restablecela aquí </span>
                 </Link>
-                <GoogleButton />
+                {/* <GoogleButton /> */}
               </form>
             </CardContent>
           </div>

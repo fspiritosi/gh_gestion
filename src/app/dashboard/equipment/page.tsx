@@ -1,4 +1,3 @@
-import DocumentNav from '@/components/DocumentNav';
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
@@ -9,9 +8,9 @@ import EquipmentTabs from '../document/documentComponents/EquipmentTabs';
 import TypesDocumentAction from '../document/documentComponents/TypesDocumentAction';
 import TypesDocumentsView from '../document/documentComponents/TypesDocumentsView';
 import EquipmentListTabs from './equipmentComponentes/EquipmentListTabs';
-export default async function Equipment() {
+export default async function Equipment({ searchParams }: { searchParams: { tab: string; subtab?: string } }) {
   const viewData = {
-    defaultValue: 'equipos',
+    defaultValue: searchParams?.tab || 'equipos',
     path: '/dashboard/equipment',
     tabsValues: [
       {
@@ -26,13 +25,13 @@ export default async function Equipment() {
             <div className="flex gap-4 flex-wrap pl-6">
               <Link
                 href="/dashboard/equipment/action?action=new"
-                className={[' py-2 px-4 rounded', buttonVariants({ variant: 'default' })].join(' ')}
+                className={[' py-2 rounded', buttonVariants({ variant: 'default' })].join(' ')}
               >
                 Agregar nuevo equipo
               </Link>
             </div>
           ),
-          component: <EquipmentListTabs />,
+          component: <EquipmentListTabs tabValue="equipos" subtab={searchParams.subtab} />,
         },
       },
       {
@@ -43,12 +42,10 @@ export default async function Equipment() {
           title: 'Documentos cargados',
           description: 'Aquí encontrarás todos los documentos de tus equipos',
           buttonActioRestricted: [''],
-          buttonAction: (
-            <div className="flex gap-4 flex-wrap pl-6">
-              <DocumentNav onlyEmployees />
-            </div>
+
+          component: (
+            <EquipmentTabs path="/dashboard/equipment" tabValue="Documentos de equipos" subtab={searchParams.subtab} />
           ),
-          component: <EquipmentTabs />,
         },
       },
       {
@@ -60,7 +57,7 @@ export default async function Equipment() {
           buttonActioRestricted: [''],
           description: 'Tipos de documentos auditables',
           buttonAction: <TypesDocumentAction optionChildrenProp="Equipos" />,
-          component: <TypesDocumentsView equipos />,
+          component: <TypesDocumentsView equipos tabValue="Tipos de documentos" subtab={searchParams.subtab} />,
         },
       },
       {
@@ -71,7 +68,15 @@ export default async function Equipment() {
           title: 'Mantenimiento de unidades',
           description: 'Genera solicitudes de mantenimiento para tus equipos',
           buttonActioRestricted: [''],
-          component: <RepairTypes type_of_repair_new_entry created_solicitudes defaultValue="created_solicitudes" />,
+          component: (
+            <RepairTypes
+              type_of_repair_new_entry
+              created_solicitudes
+              defaultValue="created_solicitudes"
+              tabValue="type_of_repairs"
+              subtab={searchParams?.subtab}
+            />
+          ),
         },
       },
       // {

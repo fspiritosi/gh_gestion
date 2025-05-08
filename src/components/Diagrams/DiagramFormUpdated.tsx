@@ -82,7 +82,6 @@ function DiagramFormUpdated({
     },
   });
 
-
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     const { employee_id, dateRange, diagram_type } = data;
 
@@ -130,7 +129,7 @@ function DiagramFormUpdated({
     // Mapear los diagramas existentes y nuevos a los estados correspondientes
     const errors = existing
       // .filter((diagram) => diagram.diagram_type?.id !== form.getValues('diagram_type'))
-      .map((diagram) => ({
+      ?.map((diagram) => ({
         employee_name:
           employees.find((e) => e?.id === diagram.employee_id?.id)?.firstname +
           ' ' +
@@ -143,7 +142,7 @@ function DiagramFormUpdated({
         prev_diagram_entry_id: diagram?.id,
       }));
 
-    const successes = newDates.map((date) => ({
+    const successes = newDates?.map((date) => ({
       employee_name:
         employees.find((e) => e?.id === employee_id)?.firstname +
         ' ' +
@@ -156,7 +155,6 @@ function DiagramFormUpdated({
 
     setErrorsDiagrams(errors);
     setSuccesDiagrams(successes);
-
   };
 
   const updateDiagram = async (diagramToUpdate: ErrorToCreate) => {
@@ -183,7 +181,7 @@ function DiagramFormUpdated({
     toast.promise(
       async () =>
         await UpdateDiagramsById(
-          diagramsToUpdate.map((diagram) => ({
+          diagramsToUpdate?.map((diagram) => ({
             diagram_type: form.getValues('diagram_type'),
             diagramId: diagram.prev_diagram_entry_id,
           }))
@@ -235,7 +233,7 @@ function DiagramFormUpdated({
     toast.promise(
       async () =>
         await CreateDiagrams(
-          diagramsToCreate.map((diagram) => ({
+          diagramsToCreate?.map((diagram) => ({
             day: diagram.day,
             month: diagram.month,
             year: diagram.year,
@@ -324,7 +322,7 @@ function DiagramFormUpdated({
       // Mapear los diagramas existentes y nuevos a los estados correspondientes
       const errors = existing
         // .filter((diagram) => diagram.diagram_type?.id !== diagram_type)
-        .map((diagram) => ({
+        ?.map((diagram) => ({
           employee_name:
             employees.find((e) => e?.id === diagram.employee_id?.id)?.firstname +
             ' ' +
@@ -337,7 +335,7 @@ function DiagramFormUpdated({
           prev_diagram_entry_id: diagram?.id,
         }));
 
-      const successes = newDates.map((date) => ({
+      const successes = newDates?.map((date) => ({
         employee_name:
           employees.find((e) => e?.id === employee_id)?.firstname +
           ' ' +
@@ -354,10 +352,11 @@ function DiagramFormUpdated({
   }, [form.watch('diagram_type'), form.watch('employee_id'), form.watch('dateRange.from'), form.watch('dateRange.to')]);
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="pt-6">
+    <ResizablePanelGroup direction="horizontal" className="">
       <ResizablePanel className="">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
+            <h2 className="text-xl font-bold mb-4">{'Generar Diagrama'}</h2>
             <div className="flex flex-col space-y-3 px-2">
               <FormField
                 control={form.control}
@@ -376,7 +375,7 @@ function DiagramFormUpdated({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {employees.map((employee) => (
+                        {employees?.map((employee) => (
                           <SelectItem key={employee?.id} value={employee?.id.toString()}>
                             {employee.lastname.charAt(0).toUpperCase() + employee.lastname.slice(1)},{' '}
                             {employee.firstname.charAt(0).toUpperCase() + employee.firstname.slice(1)}
@@ -401,7 +400,7 @@ function DiagramFormUpdated({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {diagrams_types.map((type) => (
+                        {diagrams_types?.map((type) => (
                           <SelectItem key={type?.id} value={type?.id.toString()}>
                             {type.name}
                           </SelectItem>
@@ -428,7 +427,7 @@ function DiagramFormUpdated({
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel className="pl-6 min-w-[600px] flex flex-col gap-4" defaultSize={70}>
-        {errorsDiagrams.length > 0 && (
+        {errorsDiagrams?.length > 0 && (
           <Card className="bg-red-50">
             <CardHeader>
               <CardTitle>Diagramas duplicados</CardTitle>
@@ -443,7 +442,7 @@ function DiagramFormUpdated({
                   <TableHead>Novedad Registrada</TableHead>
                   <TableHead></TableHead>
                 </TableHeader>
-                {errorsDiagrams.map((d, index: number) => (
+                {errorsDiagrams?.map((d, index: number) => (
                   <TableBody key={crypto.randomUUID()}>
                     <TableRow>
                       <TableCell>{d.employee_name}</TableCell>
@@ -469,7 +468,7 @@ function DiagramFormUpdated({
                 ))}
               </Table>
             </CardContent>
-            {errorsDiagrams.length > 1 && (
+            {errorsDiagrams?.length > 1 && (
               <CardFooter className="flex justify-around">
                 <Button variant={'default'} onClick={() => updateAll(errorsDiagrams)}>
                   Actualizar Todos
@@ -481,7 +480,7 @@ function DiagramFormUpdated({
             )}
           </Card>
         )}
-        {succesDiagrams.length > 0 && (
+        {succesDiagrams?.length > 0 && (
           <Card className="">
             <CardHeader>
               <CardTitle>Diagramas correctos</CardTitle>
@@ -494,7 +493,7 @@ function DiagramFormUpdated({
                   <TableHead>Fecha</TableHead>
                   <TableHead></TableHead>
                 </TableHeader>
-                {succesDiagrams.map((d, index: number) => (
+                {succesDiagrams?.map((d, index: number) => (
                   <TableBody key={crypto.randomUUID()}>
                     <TableRow>
                       <TableCell>
@@ -525,7 +524,7 @@ function DiagramFormUpdated({
                 ))}
               </Table>
             </CardContent>
-            {succesDiagrams.length > 1 && (
+            {succesDiagrams?.length > 1 && (
               <CardFooter className="flex justify-around">
                 <Button variant={'success'} onClick={() => createAll(succesDiagrams)}>
                   Crear Todos

@@ -16,7 +16,6 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
   const costCenters = await fetchAllCostCenters();
   const companyData = await getCompany();
   const sectors = await fetchAllSectors();
-  console.log(subtab, 'subtab hijo');
   const viewData = {
     defaultValue: subtab || 'company',
     path: '/dashboard/company/actualCompany',
@@ -86,7 +85,7 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
           tab: tabValue,
           buttonActioRestricted: [''],
           buttonAction: (
-            <div className="flex gap-4 flex-wrap pl-6">
+            <div className="flex gap-4 flex-wrap ">
               <TypesDocumentAction optionChildrenProp="Empresa" />
             </div>
           ),

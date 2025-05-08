@@ -1,18 +1,11 @@
 'use client';
 
-import { DataTableFacetedFilter } from '@/components/DailyReport/tables/data-table-faceted-filter2';
+import { fetchAllEquipmentWithBrand } from '@/app/server/GET/actions';
 import { DataTableViewOptions } from '@/components/CheckList/tables/data-table-view-options';
-import { Customers, Employee, Equipment, Items, Services } from '@/components/DailyReport/DailyReport';
+import { Customers, Employee, Items, Services } from '@/components/DailyReport/DailyReport';
+import { DataTableFacetedFilter } from '@/components/DailyReport/tables/data-table-faceted-filter2';
 import { Button } from '@/components/ui/button';
-import {
-  CalendarIcon,
-  CheckIcon,
-  ClockIcon,
-  Cross2Icon,
-  FileTextIcon,
-  GearIcon,
-  PersonIcon,
-} from '@radix-ui/react-icons';
+import { CalendarIcon, CheckIcon, Cross2Icon, FileTextIcon, GearIcon, PersonIcon } from '@radix-ui/react-icons';
 import { Table } from '@tanstack/react-table';
 
 interface DataTableToolbarProps<TData> {
@@ -21,7 +14,7 @@ interface DataTableToolbarProps<TData> {
   services: Services[];
   items: Items[];
   employees: Employee[];
-  equipment: Equipment[];
+  equipment: Awaited<ReturnType<typeof fetchAllEquipmentWithBrand>>;
 }
 
 export function DataTableToolbarDailyReport<TData>({
@@ -32,7 +25,7 @@ export function DataTableToolbarDailyReport<TData>({
   employees,
   equipment,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters?.length > 0;
 
   // const getUniqueValues = (columnId: string) => {
   //   return table.getColumn(columnId)?.getFacetedUniqueValues()
@@ -43,20 +36,16 @@ export function DataTableToolbarDailyReport<TData>({
   //       )
   //     : [];
   // };
-  
-  
+
   const getUniqueValues = (columnId: string) => {
-    
     const values = table.getColumn(columnId)?.getFacetedUniqueValues()
       ? Array.from(
           new Set(
             // Aplanar el array y obtener los valores únicos, incluyendo vacíos
             Array.from((table.getColumn(columnId)?.getFacetedUniqueValues() as any)?.keys()) // Aplanar arrays anidados
               .map((item: any) => {
-    
                 // Convertir claves vacías en 'sin completar'
-                if (Array.isArray(item) && item.length === 0) {
-    
+                if (Array.isArray(item) && item?.length === 0) {
                   return null;
                 }
                 // Manejar claves combinadas separadas por coma
@@ -65,17 +54,13 @@ export function DataTableToolbarDailyReport<TData>({
                 // }
                 return item;
               })
-             .flat() // Aplanar nuevamente después de dividir claves combinadas
+              .flat() // Aplanar nuevamente después de dividir claves combinadas
           )
         )
       : [];
-  
+
     return values;
   };
-
-  
-
-  
 
   const uniqueClient = getUniqueValues('Cliente');
   const uniqueItem = getUniqueValues('Item');
@@ -84,7 +69,7 @@ export function DataTableToolbarDailyReport<TData>({
   const uniqueEquipment = getUniqueValues('Equipos');
   const uniqueWorkingDay = getUniqueValues('Jornada');
   const uniqueStatus = getUniqueValues('Estado');
- 
+
   const createOptions = (uniqueValues: string[], icon: any) => {
     return uniqueValues.map((value) => ({
       label: value,
@@ -100,7 +85,7 @@ export function DataTableToolbarDailyReport<TData>({
   const equipmentOptions = createOptions(uniqueEquipment, GearIcon);
   const workingDayOptions = createOptions(uniqueWorkingDay, CalendarIcon);
   const statusOptions = createOptions(uniqueStatus, CheckIcon);
-  
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">

@@ -63,7 +63,7 @@ export const DocumentsValidation = create<State>((set, get) => {
 
   const allFormsValid = () => {
     const errorsCheck = get().documentsErrors.some((error) => error === true);
-    const totalCheck = get().totalForms === get().documentsErrors.length;
+    const totalCheck = get().totalForms === get().documentsErrors?.length;
 
     if (errorsCheck || !totalCheck) {
       set({ hasErrors: true });

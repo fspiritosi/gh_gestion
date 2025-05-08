@@ -61,19 +61,19 @@ export default function InitState({
 
       const defaultCompany = useLoggedUserStore.getState()?.allCompanies.filter((company) => company.by_defect);
 
-      selectedCompany = defaultCompany.length ? defaultCompany : useLoggedUserStore.getState()?.allCompanies;
+      selectedCompany = defaultCompany?.length ? defaultCompany : useLoggedUserStore.getState()?.allCompanies;
 
-      if (companies.length > 1) {
+      if (companies?.length > 1) {
         if (selectedCompany) {
           useLoggedUserStore.getState()?.setActualCompany(selectedCompany[0]);
         }
       }
 
-      if (companies.length === 1) {
+      if (companies?.length === 1) {
         useLoggedUserStore.getState()?.setActualCompany(companies[0]);
       }
 
-      if (companies.length === 0 && share_company_users?.length! > 0) {
+      if (companies?.length === 0 && share_company_users?.length! > 0) {
         useLoggedUserStore.getState()?.setActualCompany(share_company_users?.[0]?.company_id);
       }
     }

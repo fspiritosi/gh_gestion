@@ -124,7 +124,7 @@ function organigramForm({ editingSector }: { editingSector: Sector | null }) {
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
           <h2 className="text-xl font-bold mb-4">{isEditing ? 'Editar Sector' : 'Crear Sector'}</h2>
 
           <FormField

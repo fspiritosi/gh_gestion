@@ -15,7 +15,7 @@ import AdminBreadcrumb from './adminBreadcrumb';
 
 export default function AdminNavbar() {
   // const actualUser = useLoggedUserStore(state => state.profile)
-  // const avatarUrl = actualUser && actualUser.length > 0 ? actualUser[0] : ''
+  // const avatarUrl = actualUser && actualUser?.length > 0 ? actualUser[0] : ''
 
   return (
     <div className="w-full bg-muted/40">

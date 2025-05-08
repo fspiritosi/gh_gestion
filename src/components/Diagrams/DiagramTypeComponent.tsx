@@ -12,7 +12,6 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   const [selectDiagramType, setSelectDiagramType] = useState<{}>({});
   const [diagramToEdit, setDiagramToEdit] = useState(false);
   const [filteredData, setFilteredData] = useState<any[]>([]);
-  console.log(diagrams_types, 'diagrams_types');
 
   function setDiagram(data: any) {
     setSelectDiagramType(data);
@@ -29,7 +28,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   }
 
   useEffect(() => {
-    if (Object.keys(selectDiagramType).length === 0) {
+    if (Object.keys(selectDiagramType || {})?.length === 0) {
       setDiagramToEdit(false);
     } else {
       setDiagramToEdit(true);
@@ -37,7 +36,7 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
   }, [selectDiagramType]);
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="ml-2">
+    <ResizablePanelGroup direction="horizontal" className="">
       <ResizablePanel>
         <DiagramNewTypeForm
           selectedDiagram={selectDiagramType}

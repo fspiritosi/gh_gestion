@@ -1,4 +1,5 @@
 import CovenantTreeFile from '@/app/dashboard/company/actualCompany/covenant/CovenantTreeFile';
+import { fetchDiagramsTypes } from '@/app/server/GET/actions';
 import DiagramTypeComponent from '@/components/Diagrams/DiagramTypeComponent';
 import ViewComponentInternal from '@/components/ViewComponentInternal';
 import { fetchAllContractTypes } from '@/features/Empresa/RRHH/actions/actions';
@@ -38,15 +39,11 @@ export default async function RrhhComponent({
   // const activeEmploees = setEmployeesToShow(employees?.filter((e: any) => e.is_active));
 
   // const { data: diagrams } = await fetch(`${URL}/api/employees/diagrams`).then((e) => e.json());
-  const { data: diagrams_types }: { data: DiagramType[] } = await fetch(
-    `${URL}/api/employees/diagrams/tipos?actual=${company_id}&user=${user?.id}`
-  ).then((e) => e.json());
+  const diagrams_types = await fetchDiagramsTypes();
   const allContractTypes = await fetchAllContractTypes();
   // const employees2 = await fetchAllActivesEmployees();
   // const diagrams2 = await fetchDiagrams();
   // const diagrams_types2 = await fetchDiagramsTypes();
-  console.log(tabValue, 'tabValue');
-  console.log(subtab, 'subtab');
   const viewData = {
     defaultValue: subtab || 'listado',
     path: '/dashboard/company/actualCompany',

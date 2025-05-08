@@ -4,15 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import ListDiagrams from '@/features/Empresa/RRHH/components/rrhh/listDiagrams';
 import WorkDiagramForm from '@/features/Empresa/RRHH/components/rrhh/work-diagram-form';
 import { useState } from 'react';
-interface DiagramType {
-  id: string;
-  created_at: string;
-  name: string;
-  company_id: string;
-  color: string;
-  short_description: string;
-  work_active: boolean;
-}
+
 interface Diagram {
   id: string;
   created_at: string;

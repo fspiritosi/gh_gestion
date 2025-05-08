@@ -87,16 +87,16 @@ export default function RepairNewEntryMultiple({
   const [files, setFiles] = useState<(File | undefined)[]>([undefined, undefined, undefined]);
 
   const verifyIfExistOpenRepairSolicitud = async (repairTypeId: string, vehiclesIds: string[]) => {
-    const domainsOrSeries = vehiclesIds.map(
+    const domainsOrSeries = vehiclesIds?.map(
       (id) => equipment.find((equip) => equip.id === id)?.domain || equipment.find((equip) => equip.id === id)?.serie
     );
 
-    const hasOpenRepair = allRepairs.filter((e) => domainsOrSeries.includes(e.domain) && e.repair === repairTypeId);
+    const hasOpenRepair = allRepairs?.filter((e) => domainsOrSeries.includes(e.domain) && e.repair === repairTypeId);
 
-    if (hasOpenRepair.length > 0) {
+    if (hasOpenRepair?.length > 0) {
       toast.error(
         `Los equipos con los siguientes dominios o series ya tienen una solicitud de reparacion a ser registrada ${hasOpenRepair
-          .map((e) => e.domain)
+          ?.map((e) => e.domain)
           .join(', ')}`
       );
       return true;
@@ -185,7 +185,7 @@ export default function RepairNewEntryMultiple({
           const selectedEquipmentIds = form.getValues('vehicle_id');
 
           // Crear un array para almacenar todas las reparaciones
-          const data = allRepairs.map((repair) => ({
+          const data = allRepairs?.map((repair) => ({
             reparation_type: repair.repair,
             equipment_id: repair.vehicle_id,
             user_description: repair.description,
@@ -305,7 +305,7 @@ export default function RepairNewEntryMultiple({
                             <CommandList>
                               <CommandEmpty>No se encontró ningún tipo de reparación.</CommandEmpty>
                               <CommandGroup>
-                                {tipo_de_mantenimiento.map((item) => (
+                                {tipo_de_mantenimiento?.map((item) => (
                                   <CommandItem
                                     value={item.name}
                                     key={item.id}
@@ -362,7 +362,7 @@ export default function RepairNewEntryMultiple({
                                   const isSelected = selectedEquipmentss?.includes(equip.id);
                                   return (
                                     <CommandItem
-                                      value={equip.domain ?? equip.serie}
+                                      value={equip.domain || equip.serie || ''}
                                       key={equip.intern_number}
                                       onSelect={() => {
                                         const updatedEquipment = isSelected
@@ -464,7 +464,7 @@ export default function RepairNewEntryMultiple({
               </TableRow>
             </TableHeader>
             <TableBody className="overflow-x-auto">
-              {allRepairs.map((field) => {
+              {allRepairs?.map((field) => {
                 const repair = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                 return (
                   <TableRow key={crypto.randomUUID()}>
@@ -491,7 +491,7 @@ export default function RepairNewEntryMultiple({
               })}
             </TableBody>
           </Table>
-          {allRepairs.length > 0 && (
+          {allRepairs?.length > 0 && (
             <Button
               onClick={() => {
                 createRepair();
@@ -527,7 +527,7 @@ export default function RepairNewEntryMultiple({
                   <p className="text-sm text-muted-foreground">Condicion: {vehicle?.condition}</p>
                 </div>
                 <ul className="w-full">
-                  {allRepairs.map((field, index) => {
+                  {allRepairs?.map((field, index) => {
                     const repair = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                     const maintenance = tipo_de_mantenimiento.find((e) => e.id === field.repair);
                     const priority = criticidad.find((priority) => priority.value === repair?.criticity);
@@ -600,7 +600,7 @@ export default function RepairNewEntryMultiple({
             </CardContent>
           </Card>
 
-          {allRepairs.length > 0 && (
+          {allRepairs?.length > 0 && (
             <Button
               onClick={() => {
                 createRepair();

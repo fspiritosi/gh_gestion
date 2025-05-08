@@ -105,7 +105,7 @@ export default function ServiceItemsTable({
     setFilteredItems(filtered as any);
   };
   return (
-    <ResizablePanelGroup className="pl-3 flex flex-col gap-2" direction="horizontal">
+    <ResizablePanelGroup className=" flex flex-col gap-2" direction="horizontal">
       <ResizablePanel>
         <ServiceItemsForm
           measure_units={measure_units as any}
@@ -118,7 +118,7 @@ export default function ServiceItemsTable({
         />
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel className="pl-3 min-w-[500px] flex flex-col gap-2" defaultSize={70}>
+      <ResizablePanel className=" min-w-[500px] flex flex-col gap-2" defaultSize={70}>
         <div className="flex flex-col gap-6 py-4 px-6">
           <div className="flex space-x-4 justify-between">
             <Input

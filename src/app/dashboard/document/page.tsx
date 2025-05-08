@@ -11,7 +11,14 @@ import EquipmentTabs from './documentComponents/EquipmentTabs';
 import TypesDocumentAction from './documentComponents/TypesDocumentAction';
 import TypesDocumentsView from './documentComponents/TypesDocumentsView';
 
-export default async function page() {
+export default async function page({
+  params,
+}: {
+  params: {
+    tab: string;
+    subtab: string;
+  };
+}) {
   const supabase = supabaseServer();
   const user = await supabase.auth.getUser();
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -34,7 +41,7 @@ export default async function page() {
     role === 'Invitado' ? typedDataCompany?.filter((e) => !e.id_document_types.private) : typedDataCompany;
 
   const viewData = {
-    defaultValue: 'Documentos de empleados',
+    defaultValue: params.tab || 'Documentos de empleados',
     path: '/dashboard/document',
     tabsValues: [
       {
@@ -50,7 +57,7 @@ export default async function page() {
               <DocumentNav onlyEmployees onlyEquipment />
             </div>
           ),
-          component: <EmployeeDocumentsTabs />,
+          component: <EmployeeDocumentsTabs path="/dashboard/document" tabValue={params.tab} subtab={params.subtab} />,
         },
       },
       {
@@ -66,7 +73,7 @@ export default async function page() {
               <DocumentNav />
             </div>
           ),
-          component: <EquipmentTabs />,
+          component: <EquipmentTabs path="/dashboard/equipment" tabValue={params.tab} subtab={params.subtab} />,
         },
       },
       {
@@ -82,7 +89,14 @@ export default async function page() {
               <DocumentNav />
             </div>
           ),
-          component: <CompanyTabs companyData={companyData as any} />,
+          component: (
+            <CompanyTabs
+              path="/dashboard/document"
+              tabValue="Documentos de empresa"
+              subtab={params.subtab}
+              companyData={companyData as any}
+            />
+          ),
         },
       },
       {

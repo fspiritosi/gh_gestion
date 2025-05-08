@@ -16,7 +16,12 @@ function OperationsPage() {
           description: 'Aquí encontrarás todos los partes diarios diarios',
           buttonActioRestricted: [''],
           buttonAction: <Create />,
-          component: <ViewDailyReports />,
+          component: (
+            <div className="flex flex-col gap-4">
+              <Create />
+              <ViewDailyReports />
+            </div>
+          ),
         },
       },
       {

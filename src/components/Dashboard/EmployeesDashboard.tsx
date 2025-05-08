@@ -20,7 +20,7 @@ const chartConfig = {
 
 export function TotalDeVisitores({ employees }: TotalDeVisitoresProps) {
   // Procesar los datos para obtener las fechas de ingreso
-  const admissionData = employees.reduce(
+  const admissionData = employees?.reduce(
     (acc, employee) => {
       const month = moment(employee.date_of_admission).locale('es').format('MMMM'); // Asegurando que el mes esté en español
       if (!acc[month]) {

@@ -1,3 +1,4 @@
+import { fetchAllProvinces } from '@/app/server/GET/actions';
 import ViewcomponentInternal from '@/components/ViewComponentInternal';
 import { buttonVariants } from '@/components/ui/button';
 import ServiceComponent from '@/features/Empresa/Clientes/components/Services/ServiceComponent';
@@ -9,6 +10,7 @@ import SectorTabs from '@/features/Empresa/Clientes/components/sector_clientes/s
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { supabase } from '../../../../supabase/supabase';
+import { fechAllCustomers, fetchAreasWithProvinces } from './actions/create';
 import { columns } from './components/columns';
 
 async function ComercialTab({
@@ -22,14 +24,16 @@ async function ComercialTab({
 }) {
   const coockiesStore = cookies();
   const actualCompany = coockiesStore.get('actualComp')?.value;
-  const { data: customers, error } = await supabase.from('customers').select('*');
+  const { data: customers2, error } = await supabase.from('customers').select('*');
 
   if (error) {
     console.error('Error al obtener los contratistas:', error);
   }
-  const contractorCompanies = customers?.filter((company: any) => company.company_id.toString() === actualCompany);
-  console.log(tabValue, 'tabValue');
-  console.log(subtab, 'subtab hijo');
+  const contractorCompanies = customers2?.filter((company: any) => company.company_id.toString() === actualCompany);
+
+  const { customers } = await fechAllCustomers();
+  const provinces = await fetchAllProvinces();
+  const areas = await fetchAreasWithProvinces();
   const viewData = {
     defaultValue: subtab || 'customers',
     path: '/dashboard/company/actualCompany',
@@ -66,7 +70,13 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <CustomerTab />,
+          component: (
+            <CustomerTab
+              customers2={customers || []}
+              provinces={provinces || []}
+              areas={areas.areasWithProvinces || []}
+            />
+          ),
         },
       },
       {

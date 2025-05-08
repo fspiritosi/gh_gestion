@@ -49,7 +49,7 @@ function PositionsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredData.length > 0 ? (
+          {filteredData?.length > 0 ? (
             filteredData.map((position) => (
               <TableRow key={position.id}>
                 <TableCell className="font-medium">{position.name}</TableCell>
