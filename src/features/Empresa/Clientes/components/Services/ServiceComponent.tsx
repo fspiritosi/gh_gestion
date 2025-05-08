@@ -32,11 +32,11 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
   const company_id = cookiesStore.get('actualComp')?.value || '';
   const { customers } = await fetch(`${URL}/api/company/customers?actual=${company_id}`).then((e) => e.json());
   const filterCustomers = customers?.filter((client: customer) => client.is_active === true);
-  //console.log(filterCustomers)
-  console.log(id, 'id');
-  const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
+
+  // const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
+  const services: any = [];
   const service = services?.find((s: any) => s.id === id);
-  console.log(service, 'service');
+
   // const {measure_units}= await fetch(`${URL}/api/meassure`).then((e) => e.json());
   // const { items } = await fetch(`${URL}/api/services/items?actual=${company_id}`).then((e) => e.json());
 
@@ -44,8 +44,7 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
 
   const areas = await fetchAreasWithProvinces();
   const { sectors: Sector } = await fetchAllSectors();
-  console.log(Sector, 'sectores');
-  console.log(services, 'services');
+
   return (
     // <Tabs defaultValue="services">
     //   <TabsList className="mb-2 bg-gh_contrast/50">
@@ -58,19 +57,15 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
     //   </TabsList>
     //   <TabsContent value="services">
     <div>
-      {services ? (
-        <ServiceTable
-          services={services}
-          customers={filterCustomers}
-          company_id={company_id}
-          areas={areas.areasWithProvinces}
-          sectors={Sector}
-          Service={service as any}
-          id={id}
-        />
-      ) : (
-        <div>No hay servicios</div>
-      )}
+      <ServiceTable
+        services={services}
+        customers={filterCustomers}
+        company_id={company_id}
+        areas={areas.areasWithProvinces}
+        sectors={Sector}
+        Service={service as any}
+        id={id}
+      />
     </div>
     // </TabsContent>
     // <TabsContent value="servicesItems">

@@ -246,124 +246,132 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
                   </TableRow>
 
                   <TableBody>
-                    {filteredData.map((service: Service) => (
-                      <TableRow key={service.id}>
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="hover:text-blue-400"
-                            onClick={() => handleOpenDetail(service)}
-                            data-id={service.id}
-                          >
-                            {service.service_name}
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="hover:text-blue-400"
-                            onClick={() => handleOpenDetail(service)}
-                            data-id={service.id}
-                          >
-                            {service.customer}
-                          </Button>
-                          {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
-                          {
-                            customers.find(
-                              (customer) => customer.id.toString() === (service.customer_id?.toString() as any)
-                            )?.name
-                          }
-                        </Link> */}
-                        </TableCell>
-                        <TableCell>
-                          {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
-                          {service.contract_number}
-                        </Link> */}
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="hover:text-blue-400"
-                            onClick={() => handleOpenDetail(service)}
-                            data-id={service.id}
-                          >
+                    {filteredData.length > 0 ? (
+                      filteredData.map((service: Service) => (
+                        <TableRow key={service.id}>
+                          <TableCell>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="hover:text-blue-400"
+                              onClick={() => handleOpenDetail(service)}
+                              data-id={service.id}
+                            >
+                              {service.service_name}
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="hover:text-blue-400"
+                              onClick={() => handleOpenDetail(service)}
+                              data-id={service.id}
+                            >
+                              {service.customer}
+                            </Button>
+                            {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
+                            {
+                              customers.find(
+                                (customer) => customer.id.toString() === (service.customer_id?.toString() as any)
+                              )?.name
+                            }
+                          </Link> */}
+                          </TableCell>
+                          <TableCell>
+                            {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
                             {service.contract_number}
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="hover:text-blue-400"
-                            onClick={() => handleOpenDetail(service)}
-                            data-id={service.id}
-                          >
-                            {service.area}
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="hover:text-blue-400"
-                            onClick={() => handleOpenDetail(service)}
-                            data-id={service.id}
-                          >
-                            {service.sector}
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="hover:text-blue-400"
-                            onClick={() => handleOpenDetail(service)}
-                            data-id={service.id}
-                          >
-                            <Badge variant={service.is_active ? 'success' : 'default'}>
-                              {service.is_active ? 'Activo' : 'Inactivo'}
-                            </Badge>
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="hover:text-blue-400"
-                            onClick={() => handleOpenDetail(service)}
-                            data-id={service.id}
-                          >
-                            {format(service.service_start?.toString(), 'dd/MM/yyyy')}
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="hover:text-blue-400"
-                            onClick={() => handleOpenDetail(service)}
-                            data-id={service.id}
-                          >
-                            {format(service.service_validity, 'dd/MM/yyyy')}
-                          </Button>
-                        </TableCell>
+                          </Link> */}
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="hover:text-blue-400"
+                              onClick={() => handleOpenDetail(service)}
+                              data-id={service.id}
+                            >
+                              {service.contract_number}
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="hover:text-blue-400"
+                              onClick={() => handleOpenDetail(service)}
+                              data-id={service.id}
+                            >
+                              {service.area}
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="hover:text-blue-400"
+                              onClick={() => handleOpenDetail(service)}
+                              data-id={service.id}
+                            >
+                              {service.sector}
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="hover:text-blue-400"
+                              onClick={() => handleOpenDetail(service)}
+                              data-id={service.id}
+                            >
+                              <Badge variant={service.is_active ? 'success' : 'default'}>
+                                {service.is_active ? 'Activo' : 'Inactivo'}
+                              </Badge>
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="hover:text-blue-400"
+                              onClick={() => handleOpenDetail(service)}
+                              data-id={service.id}
+                            >
+                              {format(service.service_start?.toString(), 'dd/MM/yyyy')}
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="hover:text-blue-400"
+                              onClick={() => handleOpenDetail(service)}
+                              data-id={service.id}
+                            >
+                              {format(service.service_validity, 'dd/MM/yyyy')}
+                            </Button>
+                          </TableCell>
 
-                        {/* <TableCell>
-                          <div className="flex space-x-2 justify-between">
-                          <Button
-                            size={'sm'}
-                            variant={'link'}
-                            className="hover:text-blue-400"
-                            onClick={() => setEditingService(service)}
-                          >
-                            Editar
-                          </Button>
-                          
-                          </div>
-                        </TableCell> */}
+                          {/* <TableCell>
+                            <div className="flex space-x-2 justify-between">
+                            <Button
+                              size={'sm'}
+                              variant={'link'}
+                              className="hover:text-blue-400"
+                              onClick={() => setEditingService(service)}
+                            >
+                              Editar
+                            </Button>
+                            
+                            </div>
+                          </TableCell> */}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center">
+                          No hay contratos para mostrar
+                        </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </TableHead>
               </Table>
