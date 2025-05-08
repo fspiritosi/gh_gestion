@@ -38,13 +38,14 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
   const service = services?.find((s: any) => s.id === id);
   console.log(service, 'service');
   // const {measure_units}= await fetch(`${URL}/api/meassure`).then((e) => e.json());
-  const { items } = await fetch(`${URL}/api/services/items?actual=${company_id}`).then((e) => e.json());
+  // const { items } = await fetch(`${URL}/api/services/items?actual=${company_id}`).then((e) => e.json());
 
   const { data: measure_units } = await supabase.from('measure_units').select('*');
 
   const areas = await fetchAreasWithProvinces();
   const { sectors: Sector } = await fetchAllSectors();
   console.log(Sector, 'sectores');
+  console.log(services, 'services');
   return (
     // <Tabs defaultValue="services">
     //   <TabsList className="mb-2 bg-gh_contrast/50">

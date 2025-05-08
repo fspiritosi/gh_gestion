@@ -9,7 +9,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -256,9 +255,9 @@ export default function ServicesForm({
         <div className="flex justify-end space-x-4">
           <Button onClick={() => setView(!view)}>{view ? 'Habilitar Edicion' : 'Ver'}</Button>
 
-          <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
+          {/* <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
             <Button>Volver</Button>
-          </Link>
+          </Link> */}
         </div>
       )}
       <div className="grid grid-cols-2 gap-4 p-4">

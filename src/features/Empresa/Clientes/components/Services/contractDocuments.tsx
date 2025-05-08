@@ -760,7 +760,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { createClient } from '@supabase/supabase-js';
 import { Download, Eye, FileSpreadsheet, FileText, ImageIcon, Loader2, Trash2, Upload } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
@@ -1015,7 +1014,7 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
 
       // Recargar la lista de documentos
       await fetchDocuments();
-      router.refresh();
+      // router.refresh();
 
       // Limpiar los archivos seleccionados y campos
       setSelectedFiles([]);
@@ -1159,16 +1158,16 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
   return (
     <div className="max-w-5xl">
       <div className="flex justify-end md:mb-4 mb-2">
-        <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
+        {/* <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
           <Button>Volver</Button>
-        </Link>
+        </Link> */}
       </div>
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1 border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Subir Documento</h3>
-              {contract && contract.customer_id && (
+              {/* {contract && contract.customer_id && (
                 <div className="mb-4 text-sm border-l-4 border-blue-500 pl-3 py-2 bg-blue-50 rounded">
                   <p>
                     <span className="font-medium">Cliente:</span> {contract.customer_id.name}
@@ -1181,7 +1180,7 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
                     {createSafeFolderName(contract.service_name)}
                   </p>
                 </div>
-              )}
+              )} */}
               <div className="space-y-4">
                 <div
                   className={`border-2 ${isDragging ? 'border-green-500 bg-green-50' : 'border-dashed'} rounded-lg p-6 text-center cursor-pointer hover:bg-slate-50 transition-colors ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
@@ -1260,7 +1259,7 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="docType">Tipo de documento</Label>
-                  <select
+                  {/* <select
                     className="w-full p-2 border rounded-md"
                     value={docType}
                     onChange={(e) => setDocType(e.target.value)}
@@ -1270,12 +1269,21 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
                     <option>Anexo</option>
                     <option>Factura</option>
                     <option>Otro</option>
-                  </select>
+                  </select> */}
+                  <Input
+                    id="docType"
+                    type="text"
+                    placeholder="Tipo de documento"
+                    value={docType}
+                    onChange={(e) => setDocType(e.target.value)}
+                    disabled={isUploading}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="docDescription">Descripción</Label>
                   <Input
                     id="docDescription"
+                    type="text"
                     placeholder="Descripción breve del documento"
                     value={docDescription}
                     onChange={(e) => setDocDescription(e.target.value)}

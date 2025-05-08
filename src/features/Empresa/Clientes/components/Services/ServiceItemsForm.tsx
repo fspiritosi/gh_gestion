@@ -5,67 +5,66 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Item } from '@radix-ui/react-dropdown-menu';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { RadioGroup, RadioGroupItem } from '../../../../../components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
+
 const ItemsSchema = z.object({
-  customer_id: z.string().nonempty(),
-  customer_service_id: z.string().nonempty(),
+  customer_id: z.string().optional(),
+  customer_service_id: z.string().optional(),
   item_name: z.string().min(1, { message: 'Debe ingresar el nombre del servicio' }),
-  item_description: z.string().min(1, { message: 'Debe ingresar una descripción del servicio' }),
+  item_description: z.string().nullable().optional(),
+  code_item: z.string().nullable().optional(),
+  item_number: z.string().nullable().optional(),
   item_price: z.preprocess((val) => Number(val), z.number().min(0, { message: 'Debe ingresar un precio válido' })),
   item_measure_units: z.string().min(1, { message: 'Debe seleccionar la unidad de medida' }),
-  is_active: z.boolean().optional(),
+  is_active: z.boolean().default(true),
 });
+
 const EditItemSchema = z.object({
   customer_id: z.string().optional(),
   customer_service_id: z.string().optional(),
   item_name: z.string().optional(),
-  item_description: z.string().optional(),
+  code_item: z.string().nullable().optional(),
+  item_number: z.string().nullable().optional(),
+  item_description: z.string().nullable().optional(),
   item_price: z.preprocess(
     (val) => Number(val),
     z.number().min(0, { message: 'Debe ingresar un precio válido' }).optional()
   ),
   item_measure_units: z.string().optional(),
+  is_active: z.boolean().optional(),
 });
 
 interface Item {
   id: string;
   item_name: string;
-  item_description: string;
+  item_description: string | null;
   item_measure_units: { id: string };
   item_price: number;
   is_active: boolean;
+  code_item: string | null;
+  item_number: string | null;
   customer_id: { id: string; name: string };
   customer_service_id: { customer_id: { id: string; name: string } };
   company_id: string;
 }
 
-type customer = {
+type Customer = {
   id: string;
   name: string;
 };
 
-interface measure_unit {
+interface MeasureUnit {
   id: number;
   unit: string;
   simbol: string;
   tipo: string;
 }
-
-interface UpdatedFields {
-  item_name?: string;
-  item_description?: string;
-  item_price?: number;
-  item_measure_units?: number;
-  is_active?: boolean;
-}
-type EditServiceFields = Omit<z.infer<typeof ItemsSchema>, 'customer_id' | 'customer_service_id'>;
-type Service = z.infer<typeof ItemsSchema>;
 
 export default function ServiceItemsForm({
   measure_units,
@@ -73,348 +72,285 @@ export default function ServiceItemsForm({
   services,
   company_id,
   editingService,
+  editService,
+  getItems,
 }: {
-  measure_units: measure_unit[];
-  customers: customer[];
-  services: Service[];
+  measure_units: MeasureUnit[];
+  customers: Customer[];
+  services: any[];
   company_id: string;
-  editingService: Item;
+  editingService: Item | null;
+  editService: any;
+  getItems: () => void;
 }) {
-  const [selectedClient, setSelectedClient] = useState<string | undefined>(editingService?.customer_id?.id);
   const [isEditing, setIsEditing] = useState(!!editingService);
-  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
-  const [servicesData, setServicesData] = useState<Service[]>([]);
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-  const [loading, setLoading] = useState(true);
-  const modified_company_id = company_id?.replace(/"/g, '');
   const supabase = supabaseBrowser();
-  // const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
-  const form = useForm<Service>({
+
+  const form = useForm<z.infer<typeof ItemsSchema>>({
     resolver: zodResolver(isEditing ? EditItemSchema : ItemsSchema),
     defaultValues: {
-      customer_id: '',
-      customer_service_id: '',
       item_name: '',
       item_description: '',
       item_price: 0,
       item_measure_units: '',
+      code_item: '',
+      item_number: '',
+      is_active: true,
     },
   });
-  const { reset } = form;
+
+  const { reset, watch, setValue } = form;
   const router = useRouter();
-  const fetchServices = async () => {
-    try {
-      const servicesResponse = await fetch(`${URL}/api/services?actual=${company_id}`);
-
-      if (!servicesResponse.ok) {
-        throw new Error('Error al obtener los servicios');
-      }
-      // const {data, error}= await supabase
-      // .from('customer_services')
-      // .select('*')
-      // .eq('company_id', company_id);
-      const responseData = await servicesResponse.json();
-      const services = Array.isArray(responseData) ? responseData : responseData.services;
-      setServicesData(services as any);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchServices();
-  }, [services]);
+  const currentStatus = watch('is_active');
 
   useEffect(() => {
     if (editingService) {
       reset({
-        customer_id: editingService.customer_service_id?.customer_id?.name,
-        customer_service_id: editingService.customer_service_id?.customer_id?.id,
-        item_name: editingService.item_name,
-        item_description: editingService.item_description,
-        item_price: editingService.item_price,
-        item_measure_units: editingService.item_measure_units?.id,
+        item_name: editingService.item_name || '',
+        item_description: editingService.item_description || '',
+        item_price: editingService.item_price || 0,
+        item_measure_units: editingService.item_measure_units?.id || '',
+        code_item: editingService.code_item || '',
+        item_number: editingService.item_number || '',
+        is_active: editingService.is_active ?? true,
       });
       setIsEditing(true);
     } else {
       reset({
-        customer_id: '',
-        customer_service_id: '',
         item_name: '',
         item_description: '',
         item_price: 0,
         item_measure_units: '',
+        code_item: '',
+        item_number: '',
+        is_active: true,
       });
       setIsEditing(false);
     }
   }, [editingService, reset]);
 
-  const onSubmit = async (values: any) => {
-    const modified_company_id = company_id.replace(/"/g, '');
-    const modified_editing_service_id = values.customer_service_id.replace(/"/g, '');
-    const updatedValues = { ...values, customer_service_id: modified_editing_service_id };
-    const data = JSON.stringify(updatedValues);
+  const onSubmit = async (values: z.infer<typeof ItemsSchema>) => {
+    const payload = {
+      ...values,
+      customer_id: editService?.customer_id,
+      customer_service_id: editingService?.id || editService?.id,
+    };
 
     try {
-      const response = await fetch(`/api/services/items?actual=${modified_company_id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: data,
+      const endpoint = isEditing
+        ? `/api/services/items?id=${editingService?.id}`
+        : `/api/services/items?actual=${company_id}`;
+
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
-      if (!response.ok) {
-        throw new Error('Error en la solicitud');
+
+      if (!response.ok) throw new Error('Error en la solicitud');
+
+      toast.success(`Item ${isEditing ? 'actualizado' : 'creado'} correctamente`);
+      getItems();
+
+      if (!isEditing) {
+        reset();
       }
-      const result = await response.json();
-      toast.success('Item creado correctamente');
-      resetForm();
     } catch (error) {
-      console.error('Error al crear el item:', error);
-      toast.error('Error al crear el item');
+      console.error(`Error al ${isEditing ? 'actualizar' : 'crear'} el item:`, error);
+      toast.error(`Error al ${isEditing ? 'actualizar' : 'crear'} el item`);
     }
-    router.refresh();
-  };
-
-  const onUpdate = async (values: Service) => {
-    const modified_company_id = company_id.replace(/"/g, '');
-    const data = JSON.stringify(values);
-
-    try {
-      const modified_editing_service_id = editingService?.id?.toString().replace(/"/g, '');
-
-      const response = await fetch(`/api/services/items?id=${modified_editing_service_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: data,
-      });
-      if (!response.ok) {
-        throw new Error('Error en la solicitud');
-      }
-      const result = await response.json();
-      toast.success('Item actualizado correctamente');
-      resetForm();
-    } catch (error) {
-      console.error('Error al actualizar el item:', error);
-      toast.error('Error al actualizar el item');
-    }
-    router.refresh();
   };
 
   const handleDeactivateItem = async () => {
-    if (editingService) {
-      try {
-        const newActiveState = !editingService.is_active;
+    if (!editingService) return;
 
-        const response = await fetch(`/api/services/items/?id=${editingService.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ is_active: newActiveState }),
-        });
+    const newStatus = !currentStatus;
 
-        if (response.ok) {
-          // Actualizar la lista de items con el item desactivado
-          const updatedItem = await response.json();
-          setFilteredItems((prevItems) =>
-            prevItems.map((item: any) => (item.id === updatedItem.id ? updatedItem : item))
-          );
-          toast.success(`Item ${newActiveState ? 'activado' : 'desactivado'} correctamente`);
-          // setIsModalOpen(false);
-        } else {
-          console.error('Error al desactivar el item');
-          toast.error('Error al desactivar el item');
-        }
-      } catch (error) {
-        console.error('Error al desactivar el item:', error);
-        toast.error('Error al desactivar el item');
-      }
-    }
-    router.refresh();
-  };
+    try {
+      const response = await fetch(`/api/services/items?id=${editingService.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...editingService,
+          is_active: newStatus,
+        }),
+      });
 
-  const handleSubmit1 = (values: any) => {
-    if (isEditing) {
-      onUpdate(values);
-    } else {
-      onSubmit(values);
+      if (!response.ok) throw new Error('Error al actualizar estado');
+
+      setValue('is_active', newStatus);
+      toast.success(`Item ${newStatus ? 'activado' : 'desactivado'} correctamente`);
+      getItems();
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+      toast.error('Error al cambiar estado del item');
     }
   };
-
-  const resetForm = () => {
+  const handleCancel = () => {
     reset({
-      customer_id: '',
-      customer_service_id: '',
       item_name: '',
       item_description: '',
       item_price: 0,
       item_measure_units: '',
+      code_item: '',
+      item_number: '',
+      is_active: true,
+      customer_id: '',
+      customer_service_id: '',
     });
+
     setIsEditing(false);
   };
-
-  const handleCancel = () => {
-    resetForm();
-  };
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit1)} className="space-y-8">
-        {!isEditing && (
-          <>
-            <FormField
-              control={form.control}
-              name="customer_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cliente</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setSelectedClient(value);
-                    }}
-                    value={field.value}
-                    defaultValue=""
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-[400px]">
-                        <SelectValue placeholder="Elegir cliente" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {customers?.map((customer: any) => (
-                        <SelectItem value={customer.id} key={customer.id}>
-                          {customer.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="customer_service_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Servicio</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} defaultValue="">
-                    <FormControl>
-                      <SelectTrigger className="w-[400px]">
-                        <SelectValue placeholder="Elegir Servicio" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {servicesData
-                        ?.filter((service) => service.customer_id === selectedClient)
-                        .map((service: any) => (
-                          <SelectItem value={service.id} key={service.id}>
-                            {service.service_name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
-        <FormField
-          control={form.control}
-          name="item_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre del Item</FormLabel>
-              <FormControl>
-                <Input type="text" {...field} className="input w-[400px]" placeholder="Nombre del item" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="item_description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descripcion del Item</FormLabel>
-              <FormControl>
-                <Textarea {...field} className="input w-[400px]" placeholder="Descripcion del item" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="item_price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Precio del Item</FormLabel>
-              <FormControl>
-                <Input type="number" {...field} className="input w-[400px]" placeholder="Precio del item" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="item_measure_units"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Unidad de Medida</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                value={field.value}
-              >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          {/* Campo Nombre */}
+          <FormField
+            control={form.control}
+            name="item_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre del Item*</FormLabel>
                 <FormControl>
-                  <SelectTrigger className="w-[400px]">
-                    <SelectValue placeholder="Elegir unidad de medida" />
-                  </SelectTrigger>
+                  <Input {...field} />
                 </FormControl>
-                <SelectContent>
-                  {measure_units?.map((measure: measure_unit) => (
-                    <SelectItem value={measure.id.toString()} key={measure.id}>
-                      {measure.unit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button className="mt-4" type="submit" variant={'gh_orange'}>
-          {isEditing ? 'Editar' : 'Crear'}
-        </Button>
-        <Button className="mt-4 ml-2" type="button" variant={'outline'} onClick={handleCancel}>
-          Cancelar
-        </Button>
-        {isEditing && (
-          <Button
-            className="mt-4 ml-2"
-            onClick={handleDeactivateItem}
-            variant={editingService.is_active ? 'destructive' : 'success'}
-          >
-            {editingService.is_active ? 'Dar de Baja' : 'Dar de Alta'}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Campo Código */}
+          <FormField
+            control={form.control}
+            name="code_item"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Código</FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Campo Número */}
+          <FormField
+            control={form.control}
+            name="item_number"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Número</FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Campo Precio */}
+          <FormField
+            control={form.control}
+            name="item_price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Precio*</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Campo Unidad de Medida */}
+          <FormField
+            control={form.control}
+            name="item_measure_units"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Unidad de Medida*</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione unidad" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {measure_units?.map((unit) => (
+                      <SelectItem key={unit.id} value={unit.id.toString()}>
+                        {unit.unit}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Campo Descripción */}
+          <FormField
+            control={form.control}
+            name="item_description"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>Descripción</FormLabel>
+                <FormControl>
+                  <Textarea {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="is_active"
+            render={({ field }) => {
+              const radioValue = field.value ? 'true' : 'false';
+              return (
+                <FormItem className="col-span-2 space-y-3">
+                  <FormLabel>Estado</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={(value) => field.onChange(value === 'true')}
+                      value={radioValue}
+                      className="flex space-x-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="true" />
+                        <span>Activo</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="false" />
+                        <span>Inactivo</span>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+        </div>
+
+        {/* Botones de acción */}
+        <div className="flex gap-2 pt-4">
+          <Button type="submit" variant="gh_orange">
+            {isEditing ? 'Editar' : 'Crear'}
           </Button>
-        )}
+
+          <Button type="button" variant="outline" onClick={() => handleCancel()}>
+            Cancelar
+          </Button>
+        </div>
       </form>
     </Form>
   );
-}
-
-function setItems(arg0: (prevItems: any) => any) {
-  throw new Error('Function not implemented.');
 }

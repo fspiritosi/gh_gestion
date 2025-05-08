@@ -1,20 +1,24 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { format } from 'date-fns';
-import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
+import ServiceItemsTable from './ServiceItemsTable';
 import ServicesForm from './ServicesForm';
+import ContractDocuments from './contractDocuments';
 
 type Service = {
   id: string;
   service_name: string;
+  service_id: string;
   contract_number: string;
   area_id: string;
   sector_id: string;
@@ -61,16 +65,39 @@ const dateSchema = z
 const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Service }: ServiceTableProps) => {
   const supabase = supabaseBrowser();
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
+  console.log(services, 'services');
   const [servicesData, setServicesData] = useState<Service[]>([]);
   // const [loading, setLoading] = useState(true);
   const [editingService, setEditingService] = useState<Service | null>(Service || null);
-
+  const [openDetail, setOpenDetail] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('all');
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [editing, setEditing] = useState(false);
   const [filteredData, setFilteredData] = useState<Service[]>([]);
   const modified_company_id = company_id?.replace(/"/g, '');
+  const [itemsList, setItemsList] = useState<any[]>([]);
+  const [measureUnitsList, setMeasureUnitsList] = useState<any[]>([]);
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
   console.log(id, 'id');
+  console.log(editingService, 'editingService');
+
+  const getItems = async () => {
+    if (!editingService?.id) return;
+    const { items } = await fetch(`${URL}/api/services/items?service=${editingService.id}`).then((e) => e.json());
+    setItemsList(items);
+  };
+  useEffect(() => {
+    // if (!editingService?.id) return;
+
+    getItems();
+  }, [editingService?.id]);
+
+  console.log(itemsList, 'itemsList');
+  const getMeasureUnits = async () => {
+    const { data } = await supabase.from('measure_units').select('*');
+    setMeasureUnitsList(data as any);
+    return data;
+  };
   useEffect(() => {
     if (id) {
       setEditing(true);
@@ -78,9 +105,25 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
   }, [id, servicesData]);
 
   useEffect(() => {
+    // getItems();
+    getMeasureUnits();
+  }, []);
+  useEffect(() => {
     filterServices();
   }, [selectedCustomer, servicesData, services]);
-
+  const filterItems = () => {
+    let filtered = itemsList;
+    if (selectedCustomer !== 'all') {
+      filtered = filtered.filter((item) => item.customer_id.toString() === selectedCustomer);
+    }
+    if (id) {
+      filtered = filtered.filter((item) => item.service_id.toString() === id);
+    }
+    setFilteredItems(filtered);
+  };
+  useEffect(() => {
+    filterItems();
+  }, [selectedCustomer, id, itemsList]);
   const filterServices = (servicesToFilter = services) => {
     let filtered = servicesToFilter;
 
@@ -90,7 +133,7 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
 
     setFilteredServices(filtered);
   };
-
+  console.log(filteredItems, 'filteredItems');
   const fetchServices = async () => {
     try {
       const servicesResponse = await fetch(`${URL}/api/services?actual=${modified_company_id}`);
@@ -111,7 +154,8 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
   console.log(areas, 'areas');
 
   console.log(servicesData, 'servicesData');
-
+  console.log(itemsList, 'itemsList');
+  console.log(sectors, 'sectors');
   const formatedServices = useMemo(() => {
     return filteredServices?.map((service) => ({
       ...service,
@@ -123,6 +167,11 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
   console.log(editingService, 'editingService');
   console.log(formatedServices, 'formatedServices');
   const [open, setOpen] = useState(false);
+  const handleOpenDetail = (service: Service) => {
+    setEditingService(service);
+    setOpenDetail(true);
+  };
+
   return (
     <div>
       {id !== undefined && (
@@ -180,70 +229,127 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
             <VerActivosButton data={formatedServices} filterKey="is_active" onFilteredChange={setFilteredData} />
           </div>
 
-          <div className="overflow-x-auto max-h-96 overflow-y-auto">
-            <Table className="min-w-full ">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Título del Contrato</TableCell>
-                  <TableCell>Cliente</TableCell>
-                  <TableCell>Número de Contrato</TableCell>
-                  <TableCell>Area</TableCell>
-                  <TableCell>Sector</TableCell>
-                  <TableCell>Estado</TableCell>
-                  <TableCell>Inicio del Contrato</TableCell>
-                  <TableCell>Validez del Contrato</TableCell>
-                  {/* <TableCell>Acciones</TableCell> */}
-                </TableRow>
+          <div className="overflow-x-auto max-h-96 overflow-y-auto mt-4">
+            <Card>
+              <Table className="min-w-full ">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Título del Contrato</TableCell>
+                    <TableCell>Cliente</TableCell>
+                    <TableCell>Número de Contrato</TableCell>
+                    <TableCell>Area</TableCell>
+                    <TableCell>Sector</TableCell>
+                    <TableCell>Estado</TableCell>
+                    <TableCell>Inicio del Contrato</TableCell>
+                    <TableCell>Validez del Contrato</TableCell>
+                    {/* <TableCell>Acciones</TableCell> */}
+                  </TableRow>
 
-                <TableBody>
-                  {filteredData.map((service: Service) => (
-                    <TableRow key={service.id}>
-                      <TableCell>
-                        <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
-                          {service.service_name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
+                  <TableBody>
+                    {filteredData.map((service: Service) => (
+                      <TableRow key={service.id}>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="hover:text-blue-400"
+                            onClick={() => handleOpenDetail(service)}
+                            data-id={service.id}
+                          >
+                            {service.service_name}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="hover:text-blue-400"
+                            onClick={() => handleOpenDetail(service)}
+                            data-id={service.id}
+                          >
+                            {service.customer}
+                          </Button>
+                          {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
                           {
                             customers.find(
                               (customer) => customer.id.toString() === (service.customer_id?.toString() as any)
                             )?.name
                           }
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
+                        </Link> */}
+                        </TableCell>
+                        <TableCell>
+                          {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
                           {service.contract_number}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>{service.area}</Link>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
-                          {service.sector}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
-                          <Badge variant={service.is_active ? 'success' : 'default'}>
-                            {service.is_active ? 'Activo' : 'Inactivo'}
-                          </Badge>
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
-                          {format(service.service_start?.toString(), 'dd/MM/yyyy')}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
-                          {format(service.service_validity, 'dd/MM/yyyy')}
-                        </Link>
-                      </TableCell>
+                        </Link> */}
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="hover:text-blue-400"
+                            onClick={() => handleOpenDetail(service)}
+                            data-id={service.id}
+                          >
+                            {service.contract_number}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="hover:text-blue-400"
+                            onClick={() => handleOpenDetail(service)}
+                            data-id={service.id}
+                          >
+                            {service.area}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="hover:text-blue-400"
+                            onClick={() => handleOpenDetail(service)}
+                            data-id={service.id}
+                          >
+                            {service.sector}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="hover:text-blue-400"
+                            onClick={() => handleOpenDetail(service)}
+                            data-id={service.id}
+                          >
+                            <Badge variant={service.is_active ? 'success' : 'default'}>
+                              {service.is_active ? 'Activo' : 'Inactivo'}
+                            </Badge>
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="hover:text-blue-400"
+                            onClick={() => handleOpenDetail(service)}
+                            data-id={service.id}
+                          >
+                            {format(service.service_start?.toString(), 'dd/MM/yyyy')}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="hover:text-blue-400"
+                            onClick={() => handleOpenDetail(service)}
+                            data-id={service.id}
+                          >
+                            {format(service.service_validity, 'dd/MM/yyyy')}
+                          </Button>
+                        </TableCell>
 
-                      {/* <TableCell>
+                        {/* <TableCell>
                           <div className="flex space-x-2 justify-between">
                           <Button
                             size={'sm'}
@@ -256,14 +362,58 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
                           
                           </div>
                         </TableCell> */}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </TableHead>
-            </Table>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </TableHead>
+              </Table>
+            </Card>
           </div>
         </div>
       )}
+      <Dialog open={openDetail} onOpenChange={setOpenDetail}>
+        <DialogContent className="max-w-7xl space-y-6 overflow-x-auto overflow-y-auto h-[98dvh]">
+          <Tabs defaultValue="detail">
+            <TabsList className="flex gap-1 justify-start w-fit bg-gh_contrast/50">
+              <TabsTrigger value="detail" className="text-gh_orange font-semibold">
+                Detalle
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="text-gh_orange font-semibold">
+                Documentos
+              </TabsTrigger>
+              <TabsTrigger value="items" className="text-gh_orange font-semibold">
+                Items del Servicio
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="detail">
+              <ServicesForm
+                editingService={editingService as any}
+                company_id={company_id}
+                areas={areas}
+                sectors={sectors}
+                customers={customers as any}
+                id={editingService?.id}
+              />
+            </TabsContent>
+            <TabsContent value="documents">
+              <ContractDocuments id={editingService?.id as string} />
+            </TabsContent>
+            <TabsContent value="items">
+              <ServiceItemsTable
+                getItems={getItems}
+                editService={(editingService as any) || null}
+                measure_units={measureUnitsList || []}
+                customers={customers || []}
+                services={(services as any) || []}
+                company_id={company_id}
+                items={itemsList || []}
+              />
+            </TabsContent>
+          </Tabs>
+
+          {/* <ServicesForm editingService={editingService as any} company_id={company_id} areas={areas} sectors={sectors} customers={customers as any} id={editingService?.id} /> */}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
