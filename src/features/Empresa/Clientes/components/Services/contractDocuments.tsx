@@ -1397,7 +1397,7 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
                     {searchTerm ? (
                       <>
                         <p className="text-slate-500 mb-1">
-                          No se encontraron documentos que coincidan con "{searchTerm}"
+                          No se encontraron documentos que coincidan con {searchTerm}
                         </p>
                         <p className="text-sm text-slate-400">Intenta con otro término de búsqueda</p>
                       </>
@@ -1525,7 +1525,7 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
           <DialogHeader>
             <DialogTitle>Confirmar eliminación</DialogTitle>
             <DialogDescription>
-              ¿Estás seguro de que deseas eliminar el documento "{documentToDelete?.name}"? Esta acción no se puede
+              ¿Estás seguro de que deseas eliminar el documento {documentToDelete?.name}? Esta acción no se puede
               deshacer.
             </DialogDescription>
           </DialogHeader>
