@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const company_id = searchParams.get('actual');
   const user_id = searchParams.get('user');
-
+  console.log(company_id);
   try {
     let { data: services, error } = await supabase
       .from('customer_services')
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   let company_id = searchParams.get('actual');
   const user_id = searchParams.get('user');
   const body = await request.json();
-  const { service_name, service_start, service_validity, customer_id } = body;
+  const { service_name, service_start, service_validity, customer_id, contract_number, area_id, sector_id } = body;
   company_id = company_id ? company_id.replace(/['"]/g, '') : null;
   const date = new Date(service_validity);
   const date1 = new Date(service_start);
@@ -45,7 +45,10 @@ export async function POST(request: NextRequest) {
     let { data: services, error } = await supabase.from('customer_services').insert({
       company_id: company_id,
       customer_id: customer_id,
+      area_id: area_id,
+      sector_id: sector_id,
       service_name: service_name,
+      contract_number: contract_number,
       service_start: formattedDate1,
       service_validity: formattedDate,
     });
@@ -67,7 +70,8 @@ export async function PUT(request: NextRequest) {
   const user_id = searchParams.get('user');
   const id = searchParams.get('id');
   const body = await request.json();
-  const { service_name, customer_id, service_start, service_validity, is_active } = body;
+  const { service_name, customer_id, service_start, service_validity, is_active, contract_number, area_id, sector_id } =
+    body;
   // const [day, month, year] = service_validity.split('/');
   // const serviceValidityDate = new Date(`${year}-${month}-${day}`);
   try {
@@ -76,9 +80,12 @@ export async function PUT(request: NextRequest) {
       .update({
         customer_id: customer_id,
         service_name: service_name,
+        contract_number: contract_number,
         service_start: service_start,
         service_validity: service_validity,
         is_active: is_active,
+        area_id: area_id,
+        sector_id: sector_id,
       })
       .eq('id', id || '');
 
