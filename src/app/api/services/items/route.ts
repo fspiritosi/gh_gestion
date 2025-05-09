@@ -7,14 +7,33 @@ export async function GET(request: NextRequest) {
   const company_id = searchParams.get('actual');
   const user_id = searchParams.get('user');
   const customer_service_id = searchParams.get('service');
+  console.log(customer_service_id);
 
   try {
     let { data: items, error } = await supabase
       .from('service_items')
-      .select('*,item_measure_units(id,unit),customer_service_id(customer_id(id,name))')
+      // .select('*,item_measure_units(id,unit),customer_service_id(id,service_name),customer_id(id,name)')
+      .select(
+        `
+        *,
+        item_measure_units (
+          id,
+          unit
+        ),
+        customer_services (
+          id,
+          service_name,
+          customer_id (
+            id,
+            name
+          )
+        )
+      `
+      )
+      // .eq('id', customer_service_id || '');
       // Filters
-      // .eq('customer_service_id', customer_service_id)
-      .eq('company_id', company_id || '');
+      .eq('customer_service_id', customer_service_id || '');
+    // .eq('company_id', company_id || '');
 
     if (error) {
       throw new Error(JSON.stringify(error));

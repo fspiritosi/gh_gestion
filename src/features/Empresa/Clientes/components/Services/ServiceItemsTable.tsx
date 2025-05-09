@@ -1,12 +1,12 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table';
+import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { useEffect, useState } from 'react';
 import ServiceItemsForm from './ServiceItemsForm';
-
 interface Item {
   id: string;
   item_name: string;
@@ -62,37 +62,48 @@ export default function ServiceItemsTable({
   services,
   company_id,
   items,
+  editService,
+  getItems,
 }: {
   measure_units: measure_unit[];
   customers: customer[];
   services: Service[];
   company_id: string;
   items: any[];
+  editService: any;
+  getItems: () => void;
 }) {
   const [editingService, setEditingService] = useState<Item | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('all');
 
   const modified_company_id = company_id?.replace(/"/g, '');
+  const [nameFilter, setNameFilter] = useState('');
 
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [isActiveFilter, setIsActiveFilter] = useState(true);
-
+  console.log(editService, 'editService');
   useEffect(() => {
     filterItems();
   }, [selectedCustomer, isActiveFilter, items]);
+  useEffect(() => {
+    let filtered = items;
+
+    if (isActiveFilter) {
+      filtered = filtered.filter((item) => item.is_active);
+    }
+
+    if (nameFilter.trim() !== '') {
+      filtered = filtered.filter((item) => item.item_name.toLowerCase().includes(nameFilter.toLowerCase()));
+    }
+
+    setFilteredItems(filtered);
+  }, [items, isActiveFilter, nameFilter]);
 
   const filterItems = () => {
     let filtered = items;
-
-    if (selectedCustomer !== 'all') {
-      filtered = filtered.filter((item) => item.customer_service_id.customer_id.id?.toString() === selectedCustomer);
-    }
-
     filtered = filtered.filter((item) => item.is_active === isActiveFilter);
-
     setFilteredItems(filtered as any);
   };
-
   return (
     <ResizablePanelGroup className=" flex flex-col gap-2" direction="horizontal">
       <ResizablePanel>
@@ -102,43 +113,25 @@ export default function ServiceItemsTable({
           services={services as any}
           company_id={modified_company_id}
           editingService={editingService as any}
+          editService={editService}
+          getItems={getItems}
         />
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel className=" min-w-[500px] flex flex-col gap-2" defaultSize={70}>
         <div className="flex flex-col gap-6 py-4 px-6">
-          <div className="flex space-x-4">
-            <Select onValueChange={(value) => setSelectedCustomer(value)} value={selectedCustomer} defaultValue="all">
-              <SelectTrigger className="w-[400px]">
-                <SelectValue placeholder="Filtrar por cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los clientes</SelectItem>
-                {customers.map((customer: any) => (
-                  <SelectItem value={String(customer.id)} key={customer.id}>
-                    {customer.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex space-x-4 justify-between">
+            <Input
+              placeholder="Filtrar por nombre"
+              className="w-[400px]"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+            />
 
-            <Select
-              onValueChange={(value) => setIsActiveFilter(value === 'true')}
-              value={String(isActiveFilter)}
-              defaultValue="true"
-            >
-              <SelectTrigger className="w-[400px]">
-                <SelectValue placeholder="Filtrar por estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="true">Activos</SelectItem>
-                <SelectItem value="false">Inactivos</SelectItem>
-              </SelectContent>
-            </Select>
+            <VerActivosButton data={items} filterKey="is_active" onFilteredChange={setFilteredItems} />
           </div>
-          <div className="overflow-x-auto max-h-96 overflow-y-auto">
-            <Table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto max-h-96 ">
+            <Table className="min-w-full divide-y divide-gray-200 overflow-y-auto">
               <TableHead className="bg-header-background">
                 <TableRow>
                   <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -156,9 +149,9 @@ export default function ServiceItemsTable({
                   <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Precio
                   </TableCell>
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  {/* <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Cliente
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Acciones
                   </TableCell>
@@ -184,9 +177,9 @@ export default function ServiceItemsTable({
                       <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                         ${item.item_price}
                       </TableCell>
-                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                      {/* <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                         {item.customer_service_id?.customer_id?.name}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         {/* <Button onClick={() => handleEditClick(item)}>Editar</Button> */}
                         <Button
