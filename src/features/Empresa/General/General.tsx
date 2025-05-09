@@ -1,10 +1,15 @@
-import TypesDocumentAction from '@/app/dashboard/document/documentComponents/TypesDocumentAction';
+import TypesDocumentAction, {
+  setEmployeeDataOptions,
+  setVehicleDataOptions,
+} from '@/app/dashboard/document/documentComponents/TypesDocumentAction';
 import DocumentTabComponent from '@/components/DocumentTabComponent';
 import EditCompanyButton from '@/components/EditCompanyButton';
 import { RegisterWithRole } from '@/components/RegisterWithRole';
 import ViewcomponentInternal from '@/components/ViewComponentInternal';
 import CompanyComponent from '@/features/Empresa/General/components/company/CompanyComponent';
 // import DangerZoneComponent from '@/features/Empresa/General/components/company/DangerZoneComponent';
+import { fetchAllEmployeesWithRelations, fetchAllEquipmentWithRelations } from '@/app/server/GET/actions';
+import { getRole } from '@/lib/utils/getRole';
 import { cookies } from 'next/headers';
 import UsersTabComponent from '../Usuarios/UsersTabComponent';
 import { fetchAllCostCenters, fetchAllSectors, getCompany } from './actions/actions';
@@ -16,6 +21,12 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
   const costCenters = await fetchAllCostCenters();
   const companyData = await getCompany();
   const sectors = await fetchAllSectors();
+  const EmployeesOptionsData = await setEmployeeDataOptions();
+  const VehicleOptionsData = await setVehicleDataOptions();
+
+  const empleadosCargados = await fetchAllEmployeesWithRelations();
+  const equiposCargados = await fetchAllEquipmentWithRelations();
+  const role = await getRole();
   const viewData = {
     defaultValue: subtab || 'company',
     path: '/dashboard/company/actualCompany',
@@ -86,7 +97,14 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
           buttonActioRestricted: [''],
           buttonAction: (
             <div className="flex gap-4 flex-wrap ">
-              <TypesDocumentAction optionChildrenProp="Empresa" />
+              <TypesDocumentAction
+                EmployeesOptionsData={EmployeesOptionsData}
+                VehicleOptionsData={VehicleOptionsData}
+                empleadosCargados={empleadosCargados}
+                equiposCargados={equiposCargados}
+                role={role}
+                optionChildrenProp="Empresa"
+              />
             </div>
           ),
           component: <DocumentTabComponent />,

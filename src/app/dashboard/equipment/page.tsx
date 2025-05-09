@@ -3,6 +3,7 @@ import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
+import { getRole } from '@/lib/utils/getRole';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import EquipmentTabs from '../document/documentComponents/EquipmentTabs';
@@ -18,6 +19,7 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
 
   const empleadosCargados = await fetchAllEmployeesWithRelations();
   const equiposCargados = await fetchAllEquipmentWithRelations();
+  const role = await getRole();
   const viewData = {
     defaultValue: searchParams?.tab || 'equipos',
     path: '/dashboard/equipment',
@@ -65,7 +67,16 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
           title: 'Tipos de documentos',
           buttonActioRestricted: [''],
           description: 'Tipos de documentos auditables',
-          buttonAction: <TypesDocumentAction optionChildrenProp="Equipos" />,
+          buttonAction: (
+            <TypesDocumentAction
+              EmployeesOptionsData={EmployeesOptionsData}
+              VehicleOptionsData={VehicleOptionsData}
+              empleadosCargados={empleadosCargados}
+              equiposCargados={equiposCargados}
+              role={role}
+              optionChildrenProp="Equipos"
+            />
+          ),
           component: (
             <TypesDocumentsView
               equipos
