@@ -46,6 +46,8 @@ type ServiceTableProps = {
   sectors: any[];
   id?: string;
   Service: Service;
+  measure_units: any[];
+  items: any[];
 };
 
 const dateSchema = z
@@ -62,7 +64,17 @@ const dateSchema = z
     path: ['service_validity'],
   });
 
-const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Service }: ServiceTableProps) => {
+const ServiceTable = ({
+  services,
+  customers,
+  company_id,
+  areas,
+  sectors,
+  id,
+  Service,
+  measure_units,
+  items,
+}: ServiceTableProps) => {
   const supabase = supabaseBrowser();
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
   console.log(services, 'services');
@@ -80,7 +92,8 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
   console.log(id, 'id');
   console.log(editingService, 'editingService');
-
+  console.log(items, 'items');
+  console.log(measure_units, 'measure_units');
   const getItems = async () => {
     if (!editingService?.id) return;
     const { items } = await fetch(`${URL}/api/services/items?service=${editingService.id}`).then((e) => e.json());
