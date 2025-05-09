@@ -273,7 +273,7 @@ export async function fetchAreasWithProvinces() {
 export async function fetchEquipmentsCustomers() {
   const supabase = supabaseServer();
   try {
-    const { data: equipments, error } = await supabase.from('equipos_clientes' as any).select('*');
+    const { data: equipments, error } = await supabase.from('equipos_clientes').select('*');
     if (error) {
       console.error(error);
       return { equipments: [], error: 'Error al obtener los equipos' };
@@ -343,7 +343,9 @@ export async function fetchAllSectors() {
   try {
     const { data: sectors, error } = await supabase
       .from('sectors' as any)
-      .select('*,sector_customer(sector_id(id,name), customer_id(id,name))');
+      .select('*,sector_customer(sector_id(id,name), customer_id(id,name))')
+      .returns<SectorWithCustomers[]>();
+
     if (error) {
       console.error(error);
       return { sectors: [], error: 'Error al obtener los sectores' };

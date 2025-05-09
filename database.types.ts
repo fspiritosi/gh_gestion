@@ -3,6 +3,68 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      area_province: {
+        Row: {
+          area_id: string;
+          id: string;
+          province_id: number;
+        };
+        Insert: {
+          area_id: string;
+          id?: string;
+          province_id: number;
+        };
+        Update: {
+          area_id?: string;
+          id?: string;
+          province_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'area_province_area_id_fkey';
+            columns: ['area_id'];
+            isOneToOne: false;
+            referencedRelation: 'areas_cliente';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'area_province_province_id_fkey';
+            columns: ['province_id'];
+            isOneToOne: false;
+            referencedRelation: 'provinces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      areas_cliente: {
+        Row: {
+          customer_id: string;
+          descripcion_corta: string | null;
+          id: string;
+          nombre: string;
+        };
+        Insert: {
+          customer_id: string;
+          descripcion_corta?: string | null;
+          id?: string;
+          nombre: string;
+        };
+        Update: {
+          customer_id?: string;
+          descripcion_corta?: string | null;
+          id?: string;
+          nombre?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'areas_cliente_customer_id_fkey';
+            columns: ['customer_id'];
+            isOneToOne: false;
+            referencedRelation: 'customers';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       assing_customer: {
         Row: {
           created_at: string;
@@ -206,7 +268,6 @@ export type Database = {
       };
       company: {
         Row: {
-          cities: any;
           address: string;
           by_defect: boolean | null;
           city: number;
@@ -283,6 +344,30 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      company_position: {
+        Row: {
+          created_at: string;
+          hierarchical_position_id: string[] | null;
+          id: string;
+          is_active: boolean | null;
+          name: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          hierarchical_position_id?: string[] | null;
+          id?: string;
+          is_active?: boolean | null;
+          name?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          hierarchical_position_id?: string[] | null;
+          id?: string;
+          is_active?: boolean | null;
+          name?: string | null;
+        };
+        Relationships: [];
       };
       contacts: {
         Row: {
@@ -838,30 +923,30 @@ export type Database = {
           company_id: string;
           created_at: string;
           id: string;
+          is_active: boolean;
           name: string | null;
           short_description: string;
           work_active: boolean | null;
-          is_active?: boolean | null;
         };
         Insert: {
           color: string;
           company_id?: string;
           created_at?: string;
           id?: string;
+          is_active?: boolean;
           name?: string | null;
           short_description: string;
           work_active?: boolean | null;
-          is_active?: boolean | null;
         };
         Update: {
           color?: string;
           company_id?: string;
           created_at?: string;
           id?: string;
+          is_active?: boolean;
           name?: string | null;
           short_description?: string;
           work_active?: boolean | null;
-          is_active?: boolean | null;
         };
         Relationships: [
           {
@@ -1394,6 +1479,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'employees_company_position_fkey';
+            columns: ['company_position'];
+            isOneToOne: false;
+            referencedRelation: 'company_position';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'employees_cost_center_id_fkey';
             columns: ['cost_center_id'];
             isOneToOne: false;
@@ -1485,6 +1577,38 @@ export type Database = {
             columns: ['employee_id'];
             isOneToOne: false;
             referencedRelation: 'employees';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      equipos_clientes: {
+        Row: {
+          created_at: string;
+          customer_id: string;
+          id: string;
+          name: string;
+          type: Database['public']['Enums']['type_equipment'];
+        };
+        Insert: {
+          created_at?: string;
+          customer_id: string;
+          id?: string;
+          name: string;
+          type: Database['public']['Enums']['type_equipment'];
+        };
+        Update: {
+          created_at?: string;
+          customer_id?: string;
+          id?: string;
+          name?: string;
+          type?: Database['public']['Enums']['type_equipment'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'equipos_clientes_customer_id_fkey';
+            columns: ['customer_id'];
+            isOneToOne: false;
+            referencedRelation: 'customers';
             referencedColumns: ['id'];
           },
         ];
@@ -1994,6 +2118,63 @@ export type Database = {
           id?: number;
           intern?: boolean | null;
           is_active?: boolean | null;
+          name?: string;
+        };
+        Relationships: [];
+      };
+      sector_customer: {
+        Row: {
+          created_at: string | null;
+          customer_id: string;
+          id: string;
+          sector_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          customer_id: string;
+          id?: string;
+          sector_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          customer_id?: string;
+          id?: string;
+          sector_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'sector_customer_customer_id_fkey';
+            columns: ['customer_id'];
+            isOneToOne: false;
+            referencedRelation: 'customers';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'sector_customer_sector_id_fkey';
+            columns: ['sector_id'];
+            isOneToOne: false;
+            referencedRelation: 'sectors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      sectors: {
+        Row: {
+          created_at: string | null;
+          descripcion_corta: string | null;
+          id: string;
+          name: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          descripcion_corta?: string | null;
+          id?: string;
+          name: string;
+        };
+        Update: {
+          created_at?: string | null;
+          descripcion_corta?: string | null;
+          id?: string;
           name?: string;
         };
         Relationships: [];
@@ -2591,6 +2772,7 @@ export type Database = {
       roles_enum: 'Externo' | 'Auditor';
       state: 'presentado' | 'rechazado' | 'aprobado' | 'vencido' | 'pendiente';
       status_type: 'Avalado' | 'No avalado' | 'Incompleto' | 'Completo' | 'Completo con doc vencida';
+      type_equipment: 'Perforador' | 'Perforador Spudder' | 'Work over' | 'Fractura' | 'Coiled Tubing';
       type_of_contract_enum: 'Período de prueba' | 'A tiempo indeterminado' | 'Plazo fijo';
       type_of_maintenance_ENUM: 'Correctivo' | 'Preventivo';
     };
@@ -2739,6 +2921,7 @@ export const Constants = {
       roles_enum: ['Externo', 'Auditor'],
       state: ['presentado', 'rechazado', 'aprobado', 'vencido', 'pendiente'],
       status_type: ['Avalado', 'No avalado', 'Incompleto', 'Completo', 'Completo con doc vencida'],
+      type_equipment: ['Perforador', 'Perforador Spudder', 'Work over', 'Fractura', 'Coiled Tubing'],
       type_of_contract_enum: ['Período de prueba', 'A tiempo indeterminado', 'Plazo fijo'],
       type_of_maintenance_ENUM: ['Correctivo', 'Preventivo'],
     },

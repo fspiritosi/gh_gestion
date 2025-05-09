@@ -27,9 +27,9 @@ interface Sector {
 }
 interface SectorTableProp {
   customers: any[];
-  sectors: Sector[];
-  selectedSector: Sector | null;
-  setSelectedSector: (sector: Sector | null) => void;
+  sectors: SectorWithCustomers[];
+  selectedSector: SectorWithCustomers | null;
+  setSelectedSector: (sector: SectorWithCustomers | null) => void;
   setMode: (mode: 'create' | 'edit') => void;
   mode: 'create' | 'edit';
 }
@@ -82,11 +82,13 @@ function SectorTable({ customers, sectors, selectedSector, setSelectedSector, se
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredSectors.slice(startIndex, endIndex).map((sector) => {
-    const customer = customers.find((customer) => customer.id === sector.customer_id);
+    const customer = customers.find(
+      (customer) => customer.id === sector.sector_customer.some((c) => c.customer_id.id === sector.id)
+    );
     return { ...sector, customer_name: customer?.name };
   });
   console.log(currentItems);
-  const handleEdit = (sector: Sector) => {
+  const handleEdit = (sector: SectorWithCustomers) => {
     setSelectedSector(sector);
     setMode('edit');
   };

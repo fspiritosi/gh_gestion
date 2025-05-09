@@ -1,3 +1,4 @@
+import { setNewCompanyUserMetadata } from '@/app/server/GET/actions';
 import { Notifications, SharedUser, VehiclesAPI, profileUser } from '@/types/types';
 import { Company, SharedCompanies, Vehicle } from '@/zodSchemas/schemas';
 import { User } from '@supabase/supabase-js';
@@ -407,6 +408,8 @@ export const useLoggedUserStore = create<State>((set, get) => {
     set({ actualCompany: company });
 
     cookies.set('actualComp', company.id);
+    console.log('Esta siasdihjagskduhasodgha');
+    setNewCompanyUserMetadata(company.id);
     useCountriesStore.getState().documentTypes(company?.id);
     setActivesEmployees();
     fetchVehicles();

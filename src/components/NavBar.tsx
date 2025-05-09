@@ -1,5 +1,6 @@
 'use client';
 import { logout } from '@/app/login/actions';
+import { setNewCompanyUserMetadata } from '@/app/server/GET/actions';
 import { ModeToggle } from '@/components/ui/ToogleDarkButton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -80,6 +81,7 @@ export default function NavBar() {
 
   const handleNewCompany = async (company: Company[0]) => {
     Cookies.set('actualComp', company.id);
+    await setNewCompanyUserMetadata(company.id);
     setNewDefectCompany(company);
     setActualCompany(company);
     setIsOpen(false);

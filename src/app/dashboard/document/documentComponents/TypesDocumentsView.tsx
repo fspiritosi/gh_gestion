@@ -1,11 +1,15 @@
 'use client';
+import {
+  fetchAllDocumentTypes,
+  fetchAllEmployeesWithRelations,
+  fetchAllEquipmentWithRelations,
+} from '@/app/server/GET/actions';
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useCountriesStore } from '@/store/countries';
 import { useState } from 'react';
 import DocumentsTable from './DocumentsTable'; // Asumo que este componente existe
 import FilterHeader from './FilterComponent';
-import TypesDocumentAction from './TypesDocumentAction';
+import TypesDocumentAction, { setEmployeeDataOptions, setVehicleDataOptions } from './TypesDocumentAction';
 
 function TypesDocumentsView({
   personas,
@@ -13,14 +17,26 @@ function TypesDocumentsView({
   empresa,
   tabValue,
   subtab,
+  employeeMockValues,
+  vehicleMockValues,
+  employees,
+  vehicles,
+  role,
+  document_types,
 }: {
   personas?: boolean;
   equipos?: boolean;
   empresa?: boolean;
   tabValue?: string;
   subtab?: string;
+  employeeMockValues: Awaited<ReturnType<typeof setEmployeeDataOptions>>;
+  vehicleMockValues: Awaited<ReturnType<typeof setVehicleDataOptions>>;
+  employees: Awaited<ReturnType<typeof fetchAllEmployeesWithRelations>>;
+  vehicles: Awaited<ReturnType<typeof fetchAllEquipmentWithRelations>>;
+  role?: string;
+  document_types?: Awaited<ReturnType<typeof fetchAllDocumentTypes>>;
 }) {
-  const document_types = useCountriesStore((state) => state.companyDocumentTypes);
+  // const document_types = useCountriesStore((state) => state.companyDocumentTypes);
 
   const doc_personas = document_types?.filter((doc) => doc.applies === 'Persona').filter((e) => e.is_active);
   const doc_equipos = document_types?.filter((doc) => doc.applies === 'Equipos').filter((e) => e.is_active);
@@ -71,12 +87,12 @@ function TypesDocumentsView({
   const filteredDocEquipos = applyFilters(doc_equipos, 'equipos');
   const filteredDocEmpresa = applyFilters(doc_empresa, 'empresa');
 
-  const convertToOptions = (array: (boolean | null | undefined)[]): string[] =>
-    Array.from(new Set(array?.map((val) => (val === true ? 'Si' : 'No')))).filter((val) => val !== undefined);
+  const convertToOptions = (array: any) =>
+    Array.from(new Set(array?.map((val: any) => (val === true ? 'Si' : 'No')))).filter((val: any) => val !== undefined);
 
   const docOptions = {
-    multiresource: convertToOptions(document_types?.map((doc) => doc.multiresource)),
-    special: convertToOptions(document_types?.map((doc) => doc.special)),
+    multiresource: convertToOptions(document_types?.map((doc: any) => doc.multiresource)),
+    special: convertToOptions(document_types?.map((doc: any) => doc.special)),
     monthly: convertToOptions(document_types?.map((doc) => doc.is_it_montlhy)),
     expired: convertToOptions(document_types?.map((doc) => doc.explired)),
     mandatory: convertToOptions(document_types?.map((doc) => doc.mandatory)),
@@ -86,87 +102,87 @@ function TypesDocumentsView({
   const optionValue =
     personas && equipos && empresa ? 'Personas' : personas ? 'Personas' : equipos ? 'Equipos' : 'Empresa';
 
-  const viewData = {
-    defaultValue: subtab || (personas ? 'Personas' : equipos ? 'Equipos' : 'Empresa'),
-    path: '/dashboard/document/types',
-    tabsValues: [
-      ...(personas
-        ? [
-            {
-              value: 'Personas',
-              name: `Personas (${filteredDocPersonas?.length || 0})`,
-              tab: tabValue,
-              restricted: [''],
-              content: {
-                title: 'Documentos de Personas',
-                description: '',
-                buttonActioRestricted: [''],
-                buttonAction: '',
-                component: (
-                  <DocumentsTable data={filteredDocPersonas} filters={filters.personas}>
-                    <FilterHeader
-                      filters={filters.personas}
-                      docOptions={docOptions}
-                      onFilterChange={(name, value) => handleFilterChange('personas', name, value)}
-                    />
-                  </DocumentsTable>
-                ),
-              },
-            },
-          ]
-        : []),
-      ...(equipos
-        ? [
-            {
-              value: 'Equipos',
-              name: `Equipos (${filteredDocEquipos?.length || 0})`,
-              tab: tabValue,
-              restricted: [''],
-              content: {
-                title: 'Documentos de Equipos',
-                description: '',
-                buttonActioRestricted: [''],
-                buttonAction: '',
-                component: (
-                  <DocumentsTable data={filteredDocEquipos} filters={filters.equipos}>
-                    <FilterHeader
-                      filters={filters.equipos}
-                      docOptions={docOptions}
-                      onFilterChange={(name, value) => handleFilterChange('equipos', name, value)}
-                    />
-                  </DocumentsTable>
-                ),
-              },
-            },
-          ]
-        : []),
-      ...(empresa
-        ? [
-            {
-              value: 'Empresa',
-              name: `Empresa (${filteredDocEmpresa?.length || 0})`,
-              tab: tabValue,
-              restricted: [''],
-              content: {
-                title: 'Documentos de Empresa',
-                description: '',
-                buttonActioRestricted: [''],
-                buttonAction: '',
-                component: (
-                  <DocumentsTable data={filteredDocEmpresa} filters={filters.empresa}>
-                    <FilterHeader
-                      filters={filters.empresa}
-                      docOptions={docOptions}
-                      onFilterChange={(name, value) => handleFilterChange('empresa', name, value)}
-                    />
-                  </DocumentsTable>
-                ),
-              },
-            },
-          ]
-        : []),
-    ],
-  };
+  // const viewData = {
+  //   defaultValue: subtab || (personas ? 'Personas' : equipos ? 'Equipos' : 'Empresa'),
+  //   path: '/dashboard/document/types',
+  //   tabsValues: [
+  //     ...(personas
+  //       ? [
+  //           {
+  //             value: 'Personas',
+  //             name: `Personas (${filteredDocPersonas?.length || 0})`,
+  //             tab: tabValue,
+  //             restricted: [''],
+  //             content: {
+  //               title: 'Documentos de Personas',
+  //               description: '',
+  //               buttonActioRestricted: [''],
+  //               buttonAction: '',
+  //               component: (
+  //                 <DocumentsTable data={filteredDocPersonas} filters={filters.personas} employeeMockValues={employeeMockValues} vehicleMockValues={vehicleMockValues} employees={employees} vehicles={vehicles}>
+  //                   <FilterHeader
+  //                     filters={filters.personas}
+  //                     docOptions={docOptions}
+  //                     onFilterChange={(name, value) => handleFilterChange('personas', name, value)}
+  //                   />
+  //                 </DocumentsTable>
+  //               ),
+  //             },
+  //           },
+  //         ]
+  //       : []),
+  //     ...(equipos
+  //       ? [
+  //           {
+  //             value: 'Equipos',
+  //             name: `Equipos (${filteredDocEquipos?.length || 0})`,
+  //             tab: tabValue,
+  //             restricted: [''],
+  //             content: {
+  //               title: 'Documentos de Equipos',
+  //               description: '',
+  //               buttonActioRestricted: [''],
+  //               buttonAction: '',
+  //               component: (
+  //                 <DocumentsTable data={filteredDocEquipos} filters={filters.equipos} employeeMockValues={employeeMockValues} vehicleMockValues={vehicleMockValues} employees={employees} vehicles={vehicles}>
+  //                   <FilterHeader
+  //                     filters={filters.equipos}
+  //                     docOptions={docOptions}
+  //                     onFilterChange={(name, value) => handleFilterChange('equipos', name, value)}
+  //                   />
+  //                 </DocumentsTable>
+  //               ),
+  //             },
+  //           },
+  //         ]
+  //       : []),
+  //     ...(empresa
+  //       ? [
+  //           {
+  //             value: 'Empresa',
+  //             name: `Empresa (${filteredDocEmpresa?.length || 0})`,
+  //             tab: tabValue,
+  //             restricted: [''],
+  //             content: {
+  //               title: 'Documentos de Empresa',
+  //               description: '',
+  //               buttonActioRestricted: [''],
+  //               buttonAction: '',
+  //               component: (
+  //                 <DocumentsTable data={filteredDocEmpresa} filters={filters.empresa} employeeMockValues={employeeMockValues} vehicleMockValues={vehicleMockValues} employees={employees} vehicles={vehicles}>
+  //                   <FilterHeader
+  //                     filters={filters.empresa}
+  //                     docOptions={docOptions}
+  //                     onFilterChange={(name, value) => handleFilterChange('empresa', name, value)}
+  //                   />
+  //                 </DocumentsTable>
+  //               ),
+  //             },
+  //           },
+  //         ]
+  //       : []),
+  //   ],
+  // };
 
   return (
     <CardContent className="px-0 pt-1">
@@ -178,15 +194,29 @@ function TypesDocumentsView({
             {empresa && <TabsTrigger value="Empresa">Empresa ({filteredDocEmpresa?.length || 0})</TabsTrigger>}
           </TabsList>
           <div>
-            <TypesDocumentAction optionChildrenProp="Persona" />
+            <TypesDocumentAction
+              EmployeesOptionsData={employeeMockValues}
+              VehicleOptionsData={vehicleMockValues}
+              empleadosCargados={employees}
+              equiposCargados={vehicles}
+              role={role || ''}
+              optionChildrenProp="Persona"
+            />
           </div>
         </div>
         {personas && (
           <TabsContent value="Personas">
-            <DocumentsTable data={filteredDocPersonas} filters={filters.personas}>
+            <DocumentsTable
+              data={filteredDocPersonas || []}
+              filters={filters.personas}
+              employeeMockValues={employeeMockValues}
+              vehicleMockValues={vehicleMockValues}
+              employees={employees}
+              vehicles={vehicles}
+            >
               <FilterHeader
                 filters={filters.personas}
-                docOptions={docOptions}
+                docOptions={docOptions as any}
                 onFilterChange={(name, value) => handleFilterChange('personas', name, value)}
               />
             </DocumentsTable>
@@ -194,10 +224,17 @@ function TypesDocumentsView({
         )}
         {equipos && (
           <TabsContent value="Equipos">
-            <DocumentsTable data={filteredDocEquipos} filters={filters.equipos}>
+            <DocumentsTable
+              data={filteredDocEquipos || []}
+              filters={filters.equipos}
+              employeeMockValues={employeeMockValues}
+              vehicleMockValues={vehicleMockValues}
+              employees={employees}
+              vehicles={vehicles}
+            >
               <FilterHeader
                 filters={filters.equipos}
-                docOptions={docOptions}
+                docOptions={docOptions as any}
                 onFilterChange={(name, value) => handleFilterChange('equipos', name, value)}
               />
             </DocumentsTable>
@@ -205,10 +242,17 @@ function TypesDocumentsView({
         )}
         {empresa && (
           <TabsContent value="Empresa">
-            <DocumentsTable data={filteredDocEmpresa} filters={filters.empresa}>
+            <DocumentsTable
+              data={filteredDocEmpresa || []}
+              filters={filters.empresa}
+              employeeMockValues={employeeMockValues}
+              vehicleMockValues={vehicleMockValues}
+              employees={employees}
+              vehicles={vehicles}
+            >
               <FilterHeader
                 filters={filters.empresa}
-                docOptions={docOptions}
+                docOptions={docOptions as any}
                 onFilterChange={(name, value) => handleFilterChange('empresa', name, value)}
               />
             </DocumentsTable>

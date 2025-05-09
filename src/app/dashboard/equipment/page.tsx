@@ -1,14 +1,25 @@
+import { fetchAllEmployeesWithRelations, fetchAllEquipmentWithRelations } from '@/app/server/GET/actions';
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
 import { buttonVariants } from '@/components/ui/button';
+import { getRole } from '@/lib/utils/getRole';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import EquipmentTabs from '../document/documentComponents/EquipmentTabs';
-import TypesDocumentAction from '../document/documentComponents/TypesDocumentAction';
+import TypesDocumentAction, {
+  setEmployeeDataOptions,
+  setVehicleDataOptions,
+} from '../document/documentComponents/TypesDocumentAction';
 import TypesDocumentsView from '../document/documentComponents/TypesDocumentsView';
 import EquipmentListTabs from './equipmentComponentes/EquipmentListTabs';
 export default async function Equipment({ searchParams }: { searchParams: { tab: string; subtab?: string } }) {
+  const EmployeesOptionsData = await setEmployeeDataOptions();
+  const VehicleOptionsData = await setVehicleDataOptions();
+
+  const empleadosCargados = await fetchAllEmployeesWithRelations();
+  const equiposCargados = await fetchAllEquipmentWithRelations();
+  const role = await getRole();
   const viewData = {
     defaultValue: searchParams?.tab || 'equipos',
     path: '/dashboard/equipment',
@@ -56,8 +67,25 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
           title: 'Tipos de documentos',
           buttonActioRestricted: [''],
           description: 'Tipos de documentos auditables',
-          buttonAction: <TypesDocumentAction optionChildrenProp="Equipos" />,
-          component: <TypesDocumentsView equipos tabValue="Tipos de documentos" subtab={searchParams.subtab} />,
+          buttonAction: (
+            <TypesDocumentAction
+              EmployeesOptionsData={EmployeesOptionsData}
+              VehicleOptionsData={VehicleOptionsData}
+              empleadosCargados={empleadosCargados}
+              equiposCargados={equiposCargados}
+              role={role}
+              optionChildrenProp="Equipos"
+            />
+          ),
+          component: (
+            <TypesDocumentsView
+              equipos
+              employeeMockValues={EmployeesOptionsData}
+              vehicleMockValues={VehicleOptionsData}
+              employees={empleadosCargados}
+              vehicles={equiposCargados}
+            />
+          ),
         },
       },
       {

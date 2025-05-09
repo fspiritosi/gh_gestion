@@ -1,5 +1,6 @@
 'use client';
 
+import { setNewCompanyUserMetadata } from '@/app/server/GET/actions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
@@ -31,6 +32,7 @@ export function _CompanySelector({ sharedCompanies, allCompanies, currentCompany
   // Si no hay compañía seleccionada y hay compañías disponibles, seleccionar la primera
   useEffect(() => {
     const actualCompany = Cookies.get('actualComp');
+    setNewCompanyUserMetadata(actualCompany || '');
 
     if (!actualCompany) {
       Cookies.set('actualComp', allCompanies[0]?.id || sharedCompanies[0]?.id);
@@ -49,6 +51,7 @@ export function _CompanySelector({ sharedCompanies, allCompanies, currentCompany
 
   const handleNewCompany = async (company: Company) => {
     Cookies.set('actualComp', company.id);
+    await setNewCompanyUserMetadata(company.id);
     setSelectedCompany(company);
     setOpen(false);
     location.replace('/dashboard');

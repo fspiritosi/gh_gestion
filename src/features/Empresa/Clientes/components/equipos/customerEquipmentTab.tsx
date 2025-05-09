@@ -1,25 +1,23 @@
 'use client';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { fetchEquipmentsCustomers } from '@/features/Empresa/Clientes/actions/create';
-import { AreaTableSkeleton } from '@/features/Empresa/Clientes/components/area_clientes/AreaTableSkeleton';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import CustomerEquipmentForm from './customerEquipmentForm';
 import CustomerEquipmentTable from './customerEquipmentTable';
-function customerEquipmentTab({ customers }: { customers: any[] }) {
+function customerEquipmentTab({ customers, equipments }: { customers: any[]; equipments: EquipmentsClient[] }) {
   const [SelectedEquipment, setSelectedEquipment] = useState<any | null>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
   // const [customers, setCustomers] = useState<any[]>([]);
-  const [equipments, setEquipments] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const fetchEquipments = async () => {
-    const { equipments } = await fetchEquipmentsCustomers();
-    setEquipments(equipments || []);
-    setIsLoading(false);
-  };
+  // const [equipments, setEquipments] = useState<any[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const fetchEquipments = async () => {
+  //   const { equipments } = await fetchEquipmentsCustomers();
+  //   setEquipments(equipments || []);
+  //   setIsLoading(false);
+  // };
 
-  useEffect(() => {
-    fetchEquipments();
-  }, []);
+  // useEffect(() => {
+  // fetchEquipments();
+  // }, []);
   return (
     <div>
       <ResizablePanelGroup direction="horizontal" className="min-h-[400px]">
@@ -35,18 +33,14 @@ function customerEquipmentTab({ customers }: { customers: any[] }) {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={60}>
-          {!isLoading ? (
-            <CustomerEquipmentTable
-              customers={customers}
-              customerEquipments={equipments}
-              selectedCustomerEquipment={SelectedEquipment}
-              setSelectedCustomerEquipment={setSelectedEquipment}
-              setMode={setMode}
-              mode={mode}
-            />
-          ) : (
-            <AreaTableSkeleton />
-          )}
+          <CustomerEquipmentTable
+            customers={customers}
+            customerEquipments={equipments}
+            selectedCustomerEquipment={SelectedEquipment}
+            setSelectedCustomerEquipment={setSelectedEquipment}
+            setMode={setMode}
+            mode={mode}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

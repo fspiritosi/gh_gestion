@@ -13,9 +13,21 @@ interface DocumentsTableProps {
     private: string;
   };
   children: React.ReactNode;
+  employeeMockValues: Record<string, string[] | []>;
+  vehicleMockValues: Record<string, string[] | []>;
+  employees: EmployeeDetailed[];
+  vehicles: VehicleWithBrand[];
 }
 
-const DocumentsTable = ({ data, filters, children }: DocumentsTableProps) => (
+const DocumentsTable = ({
+  data,
+  filters,
+  children,
+  employeeMockValues,
+  vehicleMockValues,
+  employees,
+  vehicles,
+}: DocumentsTableProps) => (
   <Table>
     <TableHeader>
       <TableRow>{children}</TableRow>
@@ -31,7 +43,13 @@ const DocumentsTable = ({ data, filters, children }: DocumentsTableProps) => (
           <TableCell className="text-center">{doc.mandatory ? 'Si' : 'No'}</TableCell>
           <TableCell className="text-center">{doc.private ? 'Si' : 'No'}</TableCell>
           <TableCell className="text-center">
-            <EditModal Equipo={doc} />
+            <EditModal
+              Equipo={doc}
+              employeeMockValues={employeeMockValues}
+              vehicleMockValues={vehicleMockValues}
+              employees={employees}
+              vehicles={vehicles}
+            />
           </TableCell>
         </TableRow>
       ))}

@@ -30,26 +30,26 @@ interface Cliente {
   name: string;
 }
 
-interface Sector {
-  id: string;
-  name: string;
-  descripcion_corta: string;
-  customer_id: string;
-  sector_customer: Array<{
-    customer_id: {
-      id: string;
-      name: string;
-    };
-  }>;
-}
+// interface Sector {
+//   id: string;
+//   name: string;
+//   descripcion_corta: string;
+//   customer_id: string;
+//   sector_customer: Array<{
+//     customer_id: {
+//       id: string;
+//       name: string;
+//     };
+//   }>;
+// }
 
 interface SectorFormProps {
-  sectors: Sector[];
+  sectors: SectorWithCustomers[];
   customers: Cliente[];
   mode: 'create' | 'edit';
   setMode: (mode: 'create' | 'edit') => void;
-  selectedSector: Sector | null;
-  setSelectedSector: (sector: Sector | null) => void;
+  selectedSector: SectorWithCustomers | null;
+  setSelectedSector: (sector: SectorWithCustomers | null) => void;
 }
 
 type SectorFormValues = z.infer<typeof SectorSchema>;
@@ -72,7 +72,7 @@ function SectorForm({ customers, mode, setMode, selectedSector, setSelectedSecto
     if (mode === 'edit' && selectedSector) {
       reset({
         name: selectedSector.name,
-        descripcion_corta: selectedSector.descripcion_corta,
+        descripcion_corta: selectedSector.descripcion_corta || '',
         customer_id: selectedSector.sector_customer[0].customer_id.id,
       });
     } else if (mode === 'create') {
