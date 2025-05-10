@@ -207,6 +207,7 @@ const ServiceTable = ({
             </DialogTrigger>
             <DialogContent className="max-w-4xl space-y-6">
               <DialogTitle>Crear Contrato</DialogTitle>
+
               <ServicesForm
                 customers={customers as any}
                 editingService={editingService as any}

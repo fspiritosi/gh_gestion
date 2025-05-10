@@ -6,12 +6,12 @@ import { Calendar } from '@/components/ui/calendar';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { handleServiceSubmit, handleServiceUpdate } from '@/features/Empresa/Clientes/actions/services';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
 import { RadioGroup, RadioGroupItem } from '../../../../../components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
@@ -155,67 +155,12 @@ export default function ServicesForm({
   console.log(modified_editing_service_id, 'modified_editing_service_id');
   console.log(customerId, 'customerId');
   console.log(filteredAreas, 'filteredAreas');
-  const onSubmit = async (values: Service) => {
-    const modified_company_id = company_id?.replace(/"/g, '');
-
-    const data = JSON.stringify(values);
-    console.log(data, 'data');
-    try {
-      const response = await fetch(`/api/services?actual=${modified_company_id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: data,
-      });
-      if (!response.ok) {
-        throw new Error('Error en la solicitud');
-      }
-      const result = await response.json();
-      toast.success('Servicio creado correctamente');
-      router.refresh();
-      resetForm();
-    } catch (error) {
-      console.error('Error al crear el servicio:', error);
-      toast.error('Error al crear el servicio');
-    }
+  const onSubmit = async (values: z.infer<typeof ServiceSchema>) => {
+    await handleServiceSubmit(values, company_id, resetForm, router);
   };
 
-  const onUpdate = async (values: Service) => {
-    const modified_company_id = company_id?.replace(/"/g, '');
-    console.log(values, 'values');
-    const data = JSON.stringify(values);
-    try {
-      type Service = {
-        id: string;
-        service_name: string;
-        customer_id: string;
-        area_id: string;
-        description: string;
-        contract_number: string;
-        service_price: number;
-        service_start: string;
-        service_validity: string;
-        is_active: true;
-      };
-      const response = await fetch(`/api/services/?id=${modified_editing_service_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: data,
-      });
-      if (!response.ok) {
-        throw new Error('Error en la solicitud');
-      }
-      const result = await response.json();
-      toast.success('Servicio actualizado correctamente');
-      resetForm();
-      router.refresh();
-    } catch (error) {
-      console.error('Error al actualizar el servicio:', error);
-      toast.error('Error al actualizar el servicio');
-    }
+  const onUpdate = async (values: z.infer<typeof ServiceSchema>) => {
+    await handleServiceUpdate(values, editingService?.id || '', resetForm, router);
   };
 
   const handleSubmit1 = (values: Service) => {
