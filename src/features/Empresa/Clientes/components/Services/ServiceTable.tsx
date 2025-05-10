@@ -1,4 +1,5 @@
 'use client';
+import Loading from '@/app/loading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -79,7 +80,7 @@ const ServiceTable = ({
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
   console.log(services, 'services');
   const [servicesData, setServicesData] = useState<Service[]>([]);
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [editingService, setEditingService] = useState<Service | null>(Service || null);
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('all');
@@ -160,6 +161,7 @@ const ServiceTable = ({
   };
   useEffect(() => {
     fetchServices();
+    setLoading(false);
   }, []);
   console.log(areas, 'areas');
 
@@ -184,184 +186,192 @@ const ServiceTable = ({
 
   return (
     <div>
-      {id !== undefined && (
-        <div>
-          <ServicesForm
-            customers={customers as any}
-            editingService={editingService as any}
-            company_id={company_id}
-            areas={areas}
-            sectors={sectors}
-            id={id}
-          />
-        </div>
-      )}
-
-      {id === undefined && (
-        <div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="gh_orange" className="mb-4">
-                Crear Contrato
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl space-y-6">
-              <DialogTitle>Crear Contrato</DialogTitle>
-
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          {id !== undefined && (
+            <div>
               <ServicesForm
                 customers={customers as any}
                 editingService={editingService as any}
                 company_id={company_id}
                 areas={areas}
                 sectors={sectors}
-                setOpen={setOpen}
+                id={id}
               />
-            </DialogContent>
-          </Dialog>
+            </div>
+          )}
 
-          <div className="flex space-x-4 items-center justify-between">
-            <Select onValueChange={(value) => setSelectedCustomer(value)} value={selectedCustomer} defaultValue="all">
-              <SelectTrigger className="w-[400px]">
-                <SelectValue placeholder="Filtrar por cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los clientes</SelectItem>
-                {customers
-                  ?.filter((customer: any) =>
-                    formatedServices.some((service) => service.customer_id.toString() === String(customer.id))
-                  )
-                  .map((customer: any) => (
-                    <SelectItem value={String(customer.id)} key={customer.id}>
-                      {customer.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-            <VerActivosButton data={formatedServices} filterKey="is_active" onFilteredChange={setFilteredData} />
-          </div>
+          {id === undefined && (
+            <div>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="gh_orange" className="mb-4">
+                    Crear Contrato
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl space-y-6">
+                  <DialogTitle>Crear Contrato</DialogTitle>
 
-          <div className="overflow-x-auto max-h-96 overflow-y-auto mt-4">
-            <Card>
-              <Table className="min-w-full ">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Título del Contrato</TableCell>
-                    <TableCell>Cliente</TableCell>
-                    <TableCell>Número de Contrato</TableCell>
-                    <TableCell>Area</TableCell>
-                    <TableCell>Sector</TableCell>
-                    <TableCell>Estado</TableCell>
-                    <TableCell>Inicio del Contrato</TableCell>
-                    <TableCell>Validez del Contrato</TableCell>
-                    {/* <TableCell>Acciones</TableCell> */}
-                  </TableRow>
+                  <ServicesForm
+                    customers={customers as any}
+                    editingService={editingService as any}
+                    company_id={company_id}
+                    areas={areas}
+                    sectors={sectors}
+                    setOpen={setOpen}
+                  />
+                </DialogContent>
+              </Dialog>
 
-                  <TableBody>
-                    {filteredData.length > 0 ? (
-                      filteredData.map((service: Service) => (
-                        <TableRow key={service.id}>
-                          <TableCell>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="hover:text-blue-400"
-                              onClick={() => handleOpenDetail(service)}
-                              data-id={service.id}
-                            >
-                              {service.service_name}
-                            </Button>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="hover:text-blue-400"
-                              onClick={() => handleOpenDetail(service)}
-                              data-id={service.id}
-                            >
-                              {service.customer}
-                            </Button>
-                            {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
+              <div className="flex space-x-4 items-center justify-between">
+                <Select
+                  onValueChange={(value) => setSelectedCustomer(value)}
+                  value={selectedCustomer}
+                  defaultValue="all"
+                >
+                  <SelectTrigger className="w-[400px]">
+                    <SelectValue placeholder="Filtrar por cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los clientes</SelectItem>
+                    {customers
+                      ?.filter((customer: any) =>
+                        formatedServices.some((service) => service.customer_id.toString() === String(customer.id))
+                      )
+                      .map((customer: any) => (
+                        <SelectItem value={String(customer.id)} key={customer.id}>
+                          {customer.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <VerActivosButton data={formatedServices} filterKey="is_active" onFilteredChange={setFilteredData} />
+              </div>
+
+              <div className="overflow-x-auto max-h-96 overflow-y-auto mt-4">
+                <Card>
+                  <Table className="min-w-full ">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Título del Contrato</TableCell>
+                        <TableCell>Cliente</TableCell>
+                        <TableCell>Número de Contrato</TableCell>
+                        <TableCell>Area</TableCell>
+                        <TableCell>Sector</TableCell>
+                        <TableCell>Estado</TableCell>
+                        <TableCell>Inicio del Contrato</TableCell>
+                        <TableCell>Validez del Contrato</TableCell>
+                        {/* <TableCell>Acciones</TableCell> */}
+                      </TableRow>
+
+                      <TableBody>
+                        {filteredData.length > 0 ? (
+                          filteredData.map((service: Service) => (
+                            <TableRow key={service.id}>
+                              <TableCell>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="hover:text-blue-400"
+                                  onClick={() => handleOpenDetail(service)}
+                                  data-id={service.id}
+                                >
+                                  {service.service_name}
+                                </Button>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="hover:text-blue-400"
+                                  onClick={() => handleOpenDetail(service)}
+                                  data-id={service.id}
+                                >
+                                  {service.customer}
+                                </Button>
+                                {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
                             {
                               customers.find(
                                 (customer) => customer.id.toString() === (service.customer_id?.toString() as any)
                               )?.name
                             }
                           </Link> */}
-                          </TableCell>
-                          <TableCell>
-                            {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
+                              </TableCell>
+                              <TableCell>
+                                {/* <Link href={`/dashboard/company/actualCompany/${service.id}/?tab=detail`}>
                             {service.contract_number}
                           </Link> */}
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="hover:text-blue-400"
-                              onClick={() => handleOpenDetail(service)}
-                              data-id={service.id}
-                            >
-                              {service.contract_number}
-                            </Button>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="hover:text-blue-400"
-                              onClick={() => handleOpenDetail(service)}
-                              data-id={service.id}
-                            >
-                              {service.area}
-                            </Button>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="hover:text-blue-400"
-                              onClick={() => handleOpenDetail(service)}
-                              data-id={service.id}
-                            >
-                              {service.sector}
-                            </Button>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="hover:text-blue-400"
-                              onClick={() => handleOpenDetail(service)}
-                              data-id={service.id}
-                            >
-                              <Badge variant={service.is_active ? 'success' : 'default'}>
-                                {service.is_active ? 'Activo' : 'Inactivo'}
-                              </Badge>
-                            </Button>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="hover:text-blue-400"
-                              onClick={() => handleOpenDetail(service)}
-                              data-id={service.id}
-                            >
-                              {format(service.service_start?.toString(), 'dd/MM/yyyy')}
-                            </Button>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="hover:text-blue-400"
-                              onClick={() => handleOpenDetail(service)}
-                              data-id={service.id}
-                            >
-                              {format(service.service_validity, 'dd/MM/yyyy')}
-                            </Button>
-                          </TableCell>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="hover:text-blue-400"
+                                  onClick={() => handleOpenDetail(service)}
+                                  data-id={service.id}
+                                >
+                                  {service.contract_number}
+                                </Button>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="hover:text-blue-400"
+                                  onClick={() => handleOpenDetail(service)}
+                                  data-id={service.id}
+                                >
+                                  {service.area}
+                                </Button>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="hover:text-blue-400"
+                                  onClick={() => handleOpenDetail(service)}
+                                  data-id={service.id}
+                                >
+                                  {service.sector}
+                                </Button>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="hover:text-blue-400"
+                                  onClick={() => handleOpenDetail(service)}
+                                  data-id={service.id}
+                                >
+                                  <Badge variant={service.is_active ? 'success' : 'default'}>
+                                    {service.is_active ? 'Activo' : 'Inactivo'}
+                                  </Badge>
+                                </Button>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="hover:text-blue-400"
+                                  onClick={() => handleOpenDetail(service)}
+                                  data-id={service.id}
+                                >
+                                  {format(service.service_start?.toString(), 'dd/MM/yyyy')}
+                                </Button>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="hover:text-blue-400"
+                                  onClick={() => handleOpenDetail(service)}
+                                  data-id={service.id}
+                                >
+                                  {format(service.service_validity, 'dd/MM/yyyy')}
+                                </Button>
+                              </TableCell>
 
-                          {/* <TableCell>
+                              {/* <TableCell>
                             <div className="flex space-x-2 justify-between">
                             <Button
                               size={'sm'}
@@ -374,65 +384,67 @@ const ServiceTable = ({
                             
                             </div>
                           </TableCell> */}
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={8} className="text-center">
-                          No hay contratos para mostrar
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </TableHead>
-              </Table>
-            </Card>
-          </div>
-        </div>
-      )}
-      <Dialog open={openDetail} onOpenChange={setOpenDetail}>
-        <DialogContent className="max-w-7xl space-y-6 overflow-x-auto overflow-y-auto h-[98dvh]">
-          <Tabs defaultValue="detail">
-            <TabsList className="flex gap-1 justify-start w-fit bg-gh_contrast/50">
-              <TabsTrigger value="detail" className="text-gh_orange font-semibold">
-                Detalle
-              </TabsTrigger>
-              <TabsTrigger value="documents" className="text-gh_orange font-semibold">
-                Documentos
-              </TabsTrigger>
-              <TabsTrigger value="items" className="text-gh_orange font-semibold">
-                Items del Servicio
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="detail">
-              <ServicesForm
-                editingService={editingService as any}
-                company_id={company_id}
-                areas={areas}
-                sectors={sectors}
-                customers={customers as any}
-                id={editingService?.id}
-              />
-            </TabsContent>
-            <TabsContent value="documents">
-              <ContractDocuments id={editingService?.id as string} />
-            </TabsContent>
-            <TabsContent value="items">
-              <ServiceItemsTable
-                getItems={getItems}
-                editService={(editingService as any) || null}
-                measure_units={measureUnitsList || []}
-                customers={customers || []}
-                services={(services as any) || []}
-                company_id={company_id}
-                items={itemsList || []}
-              />
-            </TabsContent>
-          </Tabs>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={8} className="text-center">
+                              No hay contratos para mostrar
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </TableHead>
+                  </Table>
+                </Card>
+              </div>
+            </div>
+          )}
+          <Dialog open={openDetail} onOpenChange={setOpenDetail}>
+            <DialogContent className="max-w-7xl space-y-6 overflow-x-auto overflow-y-auto h-[98dvh]">
+              <Tabs defaultValue="detail">
+                <TabsList className="flex gap-1 justify-start w-fit bg-gh_contrast/50">
+                  <TabsTrigger value="detail" className="text-gh_orange font-semibold">
+                    Detalle
+                  </TabsTrigger>
+                  <TabsTrigger value="documents" className="text-gh_orange font-semibold">
+                    Documentos
+                  </TabsTrigger>
+                  <TabsTrigger value="items" className="text-gh_orange font-semibold">
+                    Items del Servicio
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="detail">
+                  <ServicesForm
+                    editingService={editingService as any}
+                    company_id={company_id}
+                    areas={areas}
+                    sectors={sectors}
+                    customers={customers as any}
+                    id={editingService?.id}
+                  />
+                </TabsContent>
+                <TabsContent value="documents">
+                  <ContractDocuments id={editingService?.id as string} />
+                </TabsContent>
+                <TabsContent value="items">
+                  <ServiceItemsTable
+                    getItems={getItems}
+                    editService={(editingService as any) || null}
+                    measure_units={measureUnitsList || []}
+                    customers={customers || []}
+                    services={(services as any) || []}
+                    company_id={company_id}
+                    items={itemsList || []}
+                  />
+                </TabsContent>
+              </Tabs>
 
-          {/* <ServicesForm editingService={editingService as any} company_id={company_id} areas={areas} sectors={sectors} customers={customers as any} id={editingService?.id} /> */}
-        </DialogContent>
-      </Dialog>
+              {/* <ServicesForm editingService={editingService as any} company_id={company_id} areas={areas} sectors={sectors} customers={customers as any} id={editingService?.id} /> */}
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </div>
   );
 };
