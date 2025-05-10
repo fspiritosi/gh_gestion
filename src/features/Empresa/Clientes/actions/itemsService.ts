@@ -26,6 +26,8 @@ export async function handleSubmit(
           .update({
             item_name: values.item_name,
             item_description: values.item_description,
+            code_item: values.code_item,
+            item_number: values.item_number,
             item_measure_units: Number(values.item_measure_units),
             item_price: values.item_price,
             is_active: values.is_active,
@@ -36,6 +38,8 @@ export async function handleSubmit(
           customer_service_id: editingService?.id || editService?.id,
           item_name: values.item_name,
           item_description: values.item_description,
+          code_item: values.code_item,
+          item_number: values.item_number,
           item_measure_units: Number(values.item_measure_units),
           item_price: values.item_price,
           is_active: values.is_active,

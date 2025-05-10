@@ -13,6 +13,8 @@ interface Item {
   item_description: string;
   item_measure_units: { id: string; unit: string };
   item_price: number;
+  code_item: string;
+  item_number: string;
   is_active: boolean;
   customer_id: { id: string; name: string };
   customer_service_id: { customer_id: { id: string; name: string } };
@@ -144,6 +146,12 @@ export default function ServiceItemsTable({
                     Descripción
                   </TableCell>
                   <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Codigo
+                  </TableCell>
+                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Número
+                  </TableCell>
+                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     UDM
                   </TableCell>
                   <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -170,6 +178,12 @@ export default function ServiceItemsTable({
                       </TableCell>
                       <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                         {item.item_description}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                        {item.code_item}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                        {item.item_number}
                       </TableCell>
                       <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                         {item.item_measure_units?.unit}

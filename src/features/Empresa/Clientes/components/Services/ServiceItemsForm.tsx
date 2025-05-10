@@ -103,7 +103,7 @@ export default function ServiceItemsForm({
   const { reset, watch, setValue } = form;
   const router = useRouter();
   const currentStatus = watch('is_active');
-
+  console.log(editingService, 'editingService');
   useEffect(() => {
     if (editingService) {
       reset({
@@ -187,11 +187,11 @@ export default function ServiceItemsForm({
           <FormField
             control={form.control}
             name="item_number"
-            render={({ field }) => (
+            render={({ field: { onChange, onBlur, value, name, ref } }) => (
               <FormItem>
                 <FormLabel>Número</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input value={value ?? ''} onChange={onChange} onBlur={onBlur} ref={ref} name={name} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
