@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { fetchServiceItems } from '@/features/Empresa/Clientes/actions/itemsService';
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { format } from 'date-fns';
@@ -14,7 +15,6 @@ import { z } from 'zod';
 import ServiceItemsTable from './ServiceItemsTable';
 import ServicesForm from './ServicesForm';
 import ContractDocuments from './contractDocuments';
-
 type Service = {
   id: string;
   service_name: string;
@@ -90,14 +90,20 @@ const ServiceTable = ({
   const [itemsList, setItemsList] = useState<any[]>([]);
   const [measureUnitsList, setMeasureUnitsList] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
+
   console.log(id, 'id');
   console.log(editingService, 'editingService');
   console.log(items, 'items');
   console.log(measure_units, 'measure_units');
   const getItems = async () => {
     if (!editingService?.id) return;
-    const { items } = await fetch(`${URL}/api/services/items?service=${editingService.id}`).then((e) => e.json());
-    setItemsList(items);
+    try {
+      const items = await fetchServiceItems(editingService.id);
+      console.log(items, 'items');
+      setItemsList(items);
+    } catch (error) {
+      console.error('Error al obtener los items:', error);
+    }
   };
   useEffect(() => {
     // if (!editingService?.id) return;
@@ -107,12 +113,14 @@ const ServiceTable = ({
 
   console.log(itemsList, 'itemsList');
   const getMeasureUnits = async () => {
-    const { data } = await supabase.from('measure_units').select('*');
-    setMeasureUnitsList(data as any);
-    return data;
+    // const { data } = await supabase.from('measure_units').select('*');
+    setMeasureUnitsList(measure_units);
+    return measure_units;
   };
   useEffect(() => {
     if (id) {
+      const service = servicesData?.find((service) => service.id === id);
+      setEditingService(service || null);
       setEditing(true);
     }
   }, [id, servicesData]);
@@ -148,18 +156,7 @@ const ServiceTable = ({
   };
   console.log(filteredItems, 'filteredItems');
   const fetchServices = async () => {
-    try {
-      const servicesResponse = await fetch(`${URL}/api/services?actual=${modified_company_id}`);
-
-      if (!servicesResponse.ok) {
-        throw new Error('Error al obtener los servicios');
-      }
-      const responseData = await servicesResponse.json();
-      const services = Array.isArray(responseData) ? responseData : responseData.services;
-      setServicesData(services);
-    } catch (error) {
-      console.error(error);
-    }
+    setServicesData(services);
   };
   useEffect(() => {
     fetchServices();

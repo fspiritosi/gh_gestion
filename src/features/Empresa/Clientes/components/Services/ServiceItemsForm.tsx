@@ -3,12 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { handleSubmit } from '@/features/Empresa/Clientes/actions/itemsService';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
 import { RadioGroup, RadioGroupItem } from '../../../../../components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
@@ -131,64 +131,9 @@ export default function ServiceItemsForm({
   }, [editingService, reset]);
 
   const onSubmit = async (values: z.infer<typeof ItemsSchema>) => {
-    const payload = {
-      ...values,
-      customer_id: editService?.customer_id,
-      customer_service_id: editingService?.id || editService?.id,
-    };
-
-    try {
-      const endpoint = isEditing
-        ? `/api/services/items?id=${editingService?.id}`
-        : `/api/services/items?actual=${company_id}`;
-
-      const method = isEditing ? 'PUT' : 'POST';
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error('Error en la solicitud');
-
-      toast.success(`Item ${isEditing ? 'actualizado' : 'creado'} correctamente`);
-      getItems();
-
-      if (!isEditing) {
-        reset();
-      }
-    } catch (error) {
-      console.error(`Error al ${isEditing ? 'actualizar' : 'crear'} el item:`, error);
-      toast.error(`Error al ${isEditing ? 'actualizar' : 'crear'} el item`);
-    }
+    await handleSubmit(values, editingService, editService, company_id, isEditing, getItems, reset);
   };
 
-  const handleDeactivateItem = async () => {
-    if (!editingService) return;
-
-    const newStatus = !currentStatus;
-
-    try {
-      const response = await fetch(`/api/services/items?id=${editingService.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...editingService,
-          is_active: newStatus,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Error al actualizar estado');
-
-      setValue('is_active', newStatus);
-      toast.success(`Item ${newStatus ? 'activado' : 'desactivado'} correctamente`);
-      getItems();
-    } catch (error) {
-      console.error('Error al cambiar estado:', error);
-      toast.error('Error al cambiar estado del item');
-    }
-  };
   const handleCancel = () => {
     reset({
       item_name: '',
