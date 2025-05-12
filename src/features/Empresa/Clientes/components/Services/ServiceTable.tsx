@@ -252,17 +252,17 @@ const ServiceTable = ({
 
               <div className="overflow-x-auto max-h-96 overflow-y-auto mt-4">
                 <Card>
-                  <Table className="min-w-full ">
+                  <Table className="min-w-full w-full">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Título del Contrato</TableCell>
-                        <TableCell>Cliente</TableCell>
-                        <TableCell>Número de Contrato</TableCell>
-                        <TableCell>Area</TableCell>
-                        <TableCell>Sector</TableCell>
-                        <TableCell>Estado</TableCell>
-                        <TableCell>Inicio del Contrato</TableCell>
-                        <TableCell>Validez del Contrato</TableCell>
+                        <TableCell className="w-[200px]">Título del Contrato</TableCell>
+                        <TableCell className="w-[150px]">Cliente</TableCell>
+                        <TableCell className="w-[150px]">Número de Contrato</TableCell>
+                        <TableCell className="w-[150px]">Area</TableCell>
+                        <TableCell className="w-[150px]">Sector</TableCell>
+                        <TableCell className="w-[100px]">Estado</TableCell>
+                        <TableCell className="w-[150px]">Inicio del Contrato</TableCell>
+                        <TableCell className="w-[150px]">Validez del Contrato</TableCell>
                         {/* <TableCell>Acciones</TableCell> */}
                       </TableRow>
 
