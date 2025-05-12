@@ -24,8 +24,8 @@ export const fetchAllEmployees = async (role?: string) => {
       .eq('company_id', company_id)
       .returns<ShareCompanyUsersWithRelations[]>();
 
-    const employees = data?.[0].customer_id?.contractor_employee;
-    const allEmployees = employees?.map((employee) => employee.employee_id);
+    const employees = data?.[0].customer_id?.contractor_employee as any;
+    const allEmployees = employees?.map((employee: any) => employee.employee_id) as EmployeeDetailed[];
     return allEmployees || [];
   }
 

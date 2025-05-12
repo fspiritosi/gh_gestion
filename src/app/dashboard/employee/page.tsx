@@ -33,7 +33,11 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
           title: 'Empleados',
           description: 'Aquí encontrarás todos empleados',
           buttonActioRestricted: ['Invitado'],
-          component: <EmployeeListTabs tabValue="employees" subtab={searchParams?.subtab} actives inactives />,
+          component: (
+            <div>
+              <EmployeeListTabs tabValue="employees" subtab={searchParams?.subtab} actives inactives />
+            </div>
+          ),
         },
       },
       {

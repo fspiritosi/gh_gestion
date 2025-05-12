@@ -1,17 +1,12 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { CardDescription } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Table } from '@tanstack/react-table';
-import { SlidersHorizontal } from 'lucide-react';
-import { useEffect } from 'react';
+import cookiejs from 'js-cookie';
+import { SlidersHorizontal, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
@@ -19,62 +14,119 @@ interface DataTableViewOptionsProps<TData> {
 }
 
 export function DataTableViewOptions<TData>({ table, tableId }: DataTableViewOptionsProps<TData>) {
-  // Función para guardar el estado de visibilidad en localStorage
-  const saveVisibilityState = () => {
+  // Estados para controlar el menú personalizado
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Función para guardar el estado de visibilidad en cookies
+  const saveVisibilityState = (columnId?: string, isVisible?: boolean) => {
     if (!tableId) return;
 
-    const columnVisibility = table.getState().columnVisibility;
-    localStorage.setItem(`table-columns-${tableId}`, JSON.stringify(columnVisibility));
+    // Obtener el estado actual de visibilidad de columnas de la tabla
+    const currentVisibility = table.getState().columnVisibility;
+
+    // Crear una copia del estado actual de visibilidad
+    let columnVisibility = { ...currentVisibility };
+
+    // Si se proporciona una columna específica, actualizar solo esa en la cookie
+    if (columnId && isVisible !== undefined) {
+      // Actualizar la visibilidad de la columna específica en la cookie
+      columnVisibility = {
+        ...columnVisibility,
+        [columnId]: isVisible,
+      };
+    }
+
+    // Guardar en cookies con el mismo formato que se recibe del servidor
+    cookiejs.set(`table-columns-${tableId}`, JSON.stringify(columnVisibility), {
+      expires: 365, // Válido por un año
+      path: '/', // Disponible en toda la aplicación
+      sameSite: 'strict',
+    });
+
+    console.log('Estado de visibilidad guardado en cookies:', columnVisibility);
+    if (columnId) {
+      console.log(`Columna "${columnId}" actualizada a: ${isVisible}`);
+    }
   };
 
-  // Cargar el estado de visibilidad desde localStorage al montar el componente
-  useEffect(() => {
-    if (!tableId) return;
+  // Verificar el estado actual de visibilidad al montar el componente
+  // useEffect(() => {
+  //   if (!tableId) return;
 
-    try {
-      const savedVisibility = localStorage.getItem(`table-columns-${tableId}`);
-      if (savedVisibility) {
-        const parsedVisibility = JSON.parse(savedVisibility);
-        table.setColumnVisibility(parsedVisibility);
+  //   try {
+  //     // saveVisibilityState();
+
+  //   } catch (error) {
+  //     console.error('Error al verificar el estado de visibilidad de columnas:', error);
+  //   }
+  // }, [table, tableId]);
+
+  // Manejar clics fuera del menú para cerrarlo
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
       }
-    } catch (error) {
-      console.error('Error al cargar el estado de visibilidad de columnas:', error);
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
     }
-  }, [table, tableId]);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="ml-auto hidden h-8 lg:flex">
-          <SlidersHorizontal className="mr-2 h-4 w-4" />
-          Columnas
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[150px]">
-        <DropdownMenuLabel>Mostrar columnas</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {table
-          .getAllColumns()
-          .filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
-          .map((column) => {
-            return (
-              <DropdownMenuCheckboxItem
-                key={column.id}
-                className="capitalize"
-                checked={column.getIsVisible()}
-                onCheckedChange={(value) => {
-                  column.toggleVisibility(!!value);
-                  // Guardar cambios cuando se modifica la visibilidad
-                  if (tableId) {
-                    setTimeout(saveVisibilityState, 0);
-                  }
-                }}
-              >
-                {column.id}
-              </DropdownMenuCheckboxItem>
-            );
-          })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="relative" ref={menuRef}>
+      {/* Botón para abrir/cerrar el menú */}
+      <Button variant="outline" size="sm" className="ml-auto hidden h-8 lg:flex" onClick={() => setIsOpen(!isOpen)}>
+        <SlidersHorizontal className="mr-2 h-4 w-4" />
+        Columnas
+      </Button>
+
+      {/* Menú personalizado */}
+      {isOpen && (
+        <div className="absolute right-0 z-10 mt-2 min-w-[200px] rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-950 p-1 shadow-md">
+          <div className="flex items-center justify-between p-2 font-medium">
+            <CardDescription>Mostrar columnas</CardDescription>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="my-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+          <div className="p-1 max-h-[300px] overflow-y-auto">
+            {table
+              .getAllColumns()
+              .filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
+              .map((column) => (
+                <div key={column.id} className="flex items-center space-x-2 p-1 hover:bg-gray-100 rounded-md">
+                  <Checkbox
+                    id={`column-${column.id}`}
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(checked) => {
+                      // Actualizar la visibilidad en la tabla (esto ya lo hace React Table)
+                      column.toggleVisibility(!!checked);
+
+                      // Guardar la visibilidad actualizada en cookies
+                      if (tableId) {
+                        // Pasar el ID de la columna y su nuevo estado a la función
+                        saveVisibilityState(column.id, !!checked);
+                      }
+
+                      console.log(`Columna "${column.id}" cambiada a: ${!!checked}`);
+                    }}
+                  />
+                  <label htmlFor={`column-${column.id}`} className="flex-grow text-sm capitalize cursor-pointer">
+                    {column.id}
+                  </label>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

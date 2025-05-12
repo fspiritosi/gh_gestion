@@ -1,6 +1,7 @@
 import { fetchAllEmployees } from '@/app/server/GET/actions';
 import ViewcomponentInternal from '@/components/ViewComponentInternal';
 import { buttonVariants } from '@/components/ui/button';
+import EmployeeTable from '@/features/Employees/Empleados/components/employee_table';
 import { getRole } from '@/lib/utils/getRole';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import Link from 'next/link';
@@ -48,7 +49,8 @@ async function EmployeeListTabs({
               </Link>
             </div>
           ),
-          component: <EmployeesTable role={role} columns={EmployeesListColumns} data={activeEmploees || []} />,
+          // component: <EmployeesTable role={role} columns={EmployeesListColumns} data={activeEmploees || []} />,
+          component: <EmployeeTable />,
         },
       },
       {
