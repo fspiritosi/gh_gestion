@@ -371,7 +371,7 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
       doc.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
   return (
-    <div className="max-w-5xl">
+    <div className="max-w-7xl">
       <div className="flex justify-end md:mb-4 mb-2">
         {/* <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
           <Button>Volver</Button>
