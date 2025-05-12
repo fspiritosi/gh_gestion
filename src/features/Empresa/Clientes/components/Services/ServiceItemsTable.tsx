@@ -132,84 +132,81 @@ export default function ServiceItemsTable({
 
             <VerActivosButton data={items} filterKey="is_active" onFilteredChange={setFilteredItems} />
           </div>
-          <div className="overflow-x-auto max-h-96 ">
-            <Table className="min-w-full divide-y divide-gray-200 overflow-y-auto">
-              <TableHead className="bg-header-background">
-                <TableRow>
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Nombre
-                  </TableCell>
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Estado
-                  </TableCell>
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Descripción
-                  </TableCell>
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Codigo
-                  </TableCell>
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Número
-                  </TableCell>
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    UDM
-                  </TableCell>
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Precio
-                  </TableCell>
-                  {/* <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Cliente
-                  </TableCell> */}
-                  <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Acciones
-                  </TableCell>
-                </TableRow>
-
-                <TableBody className="bg-background divide-y ">
-                  {filteredItems?.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-muted-foreground">
-                        {item.item_name}
+          <div className="relative h-[calc(100vh-300px)] w-full">
+            <div className="absolute inset-0 overflow-x-auto overflow-y-auto">
+              <div className="min-w-full">
+                <Table className="min-w-full divide-y divide-gray-200">
+                  <TableHead className="bg-header-background">
+                    <TableRow>
+                      <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Nombre
                       </TableCell>
-                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        <Badge variant={item.is_active ? 'success' : 'default'}>
-                          {item.is_active ? 'Activo' : 'Inactivo'}
-                        </Badge>
+                      <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Estado
                       </TableCell>
-                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        {item.item_description}
+                      <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Descripción
                       </TableCell>
-                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        {item.code_item}
+                      <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Codigo
                       </TableCell>
-                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        {item.item_number}
+                      <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Número
                       </TableCell>
-                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        {item.item_measure_units?.unit}
+                      <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        UDM
                       </TableCell>
-                      <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        ${item.item_price}
+                      <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Precio
                       </TableCell>
-                      {/* <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        {item.customer_service_id?.customer_id?.name}
-                      </TableCell> */}
-                      <TableCell>
-                        {/* <Button onClick={() => handleEditClick(item)}>Editar</Button> */}
-                        <Button
-                          size={'sm'}
-                          variant={'link'}
-                          className="hover:text-blue-400"
-                          onClick={() => setEditingService(item)}
-                        >
-                          Editar
-                        </Button>
+                      <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Acciones
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </TableHead>
-            </Table>
+
+                    <TableBody className="bg-background divide-y">
+                      {filteredItems?.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-muted-foreground">
+                            {item.item_name}
+                          </TableCell>
+                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                            <Badge variant={item.is_active ? 'success' : 'default'}>
+                              {item.is_active ? 'Activo' : 'Inactivo'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                            {item.item_description}
+                          </TableCell>
+                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                            {item.code_item}
+                          </TableCell>
+                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                            {item.item_number}
+                          </TableCell>
+                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                            {item.item_measure_units?.unit}
+                          </TableCell>
+                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                            ${item.item_price}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size={'sm'}
+                              variant={'link'}
+                              className="hover:text-blue-400"
+                              onClick={() => setEditingService(item)}
+                            >
+                              Editar
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </TableHead>
+                </Table>
+              </div>
+            </div>
           </div>
         </div>
       </ResizablePanel>
