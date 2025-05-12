@@ -5,18 +5,7 @@ import ListDiagrams from '@/features/Empresa/RRHH/components/rrhh/listDiagrams';
 import WorkDiagramForm from '@/features/Empresa/RRHH/components/rrhh/work-diagram-form';
 import { useState } from 'react';
 
-interface Diagram {
-  id: string;
-  created_at: string;
-  name: string;
-  is_active: boolean;
-  active_working_days: number;
-  inactive_working_days: number;
-  active_novelty: string;
-  inactive_novelty: string;
-}
-
-function diagramTypesTab({ diagrams_types }: { diagrams_types: DiagramType[] }) {
+function diagramTypesTab({ diagrams_types, data }: { diagrams_types: DiagramType[]; data: WorkflowDiagram[] }) {
   const [selectedDiagram, setSelectedDiagram] = useState<Diagram | []>([]);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
   console.log(diagrams_types, 'diagrams_types');
@@ -30,7 +19,7 @@ function diagramTypesTab({ diagrams_types }: { diagrams_types: DiagramType[] }) 
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={60}>
-          <ListDiagrams diagramsTypes={diagrams_types} onEdit={setSelectedDiagram} onModeChange={setMode} />
+          <ListDiagrams data={data} diagramsTypes={diagrams_types} onEdit={setSelectedDiagram} onModeChange={setMode} />
         </ResizablePanel>
       </ResizablePanelGroup>
       <Toaster />
