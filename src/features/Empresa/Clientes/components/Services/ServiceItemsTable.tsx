@@ -164,45 +164,53 @@ export default function ServiceItemsTable({
                       </TableCell>
                     </TableRow>
 
-                    <TableBody className="bg-background divide-y">
-                      {filteredItems?.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-muted-foreground">
-                            {item.item_name}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                            <Badge variant={item.is_active ? 'success' : 'default'}>
-                              {item.is_active ? 'Activo' : 'Inactivo'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                            {item.item_description}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                            {item.code_item}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                            {item.item_number}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                            {item.item_measure_units?.unit}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                            ${item.item_price}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              size={'sm'}
-                              variant={'link'}
-                              className="hover:text-blue-400"
-                              onClick={() => setEditingService(item)}
-                            >
-                              Editar
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
+                    {filteredItems?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-4">
+                          No hay items
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      <TableBody className="bg-background divide-y">
+                        {filteredItems?.map((item) => (
+                          <TableRow key={item.id}>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-muted-foreground">
+                              {item.item_name}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              <Badge variant={item.is_active ? 'success' : 'default'}>
+                                {item.is_active ? 'Activo' : 'Inactivo'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {item.item_description}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {item.code_item}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {item.item_number}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {item.item_measure_units?.unit}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              ${item.item_price}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size={'sm'}
+                                variant={'link'}
+                                className="hover:text-blue-400"
+                                onClick={() => setEditingService(item)}
+                              >
+                                Editar
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    )}
                   </TableHead>
                 </Table>
               </div>
