@@ -3,12 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { handleSubmit } from '@/features/Empresa/Clientes/actions/itemsService';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
 import { RadioGroup, RadioGroupItem } from '../../../../../components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
@@ -74,6 +74,7 @@ export default function ServiceItemsForm({
   editingService,
   editService,
   getItems,
+  open,
 }: {
   measure_units: MeasureUnit[];
   customers: Customer[];
@@ -82,6 +83,7 @@ export default function ServiceItemsForm({
   editingService: Item | null;
   editService: any;
   getItems: () => void;
+  open?: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(!!editingService);
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -131,64 +133,9 @@ export default function ServiceItemsForm({
   }, [editingService, reset]);
 
   const onSubmit = async (values: z.infer<typeof ItemsSchema>) => {
-    const payload = {
-      ...values,
-      customer_id: editService?.customer_id,
-      customer_service_id: editingService?.id || editService?.id,
-    };
-
-    try {
-      const endpoint = isEditing
-        ? `/api/services/items?id=${editingService?.id}`
-        : `/api/services/items?actual=${company_id}`;
-
-      const method = isEditing ? 'PUT' : 'POST';
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error('Error en la solicitud');
-
-      toast.success(`Item ${isEditing ? 'actualizado' : 'creado'} correctamente`);
-      getItems();
-
-      if (!isEditing) {
-        reset();
-      }
-    } catch (error) {
-      console.error(`Error al ${isEditing ? 'actualizar' : 'crear'} el item:`, error);
-      toast.error(`Error al ${isEditing ? 'actualizar' : 'crear'} el item`);
-    }
+    await handleSubmit(values, editingService, editService, company_id, isEditing, getItems, reset);
   };
 
-  const handleDeactivateItem = async () => {
-    if (!editingService) return;
-
-    const newStatus = !currentStatus;
-
-    try {
-      const response = await fetch(`/api/services/items?id=${editingService.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...editingService,
-          is_active: newStatus,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Error al actualizar estado');
-
-      setValue('is_active', newStatus);
-      toast.success(`Item ${newStatus ? 'activado' : 'desactivado'} correctamente`);
-      getItems();
-    } catch (error) {
-      console.error('Error al cambiar estado:', error);
-      toast.error('Error al cambiar estado del item');
-    }
-  };
   const handleCancel = () => {
     reset({
       item_name: '',
@@ -205,152 +152,160 @@ export default function ServiceItemsForm({
     setIsEditing(false);
   };
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
-          {/* Campo Nombre */}
-          <FormField
-            control={form.control}
-            name="item_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Item*</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Campo Código */}
-          <FormField
-            control={form.control}
-            name="code_item"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código</FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Campo Número */}
-          <FormField
-            control={form.control}
-            name="item_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número</FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Campo Precio */}
-          <FormField
-            control={form.control}
-            name="item_price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio*</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Campo Unidad de Medida */}
-          <FormField
-            control={form.control}
-            name="item_measure_units"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Unidad de Medida*</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+    <div
+      className={
+        open
+          ? 'grid grid-cols-1 gap-4 min-w-[500px] px-6 pt-8 pb-4'
+          : 'grid grid-cols-2 gap-4 min-w-[500px] overflow-hidden px-6 pt-8 pb-4'
+      }
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="overflow-hidden">
+            {/* Campo Nombre */}
+            <FormField
+              control={form.control}
+              name="item_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nombre del Item*</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione unidad" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {measure_units?.map((unit) => (
-                      <SelectItem key={unit.id} value={unit.id.toString()}>
-                        {unit.unit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Campo Descripción */}
-          <FormField
-            control={form.control}
-            name="item_description"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Textarea {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="is_active"
-            render={({ field }) => {
-              const radioValue = field.value ? 'true' : 'false';
-              return (
-                <FormItem className="col-span-2 space-y-3">
-                  <FormLabel>Estado</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={(value) => field.onChange(value === 'true')}
-                      value={radioValue}
-                      className="flex space-x-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="true" />
-                        <span>Activo</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="false" />
-                        <span>Inactivo</span>
-                      </div>
-                    </RadioGroup>
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
-              );
-            }}
-          />
-        </div>
+              )}
+            />
 
-        {/* Botones de acción */}
-        <div className="flex gap-2 pt-4">
-          <Button type="submit" variant="gh_orange">
-            {isEditing ? 'Editar' : 'Crear'}
-          </Button>
+            {/* Campo Código */}
+            <FormField
+              control={form.control}
+              name="code_item"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Código</FormLabel>
+                  <FormControl>
+                    <Input {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Button type="button" variant="outline" onClick={() => handleCancel()}>
-            Cancelar
-          </Button>
-        </div>
-      </form>
-    </Form>
+            {/* Campo Número */}
+            <FormField
+              control={form.control}
+              name="item_number"
+              render={({ field: { onChange, onBlur, value, name, ref } }) => (
+                <FormItem>
+                  <FormLabel>Número</FormLabel>
+                  <FormControl>
+                    <Input value={value ?? ''} onChange={onChange} onBlur={onBlur} ref={ref} name={name} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Campo Precio */}
+            <FormField
+              control={form.control}
+              name="item_price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Precio*</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Campo Unidad de Medida */}
+            <FormField
+              control={form.control}
+              name="item_measure_units"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Unidad de Medida*</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione unidad" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {measure_units?.map((unit) => (
+                        <SelectItem key={unit.id} value={unit.id.toString()}>
+                          {unit.unit}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Campo Descripción */}
+            <FormField
+              control={form.control}
+              name="item_description"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Descripción</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="is_active"
+              render={({ field }) => {
+                const radioValue = field.value ? 'true' : 'false';
+                return (
+                  <FormItem className="col-span-2 space-y-3">
+                    <FormLabel>Estado</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={(value) => field.onChange(value === 'true')}
+                        value={radioValue}
+                        className="flex space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="true" />
+                          <span>Activo</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="false" />
+                          <span>Inactivo</span>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+          </div>
+
+          {/* Botones de acción */}
+          <div className="flex gap-2 pt-4">
+            <Button type="submit" variant="gh_orange">
+              {isEditing ? 'Editar' : 'Crear'}
+            </Button>
+
+            <Button type="button" variant="outline" onClick={() => handleCancel()}>
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }

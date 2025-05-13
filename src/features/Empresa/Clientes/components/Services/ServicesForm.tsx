@@ -6,27 +6,39 @@ import { Calendar } from '@/components/ui/calendar';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { handleServiceSubmit, handleServiceUpdate } from '@/features/Empresa/Clientes/actions/services';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
+import { MultiSelectCombobox } from '../../../../../components/ui/multi-select-combobox';
 import { RadioGroup, RadioGroupItem } from '../../../../../components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
-
 const ServiceSchema = z
   .object({
     id: z.string().optional(),
     customer_id: z.string().min(1, { message: 'Debe seleccionar un cliente' }),
-    area_id: z.string().min(1, { message: 'Debe seleccionar un area' }),
-    sector_id: z.string().min(1, { message: 'Debe seleccionar un sector' }),
+    area_id: z.array(z.string()).min(1, { message: 'Debe seleccionar al menos un area' }),
+    sector_id: z.array(z.string()).min(1, { message: 'Debe seleccionar al menos un sector' }),
     service_name: z.string().min(1, { message: 'Debe ingresar el nombre del servicio' }),
     contract_number: z.string().optional(),
     service_start: z.date(),
     service_validity: z.date(),
     is_active: z.boolean(),
+    service_areas: z
+      .array(
+        z.object({
+          area_id: z.string(),
+          areas_cliente: z.object({
+            id: z.string(),
+            nombre: z.string(),
+            descripcion_corta: z.string(),
+          }),
+        })
+      )
+      .optional(),
   })
   .refine((data) => data.service_validity > data.service_start, {
     message: 'La validez del servicio debe ser mayor que el inicio del servicio',
@@ -40,16 +52,57 @@ type Services = {
   id: string;
   service_name: string;
   customer_id: string;
-  area_id: string;
-  sector_id: string;
+  area_id: string[];
+  sector_id: string[];
   description: string;
   contract_number: string;
   service_price: number;
   service_start: string;
   service_validity: string;
-  is_active: true;
+  is_active: boolean;
+  service_areas?: Array<{
+    area_id: string;
+    areas_cliente: {
+      id: string;
+      nombre: string;
+      descripcion_corta: string;
+    };
+  }>;
+  service_sectors?: Array<{
+    sector_id: string;
+    sectors: {
+      id: string;
+      name: string;
+    };
+  }>;
+  customer?: string;
+  area?: string;
+  sector?: string;
+  created_at?: string;
+  company_id?: string;
 };
-type Service = z.infer<typeof ServiceSchema>;
+type Service = z.infer<typeof ServiceSchema> & {
+  service_sectors?: Array<{
+    sector_id: string;
+    sectors: {
+      id: string;
+      name: string;
+    };
+  }>;
+  service_areas?: Array<{
+    area_id: string;
+    areas_cliente: {
+      id: string;
+      nombre: string;
+      descripcion_corta: string;
+    };
+  }>;
+  customer?: string;
+  area?: string;
+  sector?: string;
+  created_at?: string;
+  company_id?: string;
+};
 
 export default function ServicesForm({
   customers,
@@ -62,39 +115,129 @@ export default function ServicesForm({
 }: {
   customers: Service[];
   company_id: string;
-  editingService?: Service & { is_active: boolean };
+  editingService?: Service;
   areas: any[];
   sectors: any[];
   id?: string;
   setOpen?: ((open: boolean) => void) | undefined;
 }) {
-  const form = useForm<Service>({
+  // Función para obtener los IDs de área válidos basados en las opciones disponibles
+  const getValidAreaIds = (serviceAreas: any[] | undefined, allAreas: any[]) => {
+    if (!serviceAreas || !Array.isArray(serviceAreas)) return [];
+
+    // Normalizar los IDs a string para comparación
+    const normalizeId = (id: any) => String(id).trim();
+
+    // Obtener todos los IDs de áreas disponibles como strings
+    const availableAreaIds = allAreas.map((area) => normalizeId(area.id));
+
+    // Extraer los IDs de las áreas del servicio y filtrar los que existen
+    if (!serviceAreas) return [];
+
+    return serviceAreas.map((id) => normalizeId(id)).filter((id) => availableAreaIds.includes(id));
+  };
+
+  const form = useForm<z.infer<typeof ServiceSchema>>({
     resolver: zodResolver(ServiceSchema),
     defaultValues: {
       customer_id: '',
-      area_id: '',
-      sector_id: '',
+      area_id: [],
+      sector_id: [],
       service_name: '',
       contract_number: '',
       service_start: new Date(),
       service_validity: new Date(),
       is_active: true,
     },
+    mode: 'onChange',
   });
+
+  // Watch form values
+  const formValues = form.watch();
+
   const { reset } = form;
   const router = useRouter();
   const [view, setView] = useState(false);
   const [isEditing, setIsEditing] = useState(!!editingService);
-  console.log(editingService, 'editingService');
-  console.log(isEditing, 'isEditing');
+
+  // Efecto para cargar los datos cuando cambia el servicio a editar
+  useEffect(() => {
+    if (editingService) {
+      // Extraer los IDs de las áreas del servicio
+      const areaIds = editingService.service_areas?.map((a: any) => a.area_id) || [];
+
+      // Extraer los IDs de los sectores del servicio
+      const sectorIds = editingService.service_sectors?.map((s) => s.sector_id) || [];
+
+      // Primero, asegurarnos de que las áreas del cliente estén cargadas
+      if (editingService.customer_id) {
+        const filteredAreas = areas.filter((area) => area.customer_id === editingService.customer_id);
+        setFilteredAreas(filteredAreas);
+
+        // Filtrar sectores para el cliente
+        const filteredSectors =
+          sectors?.filter((sector: any) =>
+            sector.sector_customer?.some((sc: any) => sc.customer_id?.id === editingService.customer_id)
+          ) || [];
+
+        // Asegurarse de que los sectores seleccionados estén en la lista
+        if (sectorIds.length > 0) {
+          const missingSectors = sectorIds.filter((id: string) => !filteredSectors.some((s: any) => s.id === id));
+
+          if (missingSectors.length > 0) {
+            const additionalSectors = (sectors || []).filter((s: any) => missingSectors.includes(s.id));
+            setFilteredSectors([...filteredSectors, ...additionalSectors]);
+            return;
+          }
+        }
+
+        setFilteredSectors(filteredSectors);
+      }
+
+      // Crear un objeto con solo los campos que necesitamos
+      const formData = {
+        id: editingService.id,
+        customer_id: editingService.customer_id,
+        service_name: editingService.service_name,
+        sector_id: sectorIds,
+        contract_number: editingService.contract_number || '',
+        service_start: editingService.service_start ? new Date(editingService.service_start) : new Date(),
+        service_validity: editingService.service_validity ? new Date(editingService.service_validity) : new Date(),
+        is_active: editingService.is_active ?? true,
+        area_id: areaIds,
+        service_areas: editingService.service_areas,
+        service_sectors: editingService.service_sectors,
+      };
+
+      // Pequeño retraso para asegurar que las áreas se hayan cargado
+      const timer = setTimeout(() => {
+        reset(formData);
+        setIsEditing(true);
+      }, 300);
+
+      return () => clearTimeout(timer);
+    } else {
+      reset({
+        customer_id: '',
+        area_id: [],
+        sector_id: [],
+        service_name: '',
+        contract_number: '',
+        service_start: new Date(),
+        service_validity: new Date(),
+        is_active: true,
+      });
+      setFilteredAreas([]);
+      setIsEditing(false);
+    }
+  }, [editingService, reset, areas]);
+
   const [filteredServices, setFilteredServices] = useState<Service[] | undefined>(
-    editingService ? [editingService] : undefined
+    editingService ? [editingService] : []
   );
 
   const [filteredAreas, setFilteredAreas] = useState<any[]>([]);
   const [filteredSectors, setFilteredSectors] = useState<any[]>([]);
-  console.log(filteredAreas, 'filteredAreas');
-  console.log(id, 'id');
   const customerId = form.watch('customer_id');
   useEffect(() => {
     if (id) {
@@ -107,14 +250,33 @@ export default function ServicesForm({
   }, [customerId, areas]);
 
   useEffect(() => {
-    const filtered = sectors?.filter((sector: any) =>
-      sector.sector_customer.map((id: any) => id.customer_id.id).includes(customerId)
-    );
-    setFilteredSectors(filtered);
-  }, [customerId, sectors]);
+    if (customerId) {
+      let filtered =
+        sectors?.filter((sector: any) =>
+          sector.sector_customer?.some((sc: any) => sc.customer_id?.id === customerId)
+        ) || [];
 
-  console.log(sectors, 'sectors');
-  console.log(filteredSectors, 'filteredSectors');
+      // Si estamos editando un servicio, asegurarnos de que los sectores seleccionados estén en las opciones
+      if (editingService?.service_sectors) {
+        const serviceSectors = editingService.service_sectors || [];
+        const selectedSectors = serviceSectors.map((s) => s.sector_id);
+
+        // Encontrar sectores faltantes en los filtrados
+        const missingSectors = selectedSectors.filter((id: string) => !filtered.some((s: any) => s.id === id));
+
+        if (missingSectors.length > 0) {
+          const additionalSectors = (sectors || []).filter((s: any) => missingSectors.includes(s.id));
+          setFilteredSectors([...filtered, ...additionalSectors]);
+        } else {
+          setFilteredSectors(filtered);
+        }
+      } else {
+        setFilteredSectors(filtered);
+      }
+    } else {
+      setFilteredSectors([]);
+    }
+  }, [customerId, sectors, editingService]);
   useEffect(() => {
     if (editingService) {
       const serviceStartDate = new Date(editingService.service_start);
@@ -122,26 +284,52 @@ export default function ServicesForm({
 
       serviceStartDate.setDate(serviceStartDate.getDate() + 1);
       serviceValidityDate.setDate(serviceValidityDate.getDate() + 1);
-      // setFilteredAreas(editingService.area_id as any)
-      // setFilteredSectors(editingService.sector_id as any)
+
+      // Extraer los IDs de los sectores del array service_sectors
+      const sectorIds = (editingService as Service).service_sectors?.map((sector) => sector.sector_id) || [];
+
+      // Extraer los IDs de áreas
+      const areaIds =
+        (editingService as Service).service_areas?.map((area) => area.area_id) ||
+        (Array.isArray(editingService.area_id) ? editingService.area_id : [editingService.area_id]);
+
       reset({
         id: editingService.id,
         customer_id: editingService.customer_id,
-        area_id: editingService.area_id,
-        sector_id: editingService.sector_id,
+        area_id: areaIds,
+        sector_id: sectorIds,
         service_name: editingService.service_name,
-        contract_number: editingService.contract_number,
+        contract_number: editingService.contract_number || '',
         service_start: serviceStartDate,
         service_validity: serviceValidityDate,
         is_active: editingService.is_active,
       });
+
+      // Forzar una actualización de los sectores filtrados
+      const filtered =
+        sectors?.filter((sector: any) =>
+          sector.sector_customer?.some((sc: any) => sc.customer_id?.id === editingService.customer_id)
+        ) || [];
+
+      // Asegurarse de que los sectores seleccionados estén en la lista
+      if (sectorIds.length > 0) {
+        const missingSectors = sectorIds.filter((id: string) => !filtered.some((s: any) => s.id === id));
+
+        if (missingSectors.length > 0) {
+          const additionalSectors = sectors.filter((s: any) => missingSectors.includes(s.id));
+          setFilteredSectors([...filtered, ...additionalSectors]);
+          return;
+        }
+      }
+
+      setFilteredSectors(filtered);
       setIsEditing(true);
     } else {
       reset({
         id: '',
         customer_id: '',
-        area_id: '',
-        sector_id: '',
+        area_id: [],
+        sector_id: [],
         service_name: '',
         contract_number: '',
         service_start: new Date(),
@@ -152,77 +340,103 @@ export default function ServicesForm({
     }
   }, [editingService, reset]);
   const modified_editing_service_id = editingService?.id?.toString().replace(/"/g, '') ?? '';
-  console.log(modified_editing_service_id, 'modified_editing_service_id');
-  console.log(customerId, 'customerId');
-  console.log(filteredAreas, 'filteredAreas');
-  const onSubmit = async (values: Service) => {
-    const modified_company_id = company_id?.replace(/"/g, '');
 
-    const data = JSON.stringify(values);
-    console.log(data, 'data');
+  const onSubmit = async (values: z.infer<typeof ServiceSchema>) => {
+    // Incluir solo los campos necesarios con valores por defecto
+    const submissionData = {
+      customer_id: values.customer_id,
+      area_id: Array.isArray(values.area_id) ? values.area_id : [],
+      sector_id: Array.isArray(values.sector_id) ? values.sector_id : [],
+      service_name: values.service_name,
+      contract_number: values.contract_number || '',
+      service_start: values.service_start ? new Date(values.service_start) : new Date(),
+      service_validity: values.service_validity ? new Date(values.service_validity) : new Date(),
+      is_active: values.is_active !== undefined ? values.is_active : true,
+    };
+
+    // Validar que los campos requeridos estén presentes
+    if (
+      !submissionData.customer_id ||
+      !submissionData.service_name ||
+      !submissionData.area_id.length ||
+      !submissionData.sector_id.length
+    ) {
+      throw new Error('Faltan campos requeridos en el formulario');
+    }
+
     try {
-      const response = await fetch(`/api/services?actual=${modified_company_id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: data,
-      });
-      if (!response.ok) {
-        throw new Error('Error en la solicitud');
+      const result = await handleServiceSubmit(submissionData, company_id, resetForm, router);
+
+      // Resetear el formulario después de enviar
+      if (result) {
+        reset();
       }
-      const result = await response.json();
-      toast.success('Servicio creado correctamente');
-      router.refresh();
-      resetForm();
+      return result;
     } catch (error) {
-      console.error('Error al crear el servicio:', error);
-      toast.error('Error al crear el servicio');
+      throw error; // Propagar el error para que pueda ser manejado por handleFormSubmit
     }
   };
 
-  const onUpdate = async (values: Service) => {
-    const modified_company_id = company_id?.replace(/"/g, '');
-    console.log(values, 'values');
-    const data = JSON.stringify(values);
+  const onUpdate = async (values: z.infer<typeof ServiceSchema>) => {
     try {
-      type Service = {
-        id: string;
-        service_name: string;
-        customer_id: string;
-        area_id: string;
-        description: string;
-        contract_number: string;
-        service_price: number;
-        service_start: string;
-        service_validity: string;
-        is_active: true;
-      };
-      const response = await fetch(`/api/services/?id=${modified_editing_service_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
+      const result = await handleServiceUpdate(
+        {
+          ...values,
+          // Asegurarse de que los campos opcionales estén presentes
+
+          contract_number: values.contract_number || '',
         },
-        body: data,
-      });
-      if (!response.ok) {
-        throw new Error('Error en la solicitud');
-      }
-      const result = await response.json();
-      toast.success('Servicio actualizado correctamente');
-      resetForm();
-      router.refresh();
+        editingService?.id || '',
+        resetForm,
+        router
+      );
+
+      return result;
     } catch (error) {
-      console.error('Error al actualizar el servicio:', error);
-      toast.error('Error al actualizar el servicio');
+      throw error; // Propagar el error
     }
   };
 
-  const handleSubmit1 = (values: Service) => {
-    if (isEditing) {
-      onUpdate(values);
-    } else {
-      onSubmit(values);
+  const handleFormSubmit = async (formData: z.infer<typeof ServiceSchema>) => {
+    // Crear un nuevo objeto con los campos del formulario y valores por defecto
+    const submissionData = {
+      customer_id: formData.customer_id,
+      area_id: Array.isArray(formData.area_id) ? formData.area_id : [],
+      sector_id: Array.isArray(formData.sector_id) ? formData.sector_id : [],
+      service_name: formData.service_name,
+      contract_number: formData.contract_number || '',
+      service_start: formData.service_start ? new Date(formData.service_start) : new Date(),
+      service_validity: formData.service_validity ? new Date(formData.service_validity) : new Date(),
+      is_active: formData.is_active !== undefined ? formData.is_active : true,
+    };
+
+    // Validar que los campos requeridos estén presentes
+    if (
+      !submissionData.customer_id ||
+      !submissionData.service_name ||
+      !submissionData.area_id.length ||
+      !submissionData.sector_id.length
+    ) {
+      throw new Error('Faltan campos requeridos en el formulario');
+    }
+
+    try {
+      let result;
+
+      if (isEditing) {
+        result = await onUpdate(submissionData);
+      } else {
+        result = await onSubmit(submissionData);
+      }
+
+      // Cerrar el diálogo después de enviar el formulario exitosamente
+      if (setOpen) {
+        setOpen(false);
+      }
+
+      return result;
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -248,7 +462,6 @@ export default function ServicesForm({
     provincias: area.area_province.map((province: any) => province.provinces.name),
   }));
 
-  console.log(formatedAreas, 'formatedAreas');
   return (
     <div>
       {view && (
@@ -262,7 +475,7 @@ export default function ServicesForm({
       )}
       <div className="grid grid-cols-2 gap-4 p-4">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit1)} className="contents">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="contents">
             <FormField
               control={form.control}
               name="customer_id"
@@ -294,54 +507,79 @@ export default function ServicesForm({
             <FormField
               control={form.control}
               name="area_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Area</FormLabel>
-                  <Select disabled={view} onValueChange={field.onChange} value={field.value || editingService?.area_id}>
-                    <FormControl>
-                      <SelectTrigger className="w-[400px]">
-                        <SelectValue placeholder="Elegir area" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {filteredAreas?.map((area: any) => (
-                        <SelectItem value={area.id} key={area.id}>
-                          {area.nombre}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // Asegurarse de que field.value sea un array de strings
+                const fieldValue = field.value || [];
+                const selectedValues = (Array.isArray(fieldValue) ? fieldValue : [fieldValue])
+                  .map(String)
+                  .filter(Boolean);
+
+                // Opciones para el combobox
+                const areaOptions =
+                  filteredAreas?.map((area) => ({
+                    label: area.nombre,
+                    value: String(area.id),
+                  })) || [];
+
+                // Función para manejar cambios en la selección
+                const handleChange = (values: string[]) => {
+                  field.onChange(values);
+                };
+
+                return (
+                  <FormItem>
+                    <FormLabel>Area</FormLabel>
+                    <MultiSelectCombobox
+                      key={`area-select-${selectedValues.join('-')}`} // Forzar recreación cuando cambian los valores
+                      options={areaOptions}
+                      placeholder="Elegir areas"
+                      emptyMessage="No se encontraron areas"
+                      selectedValues={selectedValues}
+                      onChange={handleChange}
+                      disabled={view}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}
               name="sector_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sector</FormLabel>
-                  <Select
-                    disabled={view}
-                    onValueChange={field.onChange}
-                    value={field.value || editingService?.sector_id}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-[400px]">
-                        <SelectValue placeholder="Elegir sector" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {filteredSectors?.map((sector: any) => (
-                        <SelectItem value={sector.id} key={sector.id}>
-                          {sector.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // Asegurarse de que field.value sea un array de strings
+                const fieldValue = field.value || [];
+                const selectedValues = (Array.isArray(fieldValue) ? fieldValue : [fieldValue])
+                  .map(String)
+                  .filter(Boolean);
+
+                // Opciones para el combobox
+                const sectorOptions =
+                  filteredSectors?.map((sector) => ({
+                    label: sector.name,
+                    value: String(sector.id),
+                  })) || [];
+
+                // Función para manejar cambios en la selección
+                const handleChange = (values: string[]) => {
+                  field.onChange(values);
+                };
+
+                return (
+                  <FormItem>
+                    <FormLabel>Sectores</FormLabel>
+                    <MultiSelectCombobox
+                      options={sectorOptions}
+                      placeholder="Seleccionar sectores"
+                      emptyMessage="No se encontraron sectores"
+                      selectedValues={selectedValues}
+                      onChange={handleChange}
+                      disabled={view}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}
