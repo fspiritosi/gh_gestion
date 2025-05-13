@@ -22,12 +22,14 @@ import { formatRelative } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { supabase } from '../../../../../../supabase/supabase';
-import { DataTableColumnHeader } from './data-table-column-header';
+
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { useRouter } from 'next/navigation';
 
 export const columnsGuests: ColumnDef<SharedUser>[] = [
   {
     accessorKey: 'fullname',
+    id: 'Nombre',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
     cell: ({ row }) => <div className="">{row.getValue('fullname')}</div>,
     enableSorting: false,
@@ -35,6 +37,7 @@ export const columnsGuests: ColumnDef<SharedUser>[] = [
   },
   {
     accessorKey: 'email',
+    id: 'Correo',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Correo" />,
     cell: ({ row }) => {
       return (
@@ -183,7 +186,7 @@ export const columnsGuests: ColumnDef<SharedUser>[] = [
             },
           }
         );
-        router.refresh()
+        router.refresh();
       };
       return (
         <AlertDialog>

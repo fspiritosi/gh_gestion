@@ -1,17 +1,62 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
+import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
+import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 
-function CostCenterTable({
+export function getCostCenterColumns(onEdit: (costCenter: CostCenter) => void): ColumnDef<CostCenter>[] {
+  return [
+    {
+      accessorKey: 'name',
+      id: 'Nombre',
+      // header: () => <span className="w-[200px]">Nombre</span>,
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+      cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'is_active',
+      id: 'Estado',
+      header: 'Estado',
+      cell: ({ row }) => (
+        <Badge variant={row.original.is_active ? 'success' : 'default'}>
+          {row.original.is_active ? 'Activo' : 'Inactivo'}
+        </Badge>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Acciones',
+      cell: ({ row }) => (
+        <Button size="sm" variant="link" className="hover:text-blue-400" onClick={() => onEdit(row.original)}>
+          Editar
+        </Button>
+      ),
+      enableSorting: false,
+    },
+  ];
+}
+
+export function CostCenterTable({
   costCenters,
   onEdit,
 }: {
   costCenters: CostCenter[];
   onEdit: (costCenter: CostCenter) => void;
 }) {
-  const [filteredData, setFilteredData] = useState<CostCenter[]>([]);
+  const [filteredData, setFilteredData] = useState<CostCenter[]>(costCenters);
+
+  const names = createFilterOptions(
+    filteredData,
+    (document) => document.name
+    // FileText // Icono para documentos
+  );
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
@@ -19,40 +64,20 @@ function CostCenterTable({
         <VerActivosButton data={costCenters} filterKey="is_active" onFilteredChange={setFilteredData} />
       </div>
       <div className="overflow-x-auto max-h-96 overflow-y-auto w-full">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Nombre</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData?.length > 0 ? (
-              filteredData.map((costCenter) => (
-                <TableRow key={costCenter.id}>
-                  <TableCell className="font-medium">{costCenter.name}</TableCell>
-                  <TableCell>
-                    <Badge variant={costCenter.is_active ? 'success' : 'default'}>
-                      {costCenter.is_active ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button size="sm" variant="link" className="hover:text-blue-400" onClick={() => onEdit(costCenter)}>
-                      Editar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-4">
-                  No hay tipos de centro de costos disponibles
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        <BaseDataTable
+          columns={getCostCenterColumns(onEdit)}
+          data={filteredData}
+          tableId="cost-center-table"
+          toolbarOptions={{
+            filterableColumns: [
+              {
+                columnId: 'Nombre',
+                title: 'Nombre',
+                options: names,
+              },
+            ],
+          }}
+        />
       </div>
     </div>
   );

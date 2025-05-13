@@ -230,7 +230,7 @@ declare global {
   interface EmployeeDocumentWithContractors extends Omit<EmployeeDocument, 'id_document_types' | 'applies'> {
     // Anteriormente: DocumentEmployeesWithRelations
     id_document_types: DocumentTypes; // Anteriormente: TypeOfDocuments
-    applies: EmployeeWithContractors; // Anteriormente: EmployeesWithContractors
+    applies: EmployeeDetailed; // Anteriormente: EmployeesWithContractors
   }
 
   // Relaciones de EquipmentDocument

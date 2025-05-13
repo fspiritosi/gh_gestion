@@ -35,11 +35,13 @@ interface SearchableColumn {
   placeholder?: string;
 }
 
+import type { Table as TableType } from '@tanstack/react-table';
+
 interface ToolbarOptions<TData> {
   filterableColumns?: FilterableColumn<TData>[];
   searchableColumns?: SearchableColumn[];
   showViewOptions?: boolean;
-  extraActions?: React.ReactNode;
+  extraActions?: React.ReactNode | ((table: TableType<TData>) => React.ReactNode);
 }
 
 interface DataTableProps<TData, TValue> {
@@ -51,7 +53,7 @@ interface DataTableProps<TData, TValue> {
   className?: string;
   tableId?: string; // ID para persistencia
   initialColumnVisibility?: VisibilityState; // Estado inicial de columnas
-  savedVisibility?: VisibilityState;
+  savedVisibility: VisibilityState;
 }
 
 export function BaseDataTable<TData, TValue>({
@@ -115,7 +117,11 @@ export function BaseDataTable<TData, TValue>({
           filterableColumns={toolbarOptions.filterableColumns}
           searchableColumns={toolbarOptions.searchableColumns}
           showViewOptions={toolbarOptions.showViewOptions}
-          extraActions={toolbarOptions.extraActions}
+          extraActions={
+            typeof toolbarOptions.extraActions === 'function'
+              ? toolbarOptions.extraActions(table)
+              : toolbarOptions.extraActions
+          }
           tableId={tableId}
         />
       )}

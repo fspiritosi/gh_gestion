@@ -45,7 +45,7 @@ export function DataTableToolbarBase<TData>({
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center space-x-2">
+      <div className="flex flex-1 items-center gap-2 flex-wrap">
         {searchableColumns.length > 0 &&
           searchableColumns.map((column) => {
             const tableColumn = table.getColumn(column.columnId);
@@ -81,10 +81,11 @@ export function DataTableToolbarBase<TData>({
             <X className="ml-2 h-4 w-4" />
           </Button>
         )}
-
-        {extraActions}
       </div>
-      {showViewOptions && <DataTableViewOptions table={table} tableId={tableId} />}
+      <div className="flex items-center space-x-2 flex-wrap">
+        {extraActions}
+        {showViewOptions && <DataTableViewOptions table={table} tableId={tableId} />}
+      </div>
     </div>
   );
 }

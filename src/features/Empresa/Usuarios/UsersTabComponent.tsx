@@ -1,9 +1,11 @@
 //'use client';
 import { columns } from '@/app/dashboard/company/actualCompany/components/columns';
 import { columnsGuests } from '@/app/dashboard/company/actualCompany/components/columnsGuests';
-import { DataTable } from '@/app/dashboard/company/actualCompany/components/data-table';
+import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
+
 import { getAllUsers, getOwnerUser } from '@/app/server/GET/actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
 
 //import cookies from 'js-cookie';
 //import { cookies } from 'next/headers';
@@ -63,6 +65,14 @@ export default async function UsersTabComponent() {
         customerName: user.customerName || '',
       })) || []; // Filtrar usuarios donde el rol no sea "Invitado"
 
+  const names = createFilterOptions(data, (user) => user.fullname);
+
+  const correo = createFilterOptions(data, (user) => user.email);
+
+  const guestsNames = createFilterOptions(guestsData, (user) => user.fullname);
+
+  const guestsCorreo = createFilterOptions(guestsData, (user) => user.email);
+
   return (
     <div>
       <Tabs defaultValue="employ" className="w-full">
@@ -75,13 +85,49 @@ export default async function UsersTabComponent() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="employ">
-          <div className="py-8">
-            <DataTable data={data || []} columns={columns} />
+          <div className="py-2">
+            <BaseDataTable
+              data={data || []}
+              columns={columns}
+              tableId="users-employ-table"
+              toolbarOptions={{
+                filterableColumns: [
+                  {
+                    columnId: 'Nombre',
+                    title: 'Nombre',
+                    options: names,
+                  },
+                  {
+                    columnId: 'Correo',
+                    title: 'Correo',
+                    options: correo,
+                  },
+                ],
+              }}
+            />
           </div>
         </TabsContent>
         <TabsContent value="guests">
-          <div className="py-8">
-            <DataTable data={guestsData || []} columns={columnsGuests} />
+          <div className="py-2">
+            <BaseDataTable
+              data={guestsData || []}
+              columns={columnsGuests}
+              tableId="users-guests-table"
+              toolbarOptions={{
+                filterableColumns: [
+                  {
+                    columnId: 'Nombre',
+                    title: 'Nombre',
+                    options: guestsNames,
+                  },
+                  {
+                    columnId: 'Correo',
+                    title: 'Correo',
+                    options: guestsCorreo,
+                  },
+                ],
+              }}
+            />
           </div>
         </TabsContent>
       </Tabs>

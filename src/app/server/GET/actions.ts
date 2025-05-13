@@ -536,15 +536,14 @@ export const getNextMonthExpiringDocumentsEmployees = async () => {
   const { data, error } = await supabase
     .from('documents_employees')
     .select('*,id_document_types(*),applies(*,contractor_employee(*, customers(*)))')
-    .eq('applies.company_id', company_id)
-    .eq('applies.is_active', true)
-    // .not('id_document_types.is_it_montlhy', 'is', false)
-    .neq('id_document_types.is_it_montlhy', true) // Solo traer documentos que no sean mensuales
+    // .eq('applies.is_active', true)
+    .not('id_document_types.is_it_montlhy', 'is', true)
     .or(`validity.lte.${today.toISOString()},validity.lte.${nextMonth.toISOString()}`)
-    .not('applies', 'is', null)
     .not('validity', 'is', null)
     .order('validity', { ascending: true }) // Ordenar por fecha de validez en orden ascendente
     .returns<EmployeeDocumentWithContractors[]>();
+
+  console.log(data);
 
   if (error) {
     console.error('Error fetching next month expiring documents:', error);

@@ -1,10 +1,11 @@
 'use client';
 
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
+import { DataTableExportExcel } from '@/shared/components/data-table/base/data-table-export-excel';
 import { VisibilityState } from '@tanstack/react-table';
 import { BadgeCheck, Briefcase, Building, ClipboardSignature, CreditCard, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { formatEmployeesForTable } from '../../utils/utils';
+import { createFilterOptions, formatEmployeesForTable } from '../../utils/utils';
 import { employeeColumns } from './columns';
 import { EmployeeTableData } from './types';
 
@@ -32,19 +33,6 @@ export const createNestedFilterOptions = <T extends any>(
   );
 
   return uniqueValues.map((value) => ({
-    label: value || '',
-    value: value || '',
-    icon,
-  }));
-};
-
-// Función utilitaria para crear opciones de filtro a partir de una propiedad simple
-export const createFilterOptions = <T extends any>(
-  data: T[] | undefined,
-  accessor: (item: T) => any,
-  icon: React.ComponentType<{ className?: string }>
-) => {
-  return Array.from(new Set(data?.map(accessor).filter(Boolean))).map((value) => ({
     label: value || '',
     value: value || '',
     icon,
@@ -171,6 +159,7 @@ export function EmployeesTableReusable({
             options: gender,
           },
         ],
+        extraActions: (table) => <DataTableExportExcel table={table} />,
         searchableColumns: [{ columnId: 'Nombre', placeholder: 'Buscar empleado...' }],
         showViewOptions: true,
       }}

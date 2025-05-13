@@ -9,9 +9,8 @@ import CustomerEquipmentTab from '@/features/Empresa/Clientes/components/equipos
 import SectorTabs from '@/features/Empresa/Clientes/components/sector_clientes/sectorTabs';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { supabase } from '../../../../supabase/supabase';
 import { fechAllCustomers, fetchAllSectors, fetchAreasWithProvinces, fetchEquipmentsCustomers } from './actions/create';
-import { columns } from './components/columns';
+import { columnsCustomers } from './components/columns';
 
 async function ComercialTab({
   tabValue,
@@ -24,18 +23,14 @@ async function ComercialTab({
 }) {
   const coockiesStore = cookies();
   const actualCompany = coockiesStore.get('actualComp')?.value;
-  const { data: customers2, error } = await supabase.from('customers').select('*');
 
-  if (error) {
-    console.error('Error al obtener los contratistas:', error);
-  }
-  const contractorCompanies = customers2?.filter((company: any) => company.company_id.toString() === actualCompany);
-
-  const { customers } = await fechAllCustomers();
+  const customers = await fechAllCustomers();
+  const contractorCompanies = customers?.filter((company) => company.company_id.toString() === actualCompany);
   const provinces = await fetchAllProvinces();
   const areas = await fetchAreasWithProvinces();
   const sectors = await fetchAllSectors();
   const { equipments } = await fetchEquipmentsCustomers();
+  const savedCustomers = coockiesStore.get('customers-table')?.value;
   const viewData = {
     defaultValue: subtab || 'customers',
     path: '/dashboard/company/actualCompany',
@@ -58,7 +53,11 @@ async function ComercialTab({
             </Link>
           ),
           component: (
-            <DataCustomers columns={columns} data={contractorCompanies || []} localStorageName={localStorageName} />
+            <DataCustomers
+              columns={columnsCustomers}
+              data={contractorCompanies || []}
+              savedCustomers={savedCustomers}
+            />
           ),
         },
       },
