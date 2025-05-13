@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { useEffect, useState } from 'react';
 import ServiceItemsForm from './ServiceItemsForm';
@@ -126,7 +126,7 @@ export default function ServiceItemsTable({
       <ResizablePanel className=" min-w-[500px] flex flex-col gap-2" defaultSize={75}>
         <Card>
           <div className="flex flex-col gap-6 py-4">
-            <div className="flex space-x-4 justify-between pl-3">
+            <div className="flex space-x-4 justify-between pl-3 mr-2">
               <Input
                 placeholder="Filtrar por nombre"
                 className="w-[400px]"
@@ -139,83 +139,66 @@ export default function ServiceItemsTable({
             <div className="relative h-[calc(100vh-300px)] w-full">
               <div className="absolute inset-0 overflow-x-auto overflow-y-auto">
                 <div className="min-w-full">
-                  <Table className="min-w-full divide-y divide-gray-200">
-                    <TableHead className="bg-header-background">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Nombre
-                        </TableCell>
-                        <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Estado
-                        </TableCell>
-                        <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Descripción
-                        </TableCell>
-                        <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Codigo
-                        </TableCell>
-                        <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Número
-                        </TableCell>
-                        <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          UDM
-                        </TableCell>
-                        <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Precio
-                        </TableCell>
-                        <TableCell className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Acciones
+                        <TableHead>Nombre</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead>Descripción</TableHead>
+                        <TableHead>Codigo</TableHead>
+                        <TableHead>Número</TableHead>
+                        <TableHead>UDM</TableHead>
+                        <TableHead>Precio</TableHead>
+                        <TableHead>Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    {filteredItems?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center">
+                          No hay items
                         </TableCell>
                       </TableRow>
-
-                      {filteredItems?.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={8} className="text-center py-4">
-                            No hay items
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        <TableBody className="bg-background divide-y">
-                          {filteredItems?.map((item) => (
-                            <TableRow key={item.id}>
-                              <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-muted-foreground">
-                                {item.item_name}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                <Badge variant={item.is_active ? 'success' : 'default'}>
-                                  {item.is_active ? 'Activo' : 'Inactivo'}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                {item.item_description}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                {item.code_item}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                {item.item_number}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                {item.item_measure_units?.unit}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                ${item.item_price}
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  size={'sm'}
-                                  variant={'link'}
-                                  className="hover:text-blue-400"
-                                  onClick={() => setEditingService(item)}
-                                >
-                                  Editar
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      )}
-                    </TableHead>
+                    ) : (
+                      <TableBody className="bg-background divide-y">
+                        {filteredItems?.map((item) => (
+                          <TableRow key={item.id}>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-muted-foreground">
+                              {item.item_name}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              <Badge variant={item.is_active ? 'success' : 'default'}>
+                                {item.is_active ? 'Activo' : 'Inactivo'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {item.item_description}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {item.code_item}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {item.item_number}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {item.item_measure_units?.unit}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              ${item.item_price}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size={'sm'}
+                                variant={'link'}
+                                className="hover:text-blue-400"
+                                onClick={() => setEditingService(item)}
+                              >
+                                Editar
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    )}
                   </Table>
                 </div>
               </div>

@@ -371,14 +371,14 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
       doc.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
   return (
-    <div className="max-w-7xl">
+    <div className="max-w-full">
       <div className="flex justify-end md:mb-4 mb-2">
         {/* <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
           <Button>Volver</Button>
         </Link> */}
       </div>
-      <Card>
-        <CardContent className="p-4">
+      <Card className="w-full">
+        <CardContent className="w-full p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1 border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Subir Documento</h3>

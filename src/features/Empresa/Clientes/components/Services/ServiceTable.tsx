@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { fetchServiceItems } from '@/features/Empresa/Clientes/actions/itemsService';
@@ -254,7 +254,7 @@ const ServiceTable = ({
                   </div> */}
 
                   <Tabs defaultValue="detail">
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center mr-3">
                       <TabsList className="flex gap-1 bg-gh_contrast/50">
                         <TabsTrigger value="detail" className="text-gh_orange font-semibold">
                           Detalle
@@ -327,105 +327,102 @@ const ServiceTable = ({
                     />
                   </div>
 
-                  <div className="overflow-x-auto max-h-96 overflow-y-auto mt-4">
-                    <Card>
-                      <Table className="min-w-full w-full">
-                        <TableHead>
+                  <div className="w-full overflow-x-auto max-h-96 overflow-y-auto mt-4">
+                    <Card className="w-full">
+                      <Table>
+                        <TableHeader>
                           <TableRow>
-                            <TableCell className="w-[200px]">Título del Contrato</TableCell>
-                            <TableCell className="w-[150px]">Cliente</TableCell>
-                            <TableCell className="w-[150px]">Número de Contrato</TableCell>
-                            <TableCell className="w-[150px]">Area</TableCell>
-                            <TableCell className="w-[150px]">Sector</TableCell>
-                            <TableCell className="w-[100px]">Estado</TableCell>
-                            <TableCell className="w-[150px]">Inicio del Contrato</TableCell>
-                            <TableCell className="w-[150px]">Validez del Contrato</TableCell>
+                            <TableHead>Título del Contrato</TableHead>
+                            <TableHead>Cliente</TableHead>
+                            <TableHead>Número de Contrato</TableHead>
+                            <TableHead>Area</TableHead>
+                            <TableHead>Sector</TableHead>
+                            <TableHead>Estado</TableHead>
+                            <TableHead>Inicio del Contrato</TableHead>
+                            <TableHead>Validez del Contrato</TableHead>
                           </TableRow>
-
-                          <TableBody>
-                            {filteredData.length > 0 ? (
-                              filteredData.map((service: Service) => (
-                                <TableRow
-                                  key={service.id}
-                                  onClick={() => handleOpenDetail(service)}
-                                  className="cursor-pointer hover:bg-gray-50"
-                                >
-                                  <TableCell className="w-[200px]">{service.service_name}</TableCell>
-                                  <TableCell className="w-[150px]">{service.customer}</TableCell>
-                                  <TableCell className="w-[150px]">{service.contract_number}</TableCell>
-                                  <TableCell className="w-[150px]">
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <div className="truncate max-w-[200px] cursor-pointer">
-                                            <Badge>
-                                              {service.service_areas?.[0]?.areas_cliente?.nombre || '-'}
-                                              {service.service_areas?.length && service.service_areas.length > 1
-                                                ? ` +${service.service_areas.length - 1}`
-                                                : ''}
-                                            </Badge>
-                                          </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <div className="flex flex-col">
-                                            {service.service_areas?.map((area) => (
-                                              <span key={area.area_id}>{area.areas_cliente.nombre}</span>
-                                            ))}
-                                          </div>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  </TableCell>
-                                  <TableCell className="w-[150px]">
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <div className="truncate max-w-[200px] cursor-pointer">
-                                            <Badge>
-                                              {service.service_sectors && service.service_sectors.length > 0 ? (
-                                                <>
-                                                  {service.service_sectors[0]?.sectors?.name || '-'}
-                                                  {service.service_sectors.length > 1 &&
-                                                    ` +${service.service_sectors.length - 1}`}
-                                                </>
-                                              ) : (
-                                                '-'
-                                              )}
-                                            </Badge>
-                                          </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <div className="flex flex-col">
-                                            {service.service_sectors?.map((sector) => (
-                                              <span key={sector.sector_id}>{sector.sectors.name}</span>
-                                            ))}
-                                          </div>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  </TableCell>
-                                  <TableCell className="w-[100px]">
-                                    <Badge variant={service.is_active ? 'success' : 'default'}>
-                                      {service.is_active ? 'Activo' : 'Inactivo'}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell className="w-[150px]">
-                                    {format(service.service_start?.toString(), 'dd/MM/yyyy')}
-                                  </TableCell>
-                                  <TableCell className="w-[150px]">
-                                    {format(service.service_validity, 'dd/MM/yyyy')}
-                                  </TableCell>
-                                </TableRow>
-                              ))
-                            ) : (
-                              <TableRow>
-                                <TableCell colSpan={8} className="text-center">
-                                  No hay contratos para mostrar
+                        </TableHeader>
+                        <TableBody>
+                          {filteredData.length > 0 ? (
+                            filteredData.map((service: Service) => (
+                              <TableRow
+                                key={service.id}
+                                onClick={() => handleOpenDetail(service)}
+                                className="cursor-pointer hover:bg-gray-50"
+                              >
+                                <TableCell>{service.service_name}</TableCell>
+                                <TableCell>{service.customer}</TableCell>
+                                <TableCell>{service.contract_number}</TableCell>
+                                <TableCell>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <div className="truncate cursor-pointer">
+                                          <Badge>
+                                            {service.service_areas?.[0]?.areas_cliente?.nombre || '-'}
+                                            {service.service_areas?.length && service.service_areas.length > 1
+                                              ? ` +${service.service_areas.length - 1}`
+                                              : ''}
+                                          </Badge>
+                                        </div>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <div className="flex flex-col">
+                                          {service.service_areas?.map((area) => (
+                                            <span key={area.area_id}>{area.areas_cliente.nombre}</span>
+                                          ))}
+                                        </div>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
                                 </TableCell>
+                                <TableCell>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <div className="truncate cursor-pointer">
+                                          <Badge>
+                                            {service.service_sectors && service.service_sectors.length > 0 ? (
+                                              <>
+                                                {service.service_sectors[0]?.sectors?.name || '-'}
+                                                {service.service_sectors.length > 1 &&
+                                                  ` +${service.service_sectors.length - 1}`}
+                                              </>
+                                            ) : (
+                                              '-'
+                                            )}
+                                          </Badge>
+                                        </div>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <div className="flex flex-col">
+                                          {service.service_sectors?.map((sector) => (
+                                            <span key={sector.sector_id}>{sector.sectors.name}</span>
+                                          ))}
+                                        </div>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </TableCell>
+                                <TableCell className="">
+                                  <Badge variant={service.is_active ? 'success' : 'default'}>
+                                    {service.is_active ? 'Activo' : 'Inactivo'}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="">
+                                  {format(service.service_start?.toString(), 'dd/MM/yyyy')}
+                                </TableCell>
+                                <TableCell className="">{format(service.service_validity, 'dd/MM/yyyy')}</TableCell>
                               </TableRow>
-                            )}
-                          </TableBody>
-                        </TableHead>
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={8} className="text-center">
+                                No hay contratos para mostrar
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
                       </Table>
                     </Card>
                   </div>

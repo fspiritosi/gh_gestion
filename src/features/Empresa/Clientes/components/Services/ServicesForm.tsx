@@ -461,7 +461,7 @@ export default function ServicesForm({
   return (
     <div>
       {view && (
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end space-x-4 mr-2">
           <Button onClick={() => setView(!view)}>{view ? 'Habilitar Edicion' : 'Ver'}</Button>
 
           {/* <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
