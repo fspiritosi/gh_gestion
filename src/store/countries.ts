@@ -1,4 +1,5 @@
 import { Equipo } from '@/zodSchemas/schemas';
+import cookies from 'js-cookie';
 import { create } from 'zustand';
 import { supabase } from '../../supabase/supabase';
 import { MandatoryDocuments } from './../zodSchemas/schemas';
@@ -99,13 +100,14 @@ export const useCountriesStore = create<State>((set, get) => {
 
   const documentTypes = async (id: string | undefined) => {
     const company_id = id ?? useLoggedUserStore?.getState?.()?.actualCompany?.id;
+    const company = cookies.get('actualComp');
 
     let { data: document_types } = await supabase
       .from('document_types')
       .select('*')
       .eq('is_active', true)
       // ?.filter('mandatory', 'eq', true)
-      .or(`company_id.eq.${company_id},company_id.is.null`);
+      .or(`company_id.eq.${company_id || company || ''},company_id.is.null`);
 
     const groupedData = document_types
       ?.filter((item) => item['mandatory'] === true)
