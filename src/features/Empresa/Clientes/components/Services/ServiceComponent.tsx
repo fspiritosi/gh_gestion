@@ -44,8 +44,6 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
 
   const areas = await fetchAreasWithProvinces();
   const { sectors: Sector } = await fetchAllSectors();
-  console.log(Sector, 'sectores');
-  console.log(services, 'services');
   return (
     // <Tabs defaultValue="services">
     //   <TabsList className="mb-2 bg-gh_contrast/50">
@@ -63,7 +61,7 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
           services={services}
           customers={filterCustomers}
           company_id={company_id}
-          areas={areas.areasWithProvinces}
+          areas={areas}
           sectors={Sector}
           Service={service as any}
           id={id}

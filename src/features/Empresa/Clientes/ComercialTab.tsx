@@ -71,13 +71,7 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: (
-            <CustomerTab
-              customers2={customers || []}
-              provinces={provinces || []}
-              areas={areas.areasWithProvinces || []}
-            />
-          ),
+          component: <CustomerTab customers={customers || []} provinces={provinces || []} areas={areas || []} />,
         },
       },
       {

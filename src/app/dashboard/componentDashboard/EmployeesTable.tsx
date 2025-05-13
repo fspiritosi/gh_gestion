@@ -13,8 +13,6 @@ async function EmployeesTable() {
   const data = await getNextMonthExpiringDocumentsEmployees();
   const formatedData = data.map(formatEmployeeDocuments).filter((e) => e.validity !== '');
 
-  console.log(formatedData, 'data');
-
   const documents = createFilterOptions(
     formatedData,
     (document) => document.documentName
@@ -26,8 +24,6 @@ async function EmployeesTable() {
     (document) => document.resource
     // User // Icono para documentos
   );
-
-  console.log(employees, 'employees');
 
   const cookiesStore = cookies();
   const savedVisibility = cookiesStore.get(`dashboard-employees-table-expiring-documents`)?.value;

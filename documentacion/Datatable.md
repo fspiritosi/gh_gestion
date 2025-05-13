@@ -18,8 +18,6 @@ const formattedEmployees = formatEmployeesForTable(employees);
 const cookiesStore = cookies();
 const savedVisibility = cookiesStore.get(`table-columns-employees-table`)?.value;
 
-console.log(savedVisibility, 'savedVisibility');
-
 return (
   <div>
     <EmployeesTableReusable

@@ -11,8 +11,6 @@ export const setNewCompanyUserMetadata = async (company_id: string) => {
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log('user', user);
-
   if (user?.app_metadata?.company !== company_id && company_id) {
     const { data, error } = await supabase.auth.admin.updateUserById(user?.id || '', {
       app_metadata: {
@@ -24,8 +22,6 @@ export const setNewCompanyUserMetadata = async (company_id: string) => {
       console.error('Error updating user metadata:', error);
       return;
     }
-
-    console.log('User metadata updated successfully:', data);
   }
 
   return;
@@ -184,7 +180,6 @@ export const findEmployeeByFullName = async (fullName: string) => {
       .returns<Employee[]>();
 
     if (error) {
-      console.log('Query params:', { fullName, company_id });
       console.error('Error al buscar empleado por nombre completo:', error);
       return null;
     }
@@ -224,8 +219,6 @@ export const fetchSingEmployee = async (employeesId: string) => {
   }
 
   const data2 = supabase.storage.from('document-files').getPublicUrl(employeeSingDocument?.[0]?.document_path || '');
-
-  console.log('data', data2);
 
   return data2.data.publicUrl || null;
 };
@@ -420,8 +413,6 @@ export const fetchEmployeePermanentDocumentsByEmployeeId = async (employeeId: st
   } = await supabase.auth.getUser();
   const role = await getActualRole(company_id as string, user?.id as string);
 
-  console.log(role);
-
   if (role === 'Invitado') {
     const { data, error } = await supabase
       .from('documents_employees')
@@ -542,8 +533,6 @@ export const getNextMonthExpiringDocumentsEmployees = async () => {
     .not('validity', 'is', null)
     .order('validity', { ascending: true }) // Ordenar por fecha de validez en orden ascendente
     .returns<EmployeeDocumentWithContractors[]>();
-
-  console.log(data);
 
   if (error) {
     console.error('Error fetching next month expiring documents:', error);
@@ -1295,16 +1284,11 @@ export const fetchDiagramsTypes = async () => {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
-  console.log(company_id, 'company_id');
   if (!company_id) return [];
   const { data, error } = await supabase
     .from('diagram_type')
     .select('*')
     .eq('company_id', company_id || '');
-
-  console.log(data, 'data');
-
-  console.log(error, 'error');
 
   if (error) {
     console.error('Error fetching diagrams types:', error);

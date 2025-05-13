@@ -21,10 +21,8 @@ async function EmployeeListTabs({
 }) {
   const role = await getRole();
   const employees = await fetchAllEmployees(role);
-  console.log(employees);
   const activeEmploees = setEmployeesToShow(employees?.filter((e) => e.is_active));
   const inactiveEmploees = setEmployeesToShow(employees?.filter((e: any) => !e.is_active));
-  console.log(activeEmploees);
 
   const viewData = {
     defaultValue: subtab || 'Empleados activos',

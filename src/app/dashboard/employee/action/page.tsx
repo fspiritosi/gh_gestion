@@ -88,8 +88,6 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
       console.log(error, 'error');
     }
 
-    console.log(employees);
-
     formattedEmployee = setEmployeesToShow(employees)?.[0];
   }
 

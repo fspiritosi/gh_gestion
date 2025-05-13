@@ -210,7 +210,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
             // Para relaciones 1:N el objeto suele estar directamente en la propiedad
             const relatedObj = (emp ? (emp[propConfig.accessor_key as keyof EmployeeDetailed] as any) : null) as any;
             const relatedId = relatedObj?.id ?? relatedObj ?? '';
-            console.log(relatedId, 'relatedId');
             return {
               id: relatedId[0]?.customers?.id ? relatedId[0].customers.id : relatedId,
               value,
@@ -220,8 +219,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
 
         // Añadir metadatos de relación para uso en BD
         const meta = relationMeta[propConfig.accessor_key] || null;
-
-        console.log(reference_values, 'reference_values');
 
         return {
           property_key: propConfig.accessor_key,
@@ -460,7 +457,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
               user_id: user?.data.user?.id,
             }));
 
-            console.log(newEntries, 'newEntries');
             // Insertamos todas las alertas nuevas en una sola operación
             const { error: insertError } = await supabase
               .from(table as 'documents_equipment' | 'documents_employees' | 'documents_company')
@@ -866,8 +862,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
     fetchAndSetupEmployees();
     fetchAndSetupVehicles();
   }, [vehicles, employees]);
-
-  console.log(Equipo, 'equipo');
 
   const addCondition = () => {
     setConditions((prev) => [...prev, { property: '', values: [], id: Date.now().toString() }]);

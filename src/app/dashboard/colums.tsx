@@ -656,7 +656,6 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
         if (row.original.validity) {
           return moment(row.original.validity).format('DD/MM/YYYY');
         } else {
-          console.log('row.original.validity', row.original.validity);
           return <Badge variant={'outline'}>No vence</Badge>;
         }
       }

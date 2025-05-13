@@ -243,31 +243,33 @@ export async function updateArea(values: any) {
 export async function fetchAreasWithProvinces() {
   const supabase = supabaseServer();
   try {
-    const { data: areasWithProvinces, error } = await supabase
-      .from('areas_cliente' as any)
+    const { data, error } = await supabase
+      .from('areas_cliente')
       .select(
         `
         id,
         nombre,
         descripcion_corta,
-        customer_id(id, name),
+        customers (
+          id,
+          name
+        ),
         area_province (
           provinces ( id, name )
-        )
-      `
+          )
+          `
       )
       .not('area_province.province_id', 'is', null);
-    // .eq('is_active', true);
 
     if (error) {
       console.error(error);
-      return { areasWithProvinces: [], error: 'Error al obtener las areas con sus provincias' };
+      return [];
     }
 
-    return { areasWithProvinces, error };
+    return data;
   } catch (error) {
     console.error(error);
-    return { areasWithProvinces: [], error: 'Error al obtener las areas con sus provincias' };
+    return [];
   }
 }
 

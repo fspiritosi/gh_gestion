@@ -74,12 +74,6 @@ export default async function Home({
   }));
   const currentEquipment = equipmentsForComboBox.find((equipment) => equipment.value === params.id);
 
-  // console.log(checklists, 'checklists');
-
-  console.log(role, 'role');
-  console.log(checklists, 'checklists');
-
-  // console.log(currentEquipment, 'currentEquipment');
   return (
     <QrActionSelector
       user={user}
