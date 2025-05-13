@@ -23,14 +23,6 @@ function CustomerTab({
   const [selectedArea, setSelectedArea] = useState<any>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
 
-  // areas: {
-  //   id: string;
-  //   nombre: string;
-  //   descripcion_corta: string | null;
-  //   cliente: string;
-  //   provincias: string[];
-  // }[];
-
   return (
     <div>
       <ResizablePanelGroup direction="horizontal" className="min-h-[400px]">

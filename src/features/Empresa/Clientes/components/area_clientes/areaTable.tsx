@@ -91,8 +91,7 @@ export function getAreaColums(
       header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
       cell: ({ row }) => {
         const handleSelectArea = () => {
-          console.log(row.original.area_full, 'clikeada');
-          handleEdit(row.original.area_full);
+          handleEdit((row.original as any).area_full);
         };
         return (
           <Button size="sm" variant="link" className="hover:text-blue-400" onClick={handleSelectArea}>
@@ -137,7 +136,6 @@ export function getAreaColums(
 function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: AreaTableProp) {
   const cookies = Cookies.get('areaTable');
   const handleEdit = (area: AreaTableProp['areas'][number]) => {
-    console.log(area);
     setSelectedArea(area);
     setMode('edit');
   };
@@ -162,8 +160,6 @@ function AreaTable({ areas, selectedArea, setSelectedArea, setMode, mode }: Area
     .flatMap((area) => area.area_province.map((ap) => ap.provinces?.name || ''))
     .filter(Boolean);
   const provinces = createFilterOptions(allProvinceNames, (name) => name);
-
-  console.log(areas, 'areas');
 
   return (
     <div className="flex flex-col gap-4 p-4 pt-0">

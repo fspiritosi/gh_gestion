@@ -29,7 +29,7 @@ async function ComercialTab({
   const provinces = await fetchAllProvinces();
   const areas = await fetchAreasWithProvinces();
   const sectors = await fetchAllSectors();
-  const { equipments } = await fetchEquipmentsCustomers();
+  const equipments = await fetchEquipmentsCustomers();
   const savedCustomers = coockiesStore.get('customers-table')?.value;
   const viewData = {
     defaultValue: subtab || 'customers',
@@ -97,7 +97,7 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <SectorTabs customers={contractorCompanies || []} sectors={sectors.sectors || []} />,
+          component: <SectorTabs customers={contractorCompanies || []} sectors={sectors || []} />,
         },
       },
       {
