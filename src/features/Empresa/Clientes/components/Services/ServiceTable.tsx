@@ -133,6 +133,9 @@ const ServiceTable = ({
       const service = servicesData?.find((service) => service.id === id);
       setEditingService(service || null);
       setEditing(true);
+    } else {
+      setEditing(false);
+      setEditingService(null);
     }
   }, [id, servicesData]);
 
@@ -184,6 +187,12 @@ const ServiceTable = ({
   }, [filteredServices, areas, sectors]);
 
   const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    setEditingService(null); // Limpiar el servicio en edición
+    setOpen(true);
+  };
+
   const handleOpenDetail = (service: Service) => {
     setEditingService(service);
     setOpenDetail(true);
@@ -210,9 +219,17 @@ const ServiceTable = ({
 
           {id === undefined && (
             <div>
-              <Dialog open={open} onOpenChange={setOpen}>
+              <Dialog
+                open={open}
+                onOpenChange={(isOpen) => {
+                  if (!isOpen) {
+                    setEditingService(null);
+                  }
+                  setOpen(isOpen);
+                }}
+              >
                 <DialogTrigger asChild>
-                  <Button size="sm" variant="gh_orange" className="mb-4">
+                  <Button size="sm" variant="gh_orange" className="mb-4" onClick={handleOpen}>
                     Crear Contrato
                   </Button>
                 </DialogTrigger>
