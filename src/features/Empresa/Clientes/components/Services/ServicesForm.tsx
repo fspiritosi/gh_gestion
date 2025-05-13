@@ -244,39 +244,35 @@ export default function ServicesForm({
       setView(true);
     }
   }, [id]);
+  // Efecto para manejar cambios en el cliente y filtrar áreas/sectores
   useEffect(() => {
-    const filtered = areas?.filter((area: any) => area.customer_id.id === customerId);
-    setFilteredAreas(filtered);
-  }, [customerId, areas]);
+    // Limpiar selecciones cuando cambia el cliente
+    form.setValue('area_id', []);
+    form.setValue('sector_id', []);
 
-  useEffect(() => {
     if (customerId) {
-      let filtered =
-        sectors?.filter((sector: any) =>
-          sector.sector_customer?.some((sc: any) => sc.customer_id?.id === customerId)
-        ) || [];
+      // Filtrar áreas por el cliente seleccionado
+      const filteredAreasByCustomer =
+        areas?.filter((area: any) => {
+          // Verificar si el área pertenece al cliente seleccionado
+          return area.customer_id?.id === customerId || area.customer_id === customerId;
+        }) || [];
 
-      // Si estamos editando un servicio, asegurarnos de que los sectores seleccionados estén en las opciones
-      if (editingService?.service_sectors) {
-        const serviceSectors = editingService.service_sectors || [];
-        const selectedSectors = serviceSectors.map((s) => s.sector_id);
+      setFilteredAreas(filteredAreasByCustomer);
 
-        // Encontrar sectores faltantes en los filtrados
-        const missingSectors = selectedSectors.filter((id: string) => !filtered.some((s: any) => s.id === id));
+      // Filtrar sectores por el cliente seleccionado
+      const filteredSectorsByCustomer =
+        sectors?.filter((sector: any) => {
+          return sector.sector_customer?.some((sc: any) => sc.customer_id?.id === customerId);
+        }) || [];
 
-        if (missingSectors.length > 0) {
-          const additionalSectors = (sectors || []).filter((s: any) => missingSectors.includes(s.id));
-          setFilteredSectors([...filtered, ...additionalSectors]);
-        } else {
-          setFilteredSectors(filtered);
-        }
-      } else {
-        setFilteredSectors(filtered);
-      }
+      setFilteredSectors(filteredSectorsByCustomer);
     } else {
+      // Si no hay cliente seleccionado, limpiar las opciones
+      setFilteredAreas([]);
       setFilteredSectors([]);
     }
-  }, [customerId, sectors, editingService]);
+  }, [customerId, areas, sectors, form]);
   useEffect(() => {
     if (editingService) {
       const serviceStartDate = new Date(editingService.service_start);
@@ -484,7 +480,12 @@ export default function ServicesForm({
                   <FormLabel>Cliente</FormLabel>
                   <Select
                     disabled={view}
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      // Limpiar áreas y sectores cuando cambia el cliente
+                      form.setValue('area_id', []);
+                      form.setValue('sector_id', []);
+                      field.onChange(value);
+                    }}
                     value={field.value || editingService?.customer_id}
                   >
                     <FormControl>
