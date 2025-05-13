@@ -42,20 +42,16 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
   } = await supabase.auth.getUser();
   const cookiesStore = cookies();
   const company_id = cookiesStore.get('actualComp')?.value || '';
-  console.log(company_id, 'company_id');
 
-  // const { customers } = await fetch(`${URL}/api/company/customers?actual=${company_id}`).then((e) => e.json());
   const customers = await fetchCustomers(company_id);
-  console.log(customers, 'customers');
   const filterCustomers = customers?.filter(
     (client: customer) => client.is_active === true || client.is_active === null
   );
 
   const services = await fetchServices(company_id);
   const service = services?.find((s: any) => s.id === id);
-  console.log(services, 'services');
+
   const items = await fetchServiceItems(id || '');
-  console.log(items, 'items');
 
   const measure_units = await fetchMeasureUnits();
 
@@ -70,7 +66,6 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
         company_id={company_id}
         areas={areas.areasWithProvinces}
         sectors={Sector}
-        Service={service as any}
         id={id}
         measure_units={measure_units as any}
         items={items as any}
