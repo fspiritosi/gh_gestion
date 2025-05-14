@@ -13,6 +13,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Card } from '../../../../../components/ui/card';
 import { MultiSelectCombobox } from '../../../../../components/ui/multi-select-combobox';
 import { RadioGroup, RadioGroupItem } from '../../../../../components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../components/ui/select';
@@ -460,286 +461,288 @@ export default function ServicesForm({
 
   return (
     <div>
-      {view && (
-        <div className="flex justify-end space-x-4 mr-2">
-          <Button onClick={() => setView(!view)}>{view ? 'Habilitar Edicion' : 'Ver'}</Button>
+      {/* {view && ( */}
+      <div className="flex justify-end space-x-4 mr-2">
+        <Button onClick={() => setView(!view)}>{view ? 'Habilitar Edicion' : 'Ver'}</Button>
 
-          {/* <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
+        {/* <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
             <Button>Volver</Button>
           </Link> */}
-        </div>
-      )}
-      <div className="grid grid-cols-2 gap-4 p-4">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="contents">
-            <FormField
-              control={form.control}
-              name="customer_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cliente</FormLabel>
-                  <Select
-                    disabled={view}
-                    onValueChange={(value) => {
-                      // Limpiar áreas y sectores cuando cambia el cliente
-                      form.setValue('area_id', []);
-                      form.setValue('sector_id', []);
-                      field.onChange(value);
-                    }}
-                    value={field.value || editingService?.customer_id}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-[400px]">
-                        <SelectValue placeholder="Elegir cliente" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {customers?.map((customer: any) => (
-                        <SelectItem value={customer.id} key={customer.id}>
-                          {customer.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="area_id"
-              render={({ field }) => {
-                // Asegurarse de que field.value sea un array de strings
-                const fieldValue = field.value || [];
-                const selectedValues = (Array.isArray(fieldValue) ? fieldValue : [fieldValue])
-                  .map(String)
-                  .filter(Boolean);
-
-                // Opciones para el combobox
-                const areaOptions =
-                  filteredAreas?.map((area) => ({
-                    label: area.nombre,
-                    value: String(area.id),
-                  })) || [];
-
-                // Función para manejar cambios en la selección
-                const handleChange = (values: string[]) => {
-                  field.onChange(values);
-                };
-
-                return (
-                  <FormItem>
-                    <FormLabel>Area</FormLabel>
-                    <MultiSelectCombobox
-                      key={`area-select-${selectedValues.join('-')}`} // Forzar recreación cuando cambian los valores
-                      options={areaOptions}
-                      placeholder="Elegir areas"
-                      emptyMessage="No se encontraron areas"
-                      selectedValues={selectedValues}
-                      onChange={handleChange}
-                      disabled={view}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="sector_id"
-              render={({ field }) => {
-                // Asegurarse de que field.value sea un array de strings
-                const fieldValue = field.value || [];
-                const selectedValues = (Array.isArray(fieldValue) ? fieldValue : [fieldValue])
-                  .map(String)
-                  .filter(Boolean);
-
-                // Opciones para el combobox
-                const sectorOptions =
-                  filteredSectors?.map((sector) => ({
-                    label: sector.name,
-                    value: String(sector.id),
-                  })) || [];
-
-                // Función para manejar cambios en la selección
-                const handleChange = (values: string[]) => {
-                  field.onChange(values);
-                };
-
-                return (
-                  <FormItem>
-                    <FormLabel>Sectores</FormLabel>
-                    <MultiSelectCombobox
-                      options={sectorOptions}
-                      placeholder="Seleccionar sectores"
-                      emptyMessage="No se encontraron sectores"
-                      selectedValues={selectedValues}
-                      onChange={handleChange}
-                      disabled={view}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="service_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Título del Contrato</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={view}
-                      type="text"
-                      {...field}
-                      className="input w-[400px]"
-                      placeholder="Título del contrato"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="service_start"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex gap-4 items-center w-[400px] justify-between">
-                    <FormLabel>Inicio del Contrato</FormLabel>
-                    <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            disabled={view}
-                            variant={'outline'}
-                            className={cn(
-                              'w-[240px] pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? field.value.toLocaleDateString() : 'Elegir fecha'}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            {...field}
-                            selected={field.value}
-                            onSelect={(date) => {
-                              field.onChange(date);
-                            }}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="service_validity"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex gap-4 items-center w-[400px] justify-between">
-                    <FormLabel>Validez del Contrato</FormLabel>
-                    <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            disabled={view}
-                            variant={'outline'}
-                            className={cn(
-                              'w-[240px] pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? field.value.toLocaleDateString() : 'Elegir fecha'}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(date) => {
-                              field.onChange(date);
-                            }}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="contract_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Número de Contrato</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={view}
-                      type="text"
-                      {...field}
-                      className="input w-[400px]"
-                      placeholder="Número de contrato"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="is_active"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Activo</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      disabled={view}
-                      onValueChange={(value) => field.onChange(value === 'true')}
-                      value={field.value ? 'true' : 'false'}
-                      className="flex  space-x-1"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="true" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Activo</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="false" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Inactivo</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button disabled={view} className="mt-4" type="submit" variant={'gh_orange'}>
-              {isEditing ? 'Editar' : 'Crear'}
-            </Button>
-            <Button disabled={view} className="mt-4 ml-2" type="button" onClick={handleCancel} variant={'outline'}>
-              Cancelar
-            </Button>
-          </form>
-        </Form>
       </div>
+      {/* )} */}
+      <Card className="w-full mt-2">
+        <div className="grid grid-cols-2 gap-4 p-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="contents">
+              <FormField
+                control={form.control}
+                name="customer_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cliente</FormLabel>
+                    <Select
+                      disabled={view}
+                      onValueChange={(value) => {
+                        // Limpiar áreas y sectores cuando cambia el cliente
+                        form.setValue('area_id', []);
+                        form.setValue('sector_id', []);
+                        field.onChange(value);
+                      }}
+                      value={field.value || editingService?.customer_id}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-[400px]">
+                          <SelectValue placeholder="Elegir cliente" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {customers?.map((customer: any) => (
+                          <SelectItem value={customer.id} key={customer.id}>
+                            {customer.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="area_id"
+                render={({ field }) => {
+                  // Asegurarse de que field.value sea un array de strings
+                  const fieldValue = field.value || [];
+                  const selectedValues = (Array.isArray(fieldValue) ? fieldValue : [fieldValue])
+                    .map(String)
+                    .filter(Boolean);
+
+                  // Opciones para el combobox
+                  const areaOptions =
+                    filteredAreas?.map((area) => ({
+                      label: area.nombre,
+                      value: String(area.id),
+                    })) || [];
+
+                  // Función para manejar cambios en la selección
+                  const handleChange = (values: string[]) => {
+                    field.onChange(values);
+                  };
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Area</FormLabel>
+                      <MultiSelectCombobox
+                        key={`area-select-${selectedValues.join('-')}`} // Forzar recreación cuando cambian los valores
+                        options={areaOptions}
+                        placeholder="Elegir areas"
+                        emptyMessage="No se encontraron areas"
+                        selectedValues={selectedValues}
+                        onChange={handleChange}
+                        disabled={view}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+              <FormField
+                control={form.control}
+                name="sector_id"
+                render={({ field }) => {
+                  // Asegurarse de que field.value sea un array de strings
+                  const fieldValue = field.value || [];
+                  const selectedValues = (Array.isArray(fieldValue) ? fieldValue : [fieldValue])
+                    .map(String)
+                    .filter(Boolean);
+
+                  // Opciones para el combobox
+                  const sectorOptions =
+                    filteredSectors?.map((sector) => ({
+                      label: sector.name,
+                      value: String(sector.id),
+                    })) || [];
+
+                  // Función para manejar cambios en la selección
+                  const handleChange = (values: string[]) => {
+                    field.onChange(values);
+                  };
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Sectores</FormLabel>
+                      <MultiSelectCombobox
+                        options={sectorOptions}
+                        placeholder="Seleccionar sectores"
+                        emptyMessage="No se encontraron sectores"
+                        selectedValues={selectedValues}
+                        onChange={handleChange}
+                        disabled={view}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+              <FormField
+                control={form.control}
+                name="service_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Título del Contrato</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={view}
+                        type="text"
+                        {...field}
+                        className="input w-[400px]"
+                        placeholder="Título del contrato"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="service_start"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-4 items-center w-[400px] justify-between">
+                      <FormLabel>Inicio del Contrato</FormLabel>
+                      <FormControl>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              disabled={view}
+                              variant={'outline'}
+                              className={cn(
+                                'w-[240px] pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
+                              )}
+                            >
+                              {field.value ? field.value.toLocaleDateString() : 'Elegir fecha'}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              {...field}
+                              selected={field.value}
+                              onSelect={(date) => {
+                                field.onChange(date);
+                              }}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="service_validity"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-4 items-center w-[400px] justify-between">
+                      <FormLabel>Validez del Contrato</FormLabel>
+                      <FormControl>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              disabled={view}
+                              variant={'outline'}
+                              className={cn(
+                                'w-[240px] pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
+                              )}
+                            >
+                              {field.value ? field.value.toLocaleDateString() : 'Elegir fecha'}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={(date) => {
+                                field.onChange(date);
+                              }}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contract_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Número de Contrato</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={view}
+                        type="text"
+                        {...field}
+                        className="input w-[400px]"
+                        placeholder="Número de contrato"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="is_active"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Activo</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        disabled={view}
+                        onValueChange={(value) => field.onChange(value === 'true')}
+                        value={field.value ? 'true' : 'false'}
+                        className="flex  space-x-1"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="true" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Activo</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="false" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Inactivo</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button disabled={view} className="mt-4" type="submit" variant={'gh_orange'}>
+                {isEditing ? 'Editar' : 'Crear'}
+              </Button>
+              <Button disabled={view} className="mt-4 ml-2" type="button" onClick={handleCancel} variant={'outline'}>
+                Cancelar
+              </Button>
+            </form>
+          </Form>
+        </div>
+      </Card>
     </div>
   );
 }
