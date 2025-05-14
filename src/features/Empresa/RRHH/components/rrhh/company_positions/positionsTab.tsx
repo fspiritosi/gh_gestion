@@ -2,28 +2,34 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Toaster } from '@/components/ui/toaster';
 import { fetchAllHierarchicalPositions, fetchAllPositions } from '@/features/Empresa/RRHH/actions/actions';
-import { Position } from '@/types/types';
-import { useEffect, useState } from 'react';
+import { VisibilityState } from '@tanstack/react-table';
+import { useState } from 'react';
 import PositionsForm from './positionsForm';
 import PositionsTable from './positionsTable';
 
-function PositionsTab() {
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
-  const [data, setData] = useState<Position[]>([]);
-  const [hierarchicalData, setHierarchicalData] = useState<any[]>([]);
+interface PositionTabProps {
+  data: Awaited<ReturnType<typeof fetchAllPositions>>;
+  hierarchicalData: Awaited<ReturnType<typeof fetchAllHierarchicalPositions>>;
+  savedVisibility: VisibilityState;
+}
+
+function PositionsTab({ data, hierarchicalData, savedVisibility }: PositionTabProps) {
+  const [selectedPosition, setSelectedPosition] = useState<PositionTabProps['data'][number] | null>(null);
+  // const [data, setData] = useState<Position[]>([]);
+  // const [hierarchicalData, setHierarchicalData] = useState<any[]>([]);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
-  useEffect(() => {
-    const fetchPositions = async () => {
-      const positions = await fetchAllPositions();
-      setData(positions);
-    };
-    const fetchHierarchicalPositions = async () => {
-      const hierarchicalPositions = await fetchAllHierarchicalPositions();
-      setHierarchicalData(hierarchicalPositions);
-    };
-    fetchPositions();
-    fetchHierarchicalPositions();
-  }, []);
+  // useEffect(() => {
+  //   const fetchPositions = async () => {
+  //     const positions = await fetchAllPositions();
+  //     setData(positions);
+  //   };
+  //   const fetchHierarchicalPositions = async () => {
+  //     const hierarchicalPositions = await fetchAllHierarchicalPositions();
+  //     setHierarchicalData(hierarchicalPositions);
+  //   };
+  //   fetchPositions();
+  //   fetchHierarchicalPositions();
+  // }, []);
 
   return (
     <div>
@@ -44,10 +50,10 @@ function PositionsTab() {
             <PositionsTable
               positions={data}
               hierarchicalPositions={hierarchicalData}
-              selectedPosition={selectedPosition}
               setSelectedPosition={setSelectedPosition}
               setMode={setMode}
               mode={mode}
+              savedVisibility={savedVisibility}
             />
           </ResizablePanel>
         </ResizablePanelGroup>

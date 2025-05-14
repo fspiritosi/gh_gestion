@@ -3,14 +3,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { MultiSelectCombobox } from '@/components/ui/multi-select-combobox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Position } from '@/types/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { createPosition, updatePosition } from '../../../actions/actions';
+import {
+  createPosition,
+  fetchAllHierarchicalPositions,
+  fetchAllPositions,
+  updatePosition,
+} from '../../../actions/actions';
 const PositionSchema = z.object({
   name: z.string().nonempty({ message: 'El nombre es requerido' }),
   is_active: z.boolean(),
@@ -25,8 +29,8 @@ function PositionsForm({
   mode,
   setMode,
 }: {
-  position: Position | null;
-  hierarchicalData: any[];
+  position: Awaited<ReturnType<typeof fetchAllPositions>>[number] | null;
+  hierarchicalData: Awaited<ReturnType<typeof fetchAllHierarchicalPositions>>;
   mode: 'create' | 'edit';
   setMode: (mode: 'create' | 'edit') => void;
 }) {

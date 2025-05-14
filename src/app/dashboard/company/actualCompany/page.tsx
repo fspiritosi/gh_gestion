@@ -53,7 +53,7 @@ export default async function CompanyPage({ searchParams }: { searchParams: { ta
           title: 'RRHH',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <RrhhComponent tabValue="rrhh" subtab={searchParams?.subtab} localStorageName="rrhhColumns" />,
+          component: <RrhhComponent tabValue="rrhh" subtab={searchParams?.subtab} />,
         },
       },
     ],

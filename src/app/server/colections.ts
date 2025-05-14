@@ -53,6 +53,11 @@ declare global {
 
   //! EXPORTAR TIPOS CON RELACIONES
 
+  interface workDiagramWithNovelty extends Omit<Diagram, 'active_novelty' | 'inactive_novelty'> {
+    active_novelty: DiagramType;
+    inactive_novelty: DiagramType;
+  }
+
   interface CheckListWithAnswer extends Omit<CustomForm, 'form_answers'> {
     form_answers: CheckListAnswerWithForm[]; // Anteriormente: CheckListResponse[]
   }

@@ -85,16 +85,16 @@ export default function ServicesForm({
   const router = useRouter();
   const [view, setView] = useState(false);
   const [isEditing, setIsEditing] = useState(!!editingService);
-  console.log(editingService, 'editingService');
-  console.log(isEditing, 'isEditing');
+  // console.log(editingService, 'editingService');
+  // console.log(isEditing, 'isEditing');
   const [filteredServices, setFilteredServices] = useState<Service[] | undefined>(
     editingService ? [editingService] : undefined
   );
 
   const [filteredAreas, setFilteredAreas] = useState<any[]>([]);
   const [filteredSectors, setFilteredSectors] = useState<any[]>([]);
-  console.log(filteredAreas, 'filteredAreas');
-  console.log(id, 'id');
+  // console.log(filteredAreas, 'filteredAreas');
+  // console.log(id, 'id');
   const customerId = form.watch('customer_id');
   useEffect(() => {
     if (id) {
@@ -102,19 +102,19 @@ export default function ServicesForm({
     }
   }, [id]);
   useEffect(() => {
-    const filtered = areas?.filter((area: any) => area.customer_id.id === customerId);
+    const filtered = areas?.filter((area: any) => area.customer_id?.id === customerId);
     setFilteredAreas(filtered);
   }, [customerId, areas]);
 
   useEffect(() => {
     const filtered = sectors?.filter((sector: any) =>
-      sector.sector_customer.map((id: any) => id.customer_id.id).includes(customerId)
+      sector.sector_customer.map((id: any) => id.customer_id?.id).includes(customerId)
     );
     setFilteredSectors(filtered);
   }, [customerId, sectors]);
 
-  console.log(sectors, 'sectors');
-  console.log(filteredSectors, 'filteredSectors');
+  // console.log(sectors, 'sectors');
+  // console.log(filteredSectors, 'filteredSectors');
   useEffect(() => {
     if (editingService) {
       const serviceStartDate = new Date(editingService.service_start);
@@ -152,14 +152,14 @@ export default function ServicesForm({
     }
   }, [editingService, reset]);
   const modified_editing_service_id = editingService?.id?.toString().replace(/"/g, '') ?? '';
-  console.log(modified_editing_service_id, 'modified_editing_service_id');
-  console.log(customerId, 'customerId');
-  console.log(filteredAreas, 'filteredAreas');
+  // console.log(modified_editing_service_id, 'modified_editing_service_id');
+  // console.log(customerId, 'customerId');
+  // console.log(filteredAreas, 'filteredAreas');
   const onSubmit = async (values: Service) => {
     const modified_company_id = company_id?.replace(/"/g, '');
 
     const data = JSON.stringify(values);
-    console.log(data, 'data');
+    // console.log(data, 'data');
     try {
       const response = await fetch(`/api/services?actual=${modified_company_id}`, {
         method: 'POST',
@@ -183,7 +183,7 @@ export default function ServicesForm({
 
   const onUpdate = async (values: Service) => {
     const modified_company_id = company_id?.replace(/"/g, '');
-    console.log(values, 'values');
+    // console.log(values, 'values');
     const data = JSON.stringify(values);
     try {
       type Service = {
@@ -248,7 +248,7 @@ export default function ServicesForm({
     provincias: area.area_province.map((province: any) => province.provinces.name),
   }));
 
-  console.log(formatedAreas, 'formatedAreas');
+  // console.log(formatedAreas, 'formatedAreas');
   return (
     <div>
       {view && (
