@@ -11,6 +11,7 @@ import { supabaseBrowser } from '@/lib/supabase/browser';
 import { format } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
+import { fetchAreasWithProvinces } from '../../actions/create';
 import ServiceItemsTable from './ServiceItemsTable';
 import ServicesForm from './ServicesForm';
 import ContractDocuments from './contractDocuments';
@@ -41,7 +42,7 @@ type Customer = {
 type ServiceTableProps = {
   services: Service[];
   customers: Customer[];
-  areas: any[];
+  areas: Awaited<ReturnType<typeof fetchAreasWithProvinces>>;
   company_id: string;
   sectors: any[];
   id?: string;
@@ -159,7 +160,7 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
   const formatedServices = useMemo(() => {
     return filteredServices?.map((service) => ({
       ...service,
-      customer: areas.find((area) => area.customer_id?.id === service.customer_id)?.customer_id?.name,
+      customer: areas.find((area) => area.customers?.id === service.customer_id)?.customers?.name,
       area: areas.find((area) => area.id === service.area_id)?.nombre,
       sector: sectors.find((sector) => sector.id === service.sector_id)?.name,
     }));
@@ -226,7 +227,7 @@ const ServiceTable = ({ services, customers, company_id, areas, sectors, id, Ser
                   ))}
               </SelectContent>
             </Select>
-            <VerActivosButton data={formatedServices} filterKey="is_active" onFilteredChange={setFilteredData} />
+            <VerActivosButton data={formatedServices as any} filterKey="is_active" onFilteredChange={setFilteredData} />
           </div>
 
           <div className="overflow-x-auto max-h-96 overflow-y-auto mt-4">

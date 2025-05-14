@@ -4,7 +4,7 @@ import { createFilterOptions } from '@/features/Employees/Empleados/components/u
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, VisibilityState } from '@tanstack/react-table';
 import { useState } from 'react';
 
 interface Sector {
@@ -47,7 +47,15 @@ export function getOrganigramColumns(onEdit: (sector: Sector) => void): ColumnDe
   ];
 }
 
-export function OrganigramTable({ sectors, onEdit }: { sectors: Sector[]; onEdit: (sector: Sector) => void }) {
+export function OrganigramTable({
+  sectors,
+  onEdit,
+  savedVisibility,
+}: {
+  sectors: Sector[];
+  onEdit: (sector: Sector) => void;
+  savedVisibility: VisibilityState;
+}) {
   const [filteredData, setFilteredData] = useState<Sector[]>(sectors);
 
   const names = createFilterOptions(filteredData, (sector) => sector.name);
@@ -60,6 +68,7 @@ export function OrganigramTable({ sectors, onEdit }: { sectors: Sector[]; onEdit
       </div>
       <div className="">
         <BaseDataTable
+          savedVisibility={savedVisibility}
           columns={getOrganigramColumns(onEdit)}
           data={filteredData}
           tableId="organigram-table"

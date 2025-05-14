@@ -43,7 +43,7 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
   const { data: measure_units } = await supabase.from('measure_units').select('*');
 
   const areas = await fetchAreasWithProvinces();
-  const { sectors: Sector } = await fetchAllSectors();
+  const sectors = await fetchAllSectors();
   return (
     // <Tabs defaultValue="services">
     //   <TabsList className="mb-2 bg-gh_contrast/50">
@@ -62,7 +62,7 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
           customers={filterCustomers}
           company_id={company_id}
           areas={areas}
-          sectors={Sector}
+          sectors={sectors}
           Service={service as any}
           id={id}
         />

@@ -87,7 +87,7 @@ function CustomerEquipmentTable({
     customerEquipments,
     (customerEquipment) => customerEquipment.customers?.name || ''
   );
-
+  const types = createFilterOptions(customerEquipments, (customerEquipment) => customerEquipment.type || '');
   console.log('customerEquipments', customerEquipments);
   return (
     <div className="p-4 pt-0">
@@ -108,6 +108,11 @@ function CustomerEquipmentTable({
               columnId: 'Cliente',
               title: 'Cliente',
               options: clients,
+            },
+            {
+              columnId: 'Tipo de equipo',
+              title: 'Tipo de equipo',
+              options: types,
             },
           ],
         }}

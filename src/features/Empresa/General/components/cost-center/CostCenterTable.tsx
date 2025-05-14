@@ -4,7 +4,7 @@ import { createFilterOptions } from '@/features/Employees/Empleados/components/u
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, VisibilityState } from '@tanstack/react-table';
 import { useState } from 'react';
 
 export function getCostCenterColumns(onEdit: (costCenter: CostCenter) => void): ColumnDef<CostCenter>[] {
@@ -45,9 +45,11 @@ export function getCostCenterColumns(onEdit: (costCenter: CostCenter) => void): 
 export function CostCenterTable({
   costCenters,
   onEdit,
+  savedVisibility,
 }: {
   costCenters: CostCenter[];
   onEdit: (costCenter: CostCenter) => void;
+  savedVisibility: VisibilityState;
 }) {
   const [filteredData, setFilteredData] = useState<CostCenter[]>(costCenters);
 
@@ -57,6 +59,8 @@ export function CostCenterTable({
     // FileText // Icono para documentos
   );
 
+  console.log(savedVisibility, 'savedVisibility');
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
@@ -65,6 +69,7 @@ export function CostCenterTable({
       </div>
       <div className="overflow-x-auto max-h-96 overflow-y-auto w-full">
         <BaseDataTable
+          savedVisibility={savedVisibility}
           columns={getCostCenterColumns(onEdit)}
           data={filteredData}
           tableId="cost-center-table"

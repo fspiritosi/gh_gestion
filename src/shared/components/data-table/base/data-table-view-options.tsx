@@ -38,7 +38,7 @@ export function DataTableViewOptions<TData>({ table, tableId }: DataTableViewOpt
     }
 
     // Guardar en cookies con el mismo formato que se recibe del servidor
-    cookiejs.set(`table-columns-${tableId}`, JSON.stringify(columnVisibility), {
+    cookiejs.set(`${tableId}`, JSON.stringify(columnVisibility), {
       expires: 365, // Válido por un año
       path: '/', // Disponible en toda la aplicación
       sameSite: 'strict',
