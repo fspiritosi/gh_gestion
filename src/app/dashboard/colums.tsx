@@ -41,6 +41,7 @@ import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { handleSupabaseError } from '@/lib/errorHandler';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { cn } from '@/lib/utils';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { useCountriesStore } from '@/store/countries';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -92,53 +93,57 @@ type DocumentHistory = {
 const dateRangeFilter: FilterFn<Colum> = (
   row: Row<Colum>,
   columnId: string,
-  filterValue: any,
+  filterValue: { from?: Date | null; to?: Date | null },
   addMeta: (meta: any) => void
 ) => {
-  if (!row.original.validity) return false;
-  const startDateInput = document.getElementById('date-from-full') as HTMLInputElement;
-  const endDateInput = document.getElementById('date-limit-full') as HTMLInputElement;
-  const startDateValue = startDateInput?.value ? new Date(startDateInput?.value) : null;
-  const endDateValue = endDateInput?.value ? new Date(endDateInput?.value) : null;
-  const [day, month, year] = row.original.validity?.split('/');
-  const validityDate = row.original.validity === 'No vence' ? null : new Date(`${year}-${month}-${day}`);
-
-  if (row.original.validity === 'No vence') return false;
-
-  if (startDateValue && !endDateValue) {
-    return validityDate! >= startDateValue;
+  const validityRaw = row.original.validity;
+  const { from, to } = filterValue || {};
+  // console.log('[dateRangeFilter] row:', row);
+  // console.log('[dateRangeFilter] columnId:', columnId);
+  // console.log('[dateRangeFilter] filterValue:', filterValue);
+  if (!validityRaw) {
+    // console.log('[dateRangeFilter] No validity value, return false');
+    return false;
   }
-  if (!startDateValue && endDateValue) {
-    return validityDate! <= endDateValue;
-  }
-
-  if (startDateValue && endDateValue) {
-    return validityDate! >= startDateValue && validityDate! <= endDateValue;
-  }
-  return false;
-};
-
-const domainAndInternNumber: FilterFn<Colum> = (
-  row: Row<Colum>,
-  columnId: string,
-  filterValue: any,
-  addMeta: (meta: any) => void
-) => {
-  const words = filterValue.split(' ');
-
-  if (!row.original?.intern_number) {
-    if (row.original.resource.toUpperCase().includes(filterValue.toUpperCase())) return true;
+  if (validityRaw === 'No vence') {
+    // console.log('[dateRangeFilter] Valor "No vence", return false');
     return false;
   }
 
-  if (
-    words.some((word: string) => row.original.resource.toUpperCase().includes(word.toUpperCase())) ||
-    words.some((word: string) => row.original?.intern_number?.toUpperCase()?.includes(word.toUpperCase()))
-  ) {
-    return true;
+  // Parsear la fecha del documento
+  const [day, month, year] = validityRaw.split('/');
+  const validityMoment = moment(`${year}-${month}-${day}`, 'YYYY-MM-DD');
+  if (!validityMoment.isValid()) {
+    // console.log('[dateRangeFilter] Fecha inválida:', `${year}-${month}-${day}`);
+    return false;
   }
+  // console.log('[dateRangeFilter] validityMoment:', validityMoment.format());
 
-  return false;
+  // Comparaciones con moment
+  if (from && !to) {
+    const fromMoment = moment(from);
+    const result = validityMoment.isSameOrAfter(fromMoment, 'day');
+    // console.log(`[dateRangeFilter] Comparando >= from (${fromMoment.format('YYYY-MM-DD')}):`, result);
+    return result;
+  }
+  if (!from && to) {
+    const toMoment = moment(to);
+    const result = validityMoment.isSameOrBefore(toMoment, 'day');
+    // console.log(`[dateRangeFilter] Comparando <= to (${toMoment.format('YYYY-MM-DD')}):`, result);
+    return result;
+  }
+  if (from && to) {
+    const fromMoment = moment(from);
+    const toMoment = moment(to);
+    const result = validityMoment.isBetween(fromMoment, toMoment, 'day', '[]');
+    // console.log(
+      `[dateRangeFilter] Comparando entre from (${fromMoment.format('YYYY-MM-DD')}) y to (${toMoment.format('YYYY-MM-DD')}):`,
+      result
+    );
+    return result;
+  }
+  // console.log('[dateRangeFilter] Sin from/to, return true');
+  return true;
 };
 
 export const ExpiredColums: ColumnDef<Colum>[] = [
@@ -531,15 +536,19 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
   },
   {
     accessorKey: 'resource',
-    header: 'Empleado',
+    id: 'Empleado',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Empleado" />,
     cell: ({ row, table }) => {
       return <p>{row.original.resource === 'null' ? row.original.serie : row.original.resource}</p>;
     },
-    filterFn: domainAndInternNumber,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'documentName',
-    header: 'Documento',
+    id: 'Documento',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Documento" />,
   },
   {
     accessorKey: 'intern_number',
@@ -569,7 +578,7 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
 
   {
     accessorKey: 'allocated_to',
-    header: 'Afectado a',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Afectado a" />,
     cell: ({ row }) => {
       const values = row.original.allocated_to;
       const theme = useTheme();
@@ -613,11 +622,11 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
 
   {
     accessorKey: 'mandatory',
-    header: 'Mandatorio',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Mandatorio" />,
   },
   {
     accessorKey: 'state',
-    header: 'Estado',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => {
       const variants: {
         [key: string]: 'destructive' | 'success' | 'default' | 'secondary' | 'outline' | 'yellow' | null | undefined;
@@ -633,19 +642,13 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
   },
   {
     accessorKey: 'multiresource',
-    header: 'Multirecurso',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Multirecurso" />,
   },
   {
     accessorKey: 'validity',
+    id: 'Vencimiento',
     filterFn: dateRangeFilter,
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Vencimiento
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Vencimiento" />,
     cell: ({ row }) => {
       const isNoPresented = row.getValue('state') === 'pendiente';
       //console.log(row.original.validity, 'row.original.validity');
@@ -664,14 +667,8 @@ export const ExpiredColums: ColumnDef<Colum>[] = [
   {
     accessorKey: 'date',
     sortingFn: 'datetime',
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Subido el
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Subido el" />,
+
     cell: ({ row }) => {
       const isNoPresented = row.getValue('state') === 'pendiente';
 

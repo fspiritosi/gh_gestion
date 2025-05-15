@@ -1,12 +1,11 @@
 import { fetchAllEmployees } from '@/app/server/GET/actions';
 import ViewcomponentInternal from '@/components/ViewComponentInternal';
 import { buttonVariants } from '@/components/ui/button';
+import EmpleadosInactivosTable from '@/features/Employees/Empleados/EmpleadosInactivos/EmpleadosInactivosTable';
 import EmployeeTable from '@/features/Employees/Empleados/components/employee_table';
 import { getRole } from '@/lib/utils/getRole';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import Link from 'next/link';
-import { EmployeesListColumns } from '../../employee/columns';
-import { EmployeesTable } from '../../employee/data-table';
 
 async function EmployeeListTabs({
   inactives,
@@ -60,8 +59,17 @@ async function EmployeeListTabs({
           title: 'Empleados inactivos',
           description: 'Empleados inactivos',
           buttonActioRestricted: [''],
-          buttonAction: '',
-          component: <EmployeesTable role={role} columns={EmployeesListColumns} data={inactiveEmploees || []} />,
+          buttonAction: (
+            <div className="flex  flex-wrap">
+              <Link
+                href="/dashboard/employee/action?action=new"
+                className={[' rounded', buttonVariants({ variant: 'gh_orange' })].join(' ')}
+              >
+                Agregar nuevo empleado
+              </Link>
+            </div>
+          ),
+          component: <EmpleadosInactivosTable />,
         },
       },
     ],

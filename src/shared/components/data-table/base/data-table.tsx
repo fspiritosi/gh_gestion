@@ -28,6 +28,12 @@ interface FilterableColumn<TData> {
     value: string;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
+  // Soporte para filtros de rango de fechas
+  type?: 'date-range';
+  showFrom?: boolean;
+  showTo?: boolean;
+  fromPlaceholder?: string;
+  toPlaceholder?: string;
 }
 
 interface SearchableColumn {
@@ -35,6 +41,7 @@ interface SearchableColumn {
   placeholder?: string;
 }
 
+import { cn } from '@/lib/utils';
 import type { Table as TableType } from '@tanstack/react-table';
 
 interface ToolbarOptions<TData> {
@@ -54,6 +61,7 @@ interface DataTableProps<TData, TValue> {
   tableId?: string; // ID para persistencia
   initialColumnVisibility?: VisibilityState; // Estado inicial de columnas
   savedVisibility: VisibilityState;
+  row_classname?: string;
 }
 
 export function BaseDataTable<TData, TValue>({
@@ -66,6 +74,7 @@ export function BaseDataTable<TData, TValue>({
   tableId,
   initialColumnVisibility,
   savedVisibility,
+  row_classname,
 }: DataTableProps<TData, TValue>) {
   // Intentar cargar la visibilidad guardada antes del renderizado inicial si hay tableId
   // const savedVisibility = savedColumns
@@ -93,7 +102,7 @@ export function BaseDataTable<TData, TValue>({
     onColumnVisibilityChange: (visibility) => {
       setColumnVisibility(visibility);
 
-      console.log(visibility, 'visibility');
+      // console.log(visibility, 'visibility');
       // Guardar las preferencias en localStorage cuando cambian
       // console.log(visibility, 'visibility');
       // cookiejs.set(`table-columns-${tableId}`, JSON.stringify(visibility));
@@ -144,7 +153,7 @@ export function BaseDataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  className={onRowClick ? 'hover:cursor-pointer' : ''}
+                  className={onRowClick ? cn(row_classname, 'hover:cursor-pointer') : row_classname}
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                   onClick={() => onRowClick && onRowClick(row.original)}

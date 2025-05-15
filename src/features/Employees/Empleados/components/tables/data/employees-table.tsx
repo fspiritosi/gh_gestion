@@ -14,7 +14,8 @@ interface EmployeesTableProps {
   className?: string;
   employees?: ReturnType<typeof formatEmployeesForTable>;
   tableId?: string;
-  savedVisibility?: VisibilityState;
+  savedVisibility: VisibilityState;
+  row_classname?: string;
 }
 
 // Función especial para propiedades anidadas complejas como las afectaciones
@@ -45,6 +46,7 @@ export function EmployeesTableReusable({
   employees,
   tableId = 'employees-table',
   savedVisibility,
+  row_classname,
 }: EmployeesTableProps) {
   const router = useRouter();
 
@@ -114,6 +116,7 @@ export function EmployeesTableReusable({
       data={(employees as any) || []}
       onRowClick={handleRowClick}
       className={className}
+      row_classname={row_classname}
       tableId={tableId}
       savedVisibility={savedVisibility}
       toolbarOptions={{

@@ -8,9 +8,9 @@ async function EmployeeTable() {
   const employees = await fetchAllEmployees();
   const formattedEmployees = formatEmployeesForTable(employees);
   const cookiesStore = cookies();
-  const savedVisibility = cookiesStore.get(`table-columns-employees-table`)?.value;
+  const savedVisibility = cookiesStore.get(`employees-table`)?.value;
 
-  console.log(savedVisibility, 'savedVisibility');
+  // console.log(savedVisibility, 'savedVisibility');
 
   return (
     <div>

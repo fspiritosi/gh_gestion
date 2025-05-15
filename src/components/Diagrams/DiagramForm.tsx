@@ -134,7 +134,7 @@ export function DiagramForm({
         createDiagram(novedad);
         setSuccesDiagrams([]);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     });
     router.refresh();
@@ -146,7 +146,7 @@ export function DiagramForm({
     //console.log(data);
     toast.promise(
       async () => {
-        console.log(values, 'values');
+        // console.log(values, 'values');
         const valueToSend = JSON.stringify(values);
         const response = await fetch(`${URL}/api/employees/diagrams`, { method: 'PUT', body: valueToSend });
         return response;
@@ -177,7 +177,7 @@ export function DiagramForm({
         updateDiagram(novedad);
         setErrorsDiagrams([]);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     });
     router.refresh();
@@ -259,7 +259,7 @@ export function DiagramForm({
     setErrorsDiagrams([...errorsDiagrams, ...errorToCreate]);
   }
 
-  console.log('errors', form.formState.errors);
+  // console.log('errors', form.formState.errors);
 
   return (
     <ResizablePanelGroup direction="horizontal" className="pt-6">
@@ -320,7 +320,7 @@ export function DiagramForm({
               render={({ field }) => (
                 <FormItem>
                   <div className="flex gap-4 items-center w-[400px] justify-between">
-                    <FormLabel>Fecha de inicio</FormLabel>
+                    <FormLabel>Fecha de inicios</FormLabel>
                     <FormControl>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -414,7 +414,7 @@ export function DiagramForm({
                     await onSubmit2(values);
                   },
                   (errors) => {
-                    console.log(errors);
+                    // console.log(errors);
                   }
                 );
               }}

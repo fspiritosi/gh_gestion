@@ -21,6 +21,7 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
   const empleadosCargados = await fetchAllEmployeesWithRelations();
   const equiposCargados = await fetchAllEquipmentWithRelations();
   const role = await getRole();
+
   const viewData = {
     defaultValue: searchParams?.tab || 'employees',
     path: '/dashboard/employee',

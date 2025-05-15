@@ -39,6 +39,7 @@ import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { handleSupabaseError } from '@/lib/errorHandler';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { cn } from '@/lib/utils';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { useCountriesStore } from '@/store/countries';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,6 +49,7 @@ import { addMonths, format, formatRelative } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { saveAs } from 'file-saver';
 import { ArrowUpDown, CheckCircle } from 'lucide-react';
+import moment from 'moment';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -77,31 +79,56 @@ const formSchema = z.object({
   }),
 });
 
-const periodRangeFilter: FilterFn<Colum> = (
+const dateRangeFilter: FilterFn<Colum> = (
   row: Row<Colum>,
   columnId: string,
-  filterValue: any,
+  filterValue: { from?: Date | null; to?: Date | null },
   addMeta: (meta: any) => void
 ) => {
-  const startDateInput = document.getElementById('date-from') as HTMLInputElement;
-  const endDateInput = document.getElementById('date-limit') as HTMLInputElement;
-  const startDateValue = startDateInput?.value ? new Date(startDateInput?.value) : null;
-  const endDateValue = endDateInput?.value ? new Date(endDateInput?.value) : null;
-  const validityDate = row.getValue('period') ? new Date(row.getValue('period')) : null;
-  if (!validityDate) return false;
+  const { from, to } = filterValue || {};
+  // console.log('[dateRangeFilter] row:', row);
+  // console.log('[dateRangeFilter] columnId:', columnId);
+  // console.log('[dateRangeFilter] filterValue:', filterValue);
 
-  if (startDateValue && !endDateValue) {
-    return validityDate >= startDateValue;
+  // Usar el campo period (YYYY-MM) para filtrar por mes y año
+  const periodRaw = (row.original as any).period;
+  if (!periodRaw) {
+    // console.log('[dateRangeFilter] period es null/undefined, no filtrar este registro');
+    return false;
   }
-  if (!startDateValue && endDateValue) {
-    return validityDate <= endDateValue;
+  const periodMoment = moment(periodRaw, 'YYYY-MM');
+  if (!periodMoment.isValid()) {
+    // console.log('[dateRangeFilter] period inválido:', periodRaw);
+    return false;
   }
+  // console.log('[dateRangeFilter] periodMoment:', periodMoment.format('YYYY-MM'));
 
-  if (startDateValue && endDateValue) {
-    return validityDate >= startDateValue && validityDate <= endDateValue;
-  }
+  // Normalizar from/to a mes y año
+  const fromMonthYear = from ? moment(from).startOf('month') : null;
+  const toMonthYear = to ? moment(to).startOf('month') : null;
+  if (fromMonthYear) console.log('[dateRangeFilter] fromMonthYear:', fromMonthYear.format('YYYY-MM'));
+  if (toMonthYear) console.log('[dateRangeFilter] toMonthYear:', toMonthYear.format('YYYY-MM'));
 
-  return false;
+  if (fromMonthYear && !toMonthYear) {
+    const result = periodMoment.isSameOrAfter(fromMonthYear, 'month');
+    // console.log(`[dateRangeFilter] Comparando >= from (${fromMonthYear.format('YYYY-MM')}):`, result);
+    return result;
+  }
+  if (!fromMonthYear && toMonthYear) {
+    const result = periodMoment.isSameOrBefore(toMonthYear, 'month');
+    // console.log(`[dateRangeFilter] Comparando <= to (${toMonthYear.format('YYYY-MM')}):`, result);
+    return result;
+  }
+  if (fromMonthYear && toMonthYear) {
+    const result = periodMoment.isBetween(fromMonthYear, toMonthYear, 'month', '[]');
+    // console.log(
+      `[dateRangeFilter] Comparando entre from (${fromMonthYear.format('YYYY-MM')}) y to (${toMonthYear.format('YYYY-MM')}):`,
+      result
+    );
+    return result;
+  }
+  // console.log('[dateRangeFilter] Sin from/to, return true');
+  return true;
 };
 
 type DocumentHistory = {
@@ -483,40 +510,31 @@ export const ColumnsMonthly: ColumnDef<Colum>[] = [
       );
     },
   },
-  {
-    accessorKey: 'date',
-    sortingFn: 'datetime',
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Subido el
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const isNoPresented = row.getValue('state') === 'pendiente';
 
-      if (isNoPresented) {
-        return 'No disponible';
-      } else {
-        const [day, month, year] = row.original.date.split('/');
-        const date = new Date(Number(year), Number(month) - 1, Number(day));
-        return format(date, 'P', { locale: es });
-      }
+  {
+    accessorKey: 'resource',
+    id: 'Empleado',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Empleado" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
-    accessorKey: 'resource',
-    header: 'Empleado',
+    accessorKey: 'documentName',
+    id: 'Documento',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Documento" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'allocated_to',
-    header: 'Afectado a',
+    id: 'Afectado a',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Afectado a" />,
     cell: ({ row }) => {
       const values = row.original.allocated_to;
 
-      if (!values) return <Badge variant={'outline'}>Sin afectar</Badge>;
+      if (!values) return <Badge>Sin afectar</Badge>;
       const contractorCompanies = Array.isArray(values)
         ? values
             .map((allocatedToId) =>
@@ -533,16 +551,13 @@ export const ColumnsMonthly: ColumnDef<Colum>[] = [
     },
   },
   {
-    accessorKey: 'documentName',
-    header: 'Documento',
-  },
-  {
     accessorKey: 'mandatory',
-    header: 'Mandatorio',
+    id: 'Mandatorio',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Mandatorio" />,
   },
   {
     accessorKey: 'state',
-    header: 'Estado',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => {
       const variants: {
         [key: string]: 'destructive' | 'success' | 'default' | 'secondary' | 'outline' | 'yellow' | null | undefined;
@@ -558,19 +573,22 @@ export const ColumnsMonthly: ColumnDef<Colum>[] = [
   },
   {
     accessorKey: 'multiresource',
-    header: 'Multirecurso',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Multirecurso" />,
   },
+  // {
+  //   accessorKey: 'period',
+  //   id: 'Periodo',
+  //   header: ({ column }) => <DataTableColumnHeader column={column} title="Periodo" />,
+  // },
+  // {
+  //   accessorKey: 'applies',
+  //   id: 'Aplica',
+  //   header: ({ column }) => <DataTableColumnHeader column={column} title="Aplica" />,
+  // },
   {
     accessorKey: 'period',
-    header: undefined,
-  },
-  {
-    accessorKey: 'applies',
-    header: undefined,
-  },
-  {
-    accessorKey: 'validity',
-    filterFn: periodRangeFilter,
+    id: 'Periodo',
+    filterFn: dateRangeFilter,
     header: ({ column }) => {
       return (
         <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -579,15 +597,15 @@ export const ColumnsMonthly: ColumnDef<Colum>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => {
-      const isNoPresented = row.getValue('period');
+    cell: ({ row }: { row: any }) => {
+      const isNoPresented = row.original.period;
       const [disabled, setDisabled] = useState(true);
-      const [value, setValue] = useState<string>(row.getValue('period') || '');
+      const [value, setValue] = useState<string>(row.original.period || '');
       const handleDisabled = () => {
         setDisabled(!disabled);
       };
       const id = row.getValue('id');
-      const resource = row.getValue('applies');
+      const resource = row.original.applies;
       const handleSavePeriod = async () => {
         const supabase = supabaseBrowser();
         toast.promise(
@@ -636,7 +654,7 @@ export const ColumnsMonthly: ColumnDef<Colum>[] = [
               type="month"
               min={new Date().toISOString().split('T')[0]}
               onChange={(e) => setValue(e.target.value)}
-              defaultValue={row.getValue('period')}
+              defaultValue={row.original.period}
               className=""
               disabled={disabled}
               value={value || ''}
@@ -659,6 +677,22 @@ export const ColumnsMonthly: ColumnDef<Colum>[] = [
             />
           </div>
         );
+      }
+    },
+  },
+  {
+    accessorKey: 'date',
+    sortingFn: 'datetime',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Subido el" />,
+    cell: ({ row }) => {
+      const isNoPresented = row.original.state === 'pendiente';
+
+      if (isNoPresented) {
+        return 'No disponible';
+      } else {
+        const [day, month, year] = row.original.date.split('/');
+        const date = new Date(Number(year), Number(month) - 1, Number(day));
+        return format(date, 'P', { locale: es });
       }
     },
   },
