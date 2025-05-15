@@ -54,6 +54,9 @@ async function RepairTypes({
     ? setVehiclesToShow(equipments?.filter((e: any) => e.id === equipment_id)) || []
     : setVehiclesToShow(equipments) || [];
 
+  const savedVisibility = coockiesStore.get('repair-type-table')?.value;
+  const savedVisibility2 = coockiesStore.get('repair-entry-table')?.value;
+
   const message =
     'El kilometraje de las unidades seleccionadas no se podran modificar durante la carga multiple, si desea cargar el kilometraje de las unidades seleccionadas, por favor haga la carga individual de cada una de ellas.';
 
@@ -82,7 +85,12 @@ async function RepairTypes({
           buttonActioRestricted: [''],
           title: 'Tipos de reparaciones creados',
           //description: 'Información de la empresa',
-          component: <RepairTypeForm types_of_repairs={types_of_repairs} />,
+          component: (
+            <RepairTypeForm
+              types_of_repairs={types_of_repairs}
+              savedVisibility={savedVisibility ? JSON.parse(savedVisibility) : []}
+            />
+          ),
         },
       },
       {
@@ -107,6 +115,7 @@ async function RepairTypes({
                   equipment={vehiclesFormatted}
                   tipo_de_mantenimiento={types_of_repairs as TypeOfRepair}
                   default_equipment_id={equipment_id}
+                  savedVisibility={savedVisibility2 ? JSON.parse(savedVisibility2) : []}
                 />
               </TabsContent>
               <TabsContent value="carga_multiple">
@@ -117,6 +126,7 @@ async function RepairTypes({
                   equipment={vehiclesFormatted}
                   tipo_de_mantenimiento={types_of_repairs as TypeOfRepair}
                   default_equipment_id={equipment_id}
+                  savedVisibility={savedVisibility2 ? JSON.parse(savedVisibility2) : []}
                 />
               </TabsContent>
             </Tabs>

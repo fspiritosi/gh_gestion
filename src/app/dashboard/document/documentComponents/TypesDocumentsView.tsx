@@ -118,7 +118,7 @@ function TypesDocumentsView({
               empleadosCargados={employees}
               equiposCargados={vehicles}
               role={role || ''}
-              optionChildrenProp="Persona"
+              optionChildrenProp={equipos ? 'Equipos' : 'Persona'}
             />
           </div>
         </div>
