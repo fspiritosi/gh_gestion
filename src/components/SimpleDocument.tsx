@@ -4,7 +4,7 @@ import { CaretSortIcon } from '@radix-ui/react-icons';
 import { addMonths, format } from 'date-fns';
 import { Calendar as CalendarIcon, CheckIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { FormEvent, useEffect, useState, useRef } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button } from './ui/button';
 import { CardDescription } from './ui/card';
@@ -125,9 +125,9 @@ export default function SimpleDocument({
         });
 
         // Solo se permite subir un documento por vez
-{
-  const index = 0;
-  const document = documents[index];
+        {
+          const index = 0;
+          const document = documents[index];
           const appliesName: any =
             (employees?.find(
               (employee: any) => employee.id === document.applies || employee.id === document.applies
@@ -258,7 +258,7 @@ export default function SimpleDocument({
           handleOpen();
           setLoading(false);
           router.refresh();
-          if (fileInputRef.current) fileInputRef.current.value = "";
+          if (fileInputRef.current) fileInputRef.current.value = '';
           return 'Documento(s) subidos correctamente';
         },
         error: (error) => {

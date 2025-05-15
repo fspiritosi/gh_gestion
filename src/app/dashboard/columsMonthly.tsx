@@ -121,10 +121,7 @@ const dateRangeFilter: FilterFn<Colum> = (
   }
   if (fromMonthYear && toMonthYear) {
     const result = periodMoment.isBetween(fromMonthYear, toMonthYear, 'month', '[]');
-    // console.log(
-      `[dateRangeFilter] Comparando entre from (${fromMonthYear.format('YYYY-MM')}) y to (${toMonthYear.format('YYYY-MM')}):`,
-      result
-    );
+
     return result;
   }
   // console.log('[dateRangeFilter] Sin from/to, return true');

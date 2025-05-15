@@ -136,10 +136,7 @@ const dateRangeFilter: FilterFn<Colum> = (
     const fromMoment = moment(from);
     const toMoment = moment(to);
     const result = validityMoment.isBetween(fromMoment, toMoment, 'day', '[]');
-    // console.log(
-      `[dateRangeFilter] Comparando entre from (${fromMoment.format('YYYY-MM-DD')}) y to (${toMoment.format('YYYY-MM-DD')}):`,
-      result
-    );
+
     return result;
   }
   // console.log('[dateRangeFilter] Sin from/to, return true');

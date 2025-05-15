@@ -1,14 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { CalendarIcon } from '@radix-ui/react-icons';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { X } from 'lucide-react';
 
 interface DataTableDatePickerProps {
@@ -25,7 +21,7 @@ export function DataTableDatePicker({
   setDate,
   label,
   disabled = false,
-  className = "",
+  className = '',
   clearFilter,
 }: DataTableDatePickerProps) {
   return (
@@ -33,17 +29,17 @@ export function DataTableDatePicker({
       <PopoverTrigger asChild>
         <div className="relative w-full">
           <Button
-            variant={"outline"}
-            size={"sm"}
+            variant={'outline'}
+            size={'sm'}
             className={cn(
-              "w-[200px] justify-start text-left font-normal border-dashed pr-8", // espacio para la X
-              !date && "",
+              'w-[200px] justify-start text-left font-normal border-dashed pr-8', // espacio para la X
+              !date && '',
               className
             )}
             disabled={disabled}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP", { locale: es }) : <span>{label}</span>}
+            {date ? format(date, 'PPP', { locale: es }) : <span>{label}</span>}
           </Button>
           {date && (
             <X

@@ -20,7 +20,7 @@ interface FilterableColumn<TData> {
   // NUEVO: soporte para filtro de rango de fechas
   type?: 'date-range';
   showFrom?: boolean; // mostrar DatePicker Desde
-  showTo?: boolean;   // mostrar DatePicker Hasta
+  showTo?: boolean; // mostrar DatePicker Hasta
   fromPlaceholder?: string;
   toPlaceholder?: string;
 }
@@ -51,7 +51,9 @@ export function DataTableToolbarBase<TData>({
   const columnVisibility = table.getState().columnVisibility;
 
   // NUEVO: Estado para los filtros de rango de fechas por columna
-  const [dateFilters, setDateFilters] = React.useState<{ [columnId: string]: { from: Date | null; to: Date | null } }>({});
+  const [dateFilters, setDateFilters] = React.useState<{ [columnId: string]: { from: Date | null; to: Date | null } }>(
+    {}
+  );
 
   // Importa tu DatePicker aquí (ajusta el import según tu proyecto)
   // import DatePicker from '@/components/DatePicker';
@@ -90,7 +92,7 @@ export function DataTableToolbarBase<TData>({
                         setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
                         tableColumn?.setFilterValue(newFilter);
                       }}
-                      label={column.fromPlaceholder || "Desde"}
+                      label={column.fromPlaceholder || 'Desde'}
                       clearFilter={() => {
                         const newFilter = { ...current, from: null };
                         setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
@@ -110,7 +112,7 @@ export function DataTableToolbarBase<TData>({
                         setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
                         tableColumn?.setFilterValue(newFilter);
                       }}
-                      label={column.toPlaceholder || "Hasta"}
+                      label={column.toPlaceholder || 'Hasta'}
                       clearFilter={() => {
                         const newFilter = { ...current, to: null };
                         setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
@@ -158,4 +160,3 @@ export function DataTableToolbarBase<TData>({
     </div>
   );
 }
-

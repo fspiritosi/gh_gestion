@@ -85,4 +85,3 @@ export const fetchAllEmployeesInactives = async (role?: string) => {
   }
   return data;
 };
-
