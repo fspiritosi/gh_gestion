@@ -172,44 +172,20 @@ function PositionsTable({
                       <TooltipTrigger asChild>
                         <div className="truncate max-w-[200px] cursor-pointer">
                           <Badge>
-<<<<<<< HEAD
                             {hierarchicalPositions.find((h) => h.id === position?.hierarchical_position_id?.[0])
                               ?.name || '-'}
                             {(position?.hierarchical_position_id?.length||0) > 1 &&
                               ` +${((position?.hierarchical_position_id?.length||0)) - 1}`}
-=======
-                            {(() => {
-                              const firstPositionId = position.hierarchical_position_id?.[0];
-                              const firstPosition = firstPositionId
-                                ? hierarchicalPositions.find((h: any) => h.id === firstPositionId)?.name
-                                : '-';
-                              const additionalPositions =
-                                position.hierarchical_position_id?.length &&
-                                position.hierarchical_position_id.length > 1
-                                  ? ` +${position.hierarchical_position_id.length - 1}`
-                                  : '';
-                              return `${firstPosition}${additionalPositions}`;
-                            })()}
->>>>>>> dev
                           </Badge>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-<<<<<<< HEAD
                         <div className="flex flex-col ">
                           {hierarchicalPositions
                             .filter((h) => position?.hierarchical_position_id?.includes(h.id))
                             .map((hierarchicalPosition) => (
                               <span key={hierarchicalPosition.id}>{hierarchicalPosition.name}</span>
                             ))}
-=======
-                        <div className="flex flex-col gap-1">
-                          {position.hierarchical_position_id?.map((id, index) => (
-                            <span key={`${id}-${index}`}>
-                              {hierarchicalPositions.find((h: any) => h.id === id)?.name || '-'}
-                            </span>
-                          )) || <span>-</span>}
->>>>>>> dev
                         </div>
                       </TooltipContent>
                     </Tooltip>

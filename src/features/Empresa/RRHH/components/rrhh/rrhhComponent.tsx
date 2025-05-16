@@ -104,9 +104,10 @@ export default async function RrhhComponent({ tabValue, subtab }: { subtab?: str
           buttonAction: '',
           component: (
             <PositionsTab
-              data={positions}
-              savedVisibility={savedVisibilityPositions ? JSON.parse(savedVisibilityPositions) : {}}
-              hierarchicalData={hierarchicalPositions}
+
+            // data={positions}
+            // savedVisibility={savedVisibilityPositions ? JSON.parse(savedVisibilityPositions) : {}}
+            // hierarchicalData={hierarchicalPositions}
             />
           ),
         },
