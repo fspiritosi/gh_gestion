@@ -1,28 +1,36 @@
-drop trigger if exists "document_types_after_insert" on "public"."document_types";
+-- drop trigger if exists "document_types_after_insert" on "public"."document_types";
 
-drop trigger if exists "document_types_after_update" on "public"."document_types";
+-- drop trigger if exists "document_types_after_update" on "public"."document_types";
 
-drop trigger if exists "controlar_alertas_employees" on "public"."employees";
+-- drop trigger if exists "controlar_alertas_employees" on "public"."employees";
 
-drop trigger if exists "controlar_alertas_vehicles" on "public"."vehicles";
+-- drop trigger if exists "controlar_alertas_vehicles" on "public"."vehicles";
 
-drop function if exists "public"."build_employee_where"(_conditions jsonb);
+-- drop policy "Permitir todo" on "public"."service_areas";
 
-drop function if exists "public"."build_employee_where_alias"(_conditions jsonb, table_alias text);
+-- drop policy "Permitir todo" on "public"."service_sectors";
 
-drop function if exists "public"."build_vehicle_where"(_conditions jsonb);
+-- alter table "public"."customer_services" drop constraint "customer_services_customer_id_fkey";
 
-drop function if exists "public"."build_vehicle_where_alias"(_conditions jsonb, table_alias text);
+-- drop function if exists "public"."build_employee_where"(_conditions jsonb);
 
-drop function if exists "public"."controlar_alertas_documentos"(tipo_documento_id uuid);
+-- drop function if exists "public"."build_employee_where_alias"(_conditions jsonb, table_alias text);
 
-drop function if exists "public"."trg_controlar_alertas_employees"();
+-- drop function if exists "public"."build_vehicle_where"(_conditions jsonb);
 
-drop function if exists "public"."trg_controlar_alertas_vehicles"();
+-- drop function if exists "public"."build_vehicle_where_alias"(_conditions jsonb, table_alias text);
 
-drop function if exists "public"."trg_document_types_insert"();
+-- drop function if exists "public"."build_vehicle_where_alias"(_conditions jsonb, table_alias text, user_id uuid);
 
-drop function if exists "public"."trg_document_types_update"();
+-- drop function if exists "public"."controlar_alertas_documentos"(tipo_documento_id uuid);
+
+-- drop function if exists "public"."trg_controlar_alertas_employees"();
+
+-- drop function if exists "public"."trg_controlar_alertas_vehicles"();
+
+-- drop function if exists "public"."trg_document_types_insert"();
+
+-- drop function if exists "public"."trg_document_types_update"();
 
 create table "public"."aptitudes_tecnicas" (
     "id" uuid not null default gen_random_uuid(),
@@ -54,6 +62,10 @@ alter table "public"."areas_cliente" disable row level security;
 
 alter table "public"."document_types" drop column "conditions";
 
+alter table "public"."service_areas" disable row level security;
+
+alter table "public"."service_sectors" disable row level security;
+
 CREATE UNIQUE INDEX aptitudes_tecnicas_pkey ON public.aptitudes_tecnicas USING btree (id);
 
 CREATE UNIQUE INDEX aptitudes_tecnicas_puestos_pkey ON public.aptitudes_tecnicas_puestos USING btree (aptitud_id, puesto_id);
@@ -77,6 +89,10 @@ alter table "public"."aptitudes_tecnicas_puestos" validate constraint "aptitudes
 alter table "public"."aptitudes_tecnicas_puestos" add constraint "aptitudes_tecnicas_puestos_puesto_id_fkey" FOREIGN KEY (puesto_id) REFERENCES company_position(id) ON DELETE CASCADE not valid;
 
 alter table "public"."aptitudes_tecnicas_puestos" validate constraint "aptitudes_tecnicas_puestos_puesto_id_fkey";
+
+alter table "public"."customer_services" add constraint "public_customer_services_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customers(id) not valid;
+
+alter table "public"."customer_services" validate constraint "public_customer_services_customer_id_fkey";
 
 alter table "public"."empleado_aptitudes" add constraint "empleado_aptitudes_aptitud_id_fkey" FOREIGN KEY (aptitud_id) REFERENCES aptitudes_tecnicas(id) ON DELETE CASCADE not valid;
 
