@@ -1,23 +1,21 @@
 'use client';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { useState } from 'react';
+import { fechAllCustomers, fetchAllSectors } from '../../actions/create';
 import SectorForm from './sectorForm';
 import SectorTable from './sectorTable';
 
-function SectorTabs({ customers, sectors }: { customers: any[]; sectors: SectorWithCustomers[] }) {
-  const [SelectedSector, setSelectedSector] = useState<SectorWithCustomers | null>(null);
+function SectorTabs({
+  customers,
+  sectors,
+}: {
+  customers: Awaited<ReturnType<typeof fechAllCustomers>>;
+  sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
+}) {
+  const [SelectedSector, setSelectedSector] = useState<Awaited<ReturnType<typeof fetchAllSectors>>[number] | null>(
+    null
+  );
   const [mode, setMode] = useState<'create' | 'edit'>('create');
-  // const [sectorsFetched, setSectorsFetched] = useState<Sector[]>([]);
-  // const [isLoading, setIsLoading] = useState(true);
-  // const fetchSectors = async () => {
-  //   const { sectors: Sector } = await fetchAllSectors();
-  //   setSectorsFetched(Sector || []);
-  //   setIsLoading(false);
-  // };
-
-  // useEffect(() => {
-  //   fetchSectors();
-  // }, []);
 
   return (
     <div>

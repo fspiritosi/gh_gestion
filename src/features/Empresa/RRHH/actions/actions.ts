@@ -1,7 +1,7 @@
 'use server';
 
 import { supabaseServer } from '@/lib/supabase/server';
-import { Position, WorkDiagram } from '@/types/types';
+import { WorkDiagram } from '@/types/types';
 // import { AptitudTecnica } from '../types/aptitudesTecnicas';
 import { cookies } from 'next/headers';
 
@@ -26,7 +26,7 @@ export async function createContractType(contractType: { name: string; descripti
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) throw new Error('No company ID found');
 
-  console.log(contractType, 'contractType');
+  // console.log(contractType, 'contractType');
 
   const { data, error } = await supabase.from('types_of_contract').insert(contractType).returns<ContractType[]>();
 
@@ -154,10 +154,7 @@ export async function fetchAllPositions() {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
-  const { data, error } = await supabase
-    .from('company_position' as any)
-    .select('*')
-    .returns<Position[]>();
+  const { data, error } = await supabase.from('company_position').select('*');
 
   if (error) {
     console.error('Error fetching positions:', error);

@@ -3,13 +3,23 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import { Toaster } from '@/components/ui/toaster';
 import ListDiagrams from '@/features/Empresa/RRHH/components/rrhh/listDiagrams';
 import WorkDiagramForm from '@/features/Empresa/RRHH/components/rrhh/work-diagram-form';
+import { VisibilityState } from '@tanstack/react-table';
 import { useState } from 'react';
+import { fetchAllWorkDiagrams } from './actions/actions';
 
-function diagramTypesTab({ diagrams_types, data }: { diagrams_types: DiagramType[]; data: WorkflowDiagram[] }) {
+function diagramTypesTab({
+  diagrams_types,
+  data,
+  savedVisibility,
+}: {
+  diagrams_types: DiagramType[];
+  data: Awaited<ReturnType<typeof fetchAllWorkDiagrams>>;
+  savedVisibility: VisibilityState;
+}) {
   const [selectedDiagram, setSelectedDiagram] = useState<Diagram | []>([]);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
-  console.log(diagrams_types, 'diagrams_types');
-  console.log(selectedDiagram, 'selectedDiagram');
+  // console.log(diagrams_types, 'diagrams_types');
+  // console.log(selectedDiagram, 'selectedDiagram');
 
   return (
     <div>
@@ -19,7 +29,13 @@ function diagramTypesTab({ diagrams_types, data }: { diagrams_types: DiagramType
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={60}>
-          <ListDiagrams data={data} diagramsTypes={diagrams_types} onEdit={setSelectedDiagram} onModeChange={setMode} />
+          <ListDiagrams
+            data={data}
+            diagramsTypes={diagrams_types}
+            onEdit={setSelectedDiagram}
+            onModeChange={setMode}
+            savedVisibility={savedVisibility}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
       <Toaster />

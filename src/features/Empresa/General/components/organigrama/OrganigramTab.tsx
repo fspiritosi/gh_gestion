@@ -1,5 +1,6 @@
 'use client';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { VisibilityState } from '@tanstack/react-table';
 import { useState } from 'react';
 import OrganigramForm from './OrganigramForm';
 import OrganigramTable from './organigramTable';
@@ -9,7 +10,7 @@ interface Sector {
   name: string;
   is_active: boolean;
 }
-function organigramTab({ sectors }: { sectors: Sector[] }) {
+function organigramTab({ sectors, savedVisibility }: { sectors: Sector[]; savedVisibility: VisibilityState }) {
   const [sector, setSector] = useState<Sector | null>(null);
   return (
     <div>
@@ -22,7 +23,7 @@ function organigramTab({ sectors }: { sectors: Sector[] }) {
 
           <ResizablePanel defaultSize={60}>
             {/* <CostCenterTable costCenters={costCenters} onEdit={setCostCenter} /> */}
-            <OrganigramTable sectors={sectors} onEdit={setSector} />
+            <OrganigramTable sectors={sectors} onEdit={setSector} savedVisibility={savedVisibility} />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

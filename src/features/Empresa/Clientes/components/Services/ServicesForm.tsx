@@ -160,6 +160,8 @@ export default function ServicesForm({
   const router = useRouter();
   const [view, setView] = useState(false);
   const [isEditing, setIsEditing] = useState(!!editingService);
+  // console.log(editingService, 'editingService');
+  // console.log(isEditing, 'isEditing');
 
   // Efecto para cargar los datos cuando cambia el servicio a editar
   useEffect(() => {

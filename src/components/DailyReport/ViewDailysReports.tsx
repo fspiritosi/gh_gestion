@@ -16,7 +16,6 @@ import { toast } from '@/components/ui/use-toast';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import cookies from 'js-cookie';
 import moment from 'moment';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
 import InfoComponent from '../InfoComponent';
@@ -58,7 +57,6 @@ export default function ViewDailysReports() {
   const [pendingStatusChange, setPendingStatusChange] = useState<{ id: string; status: boolean } | null>(null);
   const [statusFilter, setStatusFilter] = useState<'abierto' | 'cerrado' | 'todos'>('todos');
   const [isEditing, setIsEditing] = useState(false);
-  const router = useRouter();
   useEffect(() => {
     const now = new Date();
     setStartDate(startOfMonth(now));
@@ -82,12 +80,6 @@ export default function ViewDailysReports() {
       (statusFilter === 'abierto' && report.status) ||
       (statusFilter === 'cerrado' && !report.status);
     return matchesDateRange && matchesStatus;
-  });
-
-  const sortedReports = filteredReports.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return sortOrder === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
   });
 
   const totalPages = Math.ceil(filteredReports?.length / itemsPerPage);
@@ -240,39 +232,6 @@ export default function ViewDailysReports() {
     setOpenModal(false);
     setSelectedReport(null);
     // router.refresh();
-  };
-
-  const handleSaveReport = async (updatedReport: DailyReportData) => {
-    try {
-      const response = await fetch(`${URL}/api/daily-report/${updatedReport.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedReport),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      setDailyReports((prevReports) =>
-        prevReports.map((report) => (report.id === updatedReport.id ? updatedReport : report))
-      );
-
-      handleCloseModal();
-      toast({
-        title: 'Éxito',
-        description: 'El reporte se ha guardado correctamente.',
-      });
-    } catch (error) {
-      console.error('Error saving report:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudo guardar el reporte.',
-        variant: 'destructive',
-      });
-    }
   };
 
   return (

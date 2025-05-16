@@ -1,6 +1,7 @@
 import { setVehiclesToShow } from '@/lib/utils/utils';
 import { TypeOfRepair } from '@/types/types';
 import { User } from '@supabase/supabase-js';
+import { VisibilityState } from '@tanstack/react-table';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -15,12 +16,14 @@ function SolicitarMantenimiento({
   default_equipment_id,
   employee_id,
   user,
+  savedVisibility,
 }: {
   onReturn: () => void;
   tipo_de_mantenimiento: TypeOfRepair;
   equipment: ReturnType<typeof setVehiclesToShow>;
   default_equipment_id?: string;
   employee_id: string | undefined;
+  savedVisibility: VisibilityState;
   user: User | null;
 }) {
   const router = useRouter();
@@ -51,6 +54,7 @@ function SolicitarMantenimiento({
         equipment={equipment}
         tipo_de_mantenimiento={tipo_de_mantenimiento}
         default_equipment_id={default_equipment_id}
+        savedVisibility={savedVisibility}
       />
     </Card>
   );

@@ -351,6 +351,8 @@ function DiagramFormUpdated({
     }
   }, [form.watch('diagram_type'), form.watch('employee_id'), form.watch('dateRange.from'), form.watch('dateRange.to')]);
 
+  // console.log("prongando")
+
   return (
     <ResizablePanelGroup direction="horizontal" className="">
       <ResizablePanel className="">
@@ -392,11 +394,11 @@ function DiagramFormUpdated({
                 name="diagram_type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo de diagrama</FormLabel>
+                    <FormLabel>Tipo de novedad</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un tipo de diagrama" />
+                          <SelectValue placeholder="Selecciona un tipo de novedad" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

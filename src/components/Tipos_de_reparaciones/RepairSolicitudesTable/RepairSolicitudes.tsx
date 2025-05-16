@@ -1,7 +1,7 @@
-import { RepairsSolicituds } from '@/types/types';
-import { cookies } from 'next/headers';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
+import { fetchAllRepairSolicitudes } from '../actions/actions';
 import { repairSolicitudesColums } from './components/columns';
-import { DataTable } from './components/data-table';
 import { mechanicColums } from './components/mechanicColumns';
 
 export default async function RepairSolicitudes({
@@ -11,50 +11,120 @@ export default async function RepairSolicitudes({
   mechanic?: boolean;
   default_equipment_id?: string;
 }) {
-  const URL = process.env.NEXT_PUBLIC_BASE_URL;
-  const coockiesStore = cookies();
-  const company_id = coockiesStore.get('actualComp')?.value;
-  const { repair_solicitudes } = await fetch(`${URL}/api/repair_solicitud?actual=${company_id}`).then((res) =>
-    res.json()
-  );
+  const repair_solicitudes = await fetchAllRepairSolicitudes();
+
+  // console.log(repair_solicitudes);
 
   const Allrepairs = default_equipment_id
-    ? (repair_solicitudes as RepairsSolicituds).filter((repair) => repair.equipment_id.id === default_equipment_id)
-    : (repair_solicitudes as RepairsSolicituds);
+    ? repair_solicitudes.filter((repair) => repair.equipment_id === default_equipment_id)
+    : repair_solicitudes;
 
   const repairsFormatted = Allrepairs?.map((repair) => {
     return {
       id: repair.id,
-      title: repair.reparation_type.name,
+      title: repair.types_of_repairs?.name,
       state: repair.state,
       label: '',
-      priority: repair.reparation_type.criticity,
+      priority: repair.types_of_repairs?.criticity,
       created_at: repair.created_at,
-      equipment: `${repair.equipment_id?.domain} - ${repair.equipment_id?.intern_number}`,
+      equipment: `${repair.vehicles?.domain} - ${repair.vehicles?.intern_number}`,
       description: repair.user_description,
       user_description: repair.user_description,
-      year: repair.equipment_id.year,
-      brand: repair.equipment_id.brand.name,
-      model: repair.equipment_id.model.name,
-      domain: repair.equipment_id.domain ?? repair.equipment_id.serie,
-      engine: repair.equipment_id.engine,
-      serie: repair.equipment_id.serie,
-      status: repair.equipment_id.status,
-      chassis: repair.equipment_id.chassis,
-      picture: repair.equipment_id.picture,
-      type_of_equipment: repair.equipment_id.type.name,
+      year: repair.vehicles?.year,
+      brand: repair.vehicles?.brand_vehicles?.name,
+      model: repair.vehicles?.model_vehicles?.name,
+      domain: repair.vehicles?.domain ?? repair.vehicles?.serie,
+      engine: repair.vehicles?.engine,
+      serie: repair.vehicles?.serie,
+      status: repair.vehicles?.status,
+      chassis: repair.vehicles?.chassis,
+      picture: repair.vehicles?.picture,
+      type_of_equipment: repair.vehicles?.type.name,
       solicitud_status: repair.state,
-      type_of_maintenance: repair.reparation_type.type_of_maintenance,
+      type_of_maintenance: repair.types_of_repairs?.type_of_maintenance,
       user_images: repair.user_images,
       mechanic_images: repair.mechanic_images,
       repairlogs: repair.repairlogs,
       mechanic_description: repair.mechanic_description,
-      vehicle_id: repair.equipment_id.id,
-      vehicle_condition: repair.equipment_id.condition,
-      intern_number: repair.equipment_id.intern_number,
+      vehicle_id: repair.equipment_id,
+      vehicle_condition: repair.vehicles?.condition,
+      intern_number: repair.vehicles?.intern_number,
       kilometer: repair.kilometer,
     };
   });
 
-  return <DataTable data={repairsFormatted || []} columns={mechanic ? mechanicColums : repairSolicitudesColums} />;
+  const names = createFilterOptions(
+    repairsFormatted,
+    (repair) => repair.title
+    // FileText // Icono para documentos
+  );
+
+  const statis = createFilterOptions(
+    repairsFormatted,
+    (repair) => repair.state
+    // FileText // Icono para documentos
+  );
+  const priority = createFilterOptions(
+    repairsFormatted,
+    (repair) => repair.priority
+    // FileText // Icono para documentos
+  );
+  const Criticidad = createFilterOptions(
+    repairsFormatted,
+    (repair) => repair.priority
+    // FileText // Icono para documentos
+  );
+
+  const internNumber = createFilterOptions(
+    repairsFormatted,
+    (repair) => repair.intern_number
+    // FileText // Icono para documentos
+  );
+
+  const domain = createFilterOptions(
+    repairsFormatted,
+    (repair) => repair.domain
+    // FileText // Icono para documentos
+  );
+  // console.log(repairsFormatted, 'repairsFormatted');
+
+  return (
+    <>
+      {/* <DataTable data={repairsFormatted || []} columns={mechanic ? mechanicColums : repairSolicitudesColums} /> */}
+      <BaseDataTable
+        data={(repairsFormatted as any) || []}
+        columns={mechanic ? mechanicColums : repairSolicitudesColums}
+        savedVisibility={{}}
+        toolbarOptions={{
+          filterableColumns: [
+            {
+              columnId: 'Titulo',
+              title: 'Titulo',
+              options: names,
+            },
+            {
+              columnId: 'Estado',
+              title: 'Estado',
+              options: statis,
+            },
+            {
+              columnId: 'Criticidad',
+              title: 'Criticidad',
+              options: priority,
+            },
+            {
+              columnId: 'Numero interno',
+              title: 'Numero interno',
+              options: internNumber,
+            },
+            {
+              columnId: 'Dominio',
+              title: 'Dominio',
+              options: domain,
+            },
+          ],
+        }}
+      />
+    </>
+  );
 }

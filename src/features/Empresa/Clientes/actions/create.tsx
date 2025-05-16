@@ -146,16 +146,17 @@ export async function updateCustomer(formData: FormData) {
 export async function fechAllCustomers() {
   const supabase = supabaseServer();
   try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data, error } = await supabase.from('customers').select('*').eq('is_active', true);
 
-    const { data: customers, error } = await supabase.from('customers').select('*').eq('is_active', true);
+    if (error) {
+      console.error(error);
+      return [];
+    }
 
-    return { customers, error };
+    return data;
   } catch (error) {
     console.error(error);
-    return { customers: [], error: 'Error al obtener los clientes' };
+    return [];
   }
 }
 
@@ -285,46 +286,48 @@ export async function updateArea(values: any) {
 export async function fetchAreasWithProvinces() {
   const supabase = supabaseServer();
   try {
-    const { data: areasWithProvinces, error } = await supabase
-      .from('areas_cliente' as any)
+    const { data, error } = await supabase
+      .from('areas_cliente')
       .select(
         `
         id,
         nombre,
         descripcion_corta,
-        customer_id(id, name),
+        customers (
+          id,
+          name
+        ),
         area_province (
           provinces ( id, name )
-        )
-      `
+          )
+          `
       )
       .not('area_province.province_id', 'is', null);
-    // .eq('is_active', true);
 
     if (error) {
       console.error(error);
-      return { areasWithProvinces: [], error: 'Error al obtener las areas con sus provincias' };
+      return [];
     }
 
-    return { areasWithProvinces, error };
+    return data;
   } catch (error) {
     console.error(error);
-    return { areasWithProvinces: [], error: 'Error al obtener las areas con sus provincias' };
+    return [];
   }
 }
 
 export async function fetchEquipmentsCustomers() {
   const supabase = supabaseServer();
   try {
-    const { data: equipments, error } = await supabase.from('equipos_clientes').select('*');
+    const { data: equipments, error } = await supabase.from('equipos_clientes').select('*,customers(*)');
     if (error) {
       console.error(error);
-      return { equipments: [], error: 'Error al obtener los equipos' };
+      return [];
     }
-    return { equipments, error };
+    return equipments;
   } catch (error) {
     console.error(error);
-    return { equipments: [], error: 'Error al obtener los equipos' };
+    return [];
   }
 }
 
@@ -384,19 +387,17 @@ export async function updateEquipmentCustomer(values: any) {
 export async function fetchAllSectors() {
   const supabase = supabaseServer();
   try {
-    const { data: sectors, error } = await supabase
-      .from('sectors' as any)
-      .select('*,sector_customer(sector_id(id,name), customer_id(id,name))')
-      .returns<SectorWithCustomers[]>();
+    const { data: sectors, error } = await supabase.from('sectors').select('*,sector_customer(*, customers(*))');
+    // .returns<SectorWithCustomers[]>();
 
     if (error) {
       console.error(error);
-      return { sectors: [], error: 'Error al obtener los sectores' };
+      return [];
     }
-    return { sectors, error: null };
+    return sectors;
   } catch (error) {
     console.error(error);
-    return { sectors: [], error: 'Error al obtener los sectores' };
+    return [];
   }
 }
 

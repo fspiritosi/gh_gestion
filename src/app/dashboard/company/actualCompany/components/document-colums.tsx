@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { handleSupabaseError } from '@/lib/errorHandler';
 import { supabaseBrowser } from '@/lib/supabase/browser';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { SharedUser } from '@/zodSchemas/schemas';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
@@ -15,18 +16,20 @@ import { es } from 'date-fns/locale';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import AddCompanyDocumentForm from './AddCompanyDocumentForm';
-import { DataTableColumnHeader } from './data-table-column-header';
 
 export const columnsDocuments: ColumnDef<SharedUser>[] = [
   {
     accessorKey: 'fullname',
+    id: 'Nombre',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre del documento" />,
     cell: ({ row }) => <div className="">{row.getValue('fullname')}</div>,
-    enableSorting: false,
-    enableHiding: false,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'email',
+    id: 'Subido por',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Subido por" />,
     cell: ({ row }) => {
       return (
@@ -45,6 +48,9 @@ export const columnsDocuments: ColumnDef<SharedUser>[] = [
         </div>
       );
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'id',
@@ -58,11 +64,13 @@ export const columnsDocuments: ColumnDef<SharedUser>[] = [
   },
   {
     accessorKey: 'documentId',
+    id: 'Documento',
     header: ({ column }) => null,
     cell: ({ row }) => null,
   },
   {
     accessorKey: 'role',
+    id: 'Rol',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Rol" />,
     cell: ({ row }) => {
       return (
@@ -86,6 +94,7 @@ export const columnsDocuments: ColumnDef<SharedUser>[] = [
   },
   {
     accessorKey: 'alta',
+    id: 'Subido el',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Subido el" />,
     cell: ({ row }) => {
       return (
@@ -179,6 +188,7 @@ export const columnsDocuments: ColumnDef<SharedUser>[] = [
   },
   {
     accessorKey: 'vencimiento',
+    id: 'Vencimiento',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Vencimiento" />,
     cell: ({ row }) => {
       return (

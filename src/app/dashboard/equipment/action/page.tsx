@@ -44,7 +44,6 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
       model: item.model_vehicles.name,
       type: item.type.name,
     }));
-    console.log('vehicle-old-fetch', vehicle);
     //console.log('vehicle-new-fetch', newVehicle);
   }
 
@@ -61,7 +60,6 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
   const allCostCenter = await fetchAllCostCenter();
 
   const role = await getRole();
-  console.log('role action equipment', role);
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
       <Card

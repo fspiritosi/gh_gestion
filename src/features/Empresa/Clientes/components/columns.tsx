@@ -36,13 +36,14 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { cn } from '@/lib/utils';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { ArrowUpDown, CalendarIcon } from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -69,7 +70,7 @@ type Colum = {
   status: string;
 };
 
-export const columns: ColumnDef<Colum>[] = [
+export const columnsCustomers: ColumnDef<Colum>[] = [
   {
     id: 'actions',
     cell: ({ row }: { row: any }) => {
@@ -423,32 +424,45 @@ export const columns: ColumnDef<Colum>[] = [
         </DropdownMenu>
       );
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'cuit',
-    header: ({ column }: { column: any }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="p-0">
-          Cuit
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+    id: 'Cuit',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Cuit" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
     accessorKey: 'name',
-    header: 'Nombre',
+    id: 'Nombre',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'client_email',
-    header: 'Email',
+    id: 'Email',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'client_phone',
-    header: 'Teléfono',
+    id: 'Telefono',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Telefono" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'showUnavaliableContacts',
+    id: 'Ver clientes dados de baja',
     header: 'Ver clientes dados de baja',
   },
 ];

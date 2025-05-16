@@ -9,6 +9,7 @@ export async function fetchServices(company_id: string) {
       .select(
         `
         *,
+        customers (*),
         service_areas (
           area_id,
           areas_cliente (

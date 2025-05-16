@@ -21,7 +21,6 @@ export default async function DocumentTable({ employee_id, role }: Props) {
     formatEmployeeDocuments
   );
 
-  console.log(permanentDocuments, monthlyDocuments);
   // console.log(allDocumentsToShow.employees.filter((e) => e.document_number === document));
   return (
     <Tabs defaultValue="permanentes">
@@ -30,9 +29,7 @@ export default async function DocumentTable({ employee_id, role }: Props) {
           <TabsTrigger value="permanentes">Documentos permanentes</TabsTrigger>
           <TabsTrigger value="mensuales">Documentos mensuales</TabsTrigger>
         </TabsList>
-        {role !== 'Invitado' && (
-          <DocumentNav id_user={employee_id} onlyEmployees onlyNoMultiresource />
-        )}
+        {role !== 'Invitado' && <DocumentNav id_user={employee_id} onlyEmployees onlyNoMultiresource />}
       </CardContent>
       <TabsContent value="permanentes">
         <ExpiredDataTable

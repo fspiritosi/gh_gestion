@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { handleSupabaseError } from '@/lib/errorHandler';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { SharedUser } from '@/zodSchemas/schemas';
 import { ColumnDef } from '@tanstack/react-table';
@@ -25,39 +26,44 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '../../../../../../supabase/supabase';
-import { DataTableColumnHeader } from './data-table-column-header';
 
 export const columns: ColumnDef<SharedUser>[] = [
   {
     accessorKey: 'fullname',
+    id: 'Nombre',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
     cell: ({ row }: { row: any }) => {
       return row.original?.role === 'Propietario' ? (
-        <span>{row.getValue('fullname')}</span>
+        <span>{row.original.fullname}</span>
       ) : (
-        <Link href={`/dashboard/company/actualCompany/user/${row.getValue('id')}`} className="hover:underline">
-          {row.getValue('fullname')}
+        <Link href={`/dashboard/company/actualCompany/user/${row.original.id}`} className="hover:underline">
+          {row.original.fullname}
         </Link>
       );
     },
-    enableSorting: false,
-    enableHiding: false,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'email',
+    id: 'Correo',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Correo" />,
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2 items-center">
           {
             <Avatar className="">
-              <AvatarImage src={row.getValue('img')} alt="Logo de la empresa" className="rounded-full object-cover" />
+              <AvatarImage src={row.original.img} alt="Logo de la empresa" className="rounded-full object-cover" />
               <AvatarFallback>Logo</AvatarFallback>
             </Avatar>
           }
-          <span className="max-w-[500px] truncate font-medium">{row.getValue('email')}</span>
+          <span className="max-w-[500px] truncate font-medium">{row.original.email}</span>
         </div>
       );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
@@ -190,7 +196,7 @@ export const columns: ColumnDef<SharedUser>[] = [
             },
           }
         );
-        router.refresh()
+        router.refresh();
       };
       return (
         <AlertDialog>

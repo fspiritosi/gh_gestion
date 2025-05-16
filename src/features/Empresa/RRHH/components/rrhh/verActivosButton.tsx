@@ -19,7 +19,7 @@ export function VerActivosButton<T extends Record<string, any>>({
   useEffect(() => {
     const filtered = data?.filter((item) => Boolean(item[filterKey]) === showActive);
     onFilteredChange(filtered);
-  }, [showActive, data, filterKey, onFilteredChange]);
+  }, [showActive, data, filterKey]);
 
   return (
     <Button variant="gh_orange" onClick={() => setShowActive((prev) => !prev)}>

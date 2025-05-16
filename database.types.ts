@@ -632,6 +632,7 @@ export type Database = {
       customer_services: {
         Row: {
           company_id: string | null;
+          contract_number: string | null;
           created_at: string;
           customer_id: string | null;
           id: string;
@@ -642,6 +643,7 @@ export type Database = {
         };
         Insert: {
           company_id?: string | null;
+          contract_number?: string | null;
           created_at?: string;
           customer_id?: string | null;
           id?: string;
@@ -652,6 +654,7 @@ export type Database = {
         };
         Update: {
           company_id?: string | null;
+          contract_number?: string | null;
           created_at?: string;
           customer_id?: string | null;
           id?: string;
@@ -1020,6 +1023,7 @@ export type Database = {
         Row: {
           applies: Database['public']['Enums']['document_applies'];
           company_id: string | null;
+          conditions: Json[] | null;
           created_at: string;
           description: string | null;
           down_document: boolean | null;
@@ -1036,6 +1040,7 @@ export type Database = {
         Insert: {
           applies: Database['public']['Enums']['document_applies'];
           company_id?: string | null;
+          conditions?: Json[] | null;
           created_at?: string;
           description?: string | null;
           down_document?: boolean | null;
@@ -1052,6 +1057,7 @@ export type Database = {
         Update: {
           applies?: Database['public']['Enums']['document_applies'];
           company_id?: string | null;
+          conditions?: Json[] | null;
           created_at?: string;
           description?: string | null;
           down_document?: boolean | null;
@@ -1138,6 +1144,42 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      documents_contracts: {
+        Row: {
+          contract_id: string;
+          created_at: string | null;
+          date: string | null;
+          description: string | null;
+          id: string;
+          name: string;
+          path: string;
+          size: string;
+          type: string;
+        };
+        Insert: {
+          contract_id: string;
+          created_at?: string | null;
+          date?: string | null;
+          description?: string | null;
+          id?: string;
+          name: string;
+          path: string;
+          size: string;
+          type: string;
+        };
+        Update: {
+          contract_id?: string;
+          created_at?: string | null;
+          date?: string | null;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          path?: string;
+          size?: string;
+          type?: string;
+        };
+        Relationships: [];
       };
       documents_employees: {
         Row: {
@@ -2179,8 +2221,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      service_areas: {
+        Row: {
+          area_id: string;
+          service_id: string;
+        };
+        Insert: {
+          area_id: string;
+          service_id: string;
+        };
+        Update: {
+          area_id?: string;
+          service_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'fk_area';
+            columns: ['area_id'];
+            isOneToOne: false;
+            referencedRelation: 'areas_cliente';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'fk_service';
+            columns: ['service_id'];
+            isOneToOne: false;
+            referencedRelation: 'customer_services';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       service_items: {
         Row: {
+          code_item: string | null;
           company_id: string;
           created_at: string;
           customer_service_id: string;
@@ -2189,9 +2262,11 @@ export type Database = {
           item_description: string;
           item_measure_units: number;
           item_name: string;
+          item_number: string | null;
           item_price: number;
         };
         Insert: {
+          code_item?: string | null;
           company_id: string;
           created_at?: string;
           customer_service_id: string;
@@ -2200,9 +2275,11 @@ export type Database = {
           item_description: string;
           item_measure_units: number;
           item_name: string;
+          item_number?: string | null;
           item_price: number;
         };
         Update: {
+          code_item?: string | null;
           company_id?: string;
           created_at?: string;
           customer_service_id?: string;
@@ -2211,6 +2288,7 @@ export type Database = {
           item_description?: string;
           item_measure_units?: number;
           item_name?: string;
+          item_number?: string | null;
           item_price?: number;
         };
         Relationships: [
@@ -2233,6 +2311,42 @@ export type Database = {
             columns: ['item_measure_units'];
             isOneToOne: false;
             referencedRelation: 'measure_units';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      service_sectors: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          sector_id: string;
+          service_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          sector_id: string;
+          service_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          sector_id?: string;
+          service_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'service_sectors_sector_id_fkey';
+            columns: ['sector_id'];
+            isOneToOne: false;
+            referencedRelation: 'sectors';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'service_sectors_service_id_fkey';
+            columns: ['service_id'];
+            isOneToOne: false;
+            referencedRelation: 'customer_services';
             referencedColumns: ['id'];
           },
         ];
@@ -2636,6 +2750,26 @@ export type Database = {
     Functions: {
       actualizar_estado_documentos: {
         Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      build_employee_where: {
+        Args: { _conditions: Json };
+        Returns: string;
+      };
+      build_employee_where_alias: {
+        Args: { _conditions: Json; table_alias?: string };
+        Returns: string;
+      };
+      build_vehicle_where: {
+        Args: { _conditions: Json };
+        Returns: string;
+      };
+      build_vehicle_where_alias: {
+        Args: { _conditions: Json; table_alias?: string };
+        Returns: string;
+      };
+      controlar_alertas_documentos: {
+        Args: { tipo_documento_id?: string };
         Returns: undefined;
       };
       delete_expired_subscriptions: {

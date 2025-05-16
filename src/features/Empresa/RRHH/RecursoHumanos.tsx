@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cookies } from 'next/headers';
 import { fetchAllContractTypes } from './actions/actions';
 import ContractTypesTab from './components/ContractTypeTab';
 
@@ -16,7 +17,8 @@ interface RecursoHumanosProps {
 
 export default async function RecursoHumanos({ company_id, contractTypes = [] }: RecursoHumanosProps) {
   const allContractTypes = await fetchAllContractTypes();
-
+  const cookiesStore = cookies();
+  const savedVisibility = cookiesStore.get('contract-type-table')?.value;
   console.log(allContractTypes, 'allContractTypes');
   return (
     <div className=" ">
@@ -26,7 +28,10 @@ export default async function RecursoHumanos({ company_id, contractTypes = [] }:
         </TabsList>
 
         <TabsContent value="contract-types" className="">
-          <ContractTypesTab allContractTypes={allContractTypes} />
+          <ContractTypesTab
+            allContractTypes={allContractTypes}
+            savedVisibility={savedVisibility ? JSON.parse(savedVisibility) : {}}
+          />
         </TabsContent>
       </Tabs>
     </div>

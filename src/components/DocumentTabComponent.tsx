@@ -1,6 +1,7 @@
-import { DataTable } from '@/app/dashboard/company/actualCompany/components/data-table';
 import { columnsDocuments } from '@/app/dashboard/company/actualCompany/components/document-colums';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
 import { supabaseServer } from '@/lib/supabase/server';
+import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { cookies } from 'next/headers';
 
 export default async function DocumentTabComponent() {
@@ -84,10 +85,50 @@ export default async function DocumentTabComponent() {
       private: document.id_document_types.private,
     };
   });
+
+  const documentName = createFilterOptions(documentCompany, (document) => document.fullname);
+
+  const subidoPor = createFilterOptions(documentCompany, (document) => document.email);
+
+  const subidoEl = createFilterOptions(documentCompany, (document) => document.alta);
+
+  const vencimiento = createFilterOptions(documentCompany, (document) => document.vencimiento);
+
+  const savedVisibility = cookiesStore.get('documents-company-table')?.value;
+  const savedVisibility2 = savedVisibility ? JSON.parse(savedVisibility) : {};
   return (
     <div>
-      <div className="py-8">
-        <DataTable isDocuments data={documentCompany || []} columns={columnsDocuments} />
+      <div className="py-8 pt-0">
+        <BaseDataTable
+          savedVisibility={savedVisibility2}
+          data={documentCompany || []}
+          columns={columnsDocuments}
+          tableId="documents-company-table"
+          toolbarOptions={{
+            filterableColumns: [
+              {
+                columnId: 'Nombre',
+                title: 'Nombre',
+                options: documentName,
+              },
+              {
+                columnId: 'Subido por',
+                title: 'Subido por',
+                options: subidoPor,
+              },
+              {
+                columnId: 'Subido el',
+                title: 'Subido el',
+                options: subidoEl,
+              },
+              {
+                columnId: 'Vencimiento',
+                title: 'Vencimiento',
+                options: vencimiento,
+              },
+            ],
+          }}
+        />
       </div>
     </div>
   );

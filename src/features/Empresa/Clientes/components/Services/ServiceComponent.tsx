@@ -56,20 +56,23 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
   const measure_units = await fetchMeasureUnits();
 
   const areas = await fetchAreasWithProvinces();
-  const { sectors: Sector } = await fetchAllSectors();
-
+  const sectors = await fetchAllSectors();
   return (
     <div>
-      <ServiceTable
-        services={services as any}
-        customers={filterCustomers}
-        company_id={company_id}
-        areas={areas.areasWithProvinces}
-        sectors={Sector}
-        id={id}
-        measure_units={measure_units as any}
-        items={items as any}
-      />
+      {services ? (
+        <ServiceTable
+          services={services}
+          customers={filterCustomers}
+          company_id={company_id}
+          areas={areas}
+          sectors={sectors}
+          id={id}
+          measure_units={measure_units}
+          items={items}
+        />
+      ) : (
+        <div>No hay servicios</div>
+      )}
     </div>
   );
 }
