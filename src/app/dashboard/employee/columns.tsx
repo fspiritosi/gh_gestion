@@ -193,7 +193,7 @@ export const EmployeesListColumns: ColumnDef<Colum>[] = [
       async function reintegerEmployee() {
         const documentToUpdate = useLoggedUserStore
           ?.getState()
-          ?.active_and_inactive_employees.find((e: any) => e.document_number === document)
+          ?.active_and_inactive_employees?.find((e: any) => e.document_number === document)
           .documents_employees?.filter((e: any) => e.id_document_types.down_document)
           ?.map((e: any) => e.id);
 

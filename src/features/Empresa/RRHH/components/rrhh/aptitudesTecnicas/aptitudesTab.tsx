@@ -1,0 +1,14 @@
+import { getAptitudesData } from '../actions/aptitudesTecnicas';
+import { AptitudesClient } from './aptitudesClient';
+
+export default async function AptitudesTab() {
+  const { aptitudes, positions } = await getAptitudesData();
+  console.log(aptitudes, 'aptitudes');
+  console.log(positions, 'positions');
+
+  return (
+    // <div className="space-y-6">
+    <AptitudesClient initialAptitudes={aptitudes} initialPositions={positions} />
+    // </div>
+  );
+}

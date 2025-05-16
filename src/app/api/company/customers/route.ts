@@ -1,11 +1,12 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import { NextRequest } from 'next/server';
+
 export async function GET(request: NextRequest) {
   const supabase = supabaseServer();
   const searchParams = request.nextUrl.searchParams;
   const company_id = searchParams.get('actual');
   const user_id = searchParams.get('user');
-
+  console.log(company_id, user_id);
   try {
     let { data: customers, error } = await supabase
       .from('customers')

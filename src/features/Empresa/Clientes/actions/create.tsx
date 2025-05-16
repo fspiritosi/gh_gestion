@@ -6,6 +6,19 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
+// Función para verificar si un área está siendo usada en contratos
+async function isAreaUsedInContracts(areaId: string) {
+  const supabase = supabaseServer();
+  const { data, error } = await supabase.from('customer_services').select('id').eq('area_id', areaId).limit(1);
+
+  if (error) {
+    console.error('Error esta area ya esta siendo utilizada en un contrato', error);
+    throw error;
+  }
+
+  return data && data.length > 0;
+}
+
 export async function createdCustomer(formData: FormData) {
   const supabase = supabaseServer();
   try {
@@ -195,6 +208,36 @@ export async function createArea(values: any) {
 export async function updateArea(values: any) {
   const supabase = supabaseServer();
   try {
+    // Primero obtenemos el área actual para comparar
+    const { data: currentArea, error: fetchError } = await supabase
+      .from('areas_cliente')
+      .select('customer_id')
+      .eq('id', values.id)
+      .single();
+
+    if (fetchError) {
+      return { status: 500, body: 'Error al obtener los datos del área' };
+    }
+
+    // Verificar si se está intentando cambiar el cliente
+    if (currentArea.customer_id !== values.customer_id) {
+      try {
+        // Verificar si el área está siendo usada en contratos
+        const isUsed = await isAreaUsedInContracts(values.id);
+        if (isUsed) {
+          console.log('Área en uso, no se puede cambiar el cliente');
+          return {
+            status: 400,
+            body: 'No se puede cambiar el cliente de un área que está siendo utilizada en contratos existentes',
+          };
+        }
+      } catch (error) {
+        console.error('Error esta area ya esta siendo utilizada en un contrato', error);
+        return { status: 500, body: 'Error esta area ya esta siendo utilizada en un contrato' };
+      }
+    }
+
+    // Si todo está bien, proceder con la actualización
     const { data: area, error: areaError } = await supabase
       .from('areas_cliente' as any)
       .update({
@@ -206,7 +249,7 @@ export async function updateArea(values: any) {
       .select('*');
 
     if (areaError) {
-      return { status: 500, body: 'Internal Server Error' };
+      return { status: 500, body: 'Error al actualizar el área' };
     }
 
     const provinceId = values.province_id as number[];

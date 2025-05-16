@@ -12,6 +12,7 @@ import DiagramTypesTab from '@/features/Empresa/RRHH/components/rrhh/diagramType
 import { cookies } from 'next/headers';
 import PositionsTab from '../rrhh/company_positions/positionsTab';
 import { fetchAllWorkDiagrams } from './actions/actions';
+import AptitudesTab from './aptitudesTecnicas/aptitudesTab';
 
 export default async function RrhhComponent({ tabValue, subtab }: { subtab?: string; tabValue: string }) {
   const cookiesStore = cookies();
@@ -108,6 +109,19 @@ export default async function RrhhComponent({ tabValue, subtab }: { subtab?: str
               hierarchicalData={hierarchicalPositions}
             />
           ),
+        },
+      },
+      {
+        value: 'aptitudes',
+        name: 'APT',
+        restricted: [''],
+        tab: tabValue,
+        content: {
+          title: 'APT',
+          //description: 'Información de la empresa',
+          buttonActioRestricted: [''],
+          buttonAction: '',
+          component: <AptitudesTab />,
         },
       },
     ],

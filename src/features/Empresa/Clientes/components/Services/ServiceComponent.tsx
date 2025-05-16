@@ -2,6 +2,10 @@ import { fetchAllSectors } from '@/features/Empresa/Clientes/actions/create';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { fetchAreasWithProvinces } from '../../actions/create';
+import { fetchCustomers } from '../../actions/customer';
+import { fetchServiceItems } from '../../actions/items';
+import { fetchMeasureUnits } from '../../actions/meassure';
+import { fetchServices } from '../../actions/service';
 import ServiceTable from './ServiceTable';
 
 interface measure_unit {
@@ -13,7 +17,15 @@ interface measure_unit {
 interface customer {
   id: string;
   name: string;
-  is_active: boolean;
+  is_active: boolean | null;
+  address: string | null;
+  client_email: string | null;
+  client_phone: number | null;
+  company_id: string;
+  created_at: string;
+  cuit: number;
+  reason_for_termination: string | null;
+  termination_date: string | null;
 }
 interface ServiceComponentProps {
   id?: string;
@@ -30,31 +42,22 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
   } = await supabase.auth.getUser();
   const cookiesStore = cookies();
   const company_id = cookiesStore.get('actualComp')?.value || '';
-  const { customers } = await fetch(`${URL}/api/company/customers?actual=${company_id}`).then((e) => e.json());
-  const filterCustomers = customers?.filter((client: customer) => client.is_active === true);
-  //console.log(filterCustomers)
-  console.log(id, 'id');
-  const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
-  const service = services?.find((s: any) => s.id === id);
-  console.log(service, 'service');
-  // const {measure_units}= await fetch(`${URL}/api/meassure`).then((e) => e.json());
-  // const { items } = await fetch(`${URL}/api/services/items?actual=${company_id}`).then((e) => e.json());
 
-  const { data: measure_units } = await supabase.from('measure_units').select('*');
+  const customers = await fetchCustomers(company_id);
+  const filterCustomers = customers?.filter(
+    (client: customer) => client.is_active === true || client.is_active === null
+  );
+
+  const services = await fetchServices(company_id);
+  const service = services?.find((s: any) => s.id === id);
+
+  const items = await fetchServiceItems(id || '');
+
+  const measure_units = await fetchMeasureUnits();
 
   const areas = await fetchAreasWithProvinces();
   const sectors = await fetchAllSectors();
   return (
-    // <Tabs defaultValue="services">
-    //   <TabsList className="mb-2 bg-gh_contrast/50">
-    //     <TabsTrigger value="services" className="text-gh_orange font-semibold">
-    //       Contratos
-    //     </TabsTrigger>
-    //     <TabsTrigger value="servicesItems" className="text-gh_orange font-semibold">
-    //       Items
-    //     </TabsTrigger>
-    //   </TabsList>
-    //   <TabsContent value="services">
     <div>
       {services ? (
         <ServiceTable
@@ -63,28 +66,13 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
           company_id={company_id}
           areas={areas}
           sectors={sectors}
-          Service={service as any}
           id={id}
+          measure_units={measure_units}
+          items={items}
         />
       ) : (
         <div>No hay servicios</div>
       )}
     </div>
-    // </TabsContent>
-    // <TabsContent value="servicesItems">
-    // {services ? (
-    //   <ServiceItemsTable
-    //     measure_units={measure_units as any}
-    //     customers={filterCustomers}
-    //     services={services}
-    //     company_id={company_id}
-    //     items={items}
-
-    //   />
-    // ) : (
-    //   <div>No hay items para mostrar</div>
-    // )}
-    // </TabsContent>
-    // </Tabs>
   );
 }

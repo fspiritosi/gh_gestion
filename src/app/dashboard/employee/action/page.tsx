@@ -61,26 +61,16 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
     let { data: employees, error } = await supabase
       .from('employees')
       .select(
-        `*,guild(name), city (
-        name
-      ),
-      province(
-        name
-      ),
-      workflow_diagram(
-        name
-      ),
-      hierarchical_position(
-        name
-      ),
-      birthplace(
-        name
-      ),
-      contractor_employee(
-        customers(
-          *
-        )
-      )`
+        `*,
+        guild(name),
+        city(name),
+        province(name),
+        workflow_diagram(name),
+        hierarchical_position(name),
+        birthplace(name),
+        contractor_employee(customers(*)),
+        empleado_aptitudes(aptitud_id, aptitudes_tecnicas(*)),
+        company_position(id, name)`
       )
       .eq('id', searchParams.employee_id || '');
 
@@ -150,7 +140,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   const diagrams_types2 = await fetchDiagramsTypes();
   const contract_types = await fetchAllContractTypes();
   const allCompanyPositions = await fetchAllCompanyPositon();
-
+  console.log(formattedEmployee, 'formattedEmployee');
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
       <Card className={cn('col-span-8 flex flex-col justify-between overflow-hidden')}>
@@ -167,6 +157,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
           historyData={historyData}
           contract_types={contract_types}
           company_positions={allCompanyPositions}
+          employeeAptitudes={formattedEmployee?.empleado_aptitudes || []}
         >
           <DocumentTable role={role} employee_id={formattedEmployee?.id || ''} />
         </EmployeeComponent>
