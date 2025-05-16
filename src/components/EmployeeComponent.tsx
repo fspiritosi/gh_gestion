@@ -238,7 +238,7 @@ export default function EmployeeComponent({
 
     // Obtener el nombre del puesto actual
     const currentPositionName = form.getValues('company_position');
-    console.log(currentPositionName, 'currentPositionName');
+
     updatePositionName(currentPositionName);
 
     // Suscribirse a cambios en el campo company_position
@@ -261,9 +261,6 @@ export default function EmployeeComponent({
   }, [form, company_positions]);
 
   // Efecto para depurar cambios en las aptitudes
-  useEffect(() => {
-    console.log('Aptitudes actualizadas:', aptitudes);
-  }, [aptitudes]);
 
   useEffect(() => {
     // Cuando cambie la posición jerárquica o se cargue el usuario
@@ -659,16 +656,15 @@ export default function EmployeeComponent({
 
           const { data, error } = await supabase.from('documents_employees').insert(documentsMissing).select();
 
-          if (error) {
-            throw new Error(handleSupabaseError(error.message));
+          if (error) throw error;
+
+          // Guardar las aptitudes del nuevo empleado
+          const nuevoEmpleadoId = applies?.[0]?.id;
+          if (nuevoEmpleadoId) {
+            await saveAptitudes(nuevoEmpleadoId);
           }
 
-          try {
-            await handleUpload();
-          } catch (error: PostgrestError | any) {
-            throw new Error(handleSupabaseError(error.message));
-          }
-          getEmployees(true);
+          await handleUpload();
           router.refresh();
           router.push('/dashboard/employee');
         } catch (error: PostgrestError | any) {
@@ -686,6 +682,37 @@ export default function EmployeeComponent({
   }
 
   // 2. Define a submit handler.
+  // Función auxiliar para guardar aptitudes
+  const saveAptitudes = async (employeeId: string) => {
+    try {
+      const operaciones = aptitudes.map((apt) => {
+        if (apt.tiene_aptitud) {
+          return supabase.from('empleado_aptitudes').upsert(
+            {
+              empleado_id: employeeId,
+              aptitud_id: apt.id,
+              tiene_aptitud: true,
+              fecha_verificacion: new Date().toISOString(),
+            },
+            {
+              onConflict: 'empleado_id,aptitud_id',
+            }
+          );
+        } else {
+          return supabase.from('empleado_aptitudes').delete().match({ empleado_id: employeeId, aptitud_id: apt.id });
+        }
+      });
+
+      const results = await Promise.all(operaciones);
+      const hasError = results.some((r) => r.error);
+      if (hasError) throw new Error('Error al guardar aptitudes');
+    } catch (error) {
+      toast.error('Error al guardar las aptitudes');
+      console.error('Error guardando aptitudes:', error);
+      throw error; // Propagamos el error para que se capture en el catch principal
+    }
+  };
+
   async function onUpdate(values: z.infer<typeof accordionSchema>) {
     // Obtener el company_id de la cookie actualComp
     const companyId = Cookies.get('actualComp');
@@ -765,9 +792,8 @@ export default function EmployeeComponent({
 
         try {
           await updateEmployee(finalValues, user?.id);
+          await saveAptitudes(user.id);
           await handleUpload();
-          // getEmployees(true);
-          // setActivesEmployees();
           router.refresh();
           router.push('/dashboard/employee');
         } catch (error: PostgrestError | any) {
@@ -783,7 +809,7 @@ export default function EmployeeComponent({
       }
     );
   }
-  //console.log(form.formState.errors, 'errors');
+
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
@@ -892,12 +918,10 @@ export default function EmployeeComponent({
   }
 
   const fetchAptitudesPorPuesto = async (currentPositionId: string) => {
-    console.log('fetchAptitudesPorPuesto llamado con currentPositionId:', currentPositionId);
     setLoadingAptitudes(true);
 
     try {
       // Obtener aptitudes del puesto
-      console.log('Buscando aptitudes para el puesto ID:', currentPositionId);
       const { data: aptitudesPuesto, error } = (await supabase
         .from('aptitudes_tecnicas_puestos')
         .select(
@@ -911,9 +935,6 @@ export default function EmployeeComponent({
         )
         .eq('puesto_id', currentPositionId)) as { data: AptitudPuesto[] | null; error: any };
 
-      console.log('Respuesta de aptitudesPuesto:', aptitudesPuesto);
-      console.log('Error de aptitudesPuesto:', error);
-
       if (error) throw error;
 
       if (!aptitudesPuesto || aptitudesPuesto.length === 0) {
@@ -924,7 +945,6 @@ export default function EmployeeComponent({
 
       // Obtener los IDs de las aptitudes del empleado desde las props
       const aptitudesEmpleado = employeeAptitudes?.map((a) => a.aptitud_id) || [];
-      console.log('Aptitudes del empleado desde props:', aptitudesEmpleado);
 
       // Mapear las aptitudes con su estado
       const aptitudesConEstado = (aptitudesPuesto || [])
@@ -938,10 +958,8 @@ export default function EmployeeComponent({
           return aptitud;
         });
 
-      console.log('Aptitudes cargadas:', aptitudesConEstado);
       setAptitudes(aptitudesConEstado);
     } catch (error) {
-      console.error('Error al cargar aptitudes:', error);
       toast.error('Error al cargar las aptitudes técnicas');
     } finally {
       setLoadingAptitudes(false);
@@ -958,30 +976,30 @@ export default function EmployeeComponent({
       );
 
       // Actualizar en la base de datos
-      if (checked) {
-        // Insertar o actualizar la relación empleado-aptitud
-        const { error } = await supabase.from('empleado_aptitudes').upsert(
-          {
-            empleado_id: user.id,
-            aptitud_id: aptitudId,
-            tiene_aptitud: true,
-            fecha_verificacion: new Date().toISOString(),
-          },
-          { onConflict: 'empleado_id,aptitud_id' }
-        );
+      // if (checked) {
+      //   // Insertar o actualizar la relación empleado-aptitud
+      //   const { error } = await supabase.from('empleado_aptitudes').upsert(
+      //     {
+      //       empleado_id: user.id,
+      //       aptitud_id: aptitudId,
+      //       tiene_aptitud: true,
+      //       fecha_verificacion: new Date().toISOString(),
+      //     },
+      //     { onConflict: 'empleado_id,aptitud_id' }
+      //   );
 
-        if (error) throw error;
-      } else {
-        // Eliminar la relación si se desmarca
-        const { error } = await supabase.from('empleado_aptitudes').delete().match({
-          empleado_id: user.id,
-          aptitud_id: aptitudId,
-        });
+      //   if (error) throw error;
+      // } else {
+      //   // Eliminar la relación si se desmarca
+      //   const { error } = await supabase.from('empleado_aptitudes').delete().match({
+      //     empleado_id: user.id,
+      //     aptitud_id: aptitudId,
+      //   });
 
-        if (error) throw error;
-      }
+      //   if (error) throw error;
+      // }
 
-      toast.success('Aptitud actualizada correctamente');
+      // toast.success('Aptitud actualizada correctamente');
     } catch (error) {
       console.error('Error al actualizar aptitud:', error);
       toast.error('Error al actualizar la aptitud');
@@ -993,13 +1011,10 @@ export default function EmployeeComponent({
   };
 
   const handlePositionChange = async (currentPositionId: string) => {
-    console.log('handlePositionChange llamado con currentPositionId:', currentPositionId);
     const selectedPosition = company_positions?.find((cp) => cp.id === currentPositionId);
-    console.log('Puesto seleccionado:', selectedPosition);
     if (selectedPosition) {
       form.setValue('company_position', currentPositionId, { shouldValidate: true });
       setDisplayedPositionName(selectedPosition.name);
-      console.log('selectedPosition.id', currentPositionId);
 
       // Obtener las nuevas aptitudes del puesto
       const { data: aptitudesPuesto, error } = await supabase
@@ -1055,8 +1070,6 @@ export default function EmployeeComponent({
       setDisplayedPositionName('');
     }
   };
-
-  console.log('Aptitudes:', aptitudes);
 
   return (
     <section>
@@ -1777,7 +1790,6 @@ export default function EmployeeComponent({
                                   id: e.value,
                                 };
                               }) || [];
-                          // console.log(selectedGuildInfo, 'selectedGuildInfo');
                           selectedCovenantInfo =
                             covenants
                               ?.filter((e) => e.id === covenantsId)
@@ -1787,8 +1799,6 @@ export default function EmployeeComponent({
                                   id: e.id,
                                 };
                               }) || [];
-
-                          //console.log(selectedCovenantInfo, 'selectedCovenantInfo');
 
                           return (
                             <FormItem className="flex flex-col w-[300px]">
@@ -2171,9 +2181,9 @@ export default function EmployeeComponent({
                         <span>Cargando aptitudes...</span>
                       </div>
                     ) : aptitudes.length > 0 ? (
-                      <div className="grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg">
+                      <div className="grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-3 gap-1 p-1 overflow-x-auto scrollbar-hide min-w-fit">
                         {aptitudes.map((aptitud) => (
-                          <div key={aptitud.id} className="flex items-center space-x-2">
+                          <div key={aptitud.id} className="flex items-center space-x-1 min-w-fit">
                             <Checkbox
                               id={`aptitud-${aptitud.id}`}
                               checked={aptitud.tiene_aptitud}

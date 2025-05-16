@@ -9,9 +9,10 @@ import PositionsTable from './positionsTable';
 interface PositionsClientProps {
   positions: Position[];
   hierarchicalPositions: any[];
+  aptitudes: any[];
 }
 
-export default function PositionsClient({ positions, hierarchicalPositions }: PositionsClientProps) {
+export default function PositionsClient({ positions, hierarchicalPositions, aptitudes }: PositionsClientProps) {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
 
@@ -22,6 +23,7 @@ export default function PositionsClient({ positions, hierarchicalPositions }: Po
           <PositionsForm
             position={selectedPosition}
             hierarchicalData={hierarchicalPositions}
+            aptitudes={aptitudes}
             mode={mode}
             setMode={setMode}
           />

@@ -5,13 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { useState } from 'react';
 
-interface Position {
-  id: string;
-  created_at: string;
-  name: string;
-  hierarchical_position_id: string;
-  is_active: boolean;
-}
+import { Position } from '@/types/types';
 interface PositionsTableProps {
   positions: Position[];
   hierarchicalPositions: any[];

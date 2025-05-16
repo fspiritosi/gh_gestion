@@ -2,7 +2,9 @@
 
 import { supabaseServer } from '@/lib/supabase/server';
 import { Position, WorkDiagram } from '@/types/types';
+// import { AptitudTecnica } from '../types/aptitudesTecnicas';
 import { cookies } from 'next/headers';
+
 export async function fetchAllContractTypes() {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
@@ -168,23 +170,57 @@ export async function createPosition(position: {
   name: string;
   is_active: boolean;
   hierarchical_position_id: string[];
+  aptitudes_tecnicas_id: string[];
 }) {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
-  console.log(company_id, 'company_id');
   if (!company_id) throw new Error('No company ID found');
-  console.log(position, 'position');
-  const { data, error } = await supabase
-    .from('company_position' as any)
-    .insert(position)
-    .returns<Position>();
 
-  if (error) {
-    console.error('Error creating position:', error);
-    throw new Error('Error creating position');
+  try {
+    // Primero creamos el puesto
+    const { data: positionData, error: positionError } = await supabase
+      .from('company_position')
+      .insert({
+        name: position.name,
+        is_active: position.is_active,
+        hierarchical_position_id: position.hierarchical_position_id,
+      })
+      .select()
+      .single();
+
+    if (positionError) {
+      console.error('Error creating position:', positionError);
+      throw new Error('Error creating position');
+    }
+
+    if (!positionData?.id) {
+      console.error('Position ID not found after creation');
+      throw new Error('Position ID not found');
+    }
+
+    // Luego creamos las relaciones con las aptitudes técnicas
+    if (position.aptitudes_tecnicas_id.length > 0) {
+      const aptitudesRelations = position.aptitudes_tecnicas_id.map((aptitudeId) => ({
+        position_id: positionData.id,
+        aptitude_tecnica_id: aptitudeId,
+      }));
+
+      const { error: relationError } = await supabase
+        .from('aptitudes_tecnicas_puestos' as any)
+        .insert(aptitudesRelations);
+
+      if (relationError) {
+        console.error('Error creating aptitudes relations:', relationError);
+        throw new Error('Error creating aptitudes relations');
+      }
+    }
+
+    return positionData;
+  } catch (error) {
+    console.error('Error in createPosition:', error);
+    throw error;
   }
-  return data;
 }
 
 export async function updatePosition(position: {
@@ -192,23 +228,63 @@ export async function updatePosition(position: {
   name: string;
   is_active: boolean;
   hierarchical_position_id: string[];
+  aptitudes_tecnicas_id: string[];
 }) {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) throw new Error('No company ID found');
 
-  const { data, error } = await supabase
-    .from('company_position' as any)
-    .update(position)
-    .eq('id', position.id)
-    .returns<Position[]>();
+  try {
+    // Primero actualizamos el puesto
+    const { error: positionError } = await supabase
+      .from('company_position' as any)
+      .update({
+        name: position.name,
+        is_active: position.is_active,
+        hierarchical_position_id: position.hierarchical_position_id,
+      })
+      .eq('id', position.id);
 
-  if (error) {
-    console.error('Error updating position:', error);
-    throw new Error('Error updating position');
+    if (positionError) {
+      console.error('Error updating position:', positionError);
+      throw new Error('Error updating position');
+    }
+
+    // Luego actualizamos las relaciones con las aptitudes técnicas
+    if (position.aptitudes_tecnicas_id.length > 0) {
+      // Primero eliminamos las relaciones existentes
+      const { error: deleteError } = await supabase
+        .from('aptitudes_tecnicas_puestos' as any)
+        .delete()
+        .eq('puesto_id', position.id);
+
+      if (deleteError) {
+        console.error('Error deleting aptitudes relations:', deleteError);
+        throw new Error('Error deleting aptitudes relations');
+      }
+
+      // Luego creamos las nuevas relaciones
+      const aptitudesRelations = position.aptitudes_tecnicas_id.map((aptitudeId) => ({
+        puesto_id: position.id,
+        aptitud_id: aptitudeId,
+      }));
+
+      const { error: insertError } = await supabase
+        .from('aptitudes_tecnicas_puestos' as any)
+        .insert(aptitudesRelations);
+
+      if (insertError) {
+        console.error('Error creating new aptitudes relations:', insertError);
+        throw new Error('Error creating new aptitudes relations');
+      }
+    }
+
+    return position;
+  } catch (error) {
+    console.error('Error in updatePosition:', error);
+    throw error;
   }
-  return data;
 }
 
 export async function fetchAllHierarchicalPositions() {
@@ -221,6 +297,17 @@ export async function fetchAllHierarchicalPositions() {
 
   if (error) {
     console.error('Error fetching hierarchical positions:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function fetchAllAptitudesTecnicas() {
+  const supabase = supabaseServer();
+  const { data, error } = await supabase.from('aptitudes_tecnicas' as any).select('*');
+
+  if (error) {
+    console.error('Error fetching aptitudes tecnicas:', error);
     return [];
   }
   return data;
