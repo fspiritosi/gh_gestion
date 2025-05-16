@@ -6,6 +6,7 @@ import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { getAllUsers, getOwnerUser } from '@/app/server/GET/actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { cookies } from 'next/headers';
 
 //import cookies from 'js-cookie';
 //import { cookies } from 'next/headers';
@@ -73,6 +74,10 @@ export default async function UsersTabComponent() {
 
   const guestsCorreo = createFilterOptions(guestsData, (user) => user.email);
 
+  const cookiesStore = cookies();
+  const savedVisibility = cookiesStore.get('users-employ-table')?.value;
+  const savedVisibilityGuests = cookiesStore.get('users-guests-table')?.value;
+
   return (
     <div>
       <Tabs defaultValue="employ" className="w-full">
@@ -90,6 +95,7 @@ export default async function UsersTabComponent() {
               data={data || []}
               columns={columns}
               tableId="users-employ-table"
+              savedVisibility={savedVisibility ? JSON.parse(savedVisibility) : {}}
               toolbarOptions={{
                 filterableColumns: [
                   {
@@ -113,6 +119,7 @@ export default async function UsersTabComponent() {
               data={guestsData || []}
               columns={columnsGuests}
               tableId="users-guests-table"
+              savedVisibility={savedVisibilityGuests ? JSON.parse(savedVisibilityGuests) : {}}
               toolbarOptions={{
                 filterableColumns: [
                   {

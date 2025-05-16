@@ -636,47 +636,7 @@ export default function RepairNewEntry({
       <ResizablePanel className="pl-6 min-w-[600px] hidden sm:flex w-full" defaultSize={70}>
         <div className="flex flex-col gap-4 w-full ">
           <CardTitle>Se registraran las siguientes reparaciones</CardTitle>
-          {/* <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[300px]">Nombre</TableHead>
-                <TableHead className="w-[300px]">Descripcion</TableHead>
-                <TableHead className="w-[300px]">Dominio o Serie</TableHead>
-                <TableHead className="flex justify-end pr-14">Eliminar</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="overflow-x-auto">
-              {allRepairs?.map((field) => {
-                const repair = tipo_de_mantenimiento.find((e) => e.id === field.repair);
-                return (
-                  <TableRow key={field.provicionalId}>
-                    <TableCell>
-                      <div className="flex items-center justify-between gap-3">
-                        {repair?.name}
-                        <div className="flex -space-x-2">
-                          {field.user_images
-                            ?.filter((url) => url)
-                            ?.map((url) => (
-                              <Avatar key={url} className="border-black border size-8 ">
-                                <AvatarImage src={url || ''} alt="Preview de la reparacion" />
-                                <AvatarFallback>CN</AvatarFallback>
-                              </Avatar>
-                            ))}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{repair?.description}</TableCell>
-                    <TableCell>{field.domain}</TableCell>
-                    <TableCell align="right" className="pr-10">
-                      <Button variant={'destructive'} onClick={() => handleDeleteRepair(field.provicionalId)}>
-                        Eliminar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table> */}
+
           <BaseDataTable
             columns={getRepairEntryColumns(tipo_de_mantenimiento, handleDeleteRepair)}
             data={allRepairs}
