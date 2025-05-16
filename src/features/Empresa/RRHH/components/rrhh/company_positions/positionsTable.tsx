@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 import { Position } from '@/types/types';
 interface PositionsTableProps {
-  positions: Position[];
+  positions: (Position & { aptitudes?: any[] })[];
   hierarchicalPositions: any[];
   selectedPosition: Position | null;
   setSelectedPosition: (position: Position | null) => void;
@@ -36,9 +36,10 @@ function PositionsTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[200px]">Nombre</TableHead>
-            <TableHead>Posición jerarquica</TableHead>
+            <TableHead>Nombre</TableHead>
             <TableHead>Estado</TableHead>
+            <TableHead>Puestos</TableHead>
+            <TableHead>Aptitudes</TableHead>
             <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -46,36 +47,67 @@ function PositionsTable({
           {filteredData?.length > 0 ? (
             filteredData.map((position) => (
               <TableRow key={position.id}>
-                <TableCell className="font-medium">{position.name}</TableCell>
+                <TableCell>{position.name}</TableCell>
+                <TableCell>
+                  <Badge variant={position.is_active ? 'success' : 'destructive'}>
+                    {position.is_active ? 'Activo' : 'Inactivo'}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="truncate max-w-[200px] cursor-pointer">
                           <Badge>
-                            {hierarchicalPositions.find((h: any) => h.id === position.hierarchical_position_id[0])
-                              ?.name || '-'}
-                            {position.hierarchical_position_id.length > 1 &&
-                              ` +${position.hierarchical_position_id.length - 1}`}
+                            {(() => {
+                              const firstPositionId = position.hierarchical_position_id?.[0];
+                              const firstPosition = firstPositionId
+                                ? hierarchicalPositions.find((h: any) => h.id === firstPositionId)?.name
+                                : '-';
+                              const additionalPositions =
+                                position.hierarchical_position_id?.length &&
+                                position.hierarchical_position_id.length > 1
+                                  ? ` +${position.hierarchical_position_id.length - 1}`
+                                  : '';
+                              return `${firstPosition}${additionalPositions}`;
+                            })()}
                           </Badge>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <div className="flex flex-col ">
-                          {hierarchicalPositions
-                            .filter((h: any) => position.hierarchical_position_id.includes(h.id))
-                            .map((hierarchicalPosition) => (
-                              <span key={hierarchicalPosition.id}>{hierarchicalPosition.name}</span>
-                            ))}
+                        <div className="flex flex-col gap-1">
+                          {position.hierarchical_position_id?.map((id, index) => (
+                            <span key={`${id}-${index}`}>
+                              {hierarchicalPositions.find((h: any) => h.id === id)?.name || '-'}
+                            </span>
+                          )) || <span>-</span>}
                         </div>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={position.is_active ? 'success' : 'default'}>
-                    {position.is_active ? 'Activo' : 'Inactivo'}
-                  </Badge>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="truncate max-w-[200px] cursor-pointer">
+                          <Badge>
+                            {position.aptitudes?.[0]?.nombre || 'No hay aptitudes asignadas'}
+                            {position.aptitudes?.length &&
+                              position.aptitudes.length > 1 &&
+                              ` +${position.aptitudes.length - 1}`}
+                          </Badge>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="flex flex-col gap-1">
+                          {position.aptitudes?.map((aptitude: any, index: number) => (
+                            <span key={`${aptitude.id}-${index}`}>{aptitude.nombre}</span>
+                          )) || <span>No hay aptitudes asignadas</span>}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </TableCell>
                 <TableCell>
                   <Button

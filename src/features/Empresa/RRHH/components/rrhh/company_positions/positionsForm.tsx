@@ -36,11 +36,7 @@ function PositionsForm({ position, hierarchicalData, aptitudes, mode, setMode }:
     defaultValues: {
       name: position?.name || '',
       is_active: position?.is_active ?? true,
-      hierarchical_position_id: position?.hierarchical_position_id
-        ? Array.isArray(position.hierarchical_position_id)
-          ? position.hierarchical_position_id
-          : [position.hierarchical_position_id]
-        : [],
+      hierarchical_position_id: position?.hierarchical_position_id || [],
       aptitudes_tecnicas_id: position?.aptitudes_tecnicas_id || [],
     },
   });

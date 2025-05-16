@@ -312,3 +312,17 @@ export async function fetchAllAptitudesTecnicas() {
   }
   return data;
 }
+
+export async function fetchPositionAptitudes(positionId: string) {
+  const supabase = supabaseServer();
+  const { data, error } = await supabase
+    .from('aptitudes_tecnicas_puestos' as any)
+    .select('aptitudes_tecnicas:aptitud_id(*)')
+    .eq('puesto_id', positionId);
+
+  if (error) {
+    console.error('Error fetching position aptitudes:', error);
+    return [];
+  }
+  return data?.map((item: any) => item.aptitudes_tecnicas) || [];
+}
