@@ -9,6 +9,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import PositionsTab from '../rrhh/company_positions/positionsTab';
 import { fetchAllWorkDiagrams } from './actions/actions';
+import AptitudesTab from './aptitudesTecnicas/aptitudesTab';
 
 interface DiagramType {
   id: string;
@@ -113,6 +114,19 @@ export default async function RrhhComponent({
           buttonActioRestricted: [''],
           buttonAction: '',
           component: <PositionsTab />,
+        },
+      },
+      {
+        value: 'aptitudes',
+        name: 'APT',
+        restricted: [''],
+        tab: tabValue,
+        content: {
+          title: 'APT',
+          //description: 'Información de la empresa',
+          buttonActioRestricted: [''],
+          buttonAction: '',
+          component: <AptitudesTab />,
         },
       },
     ],

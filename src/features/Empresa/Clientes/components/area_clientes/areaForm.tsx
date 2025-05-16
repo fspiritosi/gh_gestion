@@ -99,15 +99,29 @@ function AreaForm({ customers, provinces, mode, setMode, selectedArea, setSelect
   const handleSubmit = async (values: AreaFormValues) => {
     try {
       if (mode === 'edit' && selectedArea) {
+        console.log('Actualizando área con valores:', values);
         const response = await updateArea({ ...values, id: selectedArea.id });
-        if (response?.status === 200) {
+        console.log('Respuesta del servidor:', response);
+
+        // Manejar la respuesta según el código de estado
+        if (!response) {
+          toast.error('No se recibió respuesta del servidor');
+          return;
+        }
+
+        if (response.status === 200) {
           toast.success(response.body || 'Área actualizada correctamente');
           reset();
           setSelectedArea(null);
           setMode('create');
           router.refresh();
+        } else if (response.status === 400) {
+          // Mostrar mensaje de error específico para validación
+          toast.error(response.body || 'No se pudo actualizar el área');
         } else {
-          toast.error(response?.body || 'Error al actualizar el área');
+          // Otros errores
+          console.error('Error inesperado:', response);
+          toast.error(response.body || 'Error inesperado al actualizar el área');
         }
       } else {
         const response = await createArea(values);
