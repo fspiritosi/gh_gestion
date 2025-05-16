@@ -1,17 +1,17 @@
-import { useLoggedUserStore } from '@/store/loggedUser';
 import { Employee } from '@/types/types';
+import Cookies from 'js-cookie';
 import { supabase } from '../../supabase/supabase';
 import { useEdgeFunctions } from './useEdgeFunctions';
 
 export const useEmployeesData = () => {
   const { errorTranslate } = useEdgeFunctions();
-  const company = useLoggedUserStore((state) => state.actualCompany);
+  const company_id = Cookies.get('actualComp');
 
   return {
     createEmployee: async (employee: Employee) => {
       const { data, error } = await supabase
         .from('employees')
-        .insert({ ...employee, company_id: company?.id, allocated_to: employee.allocated_to ?? [] })
+        .insert({ ...employee, company_id: company_id, allocated_to: employee.allocated_to ?? [] })
         .select();
 
       if (error) {

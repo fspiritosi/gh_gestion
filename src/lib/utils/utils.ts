@@ -66,7 +66,8 @@ export const setEmployeesToShow = (employees: any) => {
       cuil: employees?.cuil,
       document_number: employees?.document_number,
       hierarchical_position: employees?.hierarchical_position?.name,
-      company_position: employees?.company_position?.name,
+      company_position: employees?.company_position?.id || employees?.company_position, // Usar el ID del puesto
+      company_position_name: employees?.company_position?.name, // Agregar el nombre del puesto
       normal_hours: employees?.normal_hours,
       type_of_contract: employees?.type_of_contract,
       allocated_to: employees?.allocated_to,
@@ -105,6 +106,11 @@ export const setEmployeesToShow = (employees: any) => {
       covenants: employees?.covenants_id?.name,
       category: employees?.category_id?.name,
       cost_center_id: employees?.cost_center_id,
+      empleado_aptitudes:
+        employees?.empleado_aptitudes?.map((apt: any) => ({
+          aptitud_id: apt.aptitud_id,
+          aptitudes_tecnicas: apt.aptitudes_tecnicas,
+        })) || [],
     };
   });
 
