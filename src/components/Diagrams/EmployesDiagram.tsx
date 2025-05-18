@@ -28,6 +28,8 @@ async function EmployesDiagram({ tabValue, subtab }: { subtab?: string; tabValue
   const diagrams_types = await fetchDiagramsTypes();
   console.log(diagrams_types, 'despues de los diagramas');
 
+  const visibilityState = coockiesStore.get('novelty-types-table-empresa')?.value;
+
   const viewData = {
     defaultValue: subtab || 'old',
     path: '/dashboard/employee',
@@ -66,7 +68,12 @@ async function EmployesDiagram({ tabValue, subtab }: { subtab?: string; tabValue
           //description: 'Lista de usuarios de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <DiagramTypeComponent diagrams_types={diagrams_types} />,
+          component: (
+            <DiagramTypeComponent
+              diagrams_types={diagrams_types}
+              savedVisibility={visibilityState ? JSON.parse(visibilityState) : {}}
+            />
+          ),
         },
       },
     ],

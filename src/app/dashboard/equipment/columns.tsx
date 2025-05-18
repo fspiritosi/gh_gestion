@@ -37,6 +37,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { cn } from '@/lib/utils';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { useCountriesStore } from '@/store/countries';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,7 +45,7 @@ import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { ColumnDef, FilterFn, Row } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { AlertTriangle, ArrowUpDown, CalendarIcon, CheckCircle, XCircle } from 'lucide-react';
+import { AlertTriangle, CalendarIcon, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import React, { Fragment, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -360,14 +361,8 @@ export const EquipmentColums: ColumnDef<Colum>[] = [
   },
   {
     accessorKey: 'intern_number',
-    header: ({ column }: { column: any }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="p-0">
-          Numero interno
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    id: 'Numero interno',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Numero interno" />,
     cell: ({ row }: { row: any }) => {
       return (
         <Link href={`/dashboard/equipment/action?action=view&id=${row.original.id}`} className="hover:underline">
@@ -375,47 +370,52 @@ export const EquipmentColums: ColumnDef<Colum>[] = [
         </Link>
       );
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'domain',
-    header: ({ column }: { column: any }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="p-0">
-          Dominio
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    filterFn: (row, columnId, filterValue) => {
-      //Filtrar por numero intenro o dominio
-      if (
-        row.original.intern_number?.toLowerCase().includes(filterValue.toLowerCase()) ||
-        row.original.domain?.toLowerCase()?.includes(filterValue.toLowerCase())
-      ) {
-        return true;
-      } else {
-        return false;
-      }
+    id: 'Dominio',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Dominio" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
     accessorKey: 'chassis',
-    header: 'Chassis',
+    id: 'Chassis',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Chassis" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'status',
-    header: 'Estado',
+    id: 'Estado',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'type',
-    header: 'Tipo',
+    id: 'Tipo',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
     cell: ({ row }) => {
       return <Badge>{row.original.type.name}</Badge>;
     },
   },
   {
     accessorKey: 'types_of_vehicles',
-    header: 'Tipos de vehículos',
+    id: 'Tipos de vehículos',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipos de vehículos" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
     cell: ({ row }) => {
       return <Badge>{row.original.types_of_vehicles.name}</Badge>;
     },
@@ -423,18 +423,26 @@ export const EquipmentColums: ColumnDef<Colum>[] = [
 
   {
     accessorKey: 'engine',
-    header: 'Motor',
+    id: 'Motor',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Motor" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
 
   {
     accessorKey: 'serie',
-    header: 'Serie',
+    id: 'Serie',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Serie" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'allocated_to',
-    header: 'Afectado a',
+    id: 'Afectado a',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Afectado a" />,
     cell: ({ row }) => {
-
       return row.original.contractor_equipment?.map((contractor) => {
         return <Badge key={contractor.contractor_id.id}>{contractor.contractor_id.name}</Badge>;
       });
@@ -444,7 +452,9 @@ export const EquipmentColums: ColumnDef<Colum>[] = [
       if (filterValue === 'sin afectar' && row.original.allocated_to === null) {
         return true;
       }
-      if (row.original.contractor_equipment?.some((contractor) => contractor.contractor_id.name.includes(filterValue))) {
+      if (
+        row.original.contractor_equipment?.some((contractor) => contractor.contractor_id.name.includes(filterValue))
+      ) {
         return true;
       } else {
         return false;
@@ -454,11 +464,16 @@ export const EquipmentColums: ColumnDef<Colum>[] = [
 
   {
     accessorKey: 'year',
-    header: 'Año',
+    id: 'Año',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Año" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'condition',
-    header: 'Condición',
+    id: 'Condición',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Condición" />,
     cell: ({ row }) => {
       const variants = {
         operativo: 'success',
@@ -483,35 +498,51 @@ export const EquipmentColums: ColumnDef<Colum>[] = [
         </Badge>
       );
     },
-    filterFn: conditionFilter,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
-    accessorKey: 'brand',
-    header: 'Marca',
+    accessorKey: 'brand.name',
+    id: 'Marca',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Marca" />,
     cell: ({ row }) => {
       return <div>{row.original.brand.name}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
     accessorKey: 'kilometer',
-    header: 'Kilometros',
+    id: 'Kilometros',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Kilometros" />,
     cell: ({ row }) => {
       return <Badge variant={'outline'}>{row.original.kilometer} km</Badge>;
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
-    accessorKey: 'model',
-    header: 'Modelo',
+    accessorKey: 'model.name',
+    id: 'Modelo',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Modelo" />,
     cell: ({ row }) => {
       return <div>{row.original.model.name}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
     accessorKey: 'picture',
-    header: 'Foto',
+    id: 'Foto',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Foto" />,
   },
   {
     accessorKey: 'showUnavaliableEquipment',
-    header: 'Ver equipos dados de baja',
+    id: 'Ver equipos dados de baja',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Ver equipos dados de baja" />,
   },
 ];

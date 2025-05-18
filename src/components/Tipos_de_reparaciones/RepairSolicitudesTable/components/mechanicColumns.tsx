@@ -16,6 +16,7 @@ import { handleSupabaseError } from '@/lib/errorHandler';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { cn } from '@/lib/utils';
 import { formatDocumentTypeName } from '@/lib/utils/utils';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { FormattedSolicitudesRepair } from '@/types/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PersonIcon } from '@radix-ui/react-icons';
@@ -32,11 +33,11 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { criticidad, labels, statuses } from '../data';
 import RepairModal from './RepairModal';
-import { DataTableColumnHeader } from './data-table-column-header';
 
 export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
   {
     accessorKey: 'title',
+    id: 'Titulo',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Titulo" className="ml-2" />,
     cell: ({ row }) => {
       return (
@@ -45,22 +46,14 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
           onlyView
           action={
             <div className="flex space-x-2">
-              <CardTitle className="max-w-[300px] truncate font-medium hover:underline">
-                {row.getValue('title')}
-              </CardTitle>
+              <CardTitle className="max-w-[300px] truncate font-medium hover:underline">{row.original.title}</CardTitle>
             </div>
           }
         />
       );
     },
-    filterFn: (row, columnId, filterValue) => {
-      const cellValue = row.getValue(columnId);
-
-      if (typeof cellValue === 'string' && Array.isArray(filterValue)) {
-        return filterValue.some((value) => cellValue.toLowerCase().includes(value.toLowerCase()));
-      }
-
-      return false;
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
@@ -77,6 +70,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
 
   {
     accessorKey: 'state',
+    id: 'Estado',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => {
       const state = statuses.find((status) => status.value === row.original.state);
@@ -98,6 +92,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
   },
   {
     accessorKey: 'priority',
+    id: 'Criticidad',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Criticidad" />,
     cell: ({ row }) => {
       const priority = criticidad.find((priority) => priority.value === row.getValue('priority'));
@@ -122,14 +117,19 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
   },
   {
     accessorKey: 'intern_number',
+    id: 'Numero interno',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Numero interno" />,
     cell: ({ row }) => {
       return <div className="flex items-center">{row.original.intern_number}</div>;
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'domain',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Equipo" />,
+    id: 'Dominio',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Dominio" />,
     cell: ({ row }) => {
       return <div className="flex items-center">{row.original.domain}</div>;
     },
@@ -300,7 +300,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
             .eq('id', row.original.id)
             .select();
 
-          console.log(data, 'datadatadatadata');
+          // console.log(data, 'datadatadatadata');
 
           mechanic_imagesData
             .filter((e) => e)
@@ -314,7 +314,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
               }
             });
           if (error) {
-            console.log(error);
+            // console.log(error);
             throw new Error(handleSupabaseError(error.message));
           }
 
@@ -406,7 +406,7 @@ export const mechanicColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
           .eq('id', row.original.id);
 
         if (error) {
-          console.log(error);
+          // console.log(error);
           throw new Error(handleSupabaseError(error.message));
         }
 

@@ -210,7 +210,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
             // Para relaciones 1:N el objeto suele estar directamente en la propiedad
             const relatedObj = (emp ? (emp[propConfig.accessor_key as keyof EmployeeDetailed] as any) : null) as any;
             const relatedId = relatedObj?.id ?? relatedObj ?? '';
-            console.log(relatedId, 'relatedId');
             return {
               id: relatedId[0]?.customers?.id ? relatedId[0].customers.id : relatedId,
               value,
@@ -220,8 +219,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
 
         // Añadir metadatos de relación para uso en BD
         const meta = relationMeta[propConfig.accessor_key] || null;
-
-        console.log(reference_values, 'reference_values');
 
         return {
           property_key: propConfig.accessor_key,
@@ -460,7 +457,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
               user_id: user?.data.user?.id,
             }));
 
-            console.log(newEntries, 'newEntries');
             // Insertamos todas las alertas nuevas en una sola operación
             const { error: insertError } = await supabase
               .from(table as 'documents_equipment' | 'documents_employees' | 'documents_company')
@@ -867,8 +863,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
     fetchAndSetupVehicles();
   }, [vehicles, employees]);
 
-  console.log(Equipo, 'equipo');
-
   const addCondition = () => {
     setConditions((prev) => [...prev, { property: '', values: [], id: Date.now().toString() }]);
   };
@@ -1043,7 +1037,7 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
                   </TooltipProvider>
                 </div>
                 {form.getValues('special') === true && (
-                  <div className="mt-4 border rounded-lg p-4 bg-slate-50">
+                  <div className="mt-4 border rounded-lg p-4 bg-slate-50 dark:bg-slate-950">
                     <div className="flex justify-between flex-col items-center mb-4">
                       <h3 className="font-semibold text-lg mb-2">Condiciones Especiales</h3>
                       <div className="flex justify-around w-full">

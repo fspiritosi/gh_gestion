@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createArea, updateArea } from '@/features/Empresa/Clientes/actions/create';
+import { createArea, fetchAreasWithProvinces, updateArea } from '@/features/Empresa/Clientes/actions/create';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -37,21 +37,7 @@ interface Provincia {
   name: string;
 }
 
-interface Area {
-  id: string;
-  nombre: string;
-  descripcion_corta: string;
-  customer_id: { id: string; name: string };
-  cliente: string; // ID del cliente
-  area_province: {
-    provinces: {
-      id: number;
-      name: string;
-    };
-  }[];
-  provincias: string[]; // Nombres de las provincias
-}
-
+type Area = Awaited<ReturnType<typeof fetchAreasWithProvinces>>[0];
 interface AreaFormProps {
   customers: Cliente[];
   provinces: Provincia[];
@@ -82,9 +68,9 @@ function AreaForm({ customers, provinces, mode, setMode, selectedArea, setSelect
     if (mode === 'edit' && selectedArea) {
       reset({
         name: selectedArea.nombre,
-        descripcion_corta: selectedArea.descripcion_corta,
-        customer_id: selectedArea.customer_id.id,
-        province_id: selectedArea.area_province.map((prov) => prov.provinces.id),
+        descripcion_corta: selectedArea.descripcion_corta || '',
+        customer_id: selectedArea.customers?.id || '',
+        province_id: selectedArea.area_province.map((prov) => prov.provinces?.id || 0),
       });
     } else if (mode === 'create') {
       reset({

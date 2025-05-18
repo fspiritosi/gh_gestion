@@ -3,10 +3,6 @@ import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
 import { Suspense } from 'react';
 function MantenimientoPage({ searchParams }: { searchParams: { tab: string; subtab?: string } }) {
-  console.log({
-    tabValue: searchParams?.tab,
-    subtab: searchParams?.subtab,
-  });
   const viewData = {
     defaultValue: searchParams?.tab || 'type_of_repairs',
     path: '/dashboard/maintenance',

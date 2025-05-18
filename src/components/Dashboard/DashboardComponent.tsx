@@ -63,22 +63,6 @@ export default async function DashboardComponent() {
             </Card>
           </section>
         </TabsContent>
-        {/* <TabsContent value="Empleados">
-          <div className="grid grid-cols-2 gap-4 p-7">
-            <TotalDeVisitores employees={data} />
-            <Employeesnoq employees={data} />
-            <ComponentContract employees={data} />
-            <ComponentStatus employees={data} />
-          </div>
-        </TabsContent>
-        <TabsContent value="Mantenimiento">
-          <div className="grid grid-cols-2 gap-4 p-7">
-            <EquipmentSolicitudesDates solicitudes={data3} />
-            <EquipemtTypesChart equipments={data2} />
-            <EquipmentSolicitudes solicitudes={data3}/>
-            <ComponentStatusEquipment equipments={data2} />
-          </div>
-        </TabsContent> */}
       </Tabs>
     </div>
   );

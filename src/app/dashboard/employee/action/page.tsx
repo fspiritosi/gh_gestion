@@ -78,11 +78,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
       console.log(error, 'error');
     }
 
-    console.log('Datos del empleado sin formatear:', employees);
-
-    const formattedEmployees = setEmployeesToShow(employees);
-    formattedEmployee = formattedEmployees?.[0];
-    console.log('Empleado con aptitudes:', formattedEmployee);
+    formattedEmployee = setEmployeesToShow(employees)?.[0];
   }
 
   let { data: guilds, error } = await supabase

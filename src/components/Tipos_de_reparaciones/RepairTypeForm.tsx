@@ -11,12 +11,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useLoggedUserStore } from '@/store/loggedUser';
 // import { TypeOfRepair } from '@/types/types';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ColumnDef, VisibilityState } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -26,14 +29,97 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Textarea } from '../ui/textarea';
-import { criticidad } from './RepairSolicitudesTable/data';
-export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfRepair[] }) {
-  const URL = process.env.NEXT_PUBLIC_BASE_URL;
+import { createTypeOfRepair, deleteTypeOfRepair, updateTypeOfRepair } from './actions/actions';
+
+export function getRepairTypeColumns(onEdit: (repair: TypeOfRepair) => void): ColumnDef<TypeOfRepair>[] {
+  return [
+    {
+      accessorKey: 'name',
+      id: 'Nombre',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+      cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'description',
+      id: 'Descripción',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
+      cell: ({ row }) => <span>{row.original.description}</span>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'criticity',
+      id: 'Criticidad',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Criticidad" />,
+      cell: ({ row }) => (
+        <Badge
+          variant={
+            row.original.criticity === 'Alta'
+              ? 'destructive'
+              : row.original.criticity === 'Media'
+                ? 'warning'
+                : 'default'
+          }
+        >
+          {row.original.criticity}
+        </Badge>
+      ),
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'is_active',
+      id: 'Estado',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+      cell: ({ row }) => (
+        <Badge variant={row.original.is_active ? 'success' : 'default'}>
+          {row.original.is_active ? 'Activo' : 'Inactivo'}
+        </Badge>
+      ),
+      filterFn: (row, id, value) => {
+        const val = row.original.is_active ? 'Activo' : 'Inactivo';
+        return value.includes(val);
+      },
+    },
+    {
+      accessorKey: 'type_of_maintenance',
+      id: 'Tipo de Mantenimiento',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Mantenimiento" />,
+      cell: ({ row }) => (
+        <Badge variant={row.original.type_of_maintenance === 'Correctivo' ? 'warning' : 'success'}>
+          {row.original.type_of_maintenance}
+        </Badge>
+      ),
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Acciones',
+      cell: ({ row }) => (
+        <Button size="sm" variant="link" className="hover:text-blue-400" onClick={() => onEdit(row.original)}>
+          Editar
+        </Button>
+      ),
+      enableSorting: false,
+    },
+  ];
+}
+
+export function RepairTypeForm({
+  types_of_repairs,
+  savedVisibility,
+}: {
+  types_of_repairs: TypeOfRepair[];
+  savedVisibility: VisibilityState;
+}) {
   const company_id = useLoggedUserStore((state) => state.actualCompany)?.id;
-  const [filterText, setFilterText] = useState('');
-  const [filterCriticidad, setFilterCriticidad] = useState('All');
-  const [filterMaintenance, setFilterMaintenance] = useState('All');
-  const [filteredRepairs, setFilteredRepairs] = useState(types_of_repairs);
   const [selectedRepair, setSelectedRepair] = useState<TypeOfRepair | null>(null);
   const router = useRouter();
 
@@ -64,13 +150,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     toast.promise(
       async () => {
         try {
-          await fetch(`${URL}/api/repairs`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          });
+          await createTypeOfRepair(data);
           router.refresh();
         } catch (error) {
           console.error(error);
@@ -88,13 +168,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     toast.promise(
       async () => {
         try {
-          await fetch(`${URL}/api/repairs/${selectedRepair?.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          });
+          await updateTypeOfRepair(data, selectedRepair?.id || '');
           router.refresh();
           setSelectedRepair(null);
           form.reset();
@@ -114,9 +188,7 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     toast.promise(
       async () => {
         try {
-          await fetch(`${URL}/api/repairs/${id}`, {
-            method: 'DELETE',
-          });
+          await deleteTypeOfRepair(id);
           router.refresh();
           setSelectedRepair(null);
           form.reset();
@@ -132,21 +204,6 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     );
   };
 
-  useEffect(() => {
-    const data = types_of_repairs.filter((repair) => {
-      const matchesText =
-        repair.name.toLowerCase().includes(filterText.toLowerCase()) ||
-        repair.criticity?.toLowerCase().includes(filterText.toLowerCase()) ||
-        repair.description.toLowerCase().includes(filterText.toLowerCase());
-
-      const matchesCriticidad = filterCriticidad === 'All' || repair.criticity === filterCriticidad;
-      const matchesMaintenance = filterMaintenance === 'All' || repair.type_of_maintenance === filterMaintenance;
-
-      return matchesText && matchesCriticidad && matchesMaintenance;
-    });
-    setFilteredRepairs(data);
-  }, [filterText, filterCriticidad, filterMaintenance, types_of_repairs]);
-
   const handleModify = (repair: TypeOfRepair) => {
     setSelectedRepair(repair);
     form.setValue('name', repair.name);
@@ -154,22 +211,25 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
     form.setValue('criticity', repair.criticity || ('' as any));
     form.setValue('type_of_maintenance', repair.type_of_maintenance || 'Correctivo');
   };
-
-  const handleFilterCriticidadChange = (value: string) => {
-    setFilterCriticidad(value);
-  };
-
-  const handleFilterMaintenanceChange = (value: string) => {
-    setFilterMaintenance(value);
-  };
-
-  const handleFilterTextChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFilterText(e.target.value);
-  };
+  const names = createFilterOptions(
+    types_of_repairs,
+    (repair) => repair.name
+    // FileText // Icono para documentos
+  );
+  const criticityOptions = createFilterOptions(
+    types_of_repairs,
+    (repair) => repair.criticity
+    // FileText // Icono para documentos
+  );
+  const maintenanceOptions = createFilterOptions(
+    types_of_repairs,
+    (repair) => repair.type_of_maintenance
+    // FileText // Icono para documentos
+  );
 
   return (
     <ResizablePanelGroup direction="horizontal" className="pt-6">
-      <ResizablePanel>
+      <ResizablePanel defaultSize={30}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(selectedRepair ? onUpdate : onSubmit)} className="space-y-4 pt-3 pr-3">
             <FormField
@@ -278,85 +338,31 @@ export function RepairTypeForm({ types_of_repairs }: { types_of_repairs: TypeOfR
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel className="pl-6 min-w-[600px] flex flex-col gap-4" defaultSize={70}>
-        <div className="flex gap-4">
-          <Input
-            value={filterText}
-            onChange={handleFilterTextChange}
-            placeholder="Filtrar por nombre, criticidad o descripción"
-            className="max-w-[400px] mb-4"
-          />
-          <Select onValueChange={handleFilterCriticidadChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrar criticidad" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">Todas</SelectItem>
-              <SelectItem value="Alta">Alta</SelectItem>
-              <SelectItem value="Media">Media</SelectItem>
-              <SelectItem value="Baja">Baja</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select onValueChange={handleFilterMaintenanceChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrar mantenimiento" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">Todos</SelectItem>
-              <SelectItem value="Preventivo">Preventivo</SelectItem>
-              <SelectItem value="Correctivo">Correctivo</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Table>
-          <TableCaption>Lista de todos los tipos de reparaciones</TableCaption>
-          <TableHeader>
-            <TableRow className="border-t">
-              <TableHead>Nombre</TableHead>
-              <TableHead>Tipo de mantenimiento</TableHead>
-              <TableHead>Criticidad</TableHead>
-              <TableHead>Descripción</TableHead>
-              <TableHead>Editar</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredRepairs?.map((repair) => {
-              const { criticity } = repair;
-              const priority = criticidad.find((priority) => priority.value === criticity);
-              const badgeVariant =
-                criticity === 'Baja'
-                  ? 'success'
-                  : criticity === 'Media'
-                    ? 'yellow'
-                    : ('destructive' as
-                        | 'success'
-                        | 'default'
-                        | 'destructive'
-                        | 'outline'
-                        | 'secondary'
-                        | 'yellow'
-                        | 'red'
-                        | null
-                        | undefined);
-              return (
-                <TableRow key={repair.id}>
-                  <TableCell>{repair.name}</TableCell>
-                  <TableCell>{repair.type_of_maintenance}</TableCell>
-                  <TableCell className="font-medium">
-                    <Badge variant={badgeVariant} className="font-bold">
-                      {' '}
-                      {priority?.icon && <priority.icon className="mr-2 h-4 w-4 font-bold" />}
-                      {repair.criticity}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{repair.description}</TableCell>
-                  <TableCell>
-                    <Button onClick={() => handleModify(repair)}>Modificar</Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+        <BaseDataTable
+          savedVisibility={savedVisibility}
+          columns={getRepairTypeColumns(handleModify)}
+          data={types_of_repairs}
+          tableId="repair-type-table"
+          toolbarOptions={{
+            filterableColumns: [
+              {
+                columnId: 'Nombre',
+                title: 'Nombre',
+                options: names,
+              },
+              {
+                columnId: 'Criticidad',
+                title: 'Criticidad',
+                options: criticityOptions,
+              },
+              {
+                columnId: 'Tipo de Mantenimiento',
+                title: 'Tipo de Mantenimiento',
+                options: maintenanceOptions,
+              },
+            ],
+          }}
+        />
       </ResizablePanel>
     </ResizablePanelGroup>
   );

@@ -1,11 +1,18 @@
 'use client';
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { VisibilityState } from '@tanstack/react-table';
 import { useState } from 'react';
 import ContractTypeForm from './ContractTypeForm';
 import ContractTypeTable from './ContractTypeTable';
 
-export default function ContractTypesTab({ allContractTypes }: { allContractTypes: ContractType[] }) {
+export default function ContractTypesTab({
+  allContractTypes,
+  savedVisibility,
+}: {
+  allContractTypes: ContractType[];
+  savedVisibility: VisibilityState;
+}) {
   const [editingContractType, setEditingContractType] = useState<ContractType | null>(null);
 
   return (
@@ -18,7 +25,11 @@ export default function ContractTypesTab({ allContractTypes }: { allContractType
         <ResizableHandle withHandle />
 
         <ResizablePanel defaultSize={60}>
-          <ContractTypeTable contractTypes={allContractTypes} onEdit={setEditingContractType} />
+          <ContractTypeTable
+            contractTypes={allContractTypes}
+            onEdit={setEditingContractType}
+            savedVisibility={savedVisibility}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

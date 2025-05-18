@@ -20,7 +20,10 @@ interface DiagramNewTypeFormProps {
 }
 export const NewDiagramType = z.object({
   name: z.string().min(1, { message: 'El nombre de la novedad no puede estar vacío' }),
-  short_description: z.string().min(1, { message: 'La descripción dorta no puede estar vacía' }),
+  short_description: z
+    .string()
+    .min(1, { message: 'La descripción dorta no puede estar vacía' })
+    .max(3, { message: 'La descripción corta no debe tener más de 3 caracteres' }),
   color: z.string().min(1, { message: 'Por favor selecciona un color para la novedad' }),
   id: z.string().optional(),
   work_active: z.boolean().optional(),
@@ -52,7 +55,7 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
 
     toast.promise(
       async () => {
-        console.log('method', method);
+        // console.log('method', method);
         if (method === 'PUT') {
           await updateDiagramType(values);
         } else {

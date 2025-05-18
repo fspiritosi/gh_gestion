@@ -14,6 +14,8 @@ import { supabaseBrowser } from '@/lib/supabase/browser';
 import { format } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
+import { fetchAreasWithProvinces } from '../../actions/create';
+import { fetchServices } from '../../actions/service';
 import ServiceItemsTable from './ServiceItemsTable';
 import ServicesForm from './ServicesForm';
 import ContractDocuments from './contractDocuments';
@@ -58,9 +60,9 @@ type Customer = {
 };
 
 interface ServiceTableProps {
-  services: Service[];
+  services: Awaited<ReturnType<typeof fetchServices>>;
   customers: Customer[];
-  areas: any[];
+  areas: Awaited<ReturnType<typeof fetchAreasWithProvinces>>;
   company_id: string;
   sectors: any[];
   id?: string;
@@ -94,14 +96,14 @@ const ServiceTable = ({
 }: ServiceTableProps) => {
   const supabase = supabaseBrowser();
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
-  const [servicesData, setServicesData] = useState<Service[]>([]);
+  const [servicesData, setServicesData] = useState<ServiceTableProps['services']>([]);
   const [loading, setLoading] = useState(true);
-  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [editingService, setEditingService] = useState<ServiceTableProps['services'][number] | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('all');
-  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
+  const [filteredServices, setFilteredServices] = useState<ServiceTableProps['services']>([]);
   const [editing, setEditing] = useState(false);
-  const [filteredData, setFilteredData] = useState<Service[]>(services || []);
+  const [filteredData, setFilteredData] = useState<ServiceTableProps['services']>(services || []);
   const modified_company_id = company_id?.replace(/"/g, '');
   const [itemsList, setItemsList] = useState<any[]>([]);
   const [measureUnitsList, setMeasureUnitsList] = useState<any[]>([]);
@@ -163,7 +165,7 @@ const ServiceTable = ({
     let filtered = servicesToFilter;
 
     if (selectedCustomer !== 'all') {
-      filtered = filtered.filter((service) => service.customer_id.toString() === selectedCustomer);
+      filtered = filtered.filter((service) => service.customer_id?.toString() === selectedCustomer);
     }
 
     setFilteredServices(filtered);
@@ -180,9 +182,9 @@ const ServiceTable = ({
   const formatedServices = useMemo(() => {
     return filteredServices?.map((service) => ({
       ...service,
-      customer: areas.find((area) => area.customer_id?.id === service.customer_id)?.customer_id?.name,
-      area: service.service_areas?.map((area) => area.areas_cliente?.nombre).join(', '),
-      sector: sectors.find((sector) => sector.id === service.sector_id)?.name,
+      customer: areas.find((area) => area.customers?.id === service.customer_id)?.customers?.name,
+      area: areas.find((area) => area.id === service.service_areas?.[0].area_id)?.nombre,
+      sector: sectors.find((sector) => sector.id === service.service_sectors?.[0].sector_id)?.name,
     }));
   }, [filteredServices, areas, sectors]);
 
@@ -193,7 +195,7 @@ const ServiceTable = ({
     setOpen(true);
   };
 
-  const handleOpenDetail = (service: Service) => {
+  const handleOpenDetail = (service: ServiceTableProps['services'][number]) => {
     setEditingService(service);
     setOpenDetail(true);
   };
@@ -311,7 +313,7 @@ const ServiceTable = ({
                         <SelectItem value="all">Todos los clientes</SelectItem>
                         {customers
                           ?.filter((customer: any) =>
-                            formatedServices.some((service) => service.customer_id.toString() === String(customer.id))
+                            formatedServices.some((service) => service.customer_id?.toString() === String(customer.id))
                           )
                           .map((customer: any) => (
                             <SelectItem value={String(customer.id)} key={customer.id}>
@@ -344,14 +346,14 @@ const ServiceTable = ({
                         </TableHeader>
                         <TableBody>
                           {filteredData.length > 0 ? (
-                            filteredData.map((service: Service) => (
+                            filteredData.map((service) => (
                               <TableRow
                                 key={service.id}
                                 onClick={() => handleOpenDetail(service)}
                                 className="cursor-pointer hover:bg-gray-50"
                               >
                                 <TableCell>{service.service_name}</TableCell>
-                                <TableCell>{service.customer}</TableCell>
+                                <TableCell>{service.customers?.name}</TableCell>
                                 <TableCell>{service.contract_number}</TableCell>
                                 <TableCell>
                                   <TooltipProvider>
@@ -369,7 +371,7 @@ const ServiceTable = ({
                                       <TooltipContent>
                                         <div className="flex flex-col">
                                           {service.service_areas?.map((area) => (
-                                            <span key={area.area_id}>{area.areas_cliente.nombre}</span>
+                                            <span key={area.area_id}>{area.areas_cliente?.nombre || '-'}</span>
                                           ))}
                                         </div>
                                       </TooltipContent>
@@ -397,7 +399,7 @@ const ServiceTable = ({
                                       <TooltipContent>
                                         <div className="flex flex-col">
                                           {service.service_sectors?.map((sector) => (
-                                            <span key={sector.sector_id}>{sector.sectors.name}</span>
+                                            <span key={sector.sector_id}>{sector.sectors?.name || '-'}</span>
                                           ))}
                                         </div>
                                       </TooltipContent>
@@ -410,9 +412,11 @@ const ServiceTable = ({
                                   </Badge>
                                 </TableCell>
                                 <TableCell className="">
-                                  {format(service.service_start?.toString(), 'dd/MM/yyyy')}
+                                  {format(service.service_start?.toString() as string, 'dd/MM/yyyy')}
                                 </TableCell>
-                                <TableCell className="">{format(service.service_validity, 'dd/MM/yyyy')}</TableCell>
+                                <TableCell className="">
+                                  {format(service.service_validity as string, 'dd/MM/yyyy')}
+                                </TableCell>
                               </TableRow>
                             ))
                           ) : (
