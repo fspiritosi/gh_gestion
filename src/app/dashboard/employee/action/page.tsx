@@ -13,7 +13,7 @@ import { getRole } from '@/lib/utils/getRole';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import moment from 'moment';
 import { cookies } from 'next/headers';
-import { fetchAllCompanyPositon, fetchAllCostCenter } from './actions/actions';
+import { fetchAllCompanyPositon, fetchAllCostCenter, fetchContractorCompanies } from './actions/actions';
 export default async function EmployeeFormAction({ searchParams }: { searchParams: any }) {
   // const { data } = await supabase
 
@@ -73,6 +73,8 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
         company_position(id, name)`
       )
       .eq('id', searchParams.employee_id || '');
+
+    console.log(employees?.[0].contractor_employee, 'employees');
 
     if (error) {
       console.log(error, 'error');
@@ -140,6 +142,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   const diagrams_types2 = await fetchDiagramsTypes();
   const contract_types = await fetchAllContractTypes();
   const allCompanyPositions = await fetchAllCompanyPositon();
+  const contractorCompanies = await fetchContractorCompanies();
   console.log(formattedEmployee, 'formattedEmployee');
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
@@ -157,6 +160,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
           historyData={historyData}
           contract_types={contract_types}
           company_positions={allCompanyPositions}
+          contractorCompanies={contractorCompanies}
           employeeAptitudes={formattedEmployee?.empleado_aptitudes || []}
         >
           <DocumentTable role={role} employee_id={formattedEmployee?.id || ''} />

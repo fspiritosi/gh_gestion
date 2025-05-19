@@ -18,6 +18,21 @@ export async function fetchAllCostCenter() {
   return data;
 }
 
+export async function fetchContractorCompanies() {
+  const cookiesStore = cookies();
+  const supabase = supabaseServer();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  if (!company_id) return [];
+
+  const { data, error } = await supabase.from('customers').select('*');
+
+  if (error) {
+    console.error('Error fetching contractor companies:', error);
+    return [];
+  }
+  return data;
+}
+
 export async function fetchAllCompanyPositon() {
   const cookiesStore = cookies();
   const supabase = supabaseServer();

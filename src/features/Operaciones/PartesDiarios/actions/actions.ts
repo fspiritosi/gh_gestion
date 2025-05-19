@@ -105,7 +105,15 @@ export async function createDailyReport(date: string) {
 }
 export async function getCustomers() {
   const supabase = supabaseServer();
-  const { data, error } = await supabase.from('customers').select('*');
+  const cookiesStore = cookies();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('company_id', company_id || user?.app_metadata?.company_id || '');
   if (error) {
     console.log(error);
   }
@@ -121,9 +129,134 @@ export async function getCustomersServices() {
 }
 export async function getServiceItems() {
   const supabase = supabaseServer();
-  const { data, error } = await supabase.from('service_items').select('*,measure_units(*)');
+  const cookiesStore = cookies();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('service_items')
+    .select('*,measure_units(*)')
+    .eq('company_id', company_id || user?.app_metadata?.company_id || '');
   if (error) {
     console.log(error);
   }
   return data;
+}
+
+export async function getActiveEmployeesForDailyReport() {
+  const supabase = supabaseServer();
+
+  // Obtener la fecha actual
+  const today = new Date();
+  const day = today.getDate();
+  const month = today.getMonth() + 1; // Los meses en JS van de 0 a 11
+  const year = today.getFullYear();
+
+  const cookiesStore = cookies();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data, error } = await supabase
+    .from('employees')
+    .select('*, employees_diagram!inner(*), contractor_employee(*)')
+    .eq('is_active', true)
+    .eq('employees_diagram.day', day)
+    .eq('employees_diagram.month', month)
+    .eq('employees_diagram.year', year)
+    .eq('company_id', company_id || user?.app_metadata?.company_id || '');
+
+  console.log(data?.[0].employees_diagram?.[0], 'data');
+
+  if (error) {
+    console.error('Error al obtener empleados con diagrama:', error);
+    return [];
+  }
+
+  return data || [];
+}
+export async function getActiveEquipmentsForDailyReport() {
+  const supabase = supabaseServer();
+  const cookiesStore = cookies();
+  const company_id = cookiesStore.get('actualComp')?.value;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('vehicles')
+    .select('*,contractor_equipment(*)')
+    .eq('is_active', true)
+    .eq('condition', 'operativo')
+    .eq('company_id', company_id || user?.app_metadata?.company_id || '');
+  if (error) {
+    console.log(error);
+    return [];
+  }
+  return data;
+}
+
+type DailyReportRowData = {
+  customer_id: string;
+  service_id: string;
+  item_id: string;
+  working_day: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  description?: string;
+  daily_report_id: string;
+};
+
+export async function createDailyReportRow(rowData: DailyReportRowData) {
+  const supabase = supabaseServer();
+
+  const { data, error } = await supabase.from('dailyreportrows').insert([rowData]).select();
+
+  if (error) {
+    console.error('Error creating daily report row:', error);
+    throw new Error(error.message);
+  }
+
+  return data[0];
+}
+
+export async function createDailyReportEmployeeRelations(dailyReportRowId: string, employeeIds: string[]) {
+  if (!employeeIds || employeeIds.length === 0) return [];
+
+  const supabase = supabaseServer();
+
+  const relations = employeeIds.map((employeeId) => ({
+    daily_report_row_id: dailyReportRowId,
+    employee_id: employeeId,
+  }));
+
+  const { data, error } = await supabase.from('dailyreportemployeerelations').insert(relations).select();
+
+  if (error) {
+    console.error('Error creating employee relations:', error);
+    throw new Error(error.message);
+  }
+
+  return data || [];
+}
+
+export async function createDailyReportEquipmentRelations(dailyReportRowId: string, equipmentIds: string[]) {
+  if (!equipmentIds || equipmentIds.length === 0) return [];
+
+  const supabase = supabaseServer();
+
+  const relations = equipmentIds.map((equipmentId) => ({
+    daily_report_row_id: dailyReportRowId,
+    equipment_id: equipmentId,
+  }));
+
+  const { data, error } = await supabase.from('dailyreportequipmentrelations').insert(relations).select();
+
+  if (error) {
+    console.error('Error creating equipment relations:', error);
+    throw new Error(error.message);
+  }
+
+  return data || [];
 }

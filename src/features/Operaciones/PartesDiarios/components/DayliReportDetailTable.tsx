@@ -1,13 +1,21 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { ColumnDef, VisibilityState } from '@tanstack/react-table';
-import { getCustomers, getCustomersServices, getDailyReportById, getServiceItems } from '../actions/actions';
+import moment from 'moment';
+import { useCallback, useState } from 'react';
+import {
+  getActiveEmployeesForDailyReport,
+  getActiveEquipmentsForDailyReport,
+  getCustomers,
+  getCustomersServices,
+  getDailyReportById,
+  getServiceItems,
+} from '../actions/actions';
 import { DailyReportForm } from './DailyReportForm';
 export const transformDailyReports = (reports: Awaited<ReturnType<typeof getDailyReportById>>) => {
   const report = reports[0];
@@ -28,14 +36,16 @@ export const transformDailyReports = (reports: Awaited<ReturnType<typeof getDail
   }));
 };
 
-export function getDailyReportColumns(): ColumnDef<ReturnType<typeof transformDailyReports>[number]>[] {
+export function getDailyReportColumns(
+  onEdit: (row: ReturnType<typeof transformDailyReports>[number]) => void
+): ColumnDef<ReturnType<typeof transformDailyReports>[number]>[] {
   return [
     {
       accessorKey: 'customer',
       id: 'Cliente',
       // header: () => <span className="w-[200px]">Nombre</span>,
       header: ({ column }) => <DataTableColumnHeader column={column} title="Cliente" />,
-      cell: ({ row }) => <span className="font-medium">{row.original.customer}</span>,
+      cell: ({ row }) => <span className="font-medium select-none text-nowrap">{row.original.customer}</span>,
       filterFn: (row, id, value) => {
         return value.includes(row.getValue(id));
       },
@@ -67,14 +77,18 @@ export function getDailyReportColumns(): ColumnDef<ReturnType<typeof transformDa
         if (!employees || employees.length === 0) return null;
         const [first, ...rest] = employees;
         if (rest.length === 0) {
-          return <Badge variant="default">{first}</Badge>;
+          return (
+            <Badge variant="default" className="select-none text-nowrap">
+              {first}
+            </Badge>
+          );
         }
         return (
           <>
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger>
-                  <Badge variant="default" className="cursor-pointer select-none">
+                  <Badge variant="default" className="cursor-pointer select-none text-nowrap ">
                     {first} +{rest.length}
                   </Badge>
                 </TooltipTrigger>
@@ -151,13 +165,21 @@ export function getDailyReportColumns(): ColumnDef<ReturnType<typeof transformDa
       accessorKey: 'start_time',
       id: 'Hora inicio',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Hora inicio" />,
-      cell: ({ row }) => <span className="font-medium">{row.original.start_time}</span>,
+      cell: ({ row }) => (
+        <span className="font-medium">
+          {row.original.start_time ? moment(row.original.start_time, 'HH:mm:ss').format('HH:mm') : ''}
+        </span>
+      ),
     },
     {
       accessorKey: 'end_time',
       id: 'Hora fin',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Hora fin" />,
-      cell: ({ row }) => <span className="font-medium">{row.original.end_time}</span>,
+      cell: ({ row }) => (
+        <span className="font-medium">
+          {row.original.end_time ? moment(row.original.end_time, 'HH:mm:ss').format('HH:mm') : ''}
+        </span>
+      ),
     },
     {
       accessorKey: 'status',
@@ -178,7 +200,15 @@ export function getDailyReportColumns(): ColumnDef<ReturnType<typeof transformDa
       id: 'actions',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
       cell: ({ row }) => (
-        <Button size="sm" variant="outline" className="hover:text-blue-400">
+        <Button
+          size="sm"
+          variant="outline"
+          className="hover:text-blue-400"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(row.original);
+          }}
+        >
           Editar
         </Button>
       ),
@@ -192,12 +222,18 @@ function DayliReportDetailTable({
   customers,
   customers_services,
   service_items,
+  employees,
+  equipments,
+  dailyReportId,
 }: {
+  dailyReportId: string;
   dailyReport: Awaited<ReturnType<typeof getDailyReportById>>;
   savedVisibility: VisibilityState;
   customers: Awaited<ReturnType<typeof getCustomers>>;
   customers_services: Awaited<ReturnType<typeof getCustomersServices>>;
   service_items: Awaited<ReturnType<typeof getServiceItems>>;
+  employees: Awaited<ReturnType<typeof getActiveEmployeesForDailyReport>>;
+  equipments: Awaited<ReturnType<typeof getActiveEquipmentsForDailyReport>>;
 }) {
   const formattedData = transformDailyReports(dailyReport);
   const customerOptions = createFilterOptions(formattedData, (area) => area.customer);
@@ -209,66 +245,75 @@ function DayliReportDetailTable({
   const equipmentOptions = createFilterOptions(allEquipmentName, (name) => name);
   const jornadaOptions = createFilterOptions(formattedData, (area) => area.working_day);
   const statusOptions = createFilterOptions(formattedData, (area) => area.status);
+  // Agregar al inicio del archivo
+  const [selectedRow, setSelectedRow] = useState<(typeof formattedData)[0] | null>(null);
+
+  // Manejador para editar fila
+  const handleEditRow = useCallback((row: (typeof formattedData)[0]) => {
+    setSelectedRow(row);
+    document.getElementById('open-button-daily-report')?.click();
+  }, []);
+
   return (
     <>
-      <ResizablePanelGroup direction="horizontal" className="min-h-[400px]">
-        <ResizablePanel defaultSize={15}>
-          <DailyReportForm
-            customers={customers}
-            customers_services={customers_services}
-            service_items={service_items}
-          />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel className="pl-2" defaultSize={85}>
-          <BaseDataTable
-            className="mt-4"
-            columns={getDailyReportColumns()}
-            data={formattedData || []}
-            savedVisibility={savedVisibility}
-            tableId="dailyReportTableDetail"
-            toolbarOptions={{
-              filterableColumns: [
-                {
-                  columnId: 'Cliente',
-                  title: 'Cliente',
-                  options: customerOptions,
-                },
-                {
-                  columnId: 'Servicio',
-                  title: 'Servicio',
-                  options: servicesOptions,
-                },
-                {
-                  columnId: 'Item',
-                  title: 'Item',
-                  options: itemsOptions,
-                },
-                {
-                  columnId: 'Empleados',
-                  title: 'Empleados',
-                  options: employeesOptions,
-                },
-                {
-                  columnId: 'Equipo',
-                  title: 'Equipo',
-                  options: equipmentOptions,
-                },
-                {
-                  columnId: 'Jornada',
-                  title: 'Jornada',
-                  options: jornadaOptions,
-                },
-                {
-                  columnId: 'Estado',
-                  title: 'Estado',
-                  options: statusOptions,
-                },
-              ],
-            }}
-          />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+      <DailyReportForm
+        customers={customers}
+        customers_services={customers_services}
+        service_items={service_items}
+        employees={employees}
+        equipments={equipments}
+        dailyReportId={dailyReportId}
+        defaultValues={selectedRow}
+      />
+      <BaseDataTable
+        onRowClick={(row) => {
+          // setSelectedDailyReport(row.original);
+        }}
+        className="mt-4"
+        columns={getDailyReportColumns(handleEditRow)}
+        data={formattedData || []}
+        savedVisibility={savedVisibility}
+        tableId="dailyReportTableDetail"
+        toolbarOptions={{
+          filterableColumns: [
+            {
+              columnId: 'Cliente',
+              title: 'Cliente',
+              options: customerOptions,
+            },
+            {
+              columnId: 'Servicio',
+              title: 'Servicio',
+              options: servicesOptions,
+            },
+            {
+              columnId: 'Item',
+              title: 'Item',
+              options: itemsOptions,
+            },
+            {
+              columnId: 'Empleados',
+              title: 'Empleados',
+              options: employeesOptions,
+            },
+            {
+              columnId: 'Equipo',
+              title: 'Equipo',
+              options: equipmentOptions,
+            },
+            {
+              columnId: 'Jornada',
+              title: 'Jornada',
+              options: jornadaOptions,
+            },
+            {
+              columnId: 'Estado',
+              title: 'Estado',
+              options: statusOptions,
+            },
+          ],
+        }}
+      />
     </>
   );
 }

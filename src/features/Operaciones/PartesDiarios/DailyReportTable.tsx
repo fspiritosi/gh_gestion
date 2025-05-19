@@ -95,7 +95,7 @@ export const reportColumnas: ColumnDef<Awaited<ReturnType<typeof getDailyReports
             );
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger disabled={!row.original.status}>
             <SelectValue placeholder="Seleccionar estado" />
           </SelectTrigger>
           <SelectContent>

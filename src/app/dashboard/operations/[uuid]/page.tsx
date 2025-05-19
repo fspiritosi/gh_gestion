@@ -1,6 +1,8 @@
 import BackButton from '@/components/BackButton';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import {
+  getActiveEmployeesForDailyReport,
+  getActiveEquipmentsForDailyReport,
   getCustomers,
   getCustomersServices,
   getDailyReportById,
@@ -17,6 +19,8 @@ async function page({ params }: { params: { uuid: string } }) {
   const customers = await getCustomers();
   const customers_services = await getCustomersServices();
   const service_items = await getServiceItems();
+  const employees = await getActiveEmployeesForDailyReport();
+  const equipments = await getActiveEquipmentsForDailyReport();
 
   return (
     <Card className="p-4 mx-6 mt-4">
@@ -28,11 +32,14 @@ async function page({ params }: { params: { uuid: string } }) {
         <BackButton />
       </div>
       <DayliReportDetailTable
+        dailyReportId={params.uuid}
         customers={customers}
         dailyReport={dailyReport}
         savedVisibility={savedVisibility ? JSON.parse(savedVisibility) : {}}
         customers_services={customers_services}
         service_items={service_items}
+        employees={employees}
+        equipments={equipments}
       />
     </Card>
   );
