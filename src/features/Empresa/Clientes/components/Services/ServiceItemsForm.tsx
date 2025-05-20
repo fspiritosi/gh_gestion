@@ -66,6 +66,17 @@ interface MeasureUnit {
   tipo: string;
 }
 
+interface ServiceItemsFormProps {
+  measure_units: MeasureUnit[];
+  customers: Customer[];
+  services: any[];
+  company_id: string;
+  editService: (service: any) => void;
+  editingService?: any;
+  open?: boolean;
+  onSuccess?: () => void;
+}
+
 export default function ServiceItemsForm({
   measure_units,
   customers,
@@ -73,18 +84,9 @@ export default function ServiceItemsForm({
   company_id,
   editingService,
   editService,
-  getItems,
   open,
-}: {
-  measure_units: MeasureUnit[];
-  customers: Customer[];
-  services: any[];
-  company_id: string;
-  editingService: Item | null;
-  editService: any;
-  getItems: () => void;
-  open?: boolean;
-}) {
+  onSuccess,
+}: ServiceItemsFormProps) {
   const [isEditing, setIsEditing] = useState(!!editingService);
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
   const supabase = supabaseBrowser();
@@ -133,7 +135,16 @@ export default function ServiceItemsForm({
   }, [editingService, reset]);
 
   const onSubmit = async (values: z.infer<typeof ItemsSchema>) => {
-    await handleSubmit(values, editingService, editService, company_id, isEditing, getItems, reset);
+    try {
+      await handleSubmit(values, editingService, editService, company_id, isEditing, reset, () => {
+        // Cerrar el formulario o limpiar después de guardar
+        handleCancel();
+        // Llamar al callback de éxito si existe
+        if (onSuccess) onSuccess();
+      });
+    } catch (error) {
+      console.error('Error al guardar el ítem:', error);
+    }
   };
 
   const handleCancel = () => {

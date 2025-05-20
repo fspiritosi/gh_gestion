@@ -1312,3 +1312,45 @@ export const fetchAllProvinces = async () => {
     return [];
   }
 };
+
+export const fetchServiceItems = async (company_id: string, user_id: string, customer_service_id: string) => {
+  const supabase = supabaseServer();
+
+  try {
+    if (!company_id || !customer_service_id) {
+      console.error('Missing required parameters:', { company_id, customer_service_id });
+      return [];
+    }
+
+    const { data: items, error } = await supabase
+      .from('service_items')
+      .select(
+        `
+        *,
+        item_measure_units (
+          id,
+          unit
+        ),
+        customer_service_id (
+          id,
+          customers!customer_services_customer_id_fkey (
+            id,
+            name
+          )
+        )
+      `
+      )
+      .eq('company_id', company_id)
+      .eq('customer_service_id', customer_service_id);
+
+    if (error) {
+      console.error('Error fetching service items:', error);
+      throw new Error(JSON.stringify(error));
+    }
+
+    return items || [];
+  } catch (error) {
+    console.error('Error in fetchServiceItems:', error);
+    throw error;
+  }
+};

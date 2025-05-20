@@ -8,14 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { fetchServiceItems } from '@/features/Empresa/Clientes/actions/itemsService';
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { format } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
-import { fetchAreasWithProvinces } from '../../actions/create';
-import { fetchServices } from '../../actions/service';
 import ServiceItemsTable from './ServiceItemsTable';
 import ServicesForm from './ServicesForm';
 import ContractDocuments from './contractDocuments';
@@ -60,14 +57,14 @@ type Customer = {
 };
 
 interface ServiceTableProps {
-  services: Awaited<ReturnType<typeof fetchServices>>;
+  services: Service[];
   customers: Customer[];
-  areas: Awaited<ReturnType<typeof fetchAreasWithProvinces>>;
+  areas: any[];
   company_id: string;
   sectors: any[];
   id?: string;
-  measure_units: any[];
-  items: any[];
+  itemsList: any[];
+  measureUnitsList: any[];
 }
 
 const dateSchema = z
@@ -91,8 +88,8 @@ const ServiceTable = ({
   areas,
   sectors,
   id,
-  measure_units,
-  items,
+  itemsList,
+  measureUnitsList,
 }: ServiceTableProps) => {
   const supabase = supabaseBrowser();
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -105,31 +102,11 @@ const ServiceTable = ({
   const [editing, setEditing] = useState(false);
   const [filteredData, setFilteredData] = useState<ServiceTableProps['services']>(services || []);
   const modified_company_id = company_id?.replace(/"/g, '');
-  const [itemsList, setItemsList] = useState<any[]>([]);
-  const [measureUnitsList, setMeasureUnitsList] = useState<any[]>([]);
+  const [internalItemsList, setInternalItemsList] = useState<any[]>([]);
+  // const [measureUnitsList, setMeasureUnitsList] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
-
-  const getItems = async () => {
-    if (!editingService?.id) return;
-    try {
-      const items = await fetchServiceItems(editingService.id);
-
-      setItemsList(items);
-    } catch (error) {
-      console.error('Error al obtener los items:', error);
-    }
-  };
-  useEffect(() => {
-    // if (!editingService?.id) return;
-
-    getItems();
-  }, [editingService?.id]);
-
-  const getMeasureUnits = async () => {
-    // const { data } = await supabase.from('measure_units').select('*');
-    setMeasureUnitsList(measure_units);
-    return measure_units;
-  };
+  console.log(itemsList);
+  console.log(areas);
   useEffect(() => {
     if (id) {
       const service = servicesData?.find((service) => service.id === id);
@@ -140,16 +117,11 @@ const ServiceTable = ({
       setEditingService(null);
     }
   }, [id, servicesData]);
-
-  useEffect(() => {
-    // getItems();
-    getMeasureUnits();
-  }, []);
   useEffect(() => {
     filterServices();
   }, [selectedCustomer, servicesData, services]);
   const filterItems = () => {
-    let filtered = itemsList;
+    let filtered = internalItemsList;
     if (selectedCustomer !== 'all') {
       filtered = filtered.filter((item) => item.customer_id.toString() === selectedCustomer);
     }
@@ -171,20 +143,17 @@ const ServiceTable = ({
     setFilteredServices(filtered);
   };
 
-  const fetchServices = async () => {
-    setServicesData(services);
-  };
   useEffect(() => {
-    fetchServices();
+    setServicesData(services);
     setLoading(false);
-  }, []);
+  }, [services]);
 
   const formatedServices = useMemo(() => {
     return filteredServices?.map((service) => ({
       ...service,
       customer: areas.find((area) => area.customers?.id === service.customer_id)?.customers?.name,
-      area: areas.find((area) => area.id === service.service_areas?.[0].area_id)?.nombre,
-      sector: sectors.find((sector) => sector.id === service.service_sectors?.[0].sector_id)?.name,
+      area: areas.find((area) => area.id === service.service_areas?.[0]?.area_id)?.nombre,
+      sector: sectors.find((sector) => sector.id === service.service_sectors?.[0]?.sector_id)?.name,
     }));
   }, [filteredServices, areas, sectors]);
 
@@ -199,6 +168,9 @@ const ServiceTable = ({
     setEditingService(service);
     setOpenDetail(true);
   };
+
+  // Get customer_service_id from editingService
+  const customerServiceId = editingService?.id || '';
 
   return (
     <div>
@@ -287,12 +259,12 @@ const ServiceTable = ({
                     </TabsContent>
                     <TabsContent value="items">
                       <ServiceItemsTable
-                        getItems={getItems}
                         editService={(editingService as any) || null}
                         measure_units={measureUnitsList || []}
                         customers={customers || []}
                         services={(services as any) || []}
                         company_id={company_id}
+                        customer_service_id={customerServiceId}
                         items={itemsList || []}
                       />
                     </TabsContent>
@@ -353,7 +325,9 @@ const ServiceTable = ({
                                 className="cursor-pointer hover:bg-gray-50"
                               >
                                 <TableCell>{service.service_name}</TableCell>
-                                <TableCell>{service.customers?.name}</TableCell>
+                                <TableCell>
+                                  {customers.find((c) => c.id === service.customer_id)?.name || '-'}
+                                </TableCell>
                                 <TableCell>{service.contract_number}</TableCell>
                                 <TableCell>
                                   <TooltipProvider>

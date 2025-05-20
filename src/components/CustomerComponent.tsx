@@ -32,6 +32,7 @@ import { setEmployeesToShow } from '@/lib/utils/utils';
 import cookie from 'js-cookie';
 import moment from 'moment';
 import { Badge } from './ui/badge';
+
 interface Service {
   id: string;
   service_name: string;
@@ -40,7 +41,19 @@ interface Service {
   service_validity: string;
 }
 
-export default function ClientRegister({ id, equipment }: { id: string; equipment: VehicleWithBrand[] }) {
+export default function ClientRegister({
+  id,
+  equipment,
+  items,
+  employees,
+  services,
+}: {
+  id: string;
+  equipment: VehicleWithBrand[];
+  items: ServiceItem[];
+  employees: Employee[];
+  services: Service[];
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const functionAction = id ? updateCustomer : createdCustomer;
@@ -58,14 +71,9 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [items, setItems] = useState<any>(null);
+  // const [items, setItems] = useState<any>(null);
   const actualCompany = cookie.get('actualComp');
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-  const fetchItems = async () => {
-    const { items } = await fetch(`${URL}/api/services/items/report?actual=${actualCompany}`).then((e) => e.json());
-    setItems(items);
-  };
 
   const handleCloseModal = () => {
     setSelectedService(null);
@@ -75,7 +83,7 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
     setSelectedService(service);
 
     setOpenModal(true);
-    fetchItems();
+    // fetchItems();
   };
 
   const filteredItems = items?.filter((item: any) => item.customer_service_id?.id === selectedService?.id);
@@ -86,29 +94,20 @@ export default function ClientRegister({ id, equipment }: { id: string; equipmen
     } = await supabase.auth.getUser();
     setUserId(user);
   };
-  const fetchemploy = async () => {
-    const { employees } = await fetch(`${URL}/api/employees/table?actual=${actualCompany}&user=${userId}`).then((e) =>
-      e.json()
-    );
+  // Remove these functions since we're now receiving the data through props
+  useEffect(() => {
     setEmploy(employees);
-  };
+    setServicesData(services);
+  }, [employees, services]);
 
-  const fetchServices = async () => {
-    const { services } = await fetch(`${URL}/api/services?actual=${actualCompany}`).then((e) => e.json());
-    const filteredServices = services.filter(
-      (service: any) => service.customer_id.toString() === id && service.is_active === true
-    );
-    setServicesData(filteredServices);
-  };
-
-  const activeEmploees = setEmployeesToShow(employ?.filter((e: any) => e.is_active));
-  const inactiveEmploees = setEmployeesToShow(employ?.filter((e: any) => !e.is_active));
+  const activeEmploees = setEmployeesToShow(employees?.filter((e: any) => e.is_active));
+  const inactiveEmploees = setEmployeesToShow(employees?.filter((e: any) => !e.is_active));
   // const equipment = useLoggedUserStore((state) => state.vehiclesToShow);
 
   useEffect(() => {
     fetchUser();
-    fetchemploy();
-    fetchServices();
+    // fetchemploy();
+    // fetchServices();
   }, []);
 
   const filteredCustomersActiveEmployees = activeEmploees

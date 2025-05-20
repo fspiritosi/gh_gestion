@@ -17,3 +17,10 @@ export async function fetchMeasureUnits() {
     return [];
   }
 }
+
+export type MeasureUnit = {
+  id: number;
+  unit: string;
+  simbol: string;
+  tipo: string;
+};

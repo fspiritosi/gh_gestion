@@ -168,57 +168,65 @@ export default function ServicesForm({
     if (editingService) {
       // Extraer los IDs de las áreas del servicio
       const areaIds = editingService.service_areas?.map((a: any) => a.area_id) || [];
-
-      // Extraer los IDs de los sectores del servicio
       const sectorIds = editingService.service_sectors?.map((s) => s.sector_id) || [];
 
-      // Primero, asegurarnos de que las áreas del cliente estén cargadas
       if (editingService.customer_id) {
-        const filteredAreas = areas.filter((area) => area.customer_id === editingService.customer_id);
+        // 1. Filtrar áreas por el cliente
+        const filteredAreas = areas.filter((area) => area.customers?.id === editingService.customer_id);
         setFilteredAreas(filteredAreas);
 
-        // Filtrar sectores para el cliente
+        // 2. Filtrar sectores por el cliente
         const filteredSectors =
           sectors?.filter((sector: any) =>
-            sector.sector_customer?.some((sc: any) => sc.customer_id?.id === editingService.customer_id)
+            sector.sector_customer?.some((sc: any) => sc.customer_id === editingService.customer_id)
           ) || [];
 
-        // Asegurarse de que los sectores seleccionados estén en la lista
+        // 3. Asegurarse de que los sectores seleccionados estén en la lista
         if (sectorIds.length > 0) {
           const missingSectors = sectorIds.filter((id: string) => !filteredSectors.some((s: any) => s.id === id));
 
           if (missingSectors.length > 0) {
             const additionalSectors = (sectors || []).filter((s: any) => missingSectors.includes(s.id));
             setFilteredSectors([...filteredSectors, ...additionalSectors]);
-            return;
+          } else {
+            setFilteredSectors(filteredSectors);
           }
+        } else {
+          setFilteredSectors(filteredSectors);
         }
 
-        setFilteredSectors(filteredSectors);
+        // 4. Crear el objeto de datos después de que las áreas y sectores estén listos
+        const formData = {
+          id: editingService.id,
+          customer_id: editingService.customer_id,
+          service_name: editingService.service_name,
+          sector_id: sectorIds,
+          contract_number: editingService.contract_number || '',
+          service_start: editingService.service_start ? new Date(editingService.service_start) : new Date(),
+          service_validity: editingService.service_validity ? new Date(editingService.service_validity) : new Date(),
+          is_active: editingService.is_active ?? true,
+          area_id: areaIds,
+          service_areas: editingService.service_areas,
+          service_sectors: editingService.service_sectors,
+        };
+
+        // 5. Usar setTimeout para asegurar que los estados se actualicen antes de resetear
+        const timer = setTimeout(() => {
+          // Verificar que las áreas del servicio existan en las áreas filtradas
+          const validAreaIds = areaIds.filter((id) => filteredAreas.some((area) => area.id === id));
+
+          // Crear un nuevo formData con solo las áreas válidas
+          const finalFormData = {
+            ...formData,
+            area_id: validAreaIds,
+          };
+
+          reset(finalFormData);
+          setIsEditing(true);
+        }, 300);
+
+        return () => clearTimeout(timer);
       }
-
-      // Crear un objeto con solo los campos que necesitamos
-      const formData = {
-        id: editingService.id,
-        customer_id: editingService.customer_id,
-        service_name: editingService.service_name,
-        sector_id: sectorIds,
-        contract_number: editingService.contract_number || '',
-        service_start: editingService.service_start ? new Date(editingService.service_start) : new Date(),
-        service_validity: editingService.service_validity ? new Date(editingService.service_validity) : new Date(),
-        is_active: editingService.is_active ?? true,
-        area_id: areaIds,
-        service_areas: editingService.service_areas,
-        service_sectors: editingService.service_sectors,
-      };
-
-      // Pequeño retraso para asegurar que las áreas se hayan cargado
-      const timer = setTimeout(() => {
-        reset(formData);
-        setIsEditing(true);
-      }, 300);
-
-      return () => clearTimeout(timer);
     } else {
       reset({
         customer_id: '',
@@ -233,7 +241,7 @@ export default function ServicesForm({
       setFilteredAreas([]);
       setIsEditing(false);
     }
-  }, [editingService, reset, areas]);
+  }, [editingService, reset, areas, sectors]);
 
   const [filteredServices, setFilteredServices] = useState<Service[] | undefined>(
     editingService ? [editingService] : []
@@ -258,7 +266,7 @@ export default function ServicesForm({
       const filteredAreasByCustomer =
         areas?.filter((area: any) => {
           // Verificar si el área pertenece al cliente seleccionado
-          return area.customer_id?.id === customerId || area.customer_id === customerId;
+          return area.customers?.id === customerId;
         }) || [];
 
       setFilteredAreas(filteredAreasByCustomer);
@@ -266,7 +274,7 @@ export default function ServicesForm({
       // Filtrar sectores por el cliente seleccionado
       const filteredSectorsByCustomer =
         sectors?.filter((sector: any) => {
-          return sector.sector_customer?.some((sc: any) => sc.customer_id?.id === customerId);
+          return sector.sector_customer?.some((sc: any) => sc.customer_id === customerId);
         }) || [];
 
       setFilteredSectors(filteredSectorsByCustomer);

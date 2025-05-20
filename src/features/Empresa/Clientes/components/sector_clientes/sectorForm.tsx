@@ -30,11 +30,6 @@ const SectorSchema = z.object({
   customer_id: z.string().nonempty({ message: 'El cliente es requerido' }),
 });
 
-interface Cliente {
-  id: string;
-  name: string;
-}
-
 // interface Sector {
 //   id: string;
 //   name: string;
@@ -43,14 +38,9 @@ interface Cliente {
 //   sector_customer: Array<{
 //     customer_id: {
 //       id: string;
-//       name: string;
-//     };
-//   }>;
-// }
-
 interface SectorFormProps {
-  sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
   customers: Awaited<ReturnType<typeof fechAllCustomers>>;
+  sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
   mode: 'create' | 'edit';
   setMode: (mode: 'create' | 'edit') => void;
   selectedSector: Awaited<ReturnType<typeof fetchAllSectors>>[number] | null;
@@ -59,7 +49,7 @@ interface SectorFormProps {
 
 type SectorFormValues = z.infer<typeof SectorSchema>;
 
-function SectorForm({ customers, mode, setMode, selectedSector, setSelectedSector }: SectorFormProps) {
+function SectorForm({ customers, sectors, mode, setMode, selectedSector, setSelectedSector }: SectorFormProps) {
   const form = useForm<SectorFormValues>({
     resolver: zodResolver(SectorSchema),
     defaultValues: {

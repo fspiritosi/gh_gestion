@@ -10,6 +10,9 @@ import SectorTabs from '@/features/Empresa/Clientes/components/sector_clientes/s
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { fechAllCustomers, fetchAllSectors, fetchAreasWithProvinces, fetchEquipmentsCustomers } from './actions/create';
+import { fetchServiceItems } from './actions/items';
+import { fetchMeasureUnits } from './actions/meassure';
+import { fetchServices } from './actions/service';
 import { columnsCustomers } from './components/columns';
 
 async function ComercialTab({
@@ -23,14 +26,26 @@ async function ComercialTab({
 }) {
   const coockiesStore = cookies();
   const actualCompany = coockiesStore.get('actualComp')?.value;
-
+  console.log(actualCompany);
   const customers = await fechAllCustomers();
   const contractorCompanies = customers?.filter((company) => company.company_id.toString() === actualCompany);
   const provinces = await fetchAllProvinces();
   const areas = await fetchAreasWithProvinces();
   const sectors = await fetchAllSectors();
+  const contractorSectors =
+    sectors?.filter((sector) =>
+      sector.sector_customer.some((customer) => customer.customers?.company_id === actualCompany)
+    ) || [];
+
+  const services = await fetchServices(actualCompany || '');
+  console.log(services);
+  const serviceItems = await fetchServiceItems('');
+  console.log(serviceItems);
+  const measure_units = await fetchMeasureUnits();
+  console.log(measure_units);
   const equipments = await fetchEquipmentsCustomers();
   const savedCustomers = coockiesStore.get('customers-table')?.value;
+  console.log(contractorCompanies);
   const viewData = {
     defaultValue: subtab || 'customers',
     path: '/dashboard/company/actualCompany',
@@ -84,7 +99,13 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <CustomerEquipmentTab equipments={equipments || []} customers={contractorCompanies || []} />,
+          component: (
+            <CustomerEquipmentTab
+              equipments={equipments || []}
+              customers={contractorCompanies || []}
+              key={actualCompany}
+            />
+          ),
         },
       },
       {
@@ -97,7 +118,7 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <SectorTabs customers={contractorCompanies || []} sectors={sectors || []} />,
+          component: <SectorTabs customers={contractorCompanies || []} sectors={contractorSectors} />,
         },
       },
       {
@@ -130,7 +151,20 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: [''],
-          component: <ServiceComponent />,
+          component: (
+            <ServiceComponent
+              // id={id}
+              customers={contractorCompanies || []}
+              areas={areas || []}
+              sectors={contractorSectors}
+              measure_units={measure_units || []}
+              services={services || []}
+              items={serviceItems || []}
+              company_id={actualCompany || ''}
+              itemsList={serviceItems || []}
+              measureUnitsList={measure_units || []}
+            />
+          ),
         },
       },
     ],

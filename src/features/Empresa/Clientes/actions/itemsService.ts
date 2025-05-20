@@ -14,11 +14,10 @@ export async function handleSubmit(
   editService: any,
   company_id: string,
   isEditing: boolean,
-  getItems: () => void,
-  reset: () => void
+  reset: () => void,
+  onSuccess?: () => void
 ) {
   const supabase = supabaseBrowser();
-
   try {
     const { data, error } = isEditing
       ? await supabase
@@ -51,10 +50,14 @@ export async function handleSubmit(
     }
 
     toast.success(`Item ${isEditing ? 'actualizado' : 'creado'} correctamente`);
-    getItems();
 
     if (!isEditing) {
       reset();
+    }
+
+    // Llamar al callback de éxito si está definido
+    if (onSuccess) {
+      onSuccess();
     }
   } catch (error) {
     console.error(`Error al ${isEditing ? 'actualizar' : 'crear'} el item:`, error);
@@ -66,36 +69,56 @@ export async function fetchServiceItems(customer_service_id: string) {
   const supabase = supabaseBrowser();
 
   try {
+    // Primero obtenemos los items con las unidades de medida
     const { data: items, error } = await supabase
       .from('service_items')
-      // .select('*,item_measure_units(id,unit),customer_service_id(id,service_name),customer_id(id,name)')
       .select(
         `
-      *,
-      item_measure_units (
-        id,
-        unit
-      ),
-      customer_services (
-        id,
-        service_name,
-        customer_id (
+        *,
+        item_measure_units (
           id,
-          name
+          unit
+        ),
+        customer_services!inner (
+          id,
+          service_name,
+          customer_id
         )
+      `
       )
-    `
-      )
-      // .eq('id', customer_service_id || '');
-      // Filters
-      .eq('customer_service_id', customer_service_id || '');
-    // .eq('company_id', company_id || '');
+      .eq('customer_service_id', customer_service_id);
 
     if (error) {
       console.error('Error al obtener items del servicio:', error);
       return [];
     }
-    return items || [];
+
+    if (!items || items.length === 0) {
+      return [];
+    }
+
+    // Obtenemos los IDs únicos de clientes
+    const customerIds = [...new Set(items.map((item) => item.customer_services?.customer_id).filter(Boolean))];
+
+    // Obtenemos los datos de los clientes
+    const { data: customers = [], error: customersError } = await supabase
+      .from('customers')
+      .select('id, name')
+      .in('id', customerIds);
+
+    if (customersError) {
+      console.error('Error al obtener clientes:', customersError);
+      // Continuamos sin los datos de los clientes
+    }
+
+    // Mapeamos los items para incluir los datos de los clientes
+    return items.map((item) => ({
+      ...item,
+      customer_services: {
+        ...item.customer_services,
+        customer_id: customers?.find((c) => c.id === item.customer_services?.customer_id) || null,
+      },
+    }));
   } catch (error) {
     console.error('Error inesperado al obtener items del servicio:', error);
     return [];
