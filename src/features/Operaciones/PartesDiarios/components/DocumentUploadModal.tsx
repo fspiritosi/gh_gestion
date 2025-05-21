@@ -25,6 +25,9 @@ type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 interface DocumentUploadModalProps {
   documentData: DailyReportRow;
 }
+// Add these imports at the top
+
+// Define the form schema
 
 export default function DocumentUploadModal({ documentData }: DocumentUploadModalProps) {
   const [open, setOpen] = useState(false);
@@ -33,9 +36,10 @@ export default function DocumentUploadModal({ documentData }: DocumentUploadModa
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [progress, setProgress] = useState(0);
   const [dragActive, setDragActive] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = supabaseBrowser();
+  const [remitNumber, setRemitNumber] = useState(documentData.remit_number || '');
+
   const router = useRouter();
 
   const handleOpenModal = () => {
@@ -142,12 +146,22 @@ export default function DocumentUploadModal({ documentData }: DocumentUploadModa
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) return;
+  const updateRemitNumber = async (remit_number: string): Promise<void> => {
+    const { error } = await supabase.from('dailyreportrows').update({ remit_number }).eq('id', documentData.id);
 
+    if (error) {
+      console.error('Error al actualizar el número de remito:', error);
+      throw new Error('Error al actualizar el registro');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!file) {
+      toast.error('Por favor seleccione un archivo');
+      return;
+    }
     try {
-      setIsLoading(true);
       setUploadStatus('uploading');
 
       toast.promise(
@@ -157,6 +171,9 @@ export default function DocumentUploadModal({ documentData }: DocumentUploadModa
 
           // 2. Actualizar el registro en la base de datos
           await updateDocumentPath(documentUrl);
+          if (!documentData.remit_number) {
+            await updateRemitNumber(remitNumber);
+          }
 
           // 3. Actualizar el estado local
           setUploadStatus('success');
@@ -166,7 +183,7 @@ export default function DocumentUploadModal({ documentData }: DocumentUploadModa
           setTimeout(() => {
             setOpen(false);
             router.refresh();
-          }, 2000);
+          }, 1000);
 
           return documentUrl;
         })(),
@@ -186,8 +203,6 @@ export default function DocumentUploadModal({ documentData }: DocumentUploadModa
       console.error('Error en el proceso de subida:', error);
       setUploadStatus('error');
       toast.error(error instanceof Error ? error.message : 'Error al subir el documento');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -228,8 +243,18 @@ export default function DocumentUploadModal({ documentData }: DocumentUploadModa
           <DialogHeader>
             <DialogTitle>Subir nuevo documento</DialogTitle>
             <DialogDescription>Selecciona un archivo para subir al sistema.</DialogDescription>
+            <div className="flex flex-col gap-2">
+              <DialogDescription>Remito: </DialogDescription>
+              <Input
+                placeholder="Numero de remito"
+                defaultValue={remitNumber || ''}
+                onChange={(e) => setRemitNumber(e.target.value)}
+                value={remitNumber || ''}
+                readOnly={documentData.remit_number ? true : false}
+                disabled={documentData.remit_number ? true : false}
+              />
+            </div>
           </DialogHeader>
-
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Área de carga de archivos */}
             <div
@@ -326,7 +351,10 @@ export default function DocumentUploadModal({ documentData }: DocumentUploadModa
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={!file || uploadStatus === 'uploading' || uploadStatus === 'success'}>
+              <Button
+                type="submit"
+                disabled={!file || uploadStatus === 'uploading' || uploadStatus === 'success' || !remitNumber}
+              >
                 {uploadStatus === 'uploading' ? 'Subiendo...' : 'Subir documento'}
               </Button>
             </DialogFooter>

@@ -14,7 +14,7 @@ export const createFilterOptions = <T extends any>(
   icon?: React.ComponentType<{ className?: string }>
 ) => {
   return Array.from(new Set(data?.map(accessor).filter(Boolean))).map((value) => ({
-    label: value.replaceAll('_', ' ') || '',
+    label: typeof value === 'string' ? value.replaceAll('_', ' ') : value || '',
     value: value || '',
     icon,
   }));

@@ -1,12 +1,15 @@
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Download, FileText, ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { DailyReportRow } from './DayliReportDetailTable';
 
 export type DocumentData = {
@@ -126,11 +129,11 @@ const DocumentViewer = ({ documentType, documentUrl }: { documentType: 'pdf' | '
 const DocumentInfo = ({ document }: { document: DailyReportRow }) => {
   return (
     <div className="space-y-4 p-4 border rounded-md bg-muted/10 overflow-auto max-h-[calc(80vh-120px)]">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col">
         <h3 className="text-lg font-semibold">Información del documento</h3>
-        <div className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium">
+        <Badge className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium w-fit">
           Remito: {document.remit_number}
-        </div>
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -152,38 +155,69 @@ const DocumentInfo = ({ document }: { document: DailyReportRow }) => {
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Sector</p>
-          <p className="text-sm">{document.sector_customer_name}</p>
+          <p className="text-sm">{document.sector_service_name}</p>
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Área</p>
           <p className="text-sm">{document.areas_customer_name}</p>
         </div>
+        {document.customer_equipment.length ? (
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Equipos cliente</p>
+            <ul className="text-sm list-disc list-inside">
+              {document.customer_equipment.map((equipment) => (
+                <li className="uppercase" key={equipment.id}>
+                  {equipment.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
+      <Separator />
 
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">Empleados</p>
-        <ul className="text-sm list-disc list-inside">
-          {document.employees_references.map((employee) => (
-            <li key={employee.id}>{employee.name}</li>
-          ))}
-        </ul>
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {document.employees_references.length ? (
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Empleados</p>
+            <ul className="text-sm list-disc list-inside">
+              {document.employees_references.map((employee) => (
+                <li className="capitalize" key={employee.id}>
+                  {employee.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">Equipamiento</p>
-        <ul className="text-sm list-disc list-inside">
-          {document.equipment_references.map((equipment) => (
-            <li key={equipment.id}>{equipment.name}</li>
-          ))}
-        </ul>
-      </div>
+        {document.equipment_references.length ? (
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Equipamiento</p>
+            <ul className="text-sm list-disc list-inside">
+              {document.equipment_references.map((equipment) => (
+                <li className="uppercase" key={equipment.id}>
+                  {equipment.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
-      {document.description && (
+        {document.description && (
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Descripción</p>
+            <p className="text-sm capitalize">{document.description}</p>
+          </div>
+        )}
         <div>
-          <p className="text-sm font-medium text-muted-foreground">Descripción</p>
-          <p className="text-sm">{document.description}</p>
+          <p className="text-sm capitalize font-medium text-muted-foreground">Jornada</p>
+          <p className="text-sm capitalize">{document.working_day}</p>
         </div>
-      )}
+        <div>
+          <p className="text-sm capitalize font-medium text-muted-foreground">Tipo de servicio</p>
+          <p className="text-sm capitalize ">{document.type_service}</p>
+        </div>
+      </div>
     </div>
   );
 };
@@ -215,11 +249,43 @@ export default function DocumentViewerModal({
   const handleOpenDocument = () => {
     setOpen(true);
   };
+  const handleDownload = async () => {
+    try {
+      // Hacer fetch del archivo directamente desde la URL
+      const response = await fetch(documentData.document_path!);
+      if (!response.ok) throw new Error('No se pudo obtener el archivo');
 
-  const handleDownload = () => {
-    window.open(documentUrl, '_blank');
+      // Obtener el blob del archivo
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Crear un enlace temporal para la descarga
+      const a = document.createElement('a');
+      a.href = blobUrl;
+
+      // Obtener la extensión del archivo de la URL o usar el tipo de documento
+      const extension =
+        documentData.document_path!.split('.').pop()?.split('?')[0]?.toLowerCase() ||
+        (documentType === 'pdf' ? 'pdf' : 'jpg');
+
+      // Crear el nombre del archivo
+      const fileName = `remito_${documentData.remit_number || 'sin_numero'}.${extension}`;
+
+      // Configurar y disparar la descarga
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+
+      // Limpiar
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(a);
+      }, 100);
+    } catch (error) {
+      console.error('Error al descargar el archivo:', error);
+      toast.error('Error al descargar el archivo');
+    }
   };
-
   return (
     <div className=" space-y-6">
       <Button onClick={handleOpenDocument} className="flex items-center gap-2">
@@ -239,26 +305,24 @@ export default function DocumentViewerModal({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] overflow-hidden">
           <DialogHeader className="flex flex-row items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex flex-col  gap-2">
               {documentType === 'pdf' ? (
-                <>
+                <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
                   Visualización de PDF
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex items-center gap-2">
                   <ImageIcon className="h-5 w-5" />
                   Visualización de Imagen
-                </>
+                </div>
               )}
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
-                Remito: {documentData.remit_number}
-              </span>
+
+              <Button variant="outline" onClick={handleDownload} className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Descargar documento
+              </Button>
             </DialogTitle>
-            <Button variant="outline" onClick={handleDownload} className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Descargar documento
-            </Button>
           </DialogHeader>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">

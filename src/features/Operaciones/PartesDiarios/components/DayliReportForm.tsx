@@ -16,6 +16,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { es } from 'date-fns/locale';
+import moment from 'moment';
 
 const FormSchema = z.object({
   date: z.date({
@@ -78,7 +79,13 @@ export default function DayliReportForm() {
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                    <Calendar
+                      disabled={(date) => moment(date).isBefore(moment().subtract(1, 'days'))}
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
                   </PopoverContent>
                 </Popover>
                 <FormDescription>Seleccione la fecha para el parte diario.</FormDescription>

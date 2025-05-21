@@ -66,7 +66,7 @@ export function ClonarRegistrosButton({ formattedData }: ClonarRegistrosButtonPr
             end_time: row.data_to_clone.end_time,
             description: row.data_to_clone.description,
             daily_report_id: report.id,
-            status: 'sin_recursos_asignados',
+            status: 'sin_recursos_asignados' as any,
             areas_service_id: row.data_to_clone.areas_service_id,
             sector_service_id: row.data_to_clone.sector_service_id,
           }));
@@ -116,7 +116,9 @@ export function ClonarRegistrosButton({ formattedData }: ClonarRegistrosButtonPr
             <DialogTitle className="text-xl">
               Clonar registros del {moment(formattedData?.[0]?.date).format('DD/MM/YYYY')}
             </DialogTitle>
-            <DialogDescription>Selecciona una o varias fechas para clonar los registros actuales.</DialogDescription>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Solo los registros mensuales se clonaran en la fecha seleccionada.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="px-8 py-4">
@@ -128,6 +130,7 @@ export function ClonarRegistrosButton({ formattedData }: ClonarRegistrosButtonPr
                   <CalendarComponent
                     mode="multiple"
                     selected={fechasSeleccionadas}
+                    disabled={(date) => moment(date).isBefore(moment().subtract(1, 'days'))}
                     onSelect={(dates: Date[] | undefined) => {
                       if (!dates) return;
                       // Actualizamos todas las fechas seleccionadas

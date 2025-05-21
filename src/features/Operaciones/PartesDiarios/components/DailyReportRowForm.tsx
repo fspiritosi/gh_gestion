@@ -10,12 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Building, CalendarIcon, Check, ChevronsUpDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import {
+  checkDailyReportExists,
+  createDailyReport,
+  createDailyReportCustomerEquipmentRelations,
   createDailyReportEmployeeRelations,
   createDailyReportEquipmentRelations,
   createDailyReportRow,
@@ -25,6 +28,7 @@ import {
   updateDailyReportRow,
 } from '../actions/actions';
 
+import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Sheet,
@@ -36,6 +40,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import moment from 'moment';
 import { toast } from 'sonner';
 import { transformDailyReports } from './DayliReportDetailTable';
 
@@ -63,10 +70,11 @@ export const dailyReportSchema = z
     item: z.string().min(1, 'Debe seleccionar un ítem'),
     employees: z.array(z.string()).default([]).optional(),
     equipment: z.array(z.string()).default([]).optional(),
-    equipos_cliente: z.array(z.string()).default([]).optional(),
+    equipos_cliente: z.array(z.string()).max(2, 'Solo se pueden seleccionar 2 equipos cliente').default([]).optional(),
     type_service: z
       .enum(['mensual', 'adicional'], {
         required_error: 'Debe seleccionar un tipo de servicio',
+        invalid_type_error: 'Debe seleccionar un tipo de servicio',
       })
       .optional(),
     working_day: z.string().min(1, 'Debe seleccionar un tipo de jornada'),
@@ -78,6 +86,8 @@ export const dailyReportSchema = z
     sector_service_id: z.string().optional(),
     areas_service_id: z.string().optional(),
     remit_number: z.string().optional(),
+    cancel_reason: z.string().optional(),
+    reprogram_date: z.date().optional(),
   })
   .refine(
     (data) => {
@@ -94,19 +104,6 @@ export const dailyReportSchema = z
   )
   .refine(
     (data) => {
-      // Si el estado no es 'sin_recursos_asignados' o 'cancelado', se requiere al menos un empleado o equipo
-      if (!['sin_recursos_asignados', 'cancelado'].includes(data.status)) {
-        return (data.employees?.length || 0) > 0 || (data.equipment?.length || 0) > 0;
-      }
-      return true;
-    },
-    {
-      message: 'Debe seleccionar al menos un empleado o un equipo para este estado',
-      path: ['employees'],
-    }
-  )
-  .refine(
-    (data) => {
       if (data.working_day === 'por horario') {
         return data.start_time && data.end_time;
       }
@@ -116,8 +113,43 @@ export const dailyReportSchema = z
       message: 'Debe ingresar horario de inicio y fin si la jornada es "por horario"',
       path: ['start_time', 'end_time'],
     }
+  )
+  .refine(
+    (data) => {
+      if (data.status === 'cancelado') {
+        return data.cancel_reason && data.cancel_reason.trim() !== '';
+      }
+      return true;
+    },
+    {
+      message: 'El motivo de cancelación es obligatorio cuando el estado es "Cancelado"',
+      path: ['cancel_reason'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.status === 'reprogramado') {
+        return data.reprogram_date;
+      }
+      return true;
+    },
+    {
+      message: 'La fecha de reprogramación es obligatoria cuando el estado es "Reprogramado"',
+      path: ['reprogram_date'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.status === 'ejecutado') {
+        return (data?.employees?.length || 0) > 0 || (data?.equipment?.length || 0) > 0;
+      }
+      return true;
+    },
+    {
+      message: 'Debe seleccionar al menos un empleado o equipo cuando el estado es "Ejecutado"',
+      path: ['employees'], // Solo un path para que funcione correctamente
+    }
   );
-
 export type DailyReportFormValues = z.infer<typeof dailyReportSchema>;
 type CustomersArray = Awaited<ReturnType<typeof getCustomers>>;
 type CustomerType = NonNullable<NonNullable<CustomersArray>[number]>;
@@ -151,6 +183,10 @@ export function DailyReportForm({
       ? data.equipment.filter((eq): eq is string => typeof eq === 'string')
       : [];
 
+    const equipos_clienteIds = Array.isArray(data.equipos_cliente)
+      ? data.equipos_cliente.filter((eq): eq is string => typeof eq === 'string')
+      : [];
+
     const rowData = {
       customer_id: data.customer,
       service_id: data.services,
@@ -160,10 +196,12 @@ export function DailyReportForm({
       end_time: data.end_time || null,
       description: data.description,
       daily_report_id: dailyReportId,
-      status: data.status,
+      status: data.status as DailyReportRowStatus,
       areas_service_id: data.areas_service_id,
       sector_service_id: data.sector_service_id,
       remit_number: data.remit_number || null,
+      type_service: data.type_service,
+      cancel_reason: data.cancel_reason || null,
     };
 
     toast.promise(
@@ -173,8 +211,37 @@ export function DailyReportForm({
             employees?.filter((emp) => data?.employees?.includes(emp.id))?.map((emp) => emp.id) || [];
           const equipmentIdsUpdated =
             equipments?.filter((eq) => data?.equipment?.includes(eq.id))?.map((eq) => eq.id) || [];
+
           // Modo edición
-          await updateDailyReportRow(selectedRow.id, rowData, employeeIdsUpdated, equipmentIdsUpdated);
+          console.log(data?.equipos_cliente, 'data?.equipos_cliente');
+          await updateDailyReportRow(
+            selectedRow.id,
+            rowData,
+            employeeIdsUpdated,
+            equipmentIdsUpdated,
+            data?.equipos_cliente || []
+          );
+          if (rowData.status === 'reprogramado') {
+            const existingReports = await checkDailyReportExists([format(data.reprogram_date!, 'yyyy-MM-dd')]);
+            if (existingReports.length > 0) {
+              await createDailyReportRow([
+                {
+                  ...rowData,
+                  status: 'sin_recursos_asignados',
+                  daily_report_id: existingReports[0].id,
+                },
+              ]);
+            } else {
+              const createdReports = await createDailyReport([format(data.reprogram_date!, 'yyyy-MM-dd')]);
+              await createDailyReportRow([
+                {
+                  ...rowData,
+                  status: 'sin_recursos_asignados',
+                  daily_report_id: createdReports?.[0].id,
+                },
+              ]);
+            }
+          }
         } else {
           // Modo creación
           const createdRow = await createDailyReportRow([rowData]);
@@ -187,6 +254,10 @@ export function DailyReportForm({
           // Crear relaciones con equipos si existen
           if (equipmentIds.length > 0) {
             await createDailyReportEquipmentRelations(createdRow[0].id, equipmentIds);
+          }
+
+          if (equipos_clienteIds.length > 0) {
+            await createDailyReportCustomerEquipmentRelations(createdRow[0].id, equipos_clienteIds);
           }
         }
 
@@ -215,6 +286,8 @@ export function DailyReportForm({
           sector_service_id: '',
           areas_service_id: '',
           remit_number: '',
+          type_service: undefined,
+          cancel_reason: '',
         });
 
         // Restablecer los estados locales
@@ -240,14 +313,15 @@ export function DailyReportForm({
       working_day: '',
       start_time: '',
       end_time: '',
-      status: 'pendiente',
+      status: '',
       description: '',
       document_path: '',
       sector_service_id: '',
       areas_service_id: '',
       remit_number: '',
       equipos_cliente: [],
-      type_service: undefined,
+      cancel_reason: '',
+      type_service: defaultValues?.type_service || undefined,
       // ...defaultValues,
     },
   });
@@ -260,8 +334,25 @@ export function DailyReportForm({
         setSelectedCustomer(customer);
         setSelectedCustomerId(customer.id);
         form.setValue('customer', customer.id);
-        return; // Salir temprano, el resto se ejecutará en el siguiente render
+        // return; // Salir temprano, el resto se ejecutará en el siguiente render
       }
+    }
+    // Si hay valores por defecto, establecer type_service inmediatamente
+    if (defaultValues?.type_service) {
+      form.setValue('type_service', defaultValues.type_service as 'mensual' | 'adicional');
+    }
+    if (defaultValues?.status) {
+      form.setValue(
+        'status',
+        defaultValues.status as
+          | 'pendiente'
+          | 'sin_recursos_asignados'
+          | 'ejecutado'
+          | 'reprogramado'
+          | 'cancelado'
+          | '.'
+          | '..'
+      );
     }
 
     if (defaultValues && selectedCustomer) {
@@ -304,6 +395,8 @@ export function DailyReportForm({
       form.setValue('status', defaultValues.status || 'pendiente');
       form.setValue('description', defaultValues.description || '');
       form.setValue('document_path', defaultValues.document_path || '');
+      form.setValue('type_service', defaultValues.type_service as 'mensual' | 'adicional');
+      form.setValue('cancel_reason', defaultValues.cancel_reason || '');
 
       // Establecer sector
       if (defaultValues.sector_customer_id) {
@@ -321,6 +414,11 @@ export function DailyReportForm({
         form.setValue('employees', employeeIds);
       }
 
+      if (defaultValues.customer_equipment) {
+        const equipos_clienteIds = defaultValues.customer_equipment.map((eq) => eq.id || '');
+        form.setValue('equipos_cliente', equipos_clienteIds);
+      }
+
       // Establecer equipos
       if (Array.isArray(defaultValues.equipment_references) && defaultValues.equipment_references.length > 0) {
         const equipmentIds = defaultValues.equipment_references.map((eq) => eq.id || '');
@@ -328,32 +426,6 @@ export function DailyReportForm({
       }
     }
   }, [selectedCustomer, defaultValues, form, customers, selectedServiceId]);
-
-  // Agregar este efecto para depurar los valores del formulario
-  useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      // Mostrar información detallada cuando se actualiza el sector o área
-      if (name === 'sector_service_id' || name === 'areas_service_id') {
-        // Si es el sector, mostrar información detallada
-        if (name === 'sector_service_id' && selectedCustomer) {
-          const sectorId = value.sector_service_id;
-          const sector = selectedCustomer.customer_services
-            ?.flatMap((s) => s.service_sectors || [])
-            .find((s) => s.sector_id === sectorId);
-        }
-
-        // Si es el área, mostrar información detallada
-        if (name === 'areas_service_id' && selectedCustomer) {
-          const areaId = value.areas_service_id;
-          const area = selectedCustomer.customer_services
-            ?.flatMap((s) => s.service_areas || [])
-            .find((a) => a.area_id === areaId);
-        }
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [form, selectedCustomer]);
 
   // Filtrar servicios activos del cliente seleccionado
   const customerServices = useMemo(() => {
@@ -467,6 +539,9 @@ export function DailyReportForm({
       sector_service_id: '',
       areas_service_id: '',
       remit_number: '',
+      type_service: undefined,
+      cancel_reason: '',
+      reprogram_date: undefined,
     });
 
     // Restablecer estados
@@ -488,7 +563,6 @@ export function DailyReportForm({
   const workingDayOptions = [
     { label: 'Jornada 8 horas', value: 'jornada 8 horas' },
     { label: 'Jornada 12 horas', value: 'jornada 12 horas' },
-    { label: 'Por horario', value: 'por horario' },
   ];
 
   const handleOpenChange = (open: boolean) => {
@@ -497,27 +571,6 @@ export function DailyReportForm({
     }
   };
 
-  // Fuera del componente o dentro de él, pero no en el render
-  const getCustomerSectors = (selectedCustomer: CustomerType | null) => {
-    if (!selectedCustomer?.customer_services?.length) return [];
-
-    const serviceWithSectors = selectedCustomer.customer_services.find(
-      (service) => service.service_sectors?.length > 0
-    );
-
-    if (!serviceWithSectors?.service_sectors?.length) return [];
-
-    return serviceWithSectors.service_sectors
-      .filter((sector) => sector.sectors)
-      .map((sector) => ({
-        id: sector.sector_id,
-        name: sector.sectors?.name || '',
-        description: sector.sectors?.descripcion_corta || '',
-      }));
-  };
-
-  // Luego en el componente, al mismo nivel que otros useMemo
-  const customerSectors = useMemo(() => getCustomerSectors(selectedCustomer), [selectedCustomer]);
   return (
     <div>
       <Sheet onOpenChange={handleOpenChange}>
@@ -539,441 +592,522 @@ export function DailyReportForm({
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 {/* Cliente */}
-                <FormField
-                  control={form.control}
-                  name="customer"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Cliente</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-                            >
-                              {field.value
-                                ? customers?.find((customer) => customer.id === field.value)?.name
-                                : 'Seleccionar cliente'}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="max-w-[400px] p-0">
-                          <Command>
-                            <CommandInput placeholder="Buscar cliente..." className="h-9" />
-                            <CommandList>
-                              <CommandEmpty>No se encontraron clientes.</CommandEmpty>
-                              <div className="px-3 py-1.5 text-xs text-muted-foreground">
-                                Nota: Los clientes dados de baja no se muestran en la lista.
-                              </div>
+                <div className="space-y-4 rounded-lg dark:bg-slate-900 bg-slate-50 p-4 w-full">
+                  <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Building className="h-4 w-4" />
+                    Datos del Cliente
+                  </h4>
+                  <div className="grid grid-cols-1 gap-4 w-full">
+                    <FormField
+                      control={form.control}
+                      name="customer"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col w-full">
+                          <FormLabel>Cliente</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  disabled={disabled}
+                                  className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+                                >
+                                  {field.value
+                                    ? customers?.find((customer) => customer.id === field.value)?.name
+                                    : 'Seleccionar cliente'}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="max-w-[400px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Buscar cliente..." className="h-9" />
+                                <CommandList>
+                                  <CommandEmpty>No se encontraron clientes.</CommandEmpty>
+                                  <div className="px-3 py-1.5 text-xs text-muted-foreground">
+                                    Nota: Los clientes dados de baja no se muestran en la lista.
+                                  </div>
 
-                              {/* Clientes activos */}
-                              <CommandGroup heading="Clientes activos">
-                                {activeCustomers.map((customer) => (
-                                  <CommandItem
-                                    value={customer.name}
-                                    key={customer.id}
-                                    onSelect={() => {
-                                      handleCustomerChange(customer.id);
-                                      setSelectedServiceId(null);
-                                      setSelectedCustomer(customer);
-                                    }}
-                                  >
-                                    {customer.name}
-                                    <Check
-                                      className={cn(
-                                        'ml-auto h-4 w-4',
-                                        customer.id === field.value ? 'opacity-100' : 'opacity-0'
-                                      )}
-                                    />
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Servicio */}
-                <FormField
-                  control={form.control}
-                  name="services"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Servicio</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              disabled={isServiceDisabled}
-                              className={cn(
-                                'w-full justify-between',
-                                !field.value && 'text-muted-foreground',
-                                isServiceDisabled && 'opacity-50 cursor-not-allowed'
-                              )}
-                            >
-                              {field.value
-                                ? customerServices.find((service) => service.id === field.value)?.service_name
-                                : selectedCustomerId
-                                  ? 'Seleccionar servicio'
-                                  : 'Seleccione un cliente primero'}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="max-w-[400px] p-0">
-                          <Command>
-                            <CommandInput
-                              placeholder="Buscar servicio..."
-                              className="h-9"
-                              disabled={isServiceDisabled}
-                            />
-                            <CommandList>
-                              <CommandEmpty>
-                                {!selectedCustomerId
-                                  ? 'Seleccione un cliente primero.'
-                                  : customerServices.length === 0
-                                    ? 'No hay servicios activos para este cliente.'
-                                    : 'No se encontraron servicios que coincidan.'}
-                              </CommandEmpty>
-                              {selectedCustomerId && (
-                                <div className="px-3 py-1.5 text-xs text-muted-foreground">
-                                  Nota: Los servicios vencidos o de baja no se muestran en la lista.
-                                </div>
-                              )}
-
-                              {(() => {
-                                if (!selectedCustomerId) return null;
-
-                                if (customerServices.length === 0) {
-                                  return (
-                                    <div className="py-6 text-center text-sm text-muted-foreground">
-                                      No hay servicios activos para este cliente.
-                                    </div>
-                                  );
-                                }
-
-                                return (
-                                  <CommandGroup>
-                                    {customerServices.map((service) => {
-                                      return (
-                                        <CommandItem
-                                          value={service.service_name || ''}
-                                          key={service.id}
-                                          onSelect={() => handleServiceChange(service.id)}
-                                        >
-                                          <div className="flex items-center justify-between w-full">
-                                            <span>{service.service_name}</span>
-                                          </div>
-                                          <Check
-                                            className={cn(
-                                              'ml-auto h-4 w-4',
-                                              service.id === field.value ? 'opacity-100' : 'opacity-0'
-                                            )}
-                                          />
-                                        </CommandItem>
-                                      );
-                                    })}
+                                  {/* Clientes activos */}
+                                  <CommandGroup heading="Clientes activos">
+                                    {activeCustomers.map((customer) => (
+                                      <CommandItem
+                                        value={customer.name}
+                                        key={customer.id}
+                                        onSelect={() => {
+                                          handleCustomerChange(customer.id);
+                                          setSelectedServiceId(null);
+                                          setSelectedCustomer(customer);
+                                        }}
+                                      >
+                                        {customer.name}
+                                        <Check
+                                          className={cn(
+                                            'ml-auto h-4 w-4',
+                                            customer.id === field.value ? 'opacity-100' : 'opacity-0'
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
                                   </CommandGroup>
-                                );
-                              })()}
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Servicio */}
+                    <FormField
+                      control={form.control}
+                      name="services"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Servicio</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  disabled={isServiceDisabled}
+                                  className={cn(
+                                    'w-full justify-between',
+                                    !field.value && 'text-muted-foreground',
+                                    isServiceDisabled && 'opacity-50 cursor-not-allowed'
+                                  )}
+                                >
+                                  {field.value
+                                    ? customerServices.find((service) => service.id === field.value)?.service_name
+                                    : selectedCustomerId
+                                      ? 'Seleccionar servicio'
+                                      : 'Seleccione un cliente primero'}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="max-w-[400px] p-0">
+                              <Command>
+                                <CommandInput
+                                  placeholder="Buscar servicio..."
+                                  className="h-9"
+                                  disabled={isServiceDisabled}
+                                />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    {!selectedCustomerId
+                                      ? 'Seleccione un cliente primero.'
+                                      : customerServices.length === 0
+                                        ? 'No hay servicios activos para este cliente.'
+                                        : 'No se encontraron servicios que coincidan.'}
+                                  </CommandEmpty>
+                                  {selectedCustomerId && (
+                                    <div className="px-3 py-1.5 text-xs text-muted-foreground">
+                                      Nota: Los servicios vencidos o de baja no se muestran en la lista.
+                                    </div>
+                                  )}
 
-                {/* Ítem */}
-                <FormField
-                  control={form.control}
-                  name="item"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Ítem</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              disabled={!selectedServiceId}
-                              className={cn(
-                                'w-full justify-between',
-                                !field.value && 'text-muted-foreground',
-                                !selectedServiceId && 'opacity-50 cursor-not-allowed'
-                              )}
-                            >
-                              {field.value
-                                ? serviceItems.find((item) => item.id === field.value)?.item_name ||
-                                  'Ítem no encontrado'
-                                : selectedServiceId
-                                  ? 'Seleccionar ítem'
-                                  : 'Seleccione un servicio primero'}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="w-full p-0">
-                          <Command>
-                            <CommandInput
-                              placeholder={!selectedServiceId ? 'Seleccione un servicio primero' : 'Buscar ítem...'}
-                              className="h-9"
-                              disabled={!selectedServiceId}
-                            />
-                            <CommandList>
-                              <CommandEmpty>
-                                {!selectedServiceId
-                                  ? 'Seleccione un servicio primero.'
-                                  : serviceItems.length === 0
-                                    ? 'No hay ítems disponibles para este servicio.'
-                                    : 'No se encontraron ítems que coincidan.'}
-                              </CommandEmpty>
-                              {!selectedServiceId && (
-                                <div className="py-6 text-center text-sm text-muted-foreground">
-                                  Por favor, seleccione un servicio primero.
-                                </div>
-                              )}
+                                  {(() => {
+                                    if (!selectedCustomerId) return null;
 
-                              {selectedServiceId &&
-                                (() => {
-                                  if (!selectedServiceId) return null;
+                                    if (customerServices.length === 0) {
+                                      return (
+                                        <div className="py-6 text-center text-sm text-muted-foreground">
+                                          No hay servicios activos para este cliente.
+                                        </div>
+                                      );
+                                    }
 
-                                  if (serviceItems.length === 0) {
                                     return (
-                                      <div className="py-6 text-center text-sm text-muted-foreground">
-                                        No hay ítems disponibles para este servicio.
-                                      </div>
+                                      <CommandGroup>
+                                        {customerServices.map((service) => {
+                                          return (
+                                            <CommandItem
+                                              value={service.service_name || ''}
+                                              key={service.id}
+                                              onSelect={() => handleServiceChange(service.id)}
+                                            >
+                                              <div className="flex items-center justify-between w-full">
+                                                <span>{service.service_name}</span>
+                                              </div>
+                                              <Check
+                                                className={cn(
+                                                  'ml-auto h-4 w-4',
+                                                  service.id === field.value ? 'opacity-100' : 'opacity-0'
+                                                )}
+                                              />
+                                            </CommandItem>
+                                          );
+                                        })}
+                                      </CommandGroup>
                                     );
-                                  }
+                                  })()}
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                                  return (
-                                    <CommandGroup>
-                                      {serviceItems.map((item) => {
-                                        const isSelected = item.id === field.value;
+                    {/* Ítem */}
+                    <FormField
+                      control={form.control}
+                      name="item"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Ítem</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  disabled={!selectedServiceId}
+                                  className={cn(
+                                    'w-full justify-between',
+                                    !field.value && 'text-muted-foreground',
+                                    !selectedServiceId && 'opacity-50 cursor-not-allowed'
+                                  )}
+                                >
+                                  {field.value
+                                    ? serviceItems.find((item) => item.id === field.value)?.item_name ||
+                                      'Ítem no encontrado'
+                                    : selectedServiceId
+                                      ? 'Seleccionar ítem'
+                                      : 'Seleccione un servicio primero'}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="w-full p-0">
+                              <Command>
+                                <CommandInput
+                                  placeholder={!selectedServiceId ? 'Seleccione un servicio primero' : 'Buscar ítem...'}
+                                  className="h-9"
+                                  disabled={!selectedServiceId}
+                                />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    {!selectedServiceId
+                                      ? 'Seleccione un servicio primero.'
+                                      : serviceItems.length === 0
+                                        ? 'No hay ítems disponibles para este servicio.'
+                                        : 'No se encontraron ítems que coincidan.'}
+                                  </CommandEmpty>
+                                  {!selectedServiceId && (
+                                    <div className="py-6 text-center text-sm text-muted-foreground">
+                                      Por favor, seleccione un servicio primero.
+                                    </div>
+                                  )}
 
+                                  {selectedServiceId &&
+                                    (() => {
+                                      if (!selectedServiceId) return null;
+
+                                      if (serviceItems.length === 0) {
                                         return (
+                                          <div className="py-6 text-center text-sm text-muted-foreground">
+                                            No hay ítems disponibles para este servicio.
+                                          </div>
+                                        );
+                                      }
+
+                                      return (
+                                        <CommandGroup>
+                                          {serviceItems.map((item) => {
+                                            const isSelected = item.id === field.value;
+
+                                            return (
+                                              <CommandItem
+                                                value={`${item.id}-${item.item_name}`} // Usamos ID y nombre para búsqueda
+                                                key={item.id}
+                                                onSelect={() => {
+                                                  form.setValue('item', item.id);
+                                                }}
+                                                className={cn('group', isSelected ? '' : '')}
+                                              >
+                                                <div className="flex items-center justify-between w-full">
+                                                  <span>{item.item_name}</span>
+                                                  {item.measure_units?.unit && (
+                                                    <Badge variant="outline" className="ml-2">
+                                                      {item.measure_units.unit}
+                                                    </Badge>
+                                                  )}
+                                                </div>
+                                                <Check
+                                                  className={cn(
+                                                    'ml-2 h-4 w-4',
+                                                    isSelected ? 'opacity-100' : 'opacity-0'
+                                                  )}
+                                                />
+                                              </CommandItem>
+                                            );
+                                          })}
+                                        </CommandGroup>
+                                      );
+                                    })()}
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Sector del Cliente */}
+                    <FormField
+                      control={form.control}
+                      name="sector_service_id"
+                      render={({ field }) => {
+                        // Filtrar sectores del cliente seleccionado
+                        const customerSectors =
+                          selectedCustomer?.customer_services
+                            ?.flatMap((service) => service.service_sectors || [])
+                            .filter((sector) => sector.sectors)
+                            .map((sector) => ({
+                              id: sector.id,
+                              name: sector.sectors?.name || '',
+                              description: sector.sectors?.descripcion_corta || '',
+                            })) || [];
+
+                        // Encontrar el sector seleccionado
+                        const selectedSector = customerSectors.find((sector) => sector.id === field.value);
+
+                        return (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Sector del Cliente</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    disabled={isSectorDisabled}
+                                    className={cn(
+                                      'w-full justify-between',
+                                      !field.value && 'text-muted-foreground',
+                                      isSectorDisabled && 'opacity-50 cursor-not-allowed'
+                                    )}
+                                  >
+                                    {selectedSector?.name ||
+                                      (selectedCustomer
+                                        ? customerSectors.length > 0
+                                          ? 'Seleccionar sector'
+                                          : 'No hay sectores disponibles'
+                                        : 'Seleccione un cliente primero')}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent align="start" className="w-full p-0">
+                                <Command>
+                                  <CommandInput
+                                    placeholder="Buscar sector..."
+                                    className="h-9"
+                                    disabled={isSectorDisabled}
+                                  />
+                                  <CommandList>
+                                    <CommandEmpty>
+                                      {!selectedCustomerId
+                                        ? 'Seleccione un cliente primero.'
+                                        : customerSectors.length === 0
+                                          ? 'No hay sectores disponibles para este cliente.'
+                                          : 'No se encontraron sectores que coincidan.'}
+                                    </CommandEmpty>
+                                    {customerSectors.length > 0 && (
+                                      <CommandGroup>
+                                        {customerSectors.map((sector) => (
                                           <CommandItem
-                                            value={`${item.id}-${item.item_name}`} // Usamos ID y nombre para búsqueda
-                                            key={item.id}
+                                            value={sector.name || ''}
+                                            key={sector.id}
                                             onSelect={() => {
-                                              form.setValue('item', item.id);
+                                              form.setValue('sector_service_id', sector.id, { shouldDirty: true });
                                             }}
-                                            className={cn('group', isSelected ? '' : '')}
                                           >
-                                            <div className="flex items-center justify-between w-full">
-                                              <span>{item.item_name}</span>
-                                              {item.measure_units?.unit && (
-                                                <Badge variant="outline" className="ml-2">
-                                                  {item.measure_units.unit}
-                                                </Badge>
-                                              )}
-                                            </div>
+                                            {sector.name || 'Sin nombre'}
                                             <Check
-                                              className={cn('ml-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')}
+                                              className={cn(
+                                                'ml-auto h-4 w-4',
+                                                sector.id === field.value ? 'opacity-100' : 'opacity-0'
+                                              )}
                                             />
                                           </CommandItem>
-                                        );
-                                      })}
-                                    </CommandGroup>
-                                  );
-                                })()}
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                                        ))}
+                                      </CommandGroup>
+                                    )}
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
 
-                {/* Sector del Cliente */}
-                <FormField
-                  control={form.control}
-                  name="sector_service_id"
-                  render={({ field }) => {
-                    // Filtrar sectores del cliente seleccionado
-                    const customerSectors =
-                      selectedCustomer?.customer_services
-                        ?.flatMap((service) => service.service_sectors || [])
-                        .filter((sector) => sector.sectors)
-                        .map((sector) => ({
-                          id: sector.id,
-                          name: sector.sectors?.name || '',
-                          description: sector.sectors?.descripcion_corta || '',
-                        })) || [];
+                    {/* Área del Cliente */}
+                    <FormField
+                      control={form.control}
+                      name="areas_service_id"
+                      render={({ field }) => {
+                        // Filtrar áreas del cliente seleccionado
+                        const customerAreas =
+                          selectedCustomer?.customer_services
+                            ?.flatMap((service) => service.service_areas || [])
+                            .filter((area) => area.areas_cliente)
+                            .map((area) => ({
+                              id: area.id,
+                              name: area.areas_cliente?.nombre || '',
+                              description: area.areas_cliente?.descripcion_corta || '',
+                            })) || [];
 
-                    // Encontrar el sector seleccionado
-                    const selectedSector = customerSectors.find((sector) => sector.id === field.value);
+                        // Encontrar el área seleccionada
+                        const selectedArea = customerAreas.find((area) => area.id === field.value);
 
-                    return (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Sector del Cliente</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                disabled={isSectorDisabled}
-                                className={cn(
-                                  'w-full justify-between',
-                                  !field.value && 'text-muted-foreground',
-                                  isSectorDisabled && 'opacity-50 cursor-not-allowed'
-                                )}
-                              >
-                                {selectedSector?.name ||
-                                  (selectedCustomer
-                                    ? customerSectors.length > 0
-                                      ? 'Seleccionar sector'
-                                      : 'No hay sectores disponibles'
-                                    : 'Seleccione un cliente primero')}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" className="w-full p-0">
-                            <Command>
-                              <CommandInput
-                                placeholder="Buscar sector..."
-                                className="h-9"
-                                disabled={isSectorDisabled}
-                              />
-                              <CommandList>
-                                <CommandEmpty>
-                                  {!selectedCustomerId
-                                    ? 'Seleccione un cliente primero.'
-                                    : customerSectors.length === 0
-                                      ? 'No hay sectores disponibles para este cliente.'
-                                      : 'No se encontraron sectores que coincidan.'}
-                                </CommandEmpty>
-                                {customerSectors.length > 0 && (
-                                  <CommandGroup>
-                                    {customerSectors.map((sector) => (
+                        return (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Área del Cliente</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    disabled={isAreaDisabled}
+                                    className={cn(
+                                      'w-full justify-between',
+                                      !field.value && 'text-muted-foreground',
+                                      isAreaDisabled && 'opacity-50 cursor-not-allowed'
+                                    )}
+                                  >
+                                    {selectedArea?.name ||
+                                      (selectedCustomer
+                                        ? customerAreas.length > 0
+                                          ? 'Seleccionar área'
+                                          : 'No hay áreas disponibles'
+                                        : 'Seleccione un cliente primero')}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent align="start" className="w-full p-0">
+                                <Command>
+                                  <CommandInput
+                                    placeholder="Buscar área..."
+                                    className="h-9"
+                                    disabled={isAreaDisabled}
+                                  />
+                                  <CommandList>
+                                    <CommandEmpty>
+                                      {!selectedCustomerId
+                                        ? 'Seleccione un cliente primero.'
+                                        : customerAreas.length === 0
+                                          ? 'No hay áreas disponibles para este cliente.'
+                                          : 'No se encontraron áreas que coincidan.'}
+                                    </CommandEmpty>
+                                    {customerAreas.length > 0 && (
+                                      <CommandGroup>
+                                        {customerAreas.map((area) => (
+                                          <CommandItem
+                                            value={area.name || ''}
+                                            key={area.id}
+                                            onSelect={() => {
+                                              form.setValue('areas_service_id', area.id, { shouldDirty: true });
+                                            }}
+                                          >
+                                            {area.name || 'Sin nombre'}
+                                            <Check
+                                              className={cn(
+                                                'ml-auto h-4 w-4',
+                                                area.id === field.value ? 'opacity-100' : 'opacity-0'
+                                              )}
+                                            />
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    )}
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
+
+                    {/* Equipos del Cliente */}
+                    <FormField
+                      control={form.control}
+                      name="equipos_cliente"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Equipos del Cliente</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+                                >
+                                  {field.value && field.value.length > 0
+                                    ? `${field.value.length} equipos del cliente seleccionados`
+                                    : 'Seleccionar equipos del cliente'}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[400px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Buscar equipos..." />
+                                <CommandEmpty>No se encontraron equipos.</CommandEmpty>
+                                <CommandGroup className="max-h-[200px] overflow-y-auto">
+                                  {selectedCustomer?.equipos_clientes?.map((equipo) => {
+                                    const isSelected = field.value?.includes(equipo.id);
+                                    const maxSelected = (field.value?.length || 0) >= 2;
+                                    const isDisabled = !isSelected && maxSelected;
+
+                                    return (
                                       <CommandItem
-                                        value={sector.name || ''}
-                                        key={sector.id}
+                                        value={equipo.name || equipo.type || ''}
+                                        key={equipo.id}
+                                        disabled={isDisabled}
                                         onSelect={() => {
-                                          form.setValue('sector_service_id', sector.id, { shouldDirty: true });
+                                          if (isDisabled) return;
+
+                                          const newValue = isSelected
+                                            ? field.value?.filter((v: string) => v !== equipo.id) || []
+                                            : [...(field.value || []), equipo.id];
+                                          field.onChange(newValue);
                                         }}
+                                        className={cn(
+                                          isDisabled && 'opacity-50 cursor-not-allowed',
+                                          isSelected && 'bg-accent/50'
+                                        )}
                                       >
-                                        {sector.name || 'Sin nombre'}
                                         <Check
-                                          className={cn(
-                                            'ml-auto h-4 w-4',
-                                            sector.id === field.value ? 'opacity-100' : 'opacity-0'
-                                          )}
+                                          className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')}
                                         />
+                                        {equipo.name} ({equipo.type})
                                       </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                )}
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
-
-                {/* Área del Cliente */}
-                <FormField
-                  control={form.control}
-                  name="areas_service_id"
-                  render={({ field }) => {
-                    // Filtrar áreas del cliente seleccionado
-                    const customerAreas =
-                      selectedCustomer?.customer_services
-                        ?.flatMap((service) => service.service_areas || [])
-                        .filter((area) => area.areas_cliente)
-                        .map((area) => ({
-                          id: area.id,
-                          name: area.areas_cliente?.nombre || '',
-                          description: area.areas_cliente?.descripcion_corta || '',
-                        })) || [];
-
-                    // Encontrar el área seleccionada
-                    const selectedArea = customerAreas.find((area) => area.id === field.value);
-
-                    return (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Área del Cliente</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                disabled={isAreaDisabled}
-                                className={cn(
-                                  'w-full justify-between',
-                                  !field.value && 'text-muted-foreground',
-                                  isAreaDisabled && 'opacity-50 cursor-not-allowed'
-                                )}
-                              >
-                                {selectedArea?.name ||
-                                  (selectedCustomer
-                                    ? customerAreas.length > 0
-                                      ? 'Seleccionar área'
-                                      : 'No hay áreas disponibles'
-                                    : 'Seleccione un cliente primero')}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" className="w-full p-0">
-                            <Command>
-                              <CommandInput placeholder="Buscar área..." className="h-9" disabled={isAreaDisabled} />
-                              <CommandList>
-                                <CommandEmpty>
-                                  {!selectedCustomerId
-                                    ? 'Seleccione un cliente primero.'
-                                    : customerAreas.length === 0
-                                      ? 'No hay áreas disponibles para este cliente.'
-                                      : 'No se encontraron áreas que coincidan.'}
-                                </CommandEmpty>
-                                {customerAreas.length > 0 && (
-                                  <CommandGroup>
-                                    {customerAreas.map((area) => (
-                                      <CommandItem
-                                        value={area.name || ''}
-                                        key={area.id}
-                                        onSelect={() => {
-                                          form.setValue('areas_service_id', area.id, { shouldDirty: true });
-                                        }}
-                                      >
-                                        {area.name || 'Sin nombre'}
-                                        <Check
-                                          className={cn(
-                                            'ml-auto h-4 w-4',
-                                            area.id === field.value ? 'opacity-100' : 'opacity-0'
-                                          )}
-                                        />
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                )}
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
+                                    );
+                                  })}
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
                 {/* Campo de estado - Solo visible en modo edición */}
                 {selectedRow && (
@@ -982,7 +1116,8 @@ export function DailyReportForm({
                     name="status"
                     render={({ field }) => {
                       // Obtener el valor actual del estado
-                      const currentStatus = form.watch('status');
+                      const currentStatusWatch = form.watch('status');
+                      // const currentStatus = field.value as string;
 
                       return (
                         <FormItem>
@@ -990,7 +1125,6 @@ export function DailyReportForm({
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);
-                              // Si el estado no es 'ejecutado', limpiar el remit_number
                               if (value !== 'ejecutado') {
                                 form.setValue('remit_number', '');
                               }
@@ -1003,18 +1137,28 @@ export function DailyReportForm({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="pendiente">Pendiente</SelectItem>
-                              <SelectItem value="ejecutado">Ejecutado</SelectItem>
-                              <SelectItem value="reprogramado">Reprogramado</SelectItem>
-                              <SelectItem value="cancelado">Cancelado</SelectItem>
-                              <SelectItem value="sin_recursos_asignados">Sin recursos asignados</SelectItem>
+                              <SelectItem className="hover:bg-accent" value="ejecutado">
+                                Ejecutado
+                              </SelectItem>
+                              <SelectItem className="hover:bg-accent" value="reprogramado">
+                                Reprogramado
+                              </SelectItem>
+                              <SelectItem className="hover:bg-accent" value="cancelado">
+                                Cancelado
+                              </SelectItem>
+                              <SelectItem value="pendiente" disabled>
+                                Pendiente
+                              </SelectItem>
+                              <SelectItem value="sin_recursos_asignados" disabled>
+                                Sin recursos asignados
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
 
                           {/* Campo de número de remito - Solo visible cuando el estado es 'ejecutado' */}
-                          {currentStatus === 'ejecutado' && (
-                            <div className="mt-4">
+                          {currentStatusWatch === 'ejecutado' && (
+                            <div className="mt-6">
                               <FormField
                                 control={form.control}
                                 name="remit_number"
@@ -1028,6 +1172,70 @@ export function DailyReportForm({
                                         value={remitField.value || ''}
                                       />
                                     </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          )}
+                          {currentStatusWatch === 'cancelado' && (
+                            <div className="mt-6">
+                              <FormField
+                                control={form.control}
+                                name="cancel_reason"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Motivo de cancelación</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Ingrese el motivo de cancelación"
+                                        {...field}
+                                        value={field.value || ''}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          )}
+                          {currentStatusWatch === 'reprogramado' && (
+                            <div className="mt-6">
+                              <FormField
+                                control={form.control}
+                                name="reprogram_date"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-col">
+                                    <FormLabel className="mt-2">Fecha de reprogramación</FormLabel>
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <FormControl>
+                                          <Button
+                                            variant={'outline'}
+                                            className={cn(
+                                              'pl-3 text-left font-normal',
+                                              !field.value && 'text-muted-foreground'
+                                            )}
+                                          >
+                                            {field.value ? (
+                                              format(field.value, 'PPP', { locale: es })
+                                            ) : (
+                                              <span>Seleccionar fecha</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          </Button>
+                                        </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                          mode="single"
+                                          selected={field.value}
+                                          onSelect={field.onChange}
+                                          disabled={(date) => moment(date).isBefore(moment())}
+                                          initialFocus
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
                                     <FormMessage />
                                   </FormItem>
                                 )}
@@ -1126,60 +1334,6 @@ export function DailyReportForm({
                                 </CommandGroup>
                               )}
                             </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Equipos del Cliente */}
-                <FormField
-                  control={form.control}
-                  name="equipos_cliente"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Equipos del Cliente</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-                            >
-                              {field.value && field.value.length > 0
-                                ? `${field.value.length} equipos del cliente seleccionados`
-                                : 'Seleccionar equipos del cliente'}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[400px] p-0">
-                          <Command>
-                            <CommandInput placeholder="Buscar equipos..." />
-                            <CommandEmpty>No se encontraron equipos.</CommandEmpty>
-                            <CommandGroup className="max-h-[200px] overflow-y-auto">
-                              {selectedCustomer?.equipos_clientes?.map((equipo) => {
-                                const isSelected = field.value?.includes(equipo.id);
-                                return (
-                                  <CommandItem
-                                    value={equipo.name || equipo.type || ''}
-                                    key={equipo.id}
-                                    onSelect={() => {
-                                      const newValue = isSelected
-                                        ? field?.value?.filter((v: string) => v !== equipo.id)
-                                        : [...(field.value || []), equipo.id];
-                                      field.onChange(newValue);
-                                    }}
-                                  >
-                                    <Check className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')} />
-                                    {equipo.name || equipo.type || `Equipo ${equipo.id}`}
-                                  </CommandItem>
-                                );
-                              })}
-                            </CommandGroup>
                           </Command>
                         </PopoverContent>
                       </Popover>
@@ -1347,7 +1501,7 @@ export function DailyReportForm({
                 />
 
                 {/* Horario (condicional) */}
-                {form.watch('working_day') === 'por horario' && (
+                {/* {form.watch('working_day') === 'por horario' && (
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -1372,7 +1526,7 @@ export function DailyReportForm({
                       )}
                     />
                   </div>
-                )}
+                )} */}
 
                 {/* Tipo de servicio */}
                 <FormField
@@ -1389,13 +1543,21 @@ export function DailyReportForm({
                         >
                           <FormItem className="flex items-center space-x-3 space-y-0">
                             <FormControl>
-                              <RadioGroupItem value="mensual" />
+                              <RadioGroupItem
+                                defaultValue={field.value}
+                                defaultChecked={field.value === 'mensual'}
+                                value="mensual"
+                              />
                             </FormControl>
                             <FormLabel className="font-normal">Mensual</FormLabel>
                           </FormItem>
                           <FormItem className="flex items-center space-x-3 space-y-0">
                             <FormControl>
-                              <RadioGroupItem value="adicional" />
+                              <RadioGroupItem
+                                defaultValue={field.value}
+                                defaultChecked={field.value === 'adicional'}
+                                value="adicional"
+                              />
                             </FormControl>
                             <FormLabel className="font-normal">Adicional</FormLabel>
                           </FormItem>

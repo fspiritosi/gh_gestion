@@ -831,19 +831,19 @@ export type Database = {
       };
       dailyreport_customer_equipment_relations: {
         Row: {
-          customer_equipment_id: string | null;
-          daily_report_row_id: string | null;
-          id: number;
+          customer_equipment_id: string;
+          daily_report_row_id: string;
+          id: string;
         };
         Insert: {
-          customer_equipment_id?: string | null;
-          daily_report_row_id?: string | null;
-          id?: number;
+          customer_equipment_id: string;
+          daily_report_row_id: string;
+          id?: string;
         };
         Update: {
-          customer_equipment_id?: string | null;
-          daily_report_row_id?: string | null;
-          id?: number;
+          customer_equipment_id?: string;
+          daily_report_row_id?: string;
+          id?: string;
         };
         Relationships: [
           {
@@ -944,7 +944,6 @@ export type Database = {
           description: string | null;
           document_path: string | null;
           end_time: string | null;
-          equipo_cliente_id: string | null;
           id: string;
           item_id: string | null;
           remit_number: string | null;
@@ -952,7 +951,7 @@ export type Database = {
           service_id: string | null;
           start_time: string | null;
           status: Database['public']['Enums']['daily_report_status'];
-          type_service: string | null;
+          type_service: Database['public']['Enums']['daily_report_type_enum'] | null;
           updated_at: string | null;
           working_day: string | null;
         };
@@ -965,7 +964,6 @@ export type Database = {
           description?: string | null;
           document_path?: string | null;
           end_time?: string | null;
-          equipo_cliente_id?: string | null;
           id?: string;
           item_id?: string | null;
           remit_number?: string | null;
@@ -973,7 +971,7 @@ export type Database = {
           service_id?: string | null;
           start_time?: string | null;
           status?: Database['public']['Enums']['daily_report_status'];
-          type_service?: string | null;
+          type_service?: Database['public']['Enums']['daily_report_type_enum'] | null;
           updated_at?: string | null;
           working_day?: string | null;
         };
@@ -986,7 +984,6 @@ export type Database = {
           description?: string | null;
           document_path?: string | null;
           end_time?: string | null;
-          equipo_cliente_id?: string | null;
           id?: string;
           item_id?: string | null;
           remit_number?: string | null;
@@ -994,7 +991,7 @@ export type Database = {
           service_id?: string | null;
           start_time?: string | null;
           status?: Database['public']['Enums']['daily_report_status'];
-          type_service?: string | null;
+          type_service?: Database['public']['Enums']['daily_report_type_enum'] | null;
           updated_at?: string | null;
           working_day?: string | null;
         };
@@ -1011,13 +1008,6 @@ export type Database = {
             columns: ['daily_report_id'];
             isOneToOne: false;
             referencedRelation: 'dailyreport';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'dailyreportrows_equipo_cliente_id_fkey';
-            columns: ['equipo_cliente_id'];
-            isOneToOne: false;
-            referencedRelation: 'equipos_clientes';
             referencedColumns: ['id'];
           },
           {
@@ -3066,6 +3056,7 @@ export type Database = {
         | 'cancelado'
         | '.'
         | '..';
+      daily_report_type_enum: 'mensual' | 'adicional';
       document_applies: 'Persona' | 'Equipos' | 'Empresa';
       document_type_enum: 'DNI' | 'LE' | 'LC' | 'PASAPORTE';
       gender_enum: 'Masculino' | 'Femenino' | 'No Declarado';
@@ -3213,6 +3204,7 @@ export const Constants = {
       condition_enum: ['operativo', 'no operativo', 'en reparación', 'operativo condicionado'],
       daily_report_header_status_new: ['abierto', 'cerrado', 'cerrado_completo', 'cerrado_incompleto'],
       daily_report_status: ['pendiente', 'sin_recursos_asignados', 'ejecutado', 'reprogramado', 'cancelado', '.', '..'],
+      daily_report_type_enum: ['mensual', 'adicional'],
       document_applies: ['Persona', 'Equipos', 'Empresa'],
       document_type_enum: ['DNI', 'LE', 'LC', 'PASAPORTE'],
       gender_enum: ['Masculino', 'Femenino', 'No Declarado'],

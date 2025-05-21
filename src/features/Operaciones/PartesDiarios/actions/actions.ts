@@ -20,7 +20,10 @@ import { cookies } from 'next/headers';
 export async function getDailyReports() {
   const supabase = supabaseServer();
 
-  let { data: dailyReports, error } = await supabase.from('dailyreport').select(`*`).order('date', { ascending: true });
+  let { data: dailyReports, error } = await supabase
+    .from('dailyreport')
+    .select(`*`)
+    .order('date', { ascending: false });
 
   if (error) {
     console.error('Error fetching daily reports:', error);
@@ -38,6 +41,7 @@ export async function getDailyReportById(id: string) {
       `
     *,
      dailyreportrows(
+     dailyreport_customer_equipment_relations(*,equipos_clientes(*)),
      *,
   id,
   service_sectors(*,sectors(*)),
@@ -105,6 +109,7 @@ export async function createDailyReport(date: string[]) {
     .select();
 
   if (error) {
+    return [];
     console.log(error);
   }
   return data;
@@ -136,6 +141,7 @@ export async function getCustomers() {
   );
   return data;
 }
+
 export async function getCustomersServices() {
   const supabase = supabaseServer();
   const { data, error } = await supabase.from('customer_services').select('*');
@@ -241,13 +247,16 @@ interface DailyReportRowData {
   description?: string | null;
   areas_customer_id?: string;
   sector_customer_id?: string;
+  type_service?: 'mensual' | 'adicional';
+  status: DailyReportRowStatus;
 }
 
 export async function updateDailyReportRow(
   id: string,
   data: Partial<DailyReportRowData>,
   employeeIds: string[],
-  equipmentIds: string[]
+  equipmentIds: string[],
+  equipos_clienteIds: string[]
 ) {
   const supabase = supabaseServer();
 
@@ -257,9 +266,21 @@ export async function updateDailyReportRow(
   // Actualizar relaciones de equipos
   await updateEquipmentRelations(id, equipmentIds);
 
+  await updateEquiposClienteRelations(id, equipos_clienteIds);
+
   const { data: updatedRow, error: updateError } = await supabase
     .from('dailyreportrows')
-    .update(data)
+    .update({
+      ...data,
+      status:
+        data.status === 'cancelado' ||
+        data.status === 'reprogramado' ||
+        data.status === 'ejecutado' ||
+        employeeIds.length > 0 ||
+        equipmentIds.length > 0
+          ? data.status
+          : 'sin_recursos_asignados',
+    })
     .eq('id', id)
     .select()
     .single();
@@ -361,6 +382,62 @@ export async function updateEquipmentRelations(rowId: string, equipmentIds: stri
   }
 }
 
+export async function updateEquiposClienteRelations(dailyReportRowId: string, equiposClienteIds: string[]) {
+  const supabase = supabaseServer();
+
+  try {
+    // 1. Obtener relaciones existentes para este daily_report_row
+    const { data: existingRelations, error: fetchError } = await supabase
+      .from('dailyreport_customer_equipment_relations')
+      .select('id, customer_equipment_id')
+      .eq('daily_report_row_id', dailyReportRowId);
+
+    if (fetchError) throw fetchError;
+
+    const currentRelations = existingRelations || [];
+
+    // 2. Identificar relaciones a eliminar (están en la BD pero no en los nuevos IDs)
+    const currentEquipmentIds = currentRelations.map((rel) => rel.customer_equipment_id);
+    const newEquipmentIds = equiposClienteIds || [];
+
+    const relationsToDelete = currentRelations.filter((rel) => !newEquipmentIds.includes(rel.customer_equipment_id));
+
+    // 3. Identificar equipos para los que hay que crear nuevas relaciones
+    const equipmentIdsToAdd = newEquipmentIds.filter((id) => !currentEquipmentIds.includes(id));
+
+    // 4. Eliminar relaciones que ya no existen
+    if (relationsToDelete.length > 0) {
+      const { error: deleteError } = await supabase
+        .from('dailyreport_customer_equipment_relations')
+        .delete()
+        .in(
+          'id',
+          relationsToDelete.map((r) => r.id)
+        );
+
+      if (deleteError) throw deleteError;
+    }
+
+    // 5. Crear nuevas relaciones para equipos que no las tenían
+    if (equipmentIdsToAdd.length > 0) {
+      const newRelations = equipmentIdsToAdd.map((equipmentId) => ({
+        daily_report_row_id: dailyReportRowId,
+        customer_equipment_id: equipmentId,
+      }));
+
+      const { error: insertError } = await supabase
+        .from('dailyreport_customer_equipment_relations')
+        .insert(newRelations);
+
+      if (insertError) throw insertError;
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error en updateEquiposClienteRelations:', error);
+    throw error;
+  }
+}
 export async function createDailyReportRow(data: Omit<DailyReportRowData, 'id' | 'created_at' | 'updated_at'>[]) {
   const supabase = supabaseServer();
 
@@ -432,6 +509,25 @@ export async function createDailyReportEquipmentRelations(dailyReportRowId: stri
     .from('dailyreportequipmentrelations' as any)
     .insert(relations)
     .select();
+
+  if (error) {
+    console.error('Error creating equipment relations:', error);
+    throw new Error(error.message);
+  }
+
+  return data || [];
+}
+export async function createDailyReportCustomerEquipmentRelations(dailyReportRowId: string, equipmentIds: string[]) {
+  if (!equipmentIds || equipmentIds.length === 0) return [];
+
+  const supabase = supabaseServer();
+
+  const relations = equipmentIds.map((equipmentId) => ({
+    daily_report_row_id: dailyReportRowId,
+    customer_equipment_id: equipmentId,
+  }));
+
+  const { data, error } = await supabase.from('dailyreport_customer_equipment_relations').insert(relations).select();
 
   if (error) {
     console.error('Error creating equipment relations:', error);

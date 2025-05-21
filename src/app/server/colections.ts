@@ -11,6 +11,7 @@ declare global {
   type VehicleBrand = DB['public']['Tables']['brand_vehicles']['Row']; // Anteriormente: Brand
   type DocumentTypes = DB['public']['Tables']['document_types']['Row']; // Anteriormente: TypeOfDocuments
   type DailyReportStatus = DB['public']['Enums']['daily_report_header_status_new'];
+  type DailyReportRowStatus = DB['public']['Enums']['daily_report_status'];
   type Company = DB['public']['Tables']['company']['Row']; // Anteriormente: Company
   type EmployeeDocument = DB['public']['Tables']['documents_employees']['Row']; // Anteriormente: DocumentEmployees
   type Employee = DB['public']['Tables']['employees']['Row']; // Anteriormente: Employees
