@@ -61,7 +61,7 @@ interface DataTableProps<TData, TValue> {
   tableId?: string; // ID para persistencia
   initialColumnVisibility?: VisibilityState; // Estado inicial de columnas
   savedVisibility: VisibilityState;
-  row_classname?: string;
+  row_classname?: (row: TData) => string | string;
 }
 
 export function BaseDataTable<TData, TValue>({
@@ -153,7 +153,15 @@ export function BaseDataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  className={onRowClick ? cn(row_classname, 'hover:cursor-pointer') : row_classname}
+                  className={
+                    typeof row_classname === 'string'
+                      ? cn(row_classname, onRowClick && 'hover:cursor-pointer')
+                      : row_classname
+                        ? row_classname(row.original)
+                        : onRowClick
+                          ? 'hover:cursor-pointer'
+                          : ''
+                  }
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                   onClick={() => onRowClick && onRowClick(row.original)}

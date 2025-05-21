@@ -1,5 +1,4 @@
 import DailyReportDetail from '@/components/DailyReport/DailyReportDetail';
-import ViewDailysReports from '@/components/DailyReport/ViewDailysReports';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import Viewcomponent from '@/components/ViewComponent';
 import { getDailyReports } from '@/features/Operaciones/PartesDiarios/actions/actions';
@@ -26,7 +25,7 @@ async function OperationsPage() {
           component: (
             <div className="flex flex-col gap-4">
               {/* <Create /> */}
-              <ViewDailysReports />
+              {/* <ViewDailysReports /> */}
               <div className="flex gap-4">
                 <ResizablePanelGroup className="min-h-[400px]" direction="horizontal">
                   <ResizablePanel defaultSize={25} className="p-4">

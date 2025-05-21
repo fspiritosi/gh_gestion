@@ -1,22 +1,26 @@
 'use client';
-import { Badge } from '@/components/ui/badge';
+import { Badge, badgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { cn } from '@/lib/utils';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { ColumnDef, VisibilityState } from '@tanstack/react-table';
+import { Edit } from 'lucide-react';
 import moment from 'moment';
 import { useCallback, useState } from 'react';
 import {
   getActiveEmployeesForDailyReport,
   getActiveEquipmentsForDailyReport,
   getCustomers,
-  getCustomersServices,
   getDailyReportById,
-  getServiceItems,
 } from '../actions/actions';
-import { DailyReportForm } from './DailyReportForm';
+import { ClonarRegistrosButton } from './ClonarRegistrosButton';
+import { DailyReportForm } from './DailyReportRowForm';
+import { DeleteConfirmationModal } from './DeleteConfirmationModal';
+import DocumentUploadModal from './DocumentUploadModal';
+import DocumentViewerModal from './DocumentViewerFixed';
 export const transformDailyReports = (reports: Awaited<ReturnType<typeof getDailyReportById>>) => {
   const report = reports[0];
   return report.dailyreportrows.map((row) => ({
@@ -24,21 +28,47 @@ export const transformDailyReports = (reports: Awaited<ReturnType<typeof getDail
     date: report.date,
     customer: row.customers?.name,
     employees: row.dailyreportemployeerelations.map((rel) => rel.employees?.firstname + ' ' + rel.employees?.lastname),
-    equipment: row.dailyreportequipmentrelations.map((rel) => rel.vehicles?.intern_number || rel.vehicles?.domain),
-    services: row.service_items?.item_name,
+    equipment:
+      row.dailyreportequipmentrelations.map((rel) => rel.vehicles?.intern_number || rel.vehicles?.domain) || [],
+    services: row.customer_services?.service_name,
     item: row.service_items?.item_name,
     start_time: row.start_time,
     end_time: row.end_time,
     status: row.status,
     working_day: row.working_day,
+    sector_customer_id: row.service_sectors?.id,
+    sector_service_name: row.service_sectors?.sectors?.name,
+    areas_customer_id: row.service_areas?.id,
+    areas_customer_name: row.service_areas?.areas_cliente?.descripcion_corta,
     description: row.description || '',
     document_path: row.document_path,
+    remit_number: row.remit_number,
+    employees_references: row.dailyreportemployeerelations.map((rel) => ({
+      name: rel.employees?.firstname + ' ' + rel.employees?.lastname,
+      id: rel.employees?.id,
+    })),
+    equipment_references: row.dailyreportequipmentrelations.map((rel) => ({
+      name: rel.vehicles?.intern_number || rel.vehicles?.domain,
+      id: rel.vehicles?.id,
+    })),
+    data_to_clone: {
+      customer_id: row.customers?.id,
+      service_id: row.customer_services?.id,
+      item_id: row.service_items?.id,
+      working_day: row.working_day,
+      start_time: row.start_time,
+      end_time: row.end_time,
+      description: row.description,
+      // daily_report_id: row.id,
+      areas_service_id: row.areas_service_id,
+      sector_service_id: row.sector_service_id,
+    },
   }));
 };
 
-export function getDailyReportColumns(
-  onEdit: (row: ReturnType<typeof transformDailyReports>[number]) => void
-): ColumnDef<ReturnType<typeof transformDailyReports>[number]>[] {
+export type DailyReportRow = ReturnType<typeof transformDailyReports>[number];
+
+export function getDailyReportColumns(onEdit: (row: DailyReportRow) => void): ColumnDef<DailyReportRow>[] {
   return [
     {
       accessorKey: 'customer',
@@ -67,6 +97,67 @@ export function getDailyReportColumns(
       filterFn: (row, id, value) => {
         return value.includes(row.getValue(id));
       },
+    },
+
+    {
+      accessorKey: 'sector_service_name',
+      id: 'Sector',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Sector" />,
+      cell: ({ row }) => {
+        return row.original.sector_service_name ? (
+          <Badge variant={'outline'} className="font-medium">
+            {row.original.sector_service_name}
+          </Badge>
+        ) : null;
+      },
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'areas_customer_name',
+      id: 'Área',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Área" />,
+      cell: ({ row }) => {
+        return row.original.areas_customer_name ? (
+          <Badge variant={'outline'} className="font-medium">
+            {row.original.areas_customer_name}
+          </Badge>
+        ) : null;
+      },
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'working_day',
+      id: 'Jornada',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Jornada" />,
+      cell: ({ row }) => <span className="font-medium">{row.original.working_day}</span>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+
+    {
+      accessorKey: 'start_time',
+      id: 'Hora inicio',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Hora inicio" />,
+      cell: ({ row }) => (
+        <span className="font-medium">
+          {row.original.start_time ? moment(row.original.start_time, 'HH:mm:ss').format('HH:mm') : ''}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'end_time',
+      id: 'Hora fin',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Hora fin" />,
+      cell: ({ row }) => (
+        <span className="font-medium">
+          {row.original.end_time ? moment(row.original.end_time, 'HH:mm:ss').format('HH:mm') : ''}
+        </span>
+      ),
     },
     {
       accessorKey: 'employees',
@@ -153,39 +244,26 @@ export function getDailyReportColumns(
       },
     },
     {
-      accessorKey: 'working_day',
-      id: 'Jornada',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Jornada" />,
-      cell: ({ row }) => <span className="font-medium">{row.original.working_day}</span>,
-      filterFn: (row, id, value) => {
-        return value.includes(row.getValue(id));
-      },
-    },
-    {
-      accessorKey: 'start_time',
-      id: 'Hora inicio',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Hora inicio" />,
-      cell: ({ row }) => (
-        <span className="font-medium">
-          {row.original.start_time ? moment(row.original.start_time, 'HH:mm:ss').format('HH:mm') : ''}
-        </span>
-      ),
-    },
-    {
-      accessorKey: 'end_time',
-      id: 'Hora fin',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Hora fin" />,
-      cell: ({ row }) => (
-        <span className="font-medium">
-          {row.original.end_time ? moment(row.original.end_time, 'HH:mm:ss').format('HH:mm') : ''}
-        </span>
-      ),
-    },
-    {
       accessorKey: 'status',
       id: 'Estado',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
-      cell: ({ row }) => <Badge className="font-medium">{row.original.status}</Badge>,
+      cell: ({ row }) => {
+        const variants = {
+          ejecutado: 'success',
+          pendiente: 'default',
+          reprogramado: 'warning',
+          cancelado: 'destructive',
+          sin_recursos_asignados: 'warning',
+        };
+        return (
+          <Badge
+            variant={variants[row.original.status as keyof typeof badgeVariants]}
+            className="font-medium capitalize"
+          >
+            {row.original.status.replaceAll('_', ' ')}
+          </Badge>
+        );
+      },
       filterFn: (row, id, value) => {
         return value.includes(row.getValue(id));
       },
@@ -199,29 +277,60 @@ export function getDailyReportColumns(
     {
       id: 'actions',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
-      cell: ({ row }) => (
-        <Button
-          size="sm"
-          variant="outline"
-          className="hover:text-blue-400"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(row.original);
-          }}
-        >
-          Editar
-        </Button>
-      ),
+      cell: ({ row }) => {
+        // Si el estado es 'ejecutado' y hay un documento, mostrar botón para verlo
+        if (row.original.status === 'ejecutado') {
+          return row.original.document_path ? (
+            <DocumentViewerModal documentUrl={row.original.document_path} documentData={row.original} />
+          ) : (
+            <DocumentUploadModal documentData={row.original} />
+          );
+        }
+
+        // Para otros estados, mostrar botones de editar/eliminar
+        return (
+          <div className={cn('flex gap-1', moment(row.original.date).isBefore(moment()) ? 'gap-0 justify-center' : '')}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 hover:text-blue-500"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(row.original);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>Editar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DeleteConfirmationModal date={row.original.date} dailyReportId={row.original.id} />
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>Eliminar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        );
+      },
     },
   ];
 }
 
-function DayliReportDetailTable({
+export function DayliReportDetailTable({
   dailyReport,
   savedVisibility,
   customers,
-  customers_services,
-  service_items,
   employees,
   equipments,
   dailyReportId,
@@ -230,8 +339,6 @@ function DayliReportDetailTable({
   dailyReport: Awaited<ReturnType<typeof getDailyReportById>>;
   savedVisibility: VisibilityState;
   customers: Awaited<ReturnType<typeof getCustomers>>;
-  customers_services: Awaited<ReturnType<typeof getCustomersServices>>;
-  service_items: Awaited<ReturnType<typeof getServiceItems>>;
   employees: Awaited<ReturnType<typeof getActiveEmployeesForDailyReport>>;
   equipments: Awaited<ReturnType<typeof getActiveEquipmentsForDailyReport>>;
 }) {
@@ -245,10 +352,10 @@ function DayliReportDetailTable({
   const equipmentOptions = createFilterOptions(allEquipmentName, (name) => name);
   const jornadaOptions = createFilterOptions(formattedData, (area) => area.working_day);
   const statusOptions = createFilterOptions(formattedData, (area) => area.status);
-  // Agregar al inicio del archivo
   const [selectedRow, setSelectedRow] = useState<(typeof formattedData)[0] | null>(null);
+  const sectorOptions = createFilterOptions(formattedData, (area) => area.sector_service_name);
+  const areaOptions = createFilterOptions(formattedData, (area) => area.areas_customer_name);
 
-  // Manejador para editar fila
   const handleEditRow = useCallback((row: (typeof formattedData)[0]) => {
     setSelectedRow(row);
     document.getElementById('open-button-daily-report')?.click();
@@ -256,19 +363,22 @@ function DayliReportDetailTable({
 
   return (
     <>
-      <DailyReportForm
-        customers={customers}
-        customers_services={customers_services}
-        service_items={service_items}
-        employees={employees}
-        equipments={equipments}
-        dailyReportId={dailyReportId}
-        defaultValues={selectedRow}
-      />
+      <div
+        className={cn('flex justify-between items-center', dailyReport[0].status !== 'abierto' ? 'justify-end' : '')}
+      >
+        <DailyReportForm
+          customers={customers}
+          employees={employees}
+          equipments={equipments}
+          dailyReportId={dailyReportId}
+          selectedRow={selectedRow}
+          setSelectedRow={setSelectedRow}
+          defaultValues={selectedRow}
+          disabled={dailyReport[0].status !== 'abierto'}
+        />
+        <ClonarRegistrosButton formattedData={formattedData} />
+      </div>
       <BaseDataTable
-        onRowClick={(row) => {
-          // setSelectedDailyReport(row.original);
-        }}
         className="mt-4"
         columns={getDailyReportColumns(handleEditRow)}
         data={formattedData || []}
@@ -310,6 +420,16 @@ function DayliReportDetailTable({
               columnId: 'Estado',
               title: 'Estado',
               options: statusOptions,
+            },
+            {
+              columnId: 'Sector',
+              title: 'Sector',
+              options: sectorOptions,
+            },
+            {
+              columnId: 'Área',
+              title: 'Área',
+              options: areaOptions,
             },
           ],
         }}

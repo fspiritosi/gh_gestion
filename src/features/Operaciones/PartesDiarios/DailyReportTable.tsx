@@ -1,14 +1,14 @@
 'use client';
+import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { ColumnDef, FilterFn, Row, VisibilityState } from '@tanstack/react-table';
 import moment from 'moment';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { getDailyReports, updateDailyReportStatus } from './actions/actions';
+import { getDailyReports } from './actions/actions';
+import { dailyReportStatus } from './utils/utils';
 
 const dateRangeFilter: FilterFn<Awaited<ReturnType<typeof getDailyReports>>[number]> = (
   row: Row<Awaited<ReturnType<typeof getDailyReports>>[number]>,
@@ -75,39 +75,10 @@ export const reportColumnas: ColumnDef<Awaited<ReturnType<typeof getDailyReports
     id: 'Estado',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => {
-      const router = useRouter();
-
-      return (
-        <Select
-          value={row.original.status ? 'abierto' : 'cerrado'}
-          onValueChange={async (value) => {
-            toast.promise(
-              async () => {
-                const newStatus = value === 'abierto';
-                await updateDailyReportStatus(row.original.id, newStatus);
-                router.refresh();
-              },
-              {
-                loading: 'Actualizando estado...',
-                success: 'Estado actualizado correctamente',
-                error: 'Error al actualizar estado',
-              }
-            );
-          }}
-        >
-          <SelectTrigger disabled={!row.original.status}>
-            <SelectValue placeholder="Seleccionar estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="abierto">Abierto</SelectItem>
-            <SelectItem value="cerrado">Cerrado</SelectItem>
-          </SelectContent>
-        </Select>
-      );
+      return <Badge variant={dailyReportStatus[row.original.status]}>{row.original.status.replaceAll('_', ' ')}</Badge>;
     },
     filterFn: (row, id, value) => {
-      const statusValue = row.original.status ? 'abierto' : 'cerrado';
-      return value.includes(statusValue);
+      return value.includes(row.getValue(id));
     },
   },
   {
@@ -129,15 +100,13 @@ function DailyReportTable({
   savedVisibility: VisibilityState;
   dailyReports: Awaited<ReturnType<typeof getDailyReports>>;
 }) {
-  const statusOptions = [
-    { value: 'abierto', label: 'Abierto' },
-    { value: 'cerrado', label: 'Cerrado' },
-  ];
+  const statusOptions = createFilterOptions(dailyReports, (dailyReport) => dailyReport.status);
   return (
     <BaseDataTable
       tableId="dailyReportTable"
       columns={reportColumnas}
       data={dailyReports}
+      row_classname={(row) => (row.status === 'cerrado_incompleto' ? 'bg-red-400/30' : '')}
       savedVisibility={savedVisibility}
       toolbarOptions={{
         filterableColumns: [

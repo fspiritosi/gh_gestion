@@ -45,7 +45,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import Link from 'next/link';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -99,24 +99,24 @@ export const columnsCustomers: ColumnDef<Colum>[] = [
       };
       const actualCompany = useLoggedUserStore((state) => state.actualCompany);
 
-      const fetchInactiveCustomer = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('customers')
-            .select('*')
-            //.eq('is_active', false)
-            .eq('company_id', actualCompany?.id);
+      // const fetchInactiveCustomer = async () => {
+      //   try {
+      //     const { data, error } = await supabase
+      //       .from('customers')
+      //       .select('*')
+      //       //.eq('is_active', false)
+      //       .eq('company_id', actualCompany?.id);
 
-          if (error) {
-            console.error(error);
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      useEffect(() => {
-        fetchInactiveCustomer();
-      }, []);
+      //     if (error) {
+      //       console.error(error);
+      //     }
+      //   } catch (error) {
+      //     console.error(error);
+      //   }
+      // };
+      // useEffect(() => {
+      //   fetchInactiveCustomer();
+      // }, []);
       const handleOpenIntegerModal = (id: string) => {
         setCuit(cuit);
         setIntegerModal(!integerModal);

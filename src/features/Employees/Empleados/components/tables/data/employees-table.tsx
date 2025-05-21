@@ -116,7 +116,9 @@ export function EmployeesTableReusable({
       data={(employees as any) || []}
       onRowClick={handleRowClick}
       className={className}
-      row_classname={row_classname}
+      row_classname={(row) => {
+        return row_classname || '';
+      }}
       tableId={tableId}
       savedVisibility={savedVisibility}
       toolbarOptions={{

@@ -6,10 +6,12 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -20,10 +22,10 @@ import {
   getActiveEmployeesForDailyReport,
   getActiveEquipmentsForDailyReport,
   getCustomers,
-  getCustomersServices,
-  getServiceItems,
+  updateDailyReportRow,
 } from '../actions/actions';
 
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Sheet,
   SheetClose,
@@ -34,7 +36,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { transformDailyReports } from './DayliReportDetailTable';
 
@@ -43,11 +44,16 @@ type DailyReportFormProps = {
   // onCancel: () => void;
   defaultValues?: ReturnType<typeof transformDailyReports>[number] | null;
   customers: Awaited<ReturnType<typeof getCustomers>>;
-  customers_services: Awaited<ReturnType<typeof getCustomersServices>>;
-  service_items: Awaited<ReturnType<typeof getServiceItems>>;
+  // customers_services: Awaited<ReturnType<typeof getCustomersServices>>;
+  // service_items: Awaited<ReturnType<typeof getServiceItems>>;
   employees: Awaited<ReturnType<typeof getActiveEmployeesForDailyReport>>;
   equipments: Awaited<ReturnType<typeof getActiveEquipmentsForDailyReport>>;
   dailyReportId: string;
+  selectedRow?: ReturnType<typeof transformDailyReports>[number] | null;
+  setSelectedRow: (row: ReturnType<typeof transformDailyReports>[number] | null) => void;
+  disabled?: boolean;
+  // customersAreas: Awaited<ReturnType<typeof getCustomersAreas>>;
+  // customersSectors: Awaited<ReturnType<typeof getCustomersSectors>>;
 };
 
 export const dailyReportSchema = z
@@ -55,19 +61,50 @@ export const dailyReportSchema = z
     customer: z.string().min(1, 'Debe seleccionar un cliente'),
     services: z.string().min(1, 'Debe seleccionar un servicio'),
     item: z.string().min(1, 'Debe seleccionar un ítem'),
-    employees: z.array(z.string()).default([]),
-    equipment: z.array(z.string()).default([]),
+    employees: z.array(z.string()).default([]).optional(),
+    equipment: z.array(z.string()).default([]).optional(),
+    equipos_cliente: z.array(z.string()).default([]).optional(),
+    type_service: z
+      .enum(['mensual', 'adicional'], {
+        required_error: 'Debe seleccionar un tipo de servicio',
+      })
+      .optional(),
     working_day: z.string().min(1, 'Debe seleccionar un tipo de jornada'),
     start_time: z.string().optional(),
     end_time: z.string().optional(),
     status: z.string().default('pendiente'),
     description: z.string().optional(),
     document_path: z.string().optional(),
+    sector_service_id: z.string().optional(),
+    areas_service_id: z.string().optional(),
+    remit_number: z.string().optional(),
   })
-  .refine((data) => data.employees.length > 0 || data.equipment.length > 0, {
-    message: 'Debe seleccionar al menos un empleado o un equipo',
-    path: ['employees'],
-  })
+  .refine(
+    (data) => {
+      // Si el estado es 'ejecutado', el campo remit_number es obligatorio
+      if (data.status === 'ejecutado') {
+        return data.remit_number && data.remit_number.trim() !== '';
+      }
+      return true;
+    },
+    {
+      message: 'El número de remito es obligatorio cuando el estado es "Ejecutado"',
+      path: ['remit_number'],
+    }
+  )
+  .refine(
+    (data) => {
+      // Si el estado no es 'sin_recursos_asignados' o 'cancelado', se requiere al menos un empleado o equipo
+      if (!['sin_recursos_asignados', 'cancelado'].includes(data.status)) {
+        return (data.employees?.length || 0) > 0 || (data.equipment?.length || 0) > 0;
+      }
+      return true;
+    },
+    {
+      message: 'Debe seleccionar al menos un empleado o un equipo para este estado',
+      path: ['employees'],
+    }
+  )
   .refine(
     (data) => {
       if (data.working_day === 'por horario') {
@@ -82,25 +119,38 @@ export const dailyReportSchema = z
   );
 
 export type DailyReportFormValues = z.infer<typeof dailyReportSchema>;
-
+type CustomersArray = Awaited<ReturnType<typeof getCustomers>>;
+type CustomerType = NonNullable<NonNullable<CustomersArray>[number]>;
 export function DailyReportForm({
   defaultValues,
   customers,
-  customers_services,
-  service_items,
+  setSelectedRow,
   employees,
   equipments,
+  selectedRow,
+  disabled,
   dailyReportId,
 }: DailyReportFormProps) {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerType | null>(null);
+  const [isSectorDisabled, setIsSectorDisabled] = useState<boolean>(true);
+  const [isAreaDisabled, setIsAreaDisabled] = useState<boolean>(true);
   const router = useRouter();
-  console.log(defaultValues);
-
   // Filtros de clientes
   const activeCustomers = customers?.filter((c) => c.is_active) || [];
 
   const onSubmit = async (data: DailyReportFormValues) => {
+    // Asegurarse de que los empleados sean un array de IDs
+    const employeeIds = Array.isArray(data.employees)
+      ? data.employees.filter((emp): emp is string => typeof emp === 'string')
+      : [];
+
+    // Asegurarse de que los equipos sean un array de IDs
+    const equipmentIds = Array.isArray(data.equipment)
+      ? data.equipment.filter((eq): eq is string => typeof eq === 'string')
+      : [];
+
     const rowData = {
       customer_id: data.customer,
       service_id: data.services,
@@ -110,29 +160,71 @@ export function DailyReportForm({
       end_time: data.end_time || null,
       description: data.description,
       daily_report_id: dailyReportId,
+      status: data.status,
+      areas_service_id: data.areas_service_id,
+      sector_service_id: data.sector_service_id,
+      remit_number: data.remit_number || null,
     };
 
     toast.promise(
       async () => {
-        const createdRow = await createDailyReportRow(rowData);
+        if (selectedRow) {
+          const employeeIdsUpdated =
+            employees?.filter((emp) => data?.employees?.includes(emp.id))?.map((emp) => emp.id) || [];
+          const equipmentIdsUpdated =
+            equipments?.filter((eq) => data?.equipment?.includes(eq.id))?.map((eq) => eq.id) || [];
+          // Modo edición
+          await updateDailyReportRow(selectedRow.id, rowData, employeeIdsUpdated, equipmentIdsUpdated);
+        } else {
+          // Modo creación
+          const createdRow = await createDailyReportRow([rowData]);
 
-        // 2. Crear relaciones con empleados si existen
-        if (data.employees && data.employees.length > 0) {
-          await createDailyReportEmployeeRelations(createdRow.id, data.employees);
+          // Crear relaciones con empleados si existen
+          if (employeeIds.length > 0) {
+            await createDailyReportEmployeeRelations(createdRow[0].id, employeeIds);
+          }
+
+          // Crear relaciones con equipos si existen
+          if (equipmentIds.length > 0) {
+            await createDailyReportEquipmentRelations(createdRow[0].id, equipmentIds);
+          }
         }
 
-        // 3. Crear relaciones con equipos si existen
-        if (data.equipment && data.equipment.length > 0) {
-          await createDailyReportEquipmentRelations(createdRow.id, data.equipment);
-        }
+        // Actualizar la lista
         router.refresh();
+
+        // Cerrar el modal y limpiar
         document.getElementById('close-button-daily-report')?.click();
-        form.reset();
+
+        // Si estamos en modo edición, limpiar el selectedRow
+        if (selectedRow) {
+          setSelectedRow(null);
+        }
+
+        // Resetear el formulario
+        form.reset({
+          customer: '',
+          services: '',
+          item: '',
+          employees: [],
+          equipment: [],
+          working_day: '',
+          start_time: '',
+          end_time: '',
+          description: '',
+          sector_service_id: '',
+          areas_service_id: '',
+          remit_number: '',
+        });
+
+        // Restablecer los estados locales
+        setSelectedCustomerId(null);
+        setSelectedServiceId(null);
       },
       {
-        loading: 'Creando parte diario...',
-        success: 'Parte diario creado exitosamente',
-        error: 'Error al crear parte diario',
+        loading: selectedRow ? 'Actualizando parte diario...' : 'Creando parte diario...',
+        success: selectedRow ? 'Parte diario actualizado exitosamente' : 'Parte diario creado exitosamente',
+        error: selectedRow ? 'Error al actualizar parte diario' : 'Error al crear parte diario',
       }
     );
   };
@@ -151,26 +243,137 @@ export function DailyReportForm({
       status: 'pendiente',
       description: '',
       document_path: '',
+      sector_service_id: '',
+      areas_service_id: '',
+      remit_number: '',
+      equipos_cliente: [],
+      type_service: undefined,
       // ...defaultValues,
     },
   });
 
+  useEffect(() => {
+    // Si hay valores por defecto pero no hay cliente seleccionado
+    if (defaultValues?.data_to_clone?.customer_id && !selectedCustomer) {
+      const customer = customers?.find((c) => c.id === defaultValues.data_to_clone.customer_id);
+      if (customer) {
+        setSelectedCustomer(customer);
+        setSelectedCustomerId(customer.id);
+        form.setValue('customer', customer.id);
+        return; // Salir temprano, el resto se ejecutará en el siguiente render
+      }
+    }
+
+    if (defaultValues && selectedCustomer) {
+      const customer = selectedCustomer;
+      form.setValue('customer', customer.id);
+      setSelectedCustomerId(customer.id);
+
+      // Verificar si el cliente tiene sectores y áreas disponibles
+      const hasSectors = customer.customer_services?.some((s) => s.service_sectors?.length > 0);
+      const hasAreas = customer.customer_services?.some((s) => s.service_areas?.length > 0);
+      setIsSectorDisabled(!hasSectors);
+      setIsAreaDisabled(!hasAreas);
+
+      // Buscar y establecer el servicio
+      if (defaultValues.services) {
+        const service = customer.customer_services?.find(
+          (s) => s.id === defaultValues.services || s.service_name === defaultValues.services
+        );
+
+        if (service?.id) {
+          form.setValue('services', service.id);
+          setSelectedServiceId(service.id);
+
+          // Buscar y establecer el ítem
+          if (service.service_items?.length > 0 && defaultValues.item) {
+            const item = service.service_items.find(
+              (i) => i.id === defaultValues.item || i.item_name === defaultValues.item
+            );
+            if (item) {
+              form.setValue('item', item.id);
+            }
+          }
+        }
+      }
+
+      // Establecer valores básicos
+      form.setValue('working_day', defaultValues.working_day || '');
+      form.setValue('start_time', defaultValues.start_time?.substring(0, 5) || '');
+      form.setValue('end_time', defaultValues.end_time?.substring(0, 5) || '');
+      form.setValue('status', defaultValues.status || 'pendiente');
+      form.setValue('description', defaultValues.description || '');
+      form.setValue('document_path', defaultValues.document_path || '');
+
+      // Establecer sector
+      if (defaultValues.sector_customer_id) {
+        form.setValue('sector_service_id', defaultValues.sector_customer_id);
+      }
+
+      // Establecer área
+      if (defaultValues.areas_customer_id) {
+        form.setValue('areas_service_id', defaultValues.areas_customer_id);
+      }
+
+      // Establecer empleados
+      if (defaultValues.employees_references) {
+        const employeeIds = defaultValues.employees_references.map((emp) => emp.id || '');
+        form.setValue('employees', employeeIds);
+      }
+
+      // Establecer equipos
+      if (Array.isArray(defaultValues.equipment_references) && defaultValues.equipment_references.length > 0) {
+        const equipmentIds = defaultValues.equipment_references.map((eq) => eq.id || '');
+        form.setValue('equipment', equipmentIds);
+      }
+    }
+  }, [selectedCustomer, defaultValues, form, customers, selectedServiceId]);
+
+  // Agregar este efecto para depurar los valores del formulario
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      // Mostrar información detallada cuando se actualiza el sector o área
+      if (name === 'sector_service_id' || name === 'areas_service_id') {
+        // Si es el sector, mostrar información detallada
+        if (name === 'sector_service_id' && selectedCustomer) {
+          const sectorId = value.sector_service_id;
+          const sector = selectedCustomer.customer_services
+            ?.flatMap((s) => s.service_sectors || [])
+            .find((s) => s.sector_id === sectorId);
+        }
+
+        // Si es el área, mostrar información detallada
+        if (name === 'areas_service_id' && selectedCustomer) {
+          const areaId = value.areas_service_id;
+          const area = selectedCustomer.customer_services
+            ?.flatMap((s) => s.service_areas || [])
+            .find((a) => a.area_id === areaId);
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, selectedCustomer]);
+
   // Filtrar servicios activos del cliente seleccionado
   const customerServices = useMemo(() => {
-    if (!selectedCustomerId) return [];
-    return (
-      customers_services?.filter(
-        (service) =>
-          service.customer_id === selectedCustomerId &&
-          service.is_active &&
-          (!service.service_validity || new Date(service.service_validity) >= new Date())
-      ) || []
+    if (!selectedCustomer?.customer_services?.length) return [];
+
+    return selectedCustomer.customer_services.filter(
+      (service) => service.is_active && (!service.service_validity || new Date(service.service_validity) >= new Date())
     );
-  }, [customers_services, selectedCustomerId]);
+  }, [selectedCustomer]);
 
   // Filtrar ítems activos del servicio seleccionado
-  const serviceItems =
-    service_items?.filter((item) => item.customer_service_id === selectedServiceId && item.is_active) || [];
+  const serviceItems = useMemo(() => {
+    if (!selectedServiceId || !selectedCustomer?.customer_services?.length) return [];
+
+    // Buscar el servicio seleccionado
+    const selectedService = selectedCustomer.customer_services.find((service) => service.id === selectedServiceId);
+
+    // Retornar los ítems activos del servicio seleccionado
+    return selectedService?.service_items?.filter((item) => item.is_active) || [];
+  }, [selectedCustomer, selectedServiceId]);
 
   // Filtrar empleados del cliente seleccionado
   const filteredEmployees = useMemo(() => {
@@ -197,20 +400,34 @@ export function DailyReportForm({
 
   // Manejar cambio de cliente
   const handleCustomerChange = (customerId: string) => {
-    form.setValue('customer', customerId);
-    setSelectedCustomerId(customerId);
-    // Limpiar y deshabilitar servicio e ítem al cambiar de cliente
-    form.setValue('services', '');
-    form.setValue('item', '');
-    setSelectedServiceId(null);
-    // Habilitar el select de servicio
-    setIsServiceDisabled(false);
-  };
+    const customer = customers?.find((c) => c.id === customerId);
+    if (customer) {
+      setSelectedCustomer(customer); // Ahora es un array
+      setSelectedCustomerId(customerId);
+      form.setValue('customer', customerId);
+      form.setValue('services', '');
+      form.setValue('item', '');
+      form.setValue('sector_service_id', '');
+      form.setValue('areas_service_id', '');
+      setSelectedServiceId(null);
 
+      // Verificar si el cliente tiene sectores y áreas disponibles
+      const hasSectors = customer.customer_services?.some((s) => s.service_sectors?.length > 0);
+      const hasAreas = customer.customer_services?.some((s) => s.service_areas?.length > 0);
+
+      setIsSectorDisabled(!hasSectors);
+      setIsAreaDisabled(!hasAreas);
+    }
+  };
   // Efecto para controlar la habilitación del campo de ítem
   useEffect(() => {
-    if (selectedServiceId) {
-      const hasItems = service_items?.some((item) => item.customer_service_id === selectedServiceId && item.is_active);
+    if (selectedServiceId && selectedCustomer?.customer_services?.length) {
+      // Buscar el servicio seleccionado
+      const selectedService = selectedCustomer.customer_services.find((service) => service.id === selectedServiceId);
+
+      // Verificar si el servicio tiene ítems activos
+      const hasItems = selectedService?.service_items?.some((item) => item.is_active) || false;
+
       // Si no hay ítems, limpiar el valor
       if (!hasItems) {
         form.setValue('item', '');
@@ -218,7 +435,7 @@ export function DailyReportForm({
     } else {
       form.setValue('item', '');
     }
-  }, [selectedServiceId, service_items, form]);
+  }, [selectedServiceId, selectedCustomer, form]);
 
   // Manejar cambio de servicio
   const handleServiceChange = (serviceId: string) => {
@@ -228,13 +445,36 @@ export function DailyReportForm({
   };
 
   const onCancel = () => {
-    // console.log('Cancelar');
+    // Cerrar el modal
     document.getElementById('close-button-daily-report')?.click();
+
+    // Si estamos en modo edición, limpiar el selectedRow
+    if (selectedRow) {
+      setSelectedRow(null);
+    }
+
     // Limpiar valores del formulario
-    form.reset();
+    form.reset({
+      customer: '',
+      services: '',
+      item: '',
+      employees: [],
+      equipment: [],
+      working_day: '',
+      start_time: '',
+      end_time: '',
+      description: '',
+      sector_service_id: '',
+      areas_service_id: '',
+      remit_number: '',
+    });
+
+    // Restablecer estados
     setSelectedCustomerId(null);
     setSelectedServiceId(null);
     setIsServiceDisabled(true);
+    setIsSectorDisabled(true); // Asegurar que el campo de sector esté deshabilitado
+    setIsAreaDisabled(true); // Asegurar que el campo de área esté deshabilitado
   };
 
   // Estado para controlar la habilitación de los campos
@@ -251,18 +491,49 @@ export function DailyReportForm({
     { label: 'Por horario', value: 'por horario' },
   ];
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open && selectedRow) {
+      onCancel();
+    }
+  };
+
+  // Fuera del componente o dentro de él, pero no en el render
+  const getCustomerSectors = (selectedCustomer: CustomerType | null) => {
+    if (!selectedCustomer?.customer_services?.length) return [];
+
+    const serviceWithSectors = selectedCustomer.customer_services.find(
+      (service) => service.service_sectors?.length > 0
+    );
+
+    if (!serviceWithSectors?.service_sectors?.length) return [];
+
+    return serviceWithSectors.service_sectors
+      .filter((sector) => sector.sectors)
+      .map((sector) => ({
+        id: sector.sector_id,
+        name: sector.sectors?.name || '',
+        description: sector.sectors?.descripcion_corta || '',
+      }));
+  };
+
+  // Luego en el componente, al mismo nivel que otros useMemo
+  const customerSectors = useMemo(() => getCustomerSectors(selectedCustomer), [selectedCustomer]);
   return (
     <div>
-      <Sheet>
-        <SheetTrigger asChild>
+      <Sheet onOpenChange={handleOpenChange}>
+        <SheetTrigger className={cn(disabled && 'hidden')} asChild>
           <Button id="open-button-daily-report" variant="default">
-            Agregar
+            {selectedRow ? 'Editar' : 'Agregar'}
           </Button>
         </SheetTrigger>
-        <SheetContent className=" sm:max-w-screen-md overflow-y-auto">
+        <SheetContent className="sm:max-w-screen-md overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Agregar Parte Diario</SheetTitle>
-            <SheetDescription>Complete los campos para agregar un nuevo parte diario.</SheetDescription>
+            <SheetTitle>{selectedRow ? 'Editar' : 'Agregar'} Parte Diario</SheetTitle>
+            <SheetDescription>
+              {selectedRow
+                ? 'Actualice los campos necesarios para modificar el parte diario.'
+                : 'Complete los campos para agregar un nuevo parte diario.'}
+            </SheetDescription>
           </SheetHeader>
           <div className="grid gap-4 py-4">
             <Form {...form}>
@@ -307,6 +578,7 @@ export function DailyReportForm({
                                     onSelect={() => {
                                       handleCustomerChange(customer.id);
                                       setSelectedServiceId(null);
+                                      setSelectedCustomer(customer);
                                     }}
                                   >
                                     {customer.name}
@@ -403,7 +675,7 @@ export function DailyReportForm({
                                           </div>
                                           <Check
                                             className={cn(
-                                              'ml-2 h-4 w-4',
+                                              'ml-auto h-4 w-4',
                                               service.id === field.value ? 'opacity-100' : 'opacity-0'
                                             )}
                                           />
@@ -467,7 +739,6 @@ export function DailyReportForm({
                                     ? 'No hay ítems disponibles para este servicio.'
                                     : 'No se encontraron ítems que coincidan.'}
                               </CommandEmpty>
-
                               {!selectedServiceId && (
                                 <div className="py-6 text-center text-sm text-muted-foreground">
                                   Por favor, seleccione un servicio primero.
@@ -526,6 +797,249 @@ export function DailyReportForm({
                   )}
                 />
 
+                {/* Sector del Cliente */}
+                <FormField
+                  control={form.control}
+                  name="sector_service_id"
+                  render={({ field }) => {
+                    // Filtrar sectores del cliente seleccionado
+                    const customerSectors =
+                      selectedCustomer?.customer_services
+                        ?.flatMap((service) => service.service_sectors || [])
+                        .filter((sector) => sector.sectors)
+                        .map((sector) => ({
+                          id: sector.id,
+                          name: sector.sectors?.name || '',
+                          description: sector.sectors?.descripcion_corta || '',
+                        })) || [];
+
+                    // Encontrar el sector seleccionado
+                    const selectedSector = customerSectors.find((sector) => sector.id === field.value);
+
+                    return (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Sector del Cliente</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                disabled={isSectorDisabled}
+                                className={cn(
+                                  'w-full justify-between',
+                                  !field.value && 'text-muted-foreground',
+                                  isSectorDisabled && 'opacity-50 cursor-not-allowed'
+                                )}
+                              >
+                                {selectedSector?.name ||
+                                  (selectedCustomer
+                                    ? customerSectors.length > 0
+                                      ? 'Seleccionar sector'
+                                      : 'No hay sectores disponibles'
+                                    : 'Seleccione un cliente primero')}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" className="w-full p-0">
+                            <Command>
+                              <CommandInput
+                                placeholder="Buscar sector..."
+                                className="h-9"
+                                disabled={isSectorDisabled}
+                              />
+                              <CommandList>
+                                <CommandEmpty>
+                                  {!selectedCustomerId
+                                    ? 'Seleccione un cliente primero.'
+                                    : customerSectors.length === 0
+                                      ? 'No hay sectores disponibles para este cliente.'
+                                      : 'No se encontraron sectores que coincidan.'}
+                                </CommandEmpty>
+                                {customerSectors.length > 0 && (
+                                  <CommandGroup>
+                                    {customerSectors.map((sector) => (
+                                      <CommandItem
+                                        value={sector.name || ''}
+                                        key={sector.id}
+                                        onSelect={() => {
+                                          form.setValue('sector_service_id', sector.id, { shouldDirty: true });
+                                        }}
+                                      >
+                                        {sector.name || 'Sin nombre'}
+                                        <Check
+                                          className={cn(
+                                            'ml-auto h-4 w-4',
+                                            sector.id === field.value ? 'opacity-100' : 'opacity-0'
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                )}
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+
+                {/* Área del Cliente */}
+                <FormField
+                  control={form.control}
+                  name="areas_service_id"
+                  render={({ field }) => {
+                    // Filtrar áreas del cliente seleccionado
+                    const customerAreas =
+                      selectedCustomer?.customer_services
+                        ?.flatMap((service) => service.service_areas || [])
+                        .filter((area) => area.areas_cliente)
+                        .map((area) => ({
+                          id: area.id,
+                          name: area.areas_cliente?.nombre || '',
+                          description: area.areas_cliente?.descripcion_corta || '',
+                        })) || [];
+
+                    // Encontrar el área seleccionada
+                    const selectedArea = customerAreas.find((area) => area.id === field.value);
+
+                    return (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Área del Cliente</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                disabled={isAreaDisabled}
+                                className={cn(
+                                  'w-full justify-between',
+                                  !field.value && 'text-muted-foreground',
+                                  isAreaDisabled && 'opacity-50 cursor-not-allowed'
+                                )}
+                              >
+                                {selectedArea?.name ||
+                                  (selectedCustomer
+                                    ? customerAreas.length > 0
+                                      ? 'Seleccionar área'
+                                      : 'No hay áreas disponibles'
+                                    : 'Seleccione un cliente primero')}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" className="w-full p-0">
+                            <Command>
+                              <CommandInput placeholder="Buscar área..." className="h-9" disabled={isAreaDisabled} />
+                              <CommandList>
+                                <CommandEmpty>
+                                  {!selectedCustomerId
+                                    ? 'Seleccione un cliente primero.'
+                                    : customerAreas.length === 0
+                                      ? 'No hay áreas disponibles para este cliente.'
+                                      : 'No se encontraron áreas que coincidan.'}
+                                </CommandEmpty>
+                                {customerAreas.length > 0 && (
+                                  <CommandGroup>
+                                    {customerAreas.map((area) => (
+                                      <CommandItem
+                                        value={area.name || ''}
+                                        key={area.id}
+                                        onSelect={() => {
+                                          form.setValue('areas_service_id', area.id, { shouldDirty: true });
+                                        }}
+                                      >
+                                        {area.name || 'Sin nombre'}
+                                        <Check
+                                          className={cn(
+                                            'ml-auto h-4 w-4',
+                                            area.id === field.value ? 'opacity-100' : 'opacity-0'
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                )}
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+
+                {/* Campo de estado - Solo visible en modo edición */}
+                {selectedRow && (
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => {
+                      // Obtener el valor actual del estado
+                      const currentStatus = form.watch('status');
+
+                      return (
+                        <FormItem>
+                          <FormLabel>Estado</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              // Si el estado no es 'ejecutado', limpiar el remit_number
+                              if (value !== 'ejecutado') {
+                                form.setValue('remit_number', '');
+                              }
+                            }}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleccione un estado" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="pendiente">Pendiente</SelectItem>
+                              <SelectItem value="ejecutado">Ejecutado</SelectItem>
+                              <SelectItem value="reprogramado">Reprogramado</SelectItem>
+                              <SelectItem value="cancelado">Cancelado</SelectItem>
+                              <SelectItem value="sin_recursos_asignados">Sin recursos asignados</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+
+                          {/* Campo de número de remito - Solo visible cuando el estado es 'ejecutado' */}
+                          {currentStatus === 'ejecutado' && (
+                            <div className="mt-4">
+                              <FormField
+                                control={form.control}
+                                name="remit_number"
+                                render={({ field: remitField }) => (
+                                  <FormItem>
+                                    <FormLabel>Número de Remito</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Ingrese el número de remito"
+                                        {...remitField}
+                                        value={remitField.value || ''}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          )}
+                        </FormItem>
+                      );
+                    }}
+                  />
+                )}
+
                 {/* Empleados */}
                 <FormField
                   control={form.control}
@@ -572,15 +1086,19 @@ export function DailyReportForm({
                                 </div>
                               )}
 
-                              {!selectedCustomerId ? (
+                              {!selectedCustomerId && (
                                 <div className="py-6 text-center text-sm text-muted-foreground">
                                   Por favor, seleccione un cliente primero.
                                 </div>
-                              ) : filteredEmployees.length === 0 ? (
+                              )}
+
+                              {selectedCustomerId && filteredEmployees.length === 0 && (
                                 <div className="py-6 text-center text-sm text-muted-foreground">
                                   No hay empleados activos para este cliente.
                                 </div>
-                              ) : (
+                              )}
+
+                              {selectedCustomerId && filteredEmployees.length > 0 && (
                                 <CommandGroup>
                                   {filteredEmployees.map((employee) => (
                                     <CommandItem
@@ -616,13 +1134,67 @@ export function DailyReportForm({
                   )}
                 />
 
+                {/* Equipos del Cliente */}
+                <FormField
+                  control={form.control}
+                  name="equipos_cliente"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Equipos del Cliente</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+                            >
+                              {field.value && field.value.length > 0
+                                ? `${field.value.length} equipos del cliente seleccionados`
+                                : 'Seleccionar equipos del cliente'}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[400px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Buscar equipos..." />
+                            <CommandEmpty>No se encontraron equipos.</CommandEmpty>
+                            <CommandGroup className="max-h-[200px] overflow-y-auto">
+                              {selectedCustomer?.equipos_clientes?.map((equipo) => {
+                                const isSelected = field.value?.includes(equipo.id);
+                                return (
+                                  <CommandItem
+                                    value={equipo.name || equipo.type || ''}
+                                    key={equipo.id}
+                                    onSelect={() => {
+                                      const newValue = isSelected
+                                        ? field?.value?.filter((v: string) => v !== equipo.id)
+                                        : [...(field.value || []), equipo.id];
+                                      field.onChange(newValue);
+                                    }}
+                                  >
+                                    <Check className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')} />
+                                    {equipo.name || equipo.type || `Equipo ${equipo.id}`}
+                                  </CommandItem>
+                                );
+                              })}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Equipos */}
                 <FormField
                   control={form.control}
                   name="equipment"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Equipos</FormLabel>
+                      <FormLabel>Equipos propios</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -802,6 +1374,38 @@ export function DailyReportForm({
                   </div>
                 )}
 
+                {/* Tipo de servicio */}
+                <FormField
+                  control={form.control}
+                  name="type_service"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Tipo de servicio</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-col space-y-1"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="mensual" />
+                            </FormControl>
+                            <FormLabel className="font-normal">Mensual</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="adicional" />
+                            </FormControl>
+                            <FormLabel className="font-normal">Adicional</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Descripción */}
                 <FormField
                   control={form.control}
@@ -809,11 +1413,9 @@ export function DailyReportForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Descripción</FormLabel>
-                      <Textarea
-                        placeholder="Ingrese una descripción del trabajo realizado"
-                        className="resize-none"
-                        {...field}
-                      />
+                      <FormControl>
+                        <Textarea placeholder="Ingrese una descripción" className="min-h-[100px]" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -823,7 +1425,7 @@ export function DailyReportForm({
                   <Button type="button" variant="outline" onClick={onCancel}>
                     Cancelar
                   </Button>
-                  <Button type="submit">Guardar</Button>
+                  <Button type="submit">{selectedRow ? 'Actualizar' : 'Crear'}</Button>
                 </div>
               </form>
             </Form>
