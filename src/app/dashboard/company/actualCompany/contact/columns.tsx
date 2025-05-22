@@ -46,6 +46,7 @@ import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
 import { addMonths, format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import Cookies from 'js-cookie';
 import { CalendarIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
@@ -102,7 +103,8 @@ export const contactColumns: ColumnDef<Colum>[] = [
         setId(id);
         setShowModal(!showModal);
       };
-      const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+      // const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+      const actualCompany = Cookies.get('actualComp');
 
       const fetchInactiveContacts = async () => {
         try {
@@ -110,7 +112,7 @@ export const contactColumns: ColumnDef<Colum>[] = [
             .from('contacts')
             .select('*')
             //.eq('is_active', false)
-            .eq('company_id', actualCompany?.id)
+            .eq('company_id', actualCompany)
             .select();
 
           if (error) {
@@ -180,6 +182,10 @@ export const contactColumns: ColumnDef<Colum>[] = [
             };
 
             const supabase = supabaseBrowser();
+            if (!actualCompany) {
+              console.error('No se ha encontrado la empresa actual');
+              return;
+            }
             const { error } = await supabase
               .from('contacts')
               .update({
@@ -188,7 +194,7 @@ export const contactColumns: ColumnDef<Colum>[] = [
                 reason_for_termination: data.reason_for_termination,
               })
               .eq('id', contacts.id)
-              .eq('company_id', actualCompany?.id || '')
+              .eq('company_id', actualCompany)
               .select();
 
             setShowModal(!showModal);

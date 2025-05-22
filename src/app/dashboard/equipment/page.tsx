@@ -1,4 +1,3 @@
-
 import {
   fetchAllDocumentTypes,
   fetchAllEmployeesWithRelations,
@@ -27,6 +26,7 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
   const equiposCargados = await fetchAllEquipmentWithRelations();
 
   const role = await getRole();
+  const document_types = await fetchAllDocumentTypes();
   const viewData = {
     defaultValue: searchParams?.tab || 'equipos',
     path: '/dashboard/equipment',
@@ -91,9 +91,7 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
               vehicleMockValues={VehicleOptionsData}
               employees={empleadosCargados}
               vehicles={equiposCargados}
-
               document_types={document_types}
-
             />
           ),
         },
