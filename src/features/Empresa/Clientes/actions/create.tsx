@@ -3,9 +3,9 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import { customersSchema } from '@/zodSchemas/schemas';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-
 // Función para verificar si un área está siendo usada en contratos
 async function isAreaUsedInContracts(areaId: string) {
   const supabase = supabaseServer();
@@ -127,26 +127,33 @@ export async function updateCustomer(formData: FormData) {
 
   try {
     // Guardar datos en la tabla 'customer'
-
     const editClient = await supabase
       .from('customers')
       .update([clientData] as any)
       .eq('id', id || '')
       .select();
 
-    return { status: 200, body: 'Cliente actualizado satisfactoriamente' };
+    return {
+      status: 303,
+      redirect: '/dashboard/company/actualCompany',
+      body: 'Cliente actualizado satisfactoriamente',
+    };
   } catch (error) {
     console.error(error);
     return { status: 500, body: 'Internal Server Error' };
   }
-
-  redirect('/dashboard/company/actualCompany');
 }
 
 export async function fechAllCustomers() {
   const supabase = supabaseServer();
+  const coockiesStore = cookies();
+  const actualCompany = coockiesStore.get('actualComp')?.value;
   try {
-    const { data, error } = await supabase.from('customers').select('*').eq('is_active', true);
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('is_active', true)
+      .eq('company_id', actualCompany || '');
 
     if (error) {
       console.error(error);
@@ -284,6 +291,10 @@ export async function updateArea(values: any) {
 
 export async function fetchAreasWithProvinces() {
   const supabase = supabaseServer();
+  const coockiesStore = cookies();
+  const actualCompany = coockiesStore.get('actualComp')?.value;
+  console.log('actualCompany', actualCompany);
+
   try {
     const { data, error } = await supabase
       .from('areas_cliente')
@@ -292,15 +303,17 @@ export async function fetchAreasWithProvinces() {
         id,
         nombre,
         descripcion_corta,
-        customers (
+        customers!inner (
           id,
-          name
+          name,
+          company_id
         ),
         area_province (
           provinces ( id, name )
-          )
-          `
+        )
+      `
       )
+      .eq('customers.company_id', actualCompany || '')
       .not('area_province.province_id', 'is', null);
 
     if (error) {

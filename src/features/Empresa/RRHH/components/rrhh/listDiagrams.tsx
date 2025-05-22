@@ -140,8 +140,8 @@ export default function ListDiagrams({
     setFilteredData(filtered);
   }, [data, showActive]);
   const names = createFilterOptions(filteredData, (document) => document.name);
-  const activeNovelties = createFilterOptions(filteredData, (document) => document.active_novelty.name);
-  const inactiveNovelties = createFilterOptions(filteredData, (document) => document.inactive_novelty.name);
+  const activeNovelties = createFilterOptions(filteredData, (document) => document.active_novelty?.name);
+  const inactiveNovelties = createFilterOptions(filteredData, (document) => document.inactive_novelty?.name);
 
   // console.log(filteredData, 'filteredData');
   return (

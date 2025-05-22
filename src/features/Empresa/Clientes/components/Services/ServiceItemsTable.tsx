@@ -5,8 +5,9 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { fetchServiceItems } from '@/features/Empresa/Clientes/actions/itemsService';
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ServiceItemsForm from './ServiceItemsForm';
 interface Item {
   id: string;
@@ -59,6 +60,15 @@ interface measure_unit {
   simbol: string;
   tipo: string;
 }
+interface ServiceItemsTableProps {
+  measure_units: measure_unit[];
+  customers: customer[];
+  services: Service[];
+  company_id: string;
+  items: any[];
+  editService: any;
+  customer_service_id?: string;
+}
 export default function ServiceItemsTable({
   measure_units,
   customers,
@@ -66,16 +76,8 @@ export default function ServiceItemsTable({
   company_id,
   items,
   editService,
-  getItems,
-}: {
-  measure_units: measure_unit[];
-  customers: customer[];
-  services: Service[];
-  company_id: string;
-  items: any[];
-  editService: any;
-  getItems: () => void;
-}) {
+  customer_service_id,
+}: ServiceItemsTableProps) {
   const [editingService, setEditingService] = useState<Item | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('all');
 
@@ -84,6 +86,8 @@ export default function ServiceItemsTable({
 
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [isActiveFilter, setIsActiveFilter] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     filterItems();
@@ -102,6 +106,44 @@ export default function ServiceItemsTable({
     setFilteredItems(filtered);
   }, [items, isActiveFilter, nameFilter]);
 
+  // Función para cargar los items del servicio
+  const loadItems = useCallback(async () => {
+    if (!customer_service_id) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const serviceItems = await fetchServiceItems(customer_service_id);
+      if (serviceItems) {
+        // Actualizamos los items locales sin afectar los items que vienen por props
+        setFilteredItems(serviceItems as any);
+      }
+    } catch (err) {
+      console.error('Error al cargar los items:', err);
+      setError('Error al cargar los items del servicio');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [customer_service_id]);
+
+  // Cargar items cuando cambia el customer_service_id
+  useEffect(() => {
+    if (customer_service_id) {
+      loadItems();
+    } else if (items && items.length > 0) {
+      // Si no hay customer_service_id pero hay items en props, los usamos
+      setFilteredItems(items);
+    }
+  }, [customer_service_id, items, loadItems]);
+
+  // Función para manejar la actualización después de guardar
+  const handleItemSaved = async () => {
+    if (customer_service_id) {
+      await loadItems();
+    }
+  };
+
   const filterItems = () => {
     let filtered = items;
     filtered = filtered.filter((item) => item.is_active === isActiveFilter);
@@ -118,7 +160,7 @@ export default function ServiceItemsTable({
             company_id={modified_company_id}
             editingService={editingService as any}
             editService={editService}
-            getItems={getItems}
+            onSuccess={handleItemSaved}
           />
         </Card>
       </ResizablePanel>

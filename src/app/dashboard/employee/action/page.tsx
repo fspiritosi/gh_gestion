@@ -6,6 +6,7 @@ import {
 } from '@/app/server/GET/actions';
 import EmployeeComponent from '@/components/EmployeeComponent';
 import { Card, CardFooter } from '@/components/ui/card';
+import { fetchCustomers } from '@/features/Empresa/Clientes/actions/customer';
 import { fetchAllContractTypes } from '@/features/Empresa/RRHH/actions/actions';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cn } from '@/lib/utils';
@@ -13,7 +14,7 @@ import { getRole } from '@/lib/utils/getRole';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import moment from 'moment';
 import { cookies } from 'next/headers';
-import { fetchAllCompanyPositon, fetchAllCostCenter, fetchContractorCompanies } from './actions/actions';
+import { fetchAllCompanyPositon, fetchAllCostCenter } from './actions/actions';
 export default async function EmployeeFormAction({ searchParams }: { searchParams: any }) {
   // const { data } = await supabase
 
@@ -140,7 +141,8 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   const diagrams_types2 = await fetchDiagramsTypes();
   const contract_types = await fetchAllContractTypes();
   const allCompanyPositions = await fetchAllCompanyPositon();
-  const contractorCompanies = await fetchContractorCompanies();
+  const contractorCompanies = await fetchCustomers(company_id || '');
+
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
       <Card className={cn('col-span-8 flex flex-col justify-between overflow-hidden')}>

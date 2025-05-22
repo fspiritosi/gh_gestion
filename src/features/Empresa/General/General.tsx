@@ -8,7 +8,9 @@ import { RegisterWithRole } from '@/components/RegisterWithRole';
 import CompanyComponent from '@/features/Empresa/General/components/company/CompanyComponent';
 // import DangerZoneComponent from '@/features/Empresa/General/components/company/DangerZoneComponent';
 import { fetchAllEmployeesWithRelations, fetchAllEquipmentWithRelations } from '@/app/server/GET/actions';
+
 import ViewcomponentInternal from '@/components/ViewComponentInternal';
+
 import { getRole } from '@/lib/utils/getRole';
 import { cookies } from 'next/headers';
 import UsersTabComponent from '../Usuarios/UsersTabComponent';
@@ -27,8 +29,10 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
   const empleadosCargados = await fetchAllEmployeesWithRelations();
   const equiposCargados = await fetchAllEquipmentWithRelations();
   const role = await getRole();
+
   const savedVisibilityCostCenter = coockiesStore.get('cost-center-table')?.value;
   const savedVisibilityOrganigram = coockiesStore.get('organigram-table')?.value;
+
   const viewData = {
     defaultValue: subtab || 'company',
     path: '/dashboard/company/actualCompany',

@@ -3,6 +3,7 @@ import {
   fetchAllEmployeesWithRelations,
   fetchAllEquipmentWithRelations,
 } from '@/app/server/GET/actions';
+
 import EmployesDiagram from '@/components/Diagrams/EmployesDiagram';
 import DocumentNav from '@/components/DocumentNav';
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
@@ -24,9 +25,8 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
 
   const empleadosCargados = await fetchAllEmployeesWithRelations();
   const equiposCargados = await fetchAllEquipmentWithRelations();
-  const role = await getRole();
-
   const document_types = await fetchAllDocumentTypes();
+  const role = await getRole();
 
   const viewData = {
     defaultValue: searchParams?.tab || 'employees',

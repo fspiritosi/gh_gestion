@@ -5,13 +5,19 @@ import { fechAllCustomers, fetchAllSectors } from '../../actions/create';
 import SectorForm from './sectorForm';
 import SectorTable from './sectorTable';
 
-function SectorTabs({
-  customers,
-  sectors,
-}: {
+// Eliminamos la interfaz local y usamos la importada
+// interface Sector {
+//   id: string;
+//   name: string;
+//   // Agrega otros campos que necesites
+// }
+
+interface SectorTabsProps {
   customers: Awaited<ReturnType<typeof fechAllCustomers>>;
   sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
-}) {
+}
+
+function SectorTabs({ customers, sectors }: SectorTabsProps) {
   const [SelectedSector, setSelectedSector] = useState<Awaited<ReturnType<typeof fetchAllSectors>>[number] | null>(
     null
   );

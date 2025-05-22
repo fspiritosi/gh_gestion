@@ -1,4 +1,10 @@
-import { fetchAllActivesEmployees, fetchDiagrams, fetchDiagramsTypes } from '@/app/server/GET/actions';
+import {
+  fetchAllActivesEmployees,
+  fetchDiagrams,
+  fetchDiagramsTypes,
+  fetchEmployeeDiagrams,
+  fetchEmployeesByCompany,
+} from '@/app/server/GET/actions';
 import { supabaseServer } from '@/lib/supabase/server';
 import { setEmployeesToShow } from '@/lib/utils/utils';
 import { cookies } from 'next/headers';
@@ -15,12 +21,9 @@ async function EmployesDiagram({ tabValue, subtab }: { subtab?: string; tabValue
   } = await supabase.auth.getUser();
   const coockiesStore = cookies();
   const company_id = coockiesStore.get('actualComp')?.value;
-  const { employees } = await fetch(`${URL}/api/employees?actual=${company_id}&user=${user?.id}`).then((e) => e.json());
-
+  const employees = await fetchEmployeesByCompany();
   const activeEmploees = setEmployeesToShow(employees?.filter((e: any) => e.is_active));
-
-  const { data: diagrams } = await fetch(`${URL}/api/employees/diagrams`).then((e) => e.json());
-
+  const diagrams = await fetchEmployeeDiagrams();
   const employees2 = await fetchAllActivesEmployees();
   const diagrams2 = await fetchDiagrams();
 

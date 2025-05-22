@@ -470,6 +470,7 @@ export default function NewDocumentType({
             // Para relaciones 1:N el objeto suele estar directamente en la propiedad
             const relatedObj = (emp ? (emp[propConfig.accessor_key as keyof EmployeeDetailed] as any) : null) as any;
             const relatedId = relatedObj?.id ?? relatedObj ?? '';
+
             return {
               id: relatedId[0]?.customers?.id ? relatedId[0].customers.id : relatedId,
               value,
@@ -579,6 +580,8 @@ export default function NewDocumentType({
       conditions: serializedConditions ? serializedConditions : null,
     };
 
+    console.log('formattedValues', formattedValues);
+
     toast.promise(
       async () => {
         const { data, error } = await supabase.from('document_types').insert(formattedValues).select();
@@ -608,6 +611,8 @@ export default function NewDocumentType({
       }
     );
   }
+
+  console.log(form.formState.errors, 'error');
 
   function formatName(name: string): string {
     // Capitalize first letter and convert the rest to lowercase

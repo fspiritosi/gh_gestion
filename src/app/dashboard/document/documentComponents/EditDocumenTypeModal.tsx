@@ -210,6 +210,7 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
             // Para relaciones 1:N el objeto suele estar directamente en la propiedad
             const relatedObj = (emp ? (emp[propConfig.accessor_key as keyof EmployeeDetailed] as any) : null) as any;
             const relatedId = relatedObj?.id ?? relatedObj ?? '';
+
             return {
               id: relatedId[0]?.customers?.id ? relatedId[0].customers.id : relatedId,
               value,
