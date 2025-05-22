@@ -412,6 +412,25 @@ export async function fetchAllSectors() {
     return [];
   }
 }
+export async function fetchAllContractorSectorBySectorIds(sectorIds: string[]) {
+  const supabase = supabaseServer();
+  try {
+    const { data: sectors, error } = await supabase
+      .from('sector_customer')
+      .select('*,sectors(*),customers(*)')
+      .in('sector_id', sectorIds);
+    // .returns<SectorWithCustomers[]>();
+
+    if (error) {
+      console.error(error);
+      return [];
+    }
+    return sectors;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
 
 export async function createSector(values: any) {
   const supabase = supabaseServer();

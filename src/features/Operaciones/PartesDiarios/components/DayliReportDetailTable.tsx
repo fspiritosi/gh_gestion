@@ -415,18 +415,16 @@ export function getDailyReportColumns(onEdit: (row: DailyReportRow) => void): Co
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            {row.original.date < moment().format('YYYY-MM-DD') && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DeleteConfirmationModal date={row.original.date} dailyReportId={row.original.id} />
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p>Eliminar</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DeleteConfirmationModal date={row.original.date} dailyReportId={row.original.id} />
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>Eliminar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         );
       },

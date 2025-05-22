@@ -9,7 +9,6 @@ import { endOfMonth, format, startOfMonth } from 'date-fns';
 import moment from 'moment';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 import { fetchDailyReportsWithFilters, getDailyReports, getDailyReportsForCurrentMonth } from './actions/actions';
 import { dailyReportStatus } from './utils/utils';
 
@@ -187,11 +186,10 @@ function DailyReportTable({
         setDailyRows(response);
       } else {
         // Si no hay resultados con los filtros aplicados, mostrar mensaje
-        toast.info('No se encontraron registros con los filtros aplicados');
+        // toast.info('No se encontraron registros con los filtros aplicados');
       }
     } catch (error) {
       console.error('Error al cargar los datos filtrados:', error);
-      toast.error('Error al cargar los datos filtrados');
     } finally {
       setIsLoading(false);
     }

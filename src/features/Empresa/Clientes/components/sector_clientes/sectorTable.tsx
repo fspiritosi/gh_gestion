@@ -5,23 +5,24 @@ import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { ColumnDef } from '@tanstack/react-table';
 import Cookies from 'js-cookie';
-import { fechAllCustomers, fetchAllSectors } from '../../actions/create';
+import { fechAllCustomers, fetchAllContractorSectorBySectorIds, fetchAllSectors } from '../../actions/create';
 
 interface SectorTableProp {
   customers: Awaited<ReturnType<typeof fechAllCustomers>>;
   sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
-  selectedSector: SectorTableProp['sectors'][number] | null;
-  setSelectedSector: (sector: SectorTableProp['sectors'][number] | null) => void;
+  contractorSectors: Awaited<ReturnType<typeof fetchAllContractorSectorBySectorIds>>;
+  selectedSector: SectorTableProp['contractorSectors'][number] | null;
+  setSelectedSector: (sector: SectorTableProp['contractorSectors'][number] | null) => void;
   setMode: (mode: 'create' | 'edit') => void;
   mode: 'create' | 'edit';
 }
 
 export function getCustomerEquipmentColums(
-  handleEdit: (sector: SectorTableProp['sectors'][number]) => void
-): ColumnDef<SectorTableProp['sectors'][number]>[] {
+  handleEdit: (sector: SectorTableProp['contractorSectors'][number]) => void
+): ColumnDef<SectorTableProp['contractorSectors'][number]>[] {
   return [
     {
-      accessorKey: 'name',
+      accessorKey: 'sectors.name',
       id: 'Nombre',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
       filterFn: (row, id, value) => {
@@ -29,7 +30,7 @@ export function getCustomerEquipmentColums(
       },
     },
     {
-      accessorKey: 'customer.name',
+      accessorKey: 'customers.name',
       id: 'Cliente',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Cliente" />,
       filterFn: (row, id, value) => {
@@ -37,7 +38,7 @@ export function getCustomerEquipmentColums(
       },
     },
     {
-      accessorKey: 'description',
+      accessorKey: 'sectors.descripcion_corta',
       id: 'Descripción',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
       filterFn: (row, id, value) => {
@@ -49,11 +50,11 @@ export function getCustomerEquipmentColums(
       id: 'Acciones',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
       cell: ({ row }) => {
-        const handleSelectArea = () => {
-          handleEdit((row.original as any).sector as any);
+        const handleSelectSector = () => {
+          handleEdit(row.original);
         };
         return (
-          <Button size="sm" variant="link" className="hover:text-blue-400" onClick={handleSelectArea}>
+          <Button size="sm" variant="link" className="hover:text-blue-400" onClick={handleSelectSector}>
             Editar
           </Button>
         );
@@ -65,8 +66,16 @@ export function getCustomerEquipmentColums(
   ];
 }
 
-function SectorTable({ customers, sectors, selectedSector, setSelectedSector, setMode, mode }: SectorTableProp) {
-  const handleEdit = (sector: SectorTableProp['sectors'][number]) => {
+function SectorTable({
+  customers,
+  contractorSectors,
+  sectors,
+  selectedSector,
+  setSelectedSector,
+  setMode,
+  mode,
+}: SectorTableProp) {
+  const handleEdit = (sector: SectorTableProp['contractorSectors'][number]) => {
     setSelectedSector(sector);
     setMode('edit');
   };
@@ -75,20 +84,14 @@ function SectorTable({ customers, sectors, selectedSector, setSelectedSector, se
   const savedVisibility = cookies ? JSON.parse(cookies) : {};
 
   const names = createFilterOptions(sectors, (sector) => sector.name);
-  const clients = createFilterOptions(sectors, (sector) => sector.sector_customer[0].customers?.name || '');
+  const clients = createFilterOptions(sectors, (sector) => sector.sector_customer[0]?.customers?.name || '');
 
-  const formattedData = sectors.map((sector) => ({
-    name: sector.name,
-    customer: sector.sector_customer[0].customers || '',
-    description: sector.descripcion_corta,
-    sector: sector,
-  }));
   return (
     <div className="p-4 pt-0">
-      <h2 className="text-xl font-bold mb-4">Equipos del cliente</h2>
+      <h2 className="text-xl font-bold mb-4">Sectores </h2>
       <BaseDataTable
         columns={getCustomerEquipmentColums(handleEdit)}
-        data={formattedData as any}
+        data={contractorSectors}
         savedVisibility={savedVisibility}
         tableId="areaTable"
         toolbarOptions={{

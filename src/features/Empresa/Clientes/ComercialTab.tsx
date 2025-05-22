@@ -11,7 +11,13 @@ import { fetchAllEmployees } from '@/shared/actions/employees.actions';
 import { fetchAllEquipment } from '@/shared/actions/equipment.actions';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { fechAllCustomers, fetchAllSectors, fetchAreasWithProvinces, fetchEquipmentsCustomers } from './actions/create';
+import {
+  fechAllCustomers,
+  fetchAllContractorSectorBySectorIds,
+  fetchAllSectors,
+  fetchAreasWithProvinces,
+  fetchEquipmentsCustomers,
+} from './actions/create';
 import { fetchServiceItems } from './actions/items';
 import { fetchMeasureUnits } from './actions/meassure';
 import { fetchServices } from './actions/service';
@@ -34,10 +40,8 @@ async function ComercialTab({
   const provinces = await fetchAllProvinces();
   const areas = await fetchAreasWithProvinces();
   const sectors = await fetchAllSectors();
-  const contractorSectors =
-    sectors?.filter((sector) =>
-      sector.sector_customer.some((customer) => customer.customers?.company_id === actualCompany)
-    ) || [];
+  const contractorSectors = await fetchAllContractorSectorBySectorIds(sectors?.map((sector) => sector.id) || []);
+  console.log('contractorSectors', contractorSectors);
 
   const services = await fetchServices(actualCompany || '');
   const serviceItems = await fetchServiceItems('');
@@ -124,7 +128,9 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <SectorTabs customers={contractorCompanies || []} sectors={contractorSectors} />,
+          component: (
+            <SectorTabs customers={contractorCompanies || []} sectors={sectors} contractorSectors={contractorSectors} />
+          ),
         },
       },
       {

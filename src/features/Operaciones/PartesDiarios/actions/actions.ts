@@ -31,11 +31,14 @@ export async function fetchDailyReportsWithFilters({
   status?: string[] | null;
 }) {
   const cookieStore = cookies();
-  const company_id = cookieStore.get('company_id')?.value;
+  const company_id = cookieStore.get('actualComp')?.value;
   const supabase = supabaseServer();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!company_id && !user?.app_metadata?.company_id) {
+    return [];
+  }
 
   let query = supabase
     .from('dailyreport')
@@ -69,7 +72,7 @@ export async function fetchDailyReportsWithFilters({
 export async function getDailyReports() {
   const supabase = supabaseServer();
   const cookieStore = cookies();
-  const company_id = cookieStore.get('company_id')?.value;
+  const company_id = cookieStore.get('actualComp')?.value;
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -90,7 +93,7 @@ export async function getDailyReports() {
 export async function getDailyReportsForCurrentMonth() {
   const supabase = supabaseServer();
   const cookieStore = cookies();
-  const company_id = cookieStore.get('company_id')?.value;
+  const company_id = cookieStore.get('actualComp')?.value;
   const {
     data: { user },
   } = await supabase.auth.getUser();
