@@ -14,6 +14,7 @@ import {
 import {
   createSector,
   fechAllCustomers,
+  fetchAllContractorSectorBySectorIds,
   fetchAllSectors,
   updateSector,
 } from '@/features/Empresa/Clientes/actions/create';
@@ -43,8 +44,8 @@ interface SectorFormProps {
   sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
   mode: 'create' | 'edit';
   setMode: (mode: 'create' | 'edit') => void;
-  selectedSector: Awaited<ReturnType<typeof fetchAllSectors>>[number] | null;
-  setSelectedSector: (sector: Awaited<ReturnType<typeof fetchAllSectors>>[number] | null) => void;
+  selectedSector: Awaited<ReturnType<typeof fetchAllContractorSectorBySectorIds>>[number] | null;
+  setSelectedSector: (sector: Awaited<ReturnType<typeof fetchAllContractorSectorBySectorIds>>[number] | null) => void;
 }
 
 type SectorFormValues = z.infer<typeof SectorSchema>;
@@ -66,9 +67,9 @@ function SectorForm({ customers, sectors, mode, setMode, selectedSector, setSele
   useEffect(() => {
     if (mode === 'edit' && selectedSector) {
       reset({
-        name: selectedSector.name,
-        descripcion_corta: selectedSector.descripcion_corta || '',
-        customer_id: selectedSector.sector_customer[0].customers?.id,
+        name: selectedSector.sectors?.name || '',
+        descripcion_corta: selectedSector.sectors?.descripcion_corta || '',
+        customer_id: selectedSector.customer_id,
       });
     } else if (mode === 'create') {
       reset({
@@ -82,7 +83,7 @@ function SectorForm({ customers, sectors, mode, setMode, selectedSector, setSele
   const handleSubmit = async (values: SectorFormValues) => {
     try {
       if (mode === 'edit' && selectedSector) {
-        const response = await updateSector({ ...values, id: selectedSector.id });
+        const response = await updateSector({ ...values, id: selectedSector.sector_id });
         if (response?.status === 200) {
           toast.success(response.body || 'Sector actualizado correctamente');
           reset();

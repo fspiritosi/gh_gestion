@@ -243,7 +243,12 @@ export function DailyReportForm({
           }
         } else {
           // Modo creación
-          const createdRow = await createDailyReportRow([rowData]);
+          const createdRow = await createDailyReportRow([
+            {
+              ...rowData,
+              status: !employeeIds.length && !equipmentIds.length ? 'sin_recursos_asignados' : 'pendiente',
+            },
+          ]);
 
           // Crear relaciones con empleados si existen
           if (employeeIds.length > 0) {

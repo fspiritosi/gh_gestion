@@ -529,7 +529,7 @@ export const getNextMonthExpiringDocumentsEmployees = async () => {
 
   const { data, error } = await supabase
     .from('documents_employees')
-    .select('*,id_document_types(*),applies(*,contractor_employee(*, customers(*)))')
+    .select('*,id_document_types(*),applies!inner(*,contractor_employee(*, customers(*)))')
     // .eq('applies.is_active', true)
     .not('id_document_types.is_it_montlhy', 'is', true)
     .or(`validity.lte.${today.toISOString()},validity.lte.${nextMonth.toISOString()}`)
@@ -558,7 +558,7 @@ export const getNextMonthExpiringDocumentsVehicles = async () => {
 
   const { data, error } = await supabase
     .from('documents_equipment')
-    .select('*,id_document_types(*),applies(*,type(*),brand(*),model(*))')
+    .select('*,id_document_types(*),applies!inner(*,type(*),brand(*),model(*))')
     .eq('applies.company_id', company_id || user?.app_metadata?.company_id || '')
     .not('id_document_types.is_it_montlhy', 'is', true)
     .not('id_document_types', 'is', null)

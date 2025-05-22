@@ -1,7 +1,7 @@
 'use client';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { useState } from 'react';
-import { fechAllCustomers, fetchAllSectors } from '../../actions/create';
+import { fechAllCustomers, fetchAllContractorSectorBySectorIds, fetchAllSectors } from '../../actions/create';
 import SectorForm from './sectorForm';
 import SectorTable from './sectorTable';
 
@@ -15,12 +15,13 @@ import SectorTable from './sectorTable';
 interface SectorTabsProps {
   customers: Awaited<ReturnType<typeof fechAllCustomers>>;
   sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
+  contractorSectors: Awaited<ReturnType<typeof fetchAllContractorSectorBySectorIds>>;
 }
 
-function SectorTabs({ customers, sectors }: SectorTabsProps) {
-  const [SelectedSector, setSelectedSector] = useState<Awaited<ReturnType<typeof fetchAllSectors>>[number] | null>(
-    null
-  );
+function SectorTabs({ customers, sectors, contractorSectors }: SectorTabsProps) {
+  const [SelectedSector, setSelectedSector] = useState<
+    Awaited<ReturnType<typeof fetchAllContractorSectorBySectorIds>>[number] | null
+  >(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
 
   return (
@@ -40,6 +41,7 @@ function SectorTabs({ customers, sectors }: SectorTabsProps) {
         <ResizablePanel defaultSize={60}>
           <SectorTable
             customers={customers}
+            contractorSectors={contractorSectors}
             sectors={sectors}
             selectedSector={SelectedSector}
             setSelectedSector={setSelectedSector}

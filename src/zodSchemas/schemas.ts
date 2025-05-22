@@ -486,7 +486,7 @@ export const EmployeesSchema = z.object({
   gender: z.string(),
   status: z.string(),
   street: z.string(),
-  picture: z.string(),
+  picture: z.string().optional(),
   lastname: z.string(),
   province: BirthplaceSchema,
   firstname: z.string(),
@@ -571,7 +571,7 @@ export const VehicleSchema =
   z.array(
     z.object({
       created_at: z.coerce.date(),
-      picture: z.string(),
+      picture: z.string().optional(),
       type_of_vehicle: z.number(),
       domain: z.string(),
       chassis: z.string(),
@@ -608,7 +608,7 @@ export type Vehicles = z.infer<typeof VehiclesSchema>;
 export const VehiclesFormattedElementSchema = z.array(
   z.object({
     created_at: z.coerce.date(),
-    picture: z.string(),
+    picture: z.string().optional(),
     type_of_vehicle: z.number(),
     domain: z.string(),
     chassis: z.string(),
