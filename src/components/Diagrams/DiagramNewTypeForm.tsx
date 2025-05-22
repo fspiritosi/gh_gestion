@@ -85,11 +85,8 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
     setDiagramToEdit(false);
   }
 
-  console.log(selectedDiagram, 'selectedDiagram');
-
   useEffect(() => {
     if (selectedDiagram) {
-      console.log('Selected diagram:', selectedDiagram); // Para depuración
       form.reset({
         name: selectedDiagram.name || '',
         short_description: selectedDiagram.short_description || '',

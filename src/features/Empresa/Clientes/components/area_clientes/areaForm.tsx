@@ -88,9 +88,7 @@ function AreaForm({ customers, provinces, mode, setMode, selectedArea, setSelect
   const handleSubmit = async (values: AreaFormValues) => {
     try {
       if (mode === 'edit' && selectedArea) {
-        console.log('Actualizando área con valores:', values);
         const response = await updateArea({ ...values, id: selectedArea.id });
-        console.log('Respuesta del servidor:', response);
 
         // Manejar la respuesta según el código de estado
         if (!response) {

@@ -196,7 +196,7 @@ export function DailyReportForm({
       end_time: data.end_time || null,
       description: data.description,
       daily_report_id: dailyReportId,
-      status: data.status as DailyReportRowStatus,
+      status: (data.status as DailyReportRowStatus) || 'pendiente',
       areas_service_id: data.areas_service_id,
       sector_service_id: data.sector_service_id,
       remit_number: data.remit_number || null,
@@ -213,7 +213,6 @@ export function DailyReportForm({
             equipments?.filter((eq) => data?.equipment?.includes(eq.id))?.map((eq) => eq.id) || [];
 
           // Modo edición
-          console.log(data?.equipos_cliente, 'data?.equipos_cliente');
           await updateDailyReportRow(
             selectedRow.id,
             rowData,
@@ -415,7 +414,9 @@ export function DailyReportForm({
       }
 
       if (defaultValues.customer_equipment) {
+        console.log(defaultValues.customer_equipment);
         const equipos_clienteIds = defaultValues.customer_equipment.map((eq) => eq.id || '');
+        console.log(equipos_clienteIds);
         form.setValue('equipos_cliente', equipos_clienteIds);
       }
 
@@ -672,7 +673,7 @@ export function DailyReportForm({
                                 <Button
                                   variant="outline"
                                   role="combobox"
-                                  disabled={isServiceDisabled}
+                                  disabled={isServiceDisabled || disabled}
                                   className={cn(
                                     'w-full justify-between',
                                     !field.value && 'text-muted-foreground',
@@ -766,7 +767,7 @@ export function DailyReportForm({
                                 <Button
                                   variant="outline"
                                   role="combobox"
-                                  disabled={!selectedServiceId}
+                                  disabled={!selectedServiceId || disabled}
                                   className={cn(
                                     'w-full justify-between',
                                     !field.value && 'text-muted-foreground',
@@ -887,7 +888,7 @@ export function DailyReportForm({
                                   <Button
                                     variant="outline"
                                     role="combobox"
-                                    disabled={isSectorDisabled}
+                                    disabled={isSectorDisabled || disabled}
                                     className={cn(
                                       'w-full justify-between',
                                       !field.value && 'text-muted-foreground',
@@ -978,7 +979,7 @@ export function DailyReportForm({
                                   <Button
                                     variant="outline"
                                     role="combobox"
-                                    disabled={isAreaDisabled}
+                                    disabled={isAreaDisabled || disabled}
                                     className={cn(
                                       'w-full justify-between',
                                       !field.value && 'text-muted-foreground',
@@ -1054,6 +1055,7 @@ export function DailyReportForm({
                                 <Button
                                   variant="outline"
                                   role="combobox"
+                                  disabled={disabled}
                                   className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
                                 >
                                   {field.value && field.value.length > 0

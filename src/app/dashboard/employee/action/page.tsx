@@ -74,8 +74,6 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
       )
       .eq('id', searchParams.employee_id || '');
 
-    console.log(employees?.[0].contractor_employee, 'employees');
-
     if (error) {
       console.log(error, 'error');
     }
@@ -143,7 +141,6 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   const contract_types = await fetchAllContractTypes();
   const allCompanyPositions = await fetchAllCompanyPositon();
   const contractorCompanies = await fetchContractorCompanies();
-  console.log(formattedEmployee, 'formattedEmployee');
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
       <Card className={cn('col-span-8 flex flex-col justify-between overflow-hidden')}>

@@ -52,7 +52,6 @@ function customerEquipmentForm({
 
   const { reset } = form;
   const router = useRouter();
-  console.log(selectedEquipment);
   const handleSubmit = async (values: EquipmentCustomerSchema) => {
     try {
       if (mode === 'edit' && selectedEquipment) {

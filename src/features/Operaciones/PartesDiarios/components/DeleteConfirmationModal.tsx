@@ -56,7 +56,10 @@ export function DeleteConfirmationModal({ dailyReportId, date }: DeleteConfirmat
         <Button
           size="icon"
           variant="ghost"
-          className={cn('h-8 w-8 p-0 hover:text-red-500', moment(date).isBefore(moment()) ? 'hidden' : '')}
+          className={cn(
+            'h-8 w-8 p-0 hover:text-red-500',
+            moment(date).isSame(moment(), 'day') || moment(date).isAfter(moment()) ? '' : 'hidden'
+          )}
         >
           <Trash2 className="h-4 w-4 text-red-500" />
         </Button>

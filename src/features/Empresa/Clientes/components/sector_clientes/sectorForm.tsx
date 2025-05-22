@@ -75,7 +75,6 @@ function SectorForm({ customers, mode, setMode, selectedSector, setSelectedSecto
   // Cargar datos cuando cambia el modo o el área seleccionada
   useEffect(() => {
     if (mode === 'edit' && selectedSector) {
-      console.log(selectedSector, 'selectedSector');
       reset({
         name: selectedSector.name,
         descripcion_corta: selectedSector.descripcion_corta || '',

@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { DailyReportRow } from './DayliReportDetailTable';
+import HistoryModal from './HistoryModal';
 
 export type DocumentData = {
   id: string;
@@ -317,11 +318,13 @@ export default function DocumentViewerModal({
                   Visualización de Imagen
                 </div>
               )}
-
-              <Button variant="outline" onClick={handleDownload} className="flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                Descargar documento
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={handleDownload} className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Descargar documento
+                </Button>
+                <HistoryModal dailyReportRowId={documentData.id} />
+              </div>
             </DialogTitle>
           </DialogHeader>
 

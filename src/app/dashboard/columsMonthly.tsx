@@ -106,12 +106,9 @@ const dateRangeFilter: FilterFn<Colum> = (
   // Normalizar from/to a mes y año
   const fromMonthYear = from ? moment(from).startOf('month') : null;
   const toMonthYear = to ? moment(to).startOf('month') : null;
-  if (fromMonthYear) console.log('[dateRangeFilter] fromMonthYear:', fromMonthYear.format('YYYY-MM'));
-  if (toMonthYear) console.log('[dateRangeFilter] toMonthYear:', toMonthYear.format('YYYY-MM'));
 
   if (fromMonthYear && !toMonthYear) {
     const result = periodMoment.isSameOrAfter(fromMonthYear, 'month');
-    // console.log(`[dateRangeFilter] Comparando >= from (${fromMonthYear.format('YYYY-MM')}):`, result);
     return result;
   }
   if (!fromMonthYear && toMonthYear) {

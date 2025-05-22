@@ -1,19 +1,15 @@
 'use client';
 
-import { useLoggedUserStore } from '@/store/loggedUser';
-import { VehicleInspectionLayout } from '../layouts/VehicleInspectionLayout';
-import dynamic from 'next/dynamic';
-import { checklistItems } from '@/components/CheckList/ChecklistSergio';
-import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import moment from 'moment';
+import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useLoggedUserStore } from '@/store/loggedUser';
 import { pdf } from '@react-pdf/renderer';
+import moment from 'moment';
+import dynamic from 'next/dynamic';
+import { VehicleInspectionLayout } from '../layouts/VehicleInspectionLayout';
 
 // Importación dinámica del PDFViewer
-const PDFViewer = dynamic(
-  () => import('@react-pdf/renderer').then(mod => mod.PDFViewer),
-  { ssr: false }
-);
+const PDFViewer = dynamic(() => import('@react-pdf/renderer').then((mod) => mod.PDFViewer), { ssr: false });
 
 interface VehicleInspectionPDFProps {
   data?: {
@@ -38,10 +34,15 @@ interface VehicleInspectionPDFProps {
   description?: string;
 }
 
-export const TransporteSPANAYCHKHYS03 = ({ data, preview = true, companyLogo, singurl, title, description }: VehicleInspectionPDFProps) => {
+export const TransporteSPANAYCHKHYS03 = ({
+  data,
+  preview = true,
+  companyLogo,
+  singurl,
+  title,
+  description,
+}: VehicleInspectionPDFProps) => {
   const company = useLoggedUserStore((state) => state.actualCompany)?.company_logo;
-
-  console.log(data, 'data keloke');
 
   const items = [
     {
@@ -408,7 +409,7 @@ export const TransporteSPANAYCHKHYS03 = ({ data, preview = true, companyLogo, si
 
   const pdfContent = (
     <VehicleInspectionLayout
-      title={title||'CHECK LIST INSPECCION VEHICULAR'}
+      title={title || 'CHECK LIST INSPECCION VEHICULAR'}
       subtitle="Transporte SP-ANAY - CHK - HYS - 03"
       data={{
         fecha: data?.fecha,

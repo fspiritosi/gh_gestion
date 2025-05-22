@@ -1,6 +1,7 @@
 'use client';
 import { Badge, badgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
 import { cn } from '@/lib/utils';
@@ -9,6 +10,7 @@ import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-
 import { ColumnDef, VisibilityState } from '@tanstack/react-table';
 import { Edit, Info } from 'lucide-react';
 import moment from 'moment';
+import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import {
   getActiveEmployeesForDailyReport,
@@ -16,11 +18,13 @@ import {
   getCustomers,
   getDailyReportById,
 } from '../actions/actions';
+import { BulkEditModal } from './BulkEditModal';
 import { ClonarRegistrosButton } from './ClonarRegistrosButton';
 import { DailyReportForm } from './DailyReportRowForm';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import DocumentUploadModal from './DocumentUploadModal';
 import DocumentViewerModal from './DocumentViewerFixed';
+import HistoryModal from './HistoryModal';
 export const transformDailyReports = (reports: Awaited<ReturnType<typeof getDailyReportById>>) => {
   const report = reports[0];
   return report.dailyreportrows.map((row) => ({
@@ -81,6 +85,29 @@ export type DailyReportRow = ReturnType<typeof transformDailyReports>[number];
 
 export function getDailyReportColumns(onEdit: (row: DailyReportRow) => void): ColumnDef<DailyReportRow>[] {
   return [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <div className="w-[20px]">
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+            className="translate-y-[2px]"
+          />
+        </div>
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          className="translate-y-[2px]"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'customer',
       id: 'Cliente',
@@ -199,16 +226,6 @@ export function getDailyReportColumns(onEdit: (row: DailyReportRow) => void): Co
         return value.some((val: any) => rowValues.map((item: any) => item.name).includes(val));
       },
     },
-    // {
-    //   accessorKey: 'end_time',
-    //   id: 'Hora fin',
-    //   header: ({ column }) => <DataTableColumnHeader column={column} title="Hora fin" />,
-    //   cell: ({ row }) => (
-    //     <span className="font-medium">
-    //       {row.original.end_time ? moment(row.original.end_time, 'HH:mm:ss').format('HH:mm') : ''}
-    //     </span>
-    //   ),
-    // },
     {
       accessorKey: 'employees',
       id: 'Empleados',
@@ -352,12 +369,6 @@ export function getDailyReportColumns(onEdit: (row: DailyReportRow) => void): Co
         return value.includes(row.getValue(id));
       },
     },
-    // {
-    //   accessorKey: 'description',
-    //   id: 'Descripción',
-    //   header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
-    //   cell: ({ row }) => <span className="font-medium">{row.original.description}</span>,
-    // },
     {
       id: 'actions',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
@@ -397,13 +408,25 @@ export function getDailyReportColumns(onEdit: (row: DailyReportRow) => void): Co
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <DeleteConfirmationModal date={row.original.date} dailyReportId={row.original.id} />
+                  <HistoryModal onlyIcon dailyReportRowId={row.original.id} />
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p>Eliminar</p>
+                  <p>Editar</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            {row.original.date < moment().format('YYYY-MM-DD') && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DeleteConfirmationModal date={row.original.date} dailyReportId={row.original.id} />
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p>Eliminar</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
         );
       },
@@ -438,7 +461,6 @@ export function DayliReportDetailTable({
     .flatMap((area) => area.customer_equipment.map((eq) => eq.name))
     .filter(Boolean);
   const customerEquipmentOptions = createFilterOptions(allCustomerEquipmentName, (name) => name);
-  console.log(customerEquipmentOptions);
 
   const jornadaOptions = createFilterOptions(formattedData, (area) => area.working_day);
   const statusOptions = createFilterOptions(formattedData, (area) => area.status);
@@ -451,7 +473,10 @@ export function DayliReportDetailTable({
     setSelectedRow(row);
     document.getElementById('open-button-daily-report')?.click();
   }, []);
-
+  // Estado para controlar la apertura del modal
+  const [isBulkEditModalOpen, setIsBulkEditModalOpen] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<DailyReportRow[]>([]);
+  const router = useRouter();
   return (
     <>
       <div
@@ -476,6 +501,15 @@ export function DayliReportDetailTable({
         savedVisibility={savedVisibility}
         tableId="dailyReportTableDetail"
         toolbarOptions={{
+          bulkAction: {
+            enabled: true,
+            label: 'Editar',
+            icon: <Edit className="h-4 w-4" />,
+            onClick: (rows) => {
+              setSelectedRows(rows);
+              setIsBulkEditModalOpen(true);
+            },
+          },
           filterableColumns: [
             {
               columnId: 'Cliente',
@@ -533,6 +567,17 @@ export function DayliReportDetailTable({
               options: customerEquipmentOptions,
             },
           ],
+        }}
+      />
+      {/* Modal de edición masiva */}
+      <BulkEditModal
+        isOpen={isBulkEditModalOpen}
+        onClose={() => setIsBulkEditModalOpen(false)}
+        selectedRows={selectedRows}
+        onSuccess={() => {
+          // Recargar datos o refrescar la tabla
+          router.refresh();
+          // O cualquier otra función que recargue los datos
         }}
       />
     </>

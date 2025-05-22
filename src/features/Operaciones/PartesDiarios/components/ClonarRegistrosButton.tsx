@@ -38,7 +38,6 @@ export function ClonarRegistrosButton({ formattedData }: ClonarRegistrosButtonPr
         setLoading(true);
 
         const formattedDates = fechasSeleccionadas.map((date) => format(date, 'yyyy-MM-dd'));
-        console.log('Clonando registros para fechas:', formattedDates);
 
         // Verificar qué reportes ya existen
         const existingReports = await checkDailyReportExists(formattedDates);

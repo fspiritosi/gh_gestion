@@ -30,7 +30,6 @@ function ContractDetail({ id }: { id: string }) {
 
   //   fetchContract();
   // }, [id, supabase]);
-  console.log(id, 'id');
   return (
     <ServiceComponent id={id} />
     // <ServicesForm editingService={contract as any} company_id={contract?.company_id as any} areas={contract?.areas as any} sectors={contract?.sectors as any} customers={contract?.customers as any} />

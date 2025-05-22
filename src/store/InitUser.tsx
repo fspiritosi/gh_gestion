@@ -21,15 +21,12 @@ export default function InitState({
   const initState = useRef(false);
   const router = useRouter();
 
-  console.log('initState.current', initState.current);
-
   useEffect(() => {
     router.refresh();
   }, [role]);
   //   const profileUser = useLoggedUserStore(state => state.profileUser)
   let selectedCompany: Company;
   useEffect(() => {
-    console.log('initState.current', initState.current);
     if (!initState.current) {
       //Setear los siguientes estados
       //1 credentialUser

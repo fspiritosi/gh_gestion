@@ -24,9 +24,7 @@ async function EmployesDiagram({ tabValue, subtab }: { subtab?: string; tabValue
   const employees2 = await fetchAllActivesEmployees();
   const diagrams2 = await fetchDiagrams();
 
-  console.log('antes de los diagramas');
   const diagrams_types = await fetchDiagramsTypes();
-  console.log(diagrams_types, 'despues de los diagramas');
 
   const visibilityState = coockiesStore.get('novelty-types-table-empresa')?.value;
 

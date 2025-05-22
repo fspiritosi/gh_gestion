@@ -1,14 +1,13 @@
-import DailyReportDetail from '@/components/DailyReport/DailyReportDetail';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import Viewcomponent from '@/components/ViewComponent';
-import { getDailyReports } from '@/features/Operaciones/PartesDiarios/actions/actions';
+import { getDailyReportsForCurrentMonth } from '@/features/Operaciones/PartesDiarios/actions/actions';
 import DayliReportForm from '@/features/Operaciones/PartesDiarios/components/DayliReportForm';
 import DailyReportTable from '@/features/Operaciones/PartesDiarios/DailyReportTable';
 import { cookies } from 'next/headers';
 async function OperationsPage() {
   const cookiesStore = cookies();
   const dailyReportTableSavedColumns = cookiesStore.get('dailyReportTable')?.value;
-  const dailyReports = await getDailyReports();
+  const dailyReports = await getDailyReportsForCurrentMonth();
   const viewData = {
     defaultValue: 'dailyReportsTable',
     path: '/dashboard/operations',
@@ -44,18 +43,18 @@ async function OperationsPage() {
           ),
         },
       },
-      {
-        value: 'dailyReportsDetailTable',
-        name: 'Detalle de Partes diarios',
-        restricted: [''],
-        content: {
-          title: 'Ver detalle de partes diarios',
-          description: 'Aquí encontrarás todos los detalles de los partes diarios',
-          buttonActioRestricted: [''],
-          buttonAction: '',
-          component: <DailyReportDetail />,
-        },
-      },
+      // {
+      //   value: 'dailyReportsDetailTable',
+      //   name: 'Detalle de Partes diarios',
+      //   restricted: [''],
+      //   content: {
+      //     title: 'Ver detalle de partes diarios',
+      //     description: 'Aquí encontrarás todos los detalles de los partes diarios',
+      //     buttonActioRestricted: [''],
+      //     buttonAction: '',
+      //     component: <DailyReportDetail />,
+      //   },
+      // },
       // {
       //   value: 'dailyReports',
       //   name: 'Crear parte diario',

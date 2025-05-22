@@ -1040,6 +1040,53 @@ export type Database = {
           },
         ];
       };
+      dailyreportrows_history: {
+        Row: {
+          action_type: string;
+          changed_by: string | null;
+          changed_data: Json;
+          changed_fields: Json | null;
+          created_at: string;
+          daily_report_row_id: string;
+          id: string;
+          metadata: Json | null;
+          related_id: string | null;
+          related_table: string | null;
+        };
+        Insert: {
+          action_type: string;
+          changed_by?: string | null;
+          changed_data: Json;
+          changed_fields?: Json | null;
+          created_at?: string;
+          daily_report_row_id: string;
+          id?: string;
+          metadata?: Json | null;
+          related_id?: string | null;
+          related_table?: string | null;
+        };
+        Update: {
+          action_type?: string;
+          changed_by?: string | null;
+          changed_data?: Json;
+          changed_fields?: Json | null;
+          created_at?: string;
+          daily_report_row_id?: string;
+          id?: string;
+          metadata?: Json | null;
+          related_id?: string | null;
+          related_table?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'dailyreportrows_history_daily_report_row_id_fkey';
+            columns: ['daily_report_row_id'];
+            isOneToOne: false;
+            referencedRelation: 'dailyreportrows';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       diagram_type: {
         Row: {
           color: string;
@@ -3003,6 +3050,20 @@ export type Database = {
           termination_date: string | null;
           type_of_contract: string | null;
           workflow_diagram: string | null;
+        }[];
+      };
+      get_dailyreportrow_history: {
+        Args: { p_row_id: string };
+        Returns: {
+          id: string;
+          action_type: string;
+          changed_fields: Json;
+          changed_data: Json;
+          changed_by: Json;
+          created_at: string;
+          related_table: string;
+          related_id: string;
+          metadata: Json;
         }[];
       };
       migrate_document: {

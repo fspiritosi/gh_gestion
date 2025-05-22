@@ -940,7 +940,6 @@ export default function EmployeeComponent({
       if (error) throw error;
 
       if (!aptitudesPuesto || aptitudesPuesto.length === 0) {
-        console.log('No se encontraron aptitudes para el puesto ID:', currentPositionId);
         setAptitudes([]);
         return;
       }
@@ -1705,7 +1704,6 @@ export default function EmployeeComponent({
                     const isMultiple = data.name === 'allocated_to' ? true : false;
 
                     if (isMultiple) {
-                      console.log(user?.contractor_employee, 'multiple');
                       return (
                         // <div key={crypto.randomUUID()}>
                         <div key={data.name}>
