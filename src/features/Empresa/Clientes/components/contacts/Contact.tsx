@@ -1,35 +1,55 @@
 import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { cookies } from 'next/headers';
-import { supabase } from '../../../../../../supabase/supabase';
 import { contactColumns } from '../../../../../app/dashboard/company/actualCompany/contact/columns';
+import { fetchContacts } from '../../actions/contacts';
+
+// This matches the Colum type from columns.tsx
+type Contact = {
+  id: string;
+  contact_name: string | null;
+  constact_email: string | null; // Note the typo to match the API
+  contact_phone: number | null;
+  contact_charge: string | null;
+  customer_id: string | null;
+  customers: {
+    id: string;
+    name: string;
+  } | null;
+  showInactive: boolean;
+  status: string;
+  company_id: string | null;
+  created_at: string;
+  is_active: boolean | null;
+  reason_for_termination: string | null;
+  termination_date: string | null;
+};
 
 export default async function Contact() {
   const coockiesStore = cookies();
   const actualCompany = coockiesStore.get('actualComp')?.value;
   const saved = coockiesStore.get('contactTable')?.value;
   const savedVisibility = saved ? JSON.parse(saved) : {};
-  const { data: contacts, error } = await supabase //pasar a api
-    .from('contacts')
-    .select('*, customers(id, name)')
-    .eq('company_id', actualCompany);
+  const contacts = await fetchContacts();
 
-  if (error) {
-    console.error('Error fetching customers:', error);
-  }
+  const contractorCompanies = (contacts
+    ?.filter((company) => company.company_id?.toString() === actualCompany)
+    .map((contact) => ({
+      ...contact,
+      showInactive: false,
+      status: 'active',
+    })) || []) as Contact[];
 
-  const contractorCompanies = contacts?.filter((company: any) => company.company_id.toString() === actualCompany);
-
-  const names = createFilterOptions(contractorCompanies, (contact) => contact.name);
-  const Email = createFilterOptions(contractorCompanies, (contact) => contact.customer_name);
-  const phone = createFilterOptions(contractorCompanies, (contact) => contact.contact_phone);
-  const charge = createFilterOptions(contractorCompanies, (contact) => contact.contact_charge);
-  const client = createFilterOptions(contractorCompanies, (contact) => contact.customers.name);
+  const names = createFilterOptions(contractorCompanies, (contact) => contact.contact_name || '');
+  const Email = createFilterOptions(contractorCompanies, (contact) => contact.constact_email || '');
+  const phone = createFilterOptions(contractorCompanies, (contact) => contact.contact_phone?.toString() || '');
+  const charge = createFilterOptions(contractorCompanies, (contact) => contact.contact_charge || '');
+  const client = createFilterOptions(contractorCompanies, (contact) => contact.customers?.name || '');
 
   return (
     <BaseDataTable
       columns={contactColumns}
-      data={contractorCompanies || []}
+      data={contractorCompanies}
       savedVisibility={savedVisibility}
       tableId="contactTable"
       toolbarOptions={{
