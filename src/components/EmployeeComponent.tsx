@@ -88,7 +88,6 @@ export default function EmployeeComponent({
 }: {
   contractorCompanies: Awaited<ReturnType<typeof fetchContractorCompanies>>;
   contract_types: ContractType[];
-  contractorCompanies: any[];
   company_positions: any[];
   cost_center: CostCenter[];
   historyData: any;
