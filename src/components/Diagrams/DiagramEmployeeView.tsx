@@ -246,7 +246,7 @@ function DiagramEmployeeView({
                                     return person.document.includes(inputValue);
                                   } else {
                                     return (
-                                      person.name.toLowerCase().includes(inputValue) ||
+                                      person.name?.toLowerCase().includes(inputValue) ||
                                       person.document.includes(inputValue)
                                     );
                                   }

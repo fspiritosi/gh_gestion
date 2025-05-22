@@ -1354,3 +1354,65 @@ export const fetchServiceItems = async (company_id: string, user_id: string, cus
     throw error;
   }
 };
+
+export async function fetchEmployeesByCompany() {
+  try {
+    const supabase = supabaseServer();
+    const cookiesStore = cookies();
+    const company_id = cookiesStore.get('actualComp')?.value;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!company_id) {
+      throw new Error('company_id is required');
+    }
+
+    let { data: employees, error } = await supabase.from('employees').select('*').eq('company_id', company_id);
+
+    if (error) {
+      throw error;
+    }
+
+    return employees || [];
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    throw error;
+  }
+}
+
+export async function fetchEmployeeDiagrams(employeeId?: string) {
+  try {
+    const supabase = supabaseServer();
+
+    if (employeeId) {
+      const { data: employeeDiagrams, error } = await supabase
+        .from('employees_diagram')
+        .select('*, diagram_type(*)')
+        .eq('employee_id', employeeId);
+
+      if (error) {
+        throw error;
+      }
+
+      return employeeDiagrams || [];
+    }
+
+    // Si no hay employeeId, obtener todos los diagramas con relaciones
+    const { data: allDiagrams, error } = await supabase.from('employees_diagram').select(`
+        *,
+        employee_id,
+        employees(*),
+        diagram_type(*)
+      `);
+
+    if (error) {
+      throw error;
+    }
+
+    return allDiagrams || [];
+  } catch (error) {
+    console.error('Error fetching employee diagrams:', error);
+    throw error;
+  }
+}

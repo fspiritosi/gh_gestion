@@ -32,6 +32,7 @@ import {
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { cn } from '@/lib/utils';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
@@ -58,7 +59,14 @@ const formSchema = z.object({
     required_error: 'La fecha de baja es requerida.',
   }),
 });
-
+type Contractor =
+  | {
+      contractor_id?: {
+        name: string;
+      };
+      name?: string;
+    }
+  | string;
 export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTable>[0], unknown>[] = [
   {
     id: 'actions',
@@ -524,40 +532,69 @@ export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTabl
     },
   },
   {
-    //Afectaciones
     accessorKey: 'contractor_employee',
     id: 'Afectaciones',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Afectaciones" />,
     cell: ({ row }) => {
+      const contractors = row.original.contractor_employee || [];
+
+      // Si no hay contratistas, mostramos "Sin afectar"
+      if (contractors.length === 0) {
+        return <Badge>Sin afectar</Badge>;
+      }
+
+      // Define the contractor type
+      // Get contractor names
+      const contractorNames = (contractors as any[])
+        .map((contractor) => {
+          if (typeof contractor === 'string') return contractor;
+          return contractor?.contractor_id?.name || contractor?.name || '';
+        })
+        .filter((name): name is string => Boolean(name));
+
+      const firstContractor = contractorNames[0] || '—';
+
       return (
-        <div className="flex flex-wrap gap-1">
-          {row.original.contractor_employee && row.original.contractor_employee.length > 0 ? (
-            row.original.contractor_employee.map((contractor: any) => (
-              <Badge key={contractor.id} className="mr-1 mb-1">
-                {contractor?.contractor_id?.name || 'Sin nombre'}
-              </Badge>
-            ))
-          ) : (
-            <span>-</span>
-          )}
-        </div>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="inline-flex">
+                <Badge>
+                  {firstContractor}
+                  {contractorNames.length > 1 && ` +${contractorNames.length - 1}`}
+                </Badge>
+              </div>
+            </TooltipTrigger>
+            {contractorNames.length > 1 && (
+              <TooltipContent className="text-white bg-black rounded-lg p-2">
+                <div className="flex flex-col gap-1">
+                  {contractorNames.map((name, index) => (
+                    <span key={index}>{name}</span>
+                  ))}
+                </div>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       );
     },
     filterFn: (row, id, filterValue) => {
-      // Si no hay filtro o el array está vacío, devolvemos true (mostrar la fila)
-      if (!filterValue || !Array.isArray(filterValue) || filterValue.length === 0) return true;
+      // Si no hay filtro o el array está vacío, mostramos todas las filas
+      if (!filterValue || !Array.isArray(filterValue) || filterValue.length === 0) {
+        return true;
+      }
 
-      const contractorEmployees = row.getValue(id);
+      const contractors = row.original.contractor_employee || [];
 
-      // Si no hay afectaciones, no coincide con ningún filtro
-      if (!contractorEmployees || !Array.isArray(contractorEmployees) || contractorEmployees.length === 0) {
+      // Si no hay contratistas, no mostramos la fila
+      if (contractors.length === 0) {
         return false;
       }
 
-      // Comprobamos si alguna de las afectaciones coincide con alguno de los valores del filtro
-      return contractorEmployees.some((contractor) => {
-        if (!contractor || !contractor.contractor_id || !contractor.contractor_id.name) return false;
-        return filterValue.includes(contractor.contractor_id.name);
+      // Comprobamos si algún contratista coincide con el filtro
+      return contractors.some((contractor) => {
+        const name = contractor?.contractor_id;
+        return name && filterValue.includes(name);
       });
     },
   },

@@ -43,13 +43,6 @@ export default function ServiceComponent({
   company_id,
 }: ServiceComponentProps) {
   // const URL = process.env.NEXT_PUBLIC_BASE_URL;
-  console.log(id);
-  console.log(services);
-  // console.log(customers);
-  console.log(areas);
-  console.log(sectors);
-  console.log(measure_units);
-  console.log(items);
 
   const service = services?.find((s: any) => s.id === id);
 
@@ -65,6 +58,7 @@ export default function ServiceComponent({
           id={id}
           measureUnitsList={measure_units}
           itemsList={items}
+          hideCreateButton={true}
         />
       ) : (
         <div>No hay servicios</div>
