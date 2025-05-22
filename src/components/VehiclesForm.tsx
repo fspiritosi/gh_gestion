@@ -33,6 +33,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import { Input } from './ui/input';
 require('dotenv').config();
 // import { useToast } from './ui/use-toast'
+import { fetchContractorCompanies } from '@/app/dashboard/employee/action/actions/actions';
 import Cookies from 'js-cookie';
 import QRCode from 'react-qr-code';
 import AddTypeModal from './AddTypeModal';
@@ -76,6 +77,7 @@ export default function VehiclesForm2({
   types: vehicleType,
   brand_vehicles,
   role,
+  contractorCompanies,
 }: {
   vehicle: any | null;
   allCostCenter: CostCenter[];
@@ -83,6 +85,7 @@ export default function VehiclesForm2({
   types: generic[];
   brand_vehicles: VehicleBrand[] | null;
   role?: string;
+  contractorCompanies: Awaited<ReturnType<typeof fetchContractorCompanies>>;
 }) {
   const searchParams = useSearchParams();
   // const id = params
@@ -308,9 +311,9 @@ export default function VehiclesForm2({
     };
   }, [fetchContractors, subscribeToCustomersChanges]);
 
-  const contractorCompanies = useCountriesStore((state) =>
-    state.customers?.filter((company: any) => company.company_id.toString() === actualCompany && company.is_active)
-  );
+  // const contractorCompanies = useCountriesStore((state) =>
+  //   state.customers?.filter((company: any) => company.company_id.toString() === actualCompany?.id && company.is_active)
+  // );
 
   const types = data.tipe_of_vehicles?.map((e) => e.name);
   const vehicleModels = data.models;
@@ -1187,6 +1190,7 @@ export default function VehiclesForm2({
                       render={({ field }) => (
                         <>
                           <CheckboxDefaultValues
+                            defaultValues={vehicle?.allocated_to}
                             disabled={readOnly}
                             options={contractorCompanies}
                             required={true}
@@ -1204,14 +1208,14 @@ export default function VehiclesForm2({
                   name="cost_center_id"
                   render={({ field }) => (
                     <FormItem className={cn('flex flex-col min-w-[250px]')}>
-                      <FormLabel>Cost Center</FormLabel>
+                      <FormLabel>Centro de costo</FormLabel>
                       <Select
                         disabled={readOnly}
                         value={field.value}
                         onValueChange={(value) => form.setValue('cost_center_id', value)}
                       >
                         <SelectTrigger className="w-[250px]">
-                          <SelectValue placeholder="Cost Center" />
+                          <SelectValue placeholder="Centro de costo" />
                         </SelectTrigger>
                         <SelectContent>
                           {allCostCenter?.map((costCenter) => (

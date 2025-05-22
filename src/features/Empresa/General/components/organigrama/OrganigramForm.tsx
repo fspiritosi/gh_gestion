@@ -39,8 +39,6 @@ function organigramForm({ editingSector }: { editingSector: Sector | null }) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(!!editingSector);
 
-  console.log(editingSector, 'editingSector');
-
   useEffect(() => {
     if (editingSector) {
       reset({

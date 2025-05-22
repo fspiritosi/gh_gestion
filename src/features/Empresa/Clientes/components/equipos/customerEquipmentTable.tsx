@@ -88,7 +88,6 @@ function CustomerEquipmentTable({
     (customerEquipment) => customerEquipment.customers?.name || ''
   );
   const types = createFilterOptions(customerEquipments, (customerEquipment) => customerEquipment.type || '');
-  console.log('customerEquipments', customerEquipments);
   return (
     <div className="p-4 pt-0">
       <h2 className="text-xl font-bold mb-4">Equipos del cliente</h2>

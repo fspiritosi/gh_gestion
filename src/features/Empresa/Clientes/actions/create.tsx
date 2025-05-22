@@ -232,7 +232,6 @@ export async function updateArea(values: any) {
         // Verificar si el área está siendo usada en contratos
         const isUsed = await isAreaUsedInContracts(values.id);
         if (isUsed) {
-          console.log('Área en uso, no se puede cambiar el cliente');
           return {
             status: 400,
             body: 'No se puede cambiar el cliente de un área que está siendo utilizada en contratos existentes',

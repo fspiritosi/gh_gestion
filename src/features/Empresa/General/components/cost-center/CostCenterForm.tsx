@@ -28,8 +28,6 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(!!editingCostCenter);
 
-  console.log(editingCostCenter, 'editingCostCenter');
-
   useEffect(() => {
     if (editingCostCenter) {
       reset({
@@ -68,7 +66,6 @@ function CostCenterForm({ editingCostCenter }: { editingCostCenter: CostCenter |
   };
 
   const onUpdate = async (values: z.infer<typeof CostCenterSchema>) => {
-    console.log(values, 'values');
     toast.promise(
       async () => {
         await updateCostCenter({

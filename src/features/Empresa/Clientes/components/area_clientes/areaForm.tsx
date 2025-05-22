@@ -22,7 +22,10 @@ import { z } from 'zod';
 
 const AreaSchema = z.object({
   name: z.string().nonempty({ message: 'El nombre es requerido' }),
-  descripcion_corta: z.string().nonempty({ message: 'La descripción corta es requerida' }),
+  descripcion_corta: z
+    .string()
+    .nonempty({ message: 'La descripción corta es requerida' })
+    .max(5, 'Máximo 5 caracteres'),
   customer_id: z.string().nonempty({ message: 'El cliente es requerido' }),
   province_id: z.array(z.number()).nonempty({ message: 'La provincia es requerida' }),
 });
@@ -85,9 +88,7 @@ function AreaForm({ customers, provinces, mode, setMode, selectedArea, setSelect
   const handleSubmit = async (values: AreaFormValues) => {
     try {
       if (mode === 'edit' && selectedArea) {
-        console.log('Actualizando área con valores:', values);
         const response = await updateArea({ ...values, id: selectedArea.id });
-        console.log('Respuesta del servidor:', response);
 
         // Manejar la respuesta según el código de estado
         if (!response) {

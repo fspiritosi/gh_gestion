@@ -3,6 +3,57 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      aptitudes_tecnicas: {
+        Row: {
+          id: string;
+          is_active: boolean | null;
+          nombre: string;
+        };
+        Insert: {
+          id?: string;
+          is_active?: boolean | null;
+          nombre: string;
+        };
+        Update: {
+          id?: string;
+          is_active?: boolean | null;
+          nombre?: string;
+        };
+        Relationships: [];
+      };
+      aptitudes_tecnicas_puestos: {
+        Row: {
+          aptitud_id: string;
+          created_at: string;
+          puesto_id: string;
+        };
+        Insert: {
+          aptitud_id: string;
+          created_at?: string;
+          puesto_id: string;
+        };
+        Update: {
+          aptitud_id?: string;
+          created_at?: string;
+          puesto_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'aptitudes_tecnicas_puestos_aptitud_id_fkey';
+            columns: ['aptitud_id'];
+            isOneToOne: false;
+            referencedRelation: 'aptitudes_tecnicas';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'aptitudes_tecnicas_puestos_puesto_id_fkey';
+            columns: ['puesto_id'];
+            isOneToOne: false;
+            referencedRelation: 'company_position';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       area_province: {
         Row: {
           area_id: string;
@@ -665,6 +716,13 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: 'customer_services_customer_id_fkey';
+            columns: ['customer_id'];
+            isOneToOne: false;
+            referencedRelation: 'customers';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'public_customer_services_company_id_fkey';
             columns: ['company_id'];
             isOneToOne: false;
@@ -738,7 +796,7 @@ export type Database = {
           date: string;
           id: string;
           is_active: boolean | null;
-          status: boolean | null;
+          status: Database['public']['Enums']['daily_report_header_status_new'];
           updated_at: string | null;
         };
         Insert: {
@@ -748,7 +806,7 @@ export type Database = {
           date: string;
           id?: string;
           is_active?: boolean | null;
-          status?: boolean | null;
+          status?: Database['public']['Enums']['daily_report_header_status_new'];
           updated_at?: string | null;
         };
         Update: {
@@ -758,7 +816,7 @@ export type Database = {
           date?: string;
           id?: string;
           is_active?: boolean | null;
-          status?: boolean | null;
+          status?: Database['public']['Enums']['daily_report_header_status_new'];
           updated_at?: string | null;
         };
         Relationships: [
@@ -767,6 +825,39 @@ export type Database = {
             columns: ['company_id'];
             isOneToOne: false;
             referencedRelation: 'company';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      dailyreport_customer_equipment_relations: {
+        Row: {
+          customer_equipment_id: string;
+          daily_report_row_id: string;
+          id: string;
+        };
+        Insert: {
+          customer_equipment_id: string;
+          daily_report_row_id: string;
+          id?: string;
+        };
+        Update: {
+          customer_equipment_id?: string;
+          daily_report_row_id?: string;
+          id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'dailyreport_customer_equipment_relat_customer_equipment_id_fkey';
+            columns: ['customer_equipment_id'];
+            isOneToOne: false;
+            referencedRelation: 'equipos_clientes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'dailyreport_customer_equipment_relatio_daily_report_row_id_fkey';
+            columns: ['daily_report_row_id'];
+            isOneToOne: false;
+            referencedRelation: 'dailyreportrows';
             referencedColumns: ['id'];
           },
         ];
@@ -845,6 +936,8 @@ export type Database = {
       };
       dailyreportrows: {
         Row: {
+          areas_service_id: string | null;
+          cancel_reason: string | null;
           created_at: string | null;
           customer_id: string | null;
           daily_report_id: string | null;
@@ -853,13 +946,18 @@ export type Database = {
           end_time: string | null;
           id: string;
           item_id: string | null;
+          remit_number: string | null;
+          sector_service_id: string | null;
           service_id: string | null;
           start_time: string | null;
           status: Database['public']['Enums']['daily_report_status'];
+          type_service: Database['public']['Enums']['daily_report_type_enum'] | null;
           updated_at: string | null;
           working_day: string | null;
         };
         Insert: {
+          areas_service_id?: string | null;
+          cancel_reason?: string | null;
           created_at?: string | null;
           customer_id?: string | null;
           daily_report_id?: string | null;
@@ -868,13 +966,18 @@ export type Database = {
           end_time?: string | null;
           id?: string;
           item_id?: string | null;
+          remit_number?: string | null;
+          sector_service_id?: string | null;
           service_id?: string | null;
           start_time?: string | null;
           status?: Database['public']['Enums']['daily_report_status'];
+          type_service?: Database['public']['Enums']['daily_report_type_enum'] | null;
           updated_at?: string | null;
           working_day?: string | null;
         };
         Update: {
+          areas_service_id?: string | null;
+          cancel_reason?: string | null;
           created_at?: string | null;
           customer_id?: string | null;
           daily_report_id?: string | null;
@@ -883,18 +986,35 @@ export type Database = {
           end_time?: string | null;
           id?: string;
           item_id?: string | null;
+          remit_number?: string | null;
+          sector_service_id?: string | null;
           service_id?: string | null;
           start_time?: string | null;
           status?: Database['public']['Enums']['daily_report_status'];
+          type_service?: Database['public']['Enums']['daily_report_type_enum'] | null;
           updated_at?: string | null;
           working_day?: string | null;
         };
         Relationships: [
           {
+            foreignKeyName: 'dailyreportrows_areas_service_id_fkey';
+            columns: ['areas_service_id'];
+            isOneToOne: false;
+            referencedRelation: 'service_areas';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'dailyreportrows_daily_report_id_fkey';
             columns: ['daily_report_id'];
             isOneToOne: false;
             referencedRelation: 'dailyreport';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'dailyreportrows_sector_service_id_fkey';
+            columns: ['sector_service_id'];
+            isOneToOne: false;
+            referencedRelation: 'service_sectors';
             referencedColumns: ['id'];
           },
           {
@@ -916,6 +1036,53 @@ export type Database = {
             columns: ['service_id'];
             isOneToOne: false;
             referencedRelation: 'customer_services';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      dailyreportrows_history: {
+        Row: {
+          action_type: string;
+          changed_by: string | null;
+          changed_data: Json;
+          changed_fields: Json | null;
+          created_at: string;
+          daily_report_row_id: string;
+          id: string;
+          metadata: Json | null;
+          related_id: string | null;
+          related_table: string | null;
+        };
+        Insert: {
+          action_type: string;
+          changed_by?: string | null;
+          changed_data: Json;
+          changed_fields?: Json | null;
+          created_at?: string;
+          daily_report_row_id: string;
+          id?: string;
+          metadata?: Json | null;
+          related_id?: string | null;
+          related_table?: string | null;
+        };
+        Update: {
+          action_type?: string;
+          changed_by?: string | null;
+          changed_data?: Json;
+          changed_fields?: Json | null;
+          created_at?: string;
+          daily_report_row_id?: string;
+          id?: string;
+          metadata?: Json | null;
+          related_id?: string | null;
+          related_table?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'dailyreportrows_history_daily_report_row_id_fkey';
+            columns: ['daily_report_row_id'];
+            isOneToOne: false;
+            referencedRelation: 'dailyreportrows';
             referencedColumns: ['id'];
           },
         ];
@@ -1363,6 +1530,54 @@ export type Database = {
             columns: ['documents_equipment_id'];
             isOneToOne: false;
             referencedRelation: 'documents_equipment';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      empleado_aptitudes: {
+        Row: {
+          aptitud_id: string;
+          created_at: string | null;
+          empleado_id: string;
+          fecha_verificacion: string | null;
+          id: string;
+          observaciones: string | null;
+          tiene_aptitud: boolean | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          aptitud_id: string;
+          created_at?: string | null;
+          empleado_id: string;
+          fecha_verificacion?: string | null;
+          id?: string;
+          observaciones?: string | null;
+          tiene_aptitud?: boolean | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          aptitud_id?: string;
+          created_at?: string | null;
+          empleado_id?: string;
+          fecha_verificacion?: string | null;
+          id?: string;
+          observaciones?: string | null;
+          tiene_aptitud?: boolean | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'empleado_aptitudes_aptitud_id_fkey';
+            columns: ['aptitud_id'];
+            isOneToOne: false;
+            referencedRelation: 'aptitudes_tecnicas';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'empleado_aptitudes_empleado_id_fkey';
+            columns: ['empleado_id'];
+            isOneToOne: false;
+            referencedRelation: 'employees';
             referencedColumns: ['id'];
           },
         ];
@@ -2224,14 +2439,17 @@ export type Database = {
       service_areas: {
         Row: {
           area_id: string;
+          id: string;
           service_id: string;
         };
         Insert: {
           area_id: string;
+          id?: string;
           service_id: string;
         };
         Update: {
           area_id?: string;
+          id?: string;
           service_id?: string;
         };
         Relationships: [
@@ -2748,6 +2966,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      actualizar_estado_daily_reports: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       actualizar_estado_documentos: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
@@ -2765,7 +2987,9 @@ export type Database = {
         Returns: string;
       };
       build_vehicle_where_alias: {
-        Args: { _conditions: Json; table_alias?: string };
+        Args:
+          | { _conditions: Json; table_alias?: string }
+          | { _conditions: Json; table_alias?: string; user_id?: string };
         Returns: string;
       };
       controlar_alertas_documentos: {
@@ -2828,6 +3052,20 @@ export type Database = {
           workflow_diagram: string | null;
         }[];
       };
+      get_dailyreportrow_history: {
+        Args: { p_row_id: string };
+        Returns: {
+          id: string;
+          action_type: string;
+          changed_fields: Json;
+          changed_data: Json;
+          changed_by: Json;
+          created_at: string;
+          related_table: string;
+          related_id: string;
+          metadata: Json;
+        }[];
+      };
       migrate_document: {
         Args: { target_id: string; execute_migration?: boolean };
         Returns: {
@@ -2870,7 +3108,16 @@ export type Database = {
     Enums: {
       affiliate_status_enum: 'Dentro de convenio' | 'Fuera de convenio';
       condition_enum: 'operativo' | 'no operativo' | 'en reparación' | 'operativo condicionado';
-      daily_report_status: 'pendiente' | 'ejecutado' | 'reprogramado' | 'cancelado';
+      daily_report_header_status_new: 'abierto' | 'cerrado' | 'cerrado_completo' | 'cerrado_incompleto';
+      daily_report_status:
+        | 'pendiente'
+        | 'sin_recursos_asignados'
+        | 'ejecutado'
+        | 'reprogramado'
+        | 'cancelado'
+        | '.'
+        | '..';
+      daily_report_type_enum: 'mensual' | 'adicional';
       document_applies: 'Persona' | 'Equipos' | 'Empresa';
       document_type_enum: 'DNI' | 'LE' | 'LC' | 'PASAPORTE';
       gender_enum: 'Masculino' | 'Femenino' | 'No Declarado';
@@ -3016,7 +3263,9 @@ export const Constants = {
     Enums: {
       affiliate_status_enum: ['Dentro de convenio', 'Fuera de convenio'],
       condition_enum: ['operativo', 'no operativo', 'en reparación', 'operativo condicionado'],
-      daily_report_status: ['pendiente', 'ejecutado', 'reprogramado', 'cancelado'],
+      daily_report_header_status_new: ['abierto', 'cerrado', 'cerrado_completo', 'cerrado_incompleto'],
+      daily_report_status: ['pendiente', 'sin_recursos_asignados', 'ejecutado', 'reprogramado', 'cancelado', '.', '..'],
+      daily_report_type_enum: ['mensual', 'adicional'],
       document_applies: ['Persona', 'Equipos', 'Empresa'],
       document_type_enum: ['DNI', 'LE', 'LC', 'PASAPORTE'],
       gender_enum: ['Masculino', 'Femenino', 'No Declarado'],

@@ -59,8 +59,6 @@ export function CostCenterTable({
     // FileText // Icono para documentos
   );
 
-  console.log(savedVisibility, 'savedVisibility');
-
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 import * as React from 'react';
+import { BulkActionProps } from '../base/data-table';
 import { DataTableViewOptions } from '../base/data-table-view-options';
 import { DataTableDatePicker } from '../filters/data-table-date-picker';
 import { DataTableFacetedFilter } from '../filters/data-table-faceted-filter';
@@ -23,6 +24,11 @@ interface FilterableColumn<TData> {
   showTo?: boolean; // mostrar DatePicker Hasta
   fromPlaceholder?: string;
   toPlaceholder?: string;
+  // Valores predeterminados para el filtro de fechas
+  defaultValues?: {
+    from: Date | null;
+    to: Date | null;
+  };
 }
 
 interface SearchableColumn {
@@ -37,6 +43,7 @@ interface DataTableToolbarProps<TData> {
   showViewOptions?: boolean;
   extraActions?: React.ReactNode | ((table: Table<TData>) => React.ReactNode);
   tableId?: string; // Añadimos tableId para persistencia
+  bulkAction?: BulkActionProps<TData>;
 }
 
 export function DataTableToolbarBase<TData>({
@@ -46,21 +53,59 @@ export function DataTableToolbarBase<TData>({
   showViewOptions = true,
   extraActions,
   tableId, // Recibimos tableId
+  bulkAction,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const columnVisibility = table.getState().columnVisibility;
 
   // NUEVO: Estado para los filtros de rango de fechas por columna
   const [dateFilters, setDateFilters] = React.useState<{ [columnId: string]: { from: Date | null; to: Date | null } }>(
-    {}
+    () => {
+      // Inicializar con los valores por defecto de las columnas
+      const initialFilters: { [columnId: string]: { from: Date | null; to: Date | null } } = {};
+
+      filterableColumns.forEach((column) => {
+        if (column.type === 'date-range' && column.defaultValues) {
+          initialFilters[column.columnId] = {
+            from: column.defaultValues.from,
+            to: column.defaultValues.to,
+          };
+
+          // Aplicar el filtro inicial a la columna correspondiente
+          const tableColumn = table.getColumn(column.columnId);
+          if (tableColumn) {
+            setTimeout(() => {
+              tableColumn.setFilterValue(column.defaultValues);
+            }, 0);
+          }
+        }
+      });
+
+      return initialFilters;
+    }
   );
 
   // Importa tu DatePicker aquí (ajusta el import según tu proyecto)
   // import DatePicker from '@/components/DatePicker';
-
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const hasSelectedRows = selectedRows.length > 0;
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center gap-2 flex-wrap">
+        {bulkAction?.enabled && hasSelectedRows && (
+          <Button
+            variant="default"
+            size="sm"
+            className="h-8 gap-1"
+            onClick={() => {
+              const selectedData = selectedRows.map((row) => row.original);
+              bulkAction.onClick(selectedData);
+            }}
+          >
+            {bulkAction.icon}
+            {bulkAction.label || `Acción (${selectedRows.length})`}
+          </Button>
+        )}
         {searchableColumns.length > 0 &&
           searchableColumns.map((column) => {
             const tableColumn = table.getColumn(column.columnId);

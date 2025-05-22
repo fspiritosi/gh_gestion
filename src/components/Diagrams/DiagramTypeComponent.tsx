@@ -120,7 +120,7 @@ function DiagramTypeComponent({
 
   return (
     <ResizablePanelGroup direction="horizontal" className="">
-      <ResizablePanel>
+      <ResizablePanel defaultSize={30}>
         <DiagramNewTypeForm
           selectedDiagram={selectDiagramType}
           diagramToEdit={diagramToEdit}

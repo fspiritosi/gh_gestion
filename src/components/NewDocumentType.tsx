@@ -481,7 +481,6 @@ export default function NewDocumentType({
         // Añadir metadatos de relación para uso en BD
         const meta = relationMeta[propConfig.accessor_key] || null;
 
-
         return {
           property_key: propConfig.accessor_key,
           values: condition.values,
@@ -658,7 +657,6 @@ export default function NewDocumentType({
   const addCondition = () => {
     setConditions((prev) => [...prev, { property: '', values: [], id: Date.now().toString() }]);
   };
-
 
   return (
     <Form {...form}>

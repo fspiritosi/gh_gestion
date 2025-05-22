@@ -68,9 +68,6 @@ export default function WorkDiagramForm({ diagramsTypes, diagram, mode, setMode 
   const { reset } = form;
   const router = useRouter();
 
-  console.log(diagram, 'diagram');
-  console.log(mode, 'mode');
-
   const isViewMode = false;
 
   useEffect(() => {

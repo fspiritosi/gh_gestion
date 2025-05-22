@@ -1,6 +1,7 @@
 'use client';
 require('dotenv').config();
 
+import { fetchContractorCompanies } from '@/app/dashboard/employee/action/actions/actions';
 import { CheckboxDefaultValues } from '@/components/CheckboxDefValues';
 import { SelectWithData } from '@/components/SelectWithData';
 import { Badge } from '@/components/ui/badge';
@@ -85,8 +86,8 @@ export default function EmployeeComponent({
   company_positions,
   contractorCompanies,
 }: {
+  contractorCompanies: Awaited<ReturnType<typeof fetchContractorCompanies>>;
   contract_types: ContractType[];
-  contractorCompanies: any[];
   company_positions: any[];
   cost_center: CostCenter[];
   historyData: any;
@@ -140,7 +141,6 @@ export default function EmployeeComponent({
   // );
   const setActivesEmployees = useLoggedUserStore((state) => state.setActivesEmployees);
   const { updateEmployee, createEmployee } = useEmployeesData();
-  const getEmployees = useLoggedUserStore((state: any) => state.getEmployees);
   const router = useRouter();
   const url = process.env.NEXT_PUBLIC_PROJECT_URL;
   const mandatoryDocuments = useCountriesStore((state) => state.mandatoryDocuments);
@@ -150,6 +150,7 @@ export default function EmployeeComponent({
       ? {
           ...user,
           company_position: user.company_position, // Usar el nombre del puesto
+          contractor_employee: user.contractor_employee,
         }
       : {
           lastname: '',
@@ -187,7 +188,6 @@ export default function EmployeeComponent({
 
   const hierarchicalPosition = useWatch({ control: form.control, name: 'hierarchical_position' });
   const hierarchicalPositionId = hierarchyOptions?.find((option) => option.name === hierarchicalPosition)?.id;
-  const positionName = company_positions?.find((option) => option.id === user?.company_position)?.name;
   // Estado para el nombre del puesto mostrado
   const [displayedPositionName, setDisplayedPositionName] = useState('');
   // Definir el tipo para las aptitudes
@@ -946,7 +946,6 @@ export default function EmployeeComponent({
       if (error) throw error;
 
       if (!aptitudesPuesto || aptitudesPuesto.length === 0) {
-        console.log('No se encontraron aptitudes para el puesto ID:', currentPositionId);
         setAptitudes([]);
         return;
       }
@@ -1726,6 +1725,7 @@ export default function EmployeeComponent({
                                     required={true}
                                     field={field}
                                     placeholder="Afectado a"
+                                    defaultValues={user?.contractor_employee}
                                   />
                                 )}
                               />

@@ -76,7 +76,6 @@ function SectorTable({ customers, sectors, selectedSector, setSelectedSector, se
 
   const names = createFilterOptions(sectors, (sector) => sector.name);
   const clients = createFilterOptions(sectors, (sector) => sector.sector_customer[0].customers?.name || '');
-  console.log(sectors);
 
   const formattedData = sectors.map((sector) => ({
     name: sector.name,

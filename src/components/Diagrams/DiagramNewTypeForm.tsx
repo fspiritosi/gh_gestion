@@ -88,12 +88,12 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
   useEffect(() => {
     if (selectedDiagram) {
       form.reset({
-        name: selectedDiagram.name,
-        short_description: selectedDiagram.short_description,
-        color: selectedDiagram.color,
-        id: selectedDiagram.id,
-        work_active: selectedDiagram.work_active,
-        is_active: selectedDiagram.is_active,
+        name: selectedDiagram.name || '',
+        short_description: selectedDiagram.short_description || '',
+        color: selectedDiagram.color || '',
+        id: selectedDiagram.id || '',
+        work_active: selectedDiagram.work_active || false,
+        is_active: selectedDiagram.is_active !== undefined ? selectedDiagram.is_active : true,
       });
       setDiagramToEdit(true);
     } else {
@@ -103,7 +103,7 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
         color: '',
         id: '',
         work_active: false,
-        is_active: false,
+        is_active: true, // Valor por defecto
       });
       setDiagramToEdit(false);
     }
@@ -152,9 +152,13 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
             name="work_active"
             render={({ field }) => (
               <FormItem className="">
-                <FormLabel></FormLabel>
                 <div className="flex items-center space-x-2">
-                  <Switch id="airplane-mode" checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    id="airplane-mode"
+                    defaultChecked={field.value}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                   <Label htmlFor="airplane-mode">Laboralmente Activo</Label>
                 </div>
                 <FormMessage />
@@ -172,7 +176,7 @@ export function DiagramNewTypeForm({ selectedDiagram, diagramToEdit, setDiagramT
               <FormControl>
                 <RadioGroup
                   onValueChange={(value) => field.onChange(value === 'true')}
-                  value={field.value ? 'true' : 'false'}
+                  value={field.value !== undefined ? (field.value ? 'true' : 'false') : 'true'}
                   className="flex space-x-1"
                 >
                   <FormItem className="flex items-center space-x-3 space-y-0">

@@ -86,7 +86,6 @@ export function DiagramDetailTable<TData, TValue>({ columns, data, historyData }
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const totalPages = Math.ceil(filteredHistoryData?.length / itemsPerPage);
-  console.log(columns);
   const handleItemsPerPageChange = (value: string) => {
     setItemsPerPage(Number(value));
     setCurrentPage(1); // Resetear a la primera página cuando se cambia la cantidad de elementos por página

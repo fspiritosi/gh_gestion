@@ -115,11 +115,10 @@ function UploadDocumentEquipment({
         return;
       }
 
-      console.log(data, 'data');
       setSelectedResourceDocuments(data);
     }
   };
-  useEffect( () => { 
+  useEffect(() => {
     fetchSelectedEquipmentDocuments();
   }, [default_id]);
 
@@ -188,7 +187,6 @@ function UploadDocumentEquipment({
                                   return;
                                 }
 
-                                console.log(data, 'data');
                                 setSelectedResourceDocuments(data);
                               }}
                             >

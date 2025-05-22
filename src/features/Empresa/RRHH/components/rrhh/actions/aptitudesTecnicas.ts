@@ -75,8 +75,6 @@ export async function getAptitudesTecnicas(): Promise<AptitudTecnica[]> {
       return [];
     }
 
-    console.log('Obteniendo aptitudes técnicas para la compañía:', company_id);
-
     // Primero obtenemos las aptitudes técnicas
     const { data: aptitudesData, error: aptitudesError } = await supabase
       .from('aptitudes_tecnicas' as any)
@@ -87,10 +85,7 @@ export async function getAptitudesTecnicas(): Promise<AptitudTecnica[]> {
       return [];
     }
 
-    console.log('Aptitudes técnicas obtenidas:', aptitudesData);
-
     if (!aptitudesData || aptitudesData.length === 0) {
-      console.log('No se encontraron aptitudes técnicas');
       return [];
     }
 
@@ -107,8 +102,6 @@ export async function getAptitudesTecnicas(): Promise<AptitudTecnica[]> {
       console.error('Error al obtener relaciones con puestos:', puestosError);
     }
 
-    console.log('Relaciones con puestos obtenidas:', puestosData);
-
     // Obtenemos todos los puestos para asegurarnos de tener sus nombres
     const { data: todosLosPuestos, error: errorPuestos } = await supabase
       .from('company_position' as any)
@@ -118,8 +111,6 @@ export async function getAptitudesTecnicas(): Promise<AptitudTecnica[]> {
     if (errorPuestos) {
       console.error('Error al obtener la lista completa de puestos:', errorPuestos);
     }
-
-    console.log('Todos los puestos:', todosLosPuestos);
 
     // Mapear los datos al formato esperado
     const aptitudes: AptitudTecnica[] = aptitudesData.map((aptitud: any) => {
@@ -151,7 +142,6 @@ export async function getAptitudesTecnicas(): Promise<AptitudTecnica[]> {
       };
     });
 
-    console.log('Aptitudes formateadas:', aptitudes);
     return aptitudes;
   } catch (error) {
     console.error('Error inesperado al obtener aptitudes técnicas:', error);
@@ -180,8 +170,6 @@ export async function getPositions(): Promise<Position[]> {
       return [];
     }
 
-    console.log('Obteniendo puestos para la compañía:', company_id);
-
     // Obtener los puestos activos
     const { data, error } = await supabase
       .from('company_position')
@@ -193,8 +181,6 @@ export async function getPositions(): Promise<Position[]> {
       console.error('Error al obtener los puestos:', error);
       return [];
     }
-
-    console.log('Puestos obtenidos:', data);
 
     // Mapear los datos al formato esperado
     const positions: Position[] = (data || []).map((puesto: any) => ({
@@ -214,12 +200,8 @@ export async function getPositions(): Promise<Position[]> {
  * Obtiene tanto las aptitudes técnicas como los puestos en una sola llamada
  */
 export async function getAptitudesData() {
-  console.log('Iniciando obtención de datos de aptitudes y puestos...');
-
   try {
     const [aptitudes, positions] = await Promise.all([getAptitudesTecnicas(), getPositions()]);
-
-    console.log('Datos obtenidos:', { aptitudes, positions });
 
     // Asegurarse de que siempre devolvamos arrays
     return {

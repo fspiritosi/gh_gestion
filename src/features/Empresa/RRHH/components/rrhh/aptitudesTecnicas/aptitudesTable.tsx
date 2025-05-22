@@ -16,7 +16,6 @@ interface AptitudesTableProps {
 export function AptitudesTable({ aptitudes, onEdit }: AptitudesTableProps) {
   const [filteredData, setFilteredData] = useState<AptitudTecnica[]>(aptitudes);
 
-  console.log(aptitudes, 'aptitudes');
   return (
     <div className="p-2 w-full">
       <div className="flex justify-between">

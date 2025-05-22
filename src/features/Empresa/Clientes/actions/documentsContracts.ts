@@ -158,7 +158,6 @@ export const fetchDocuments = async (contractId: string, session: any): Promise<
       })
     );
 
-    console.log('Documentos cargados:', documentsWithUrls);
     return documentsWithUrls;
   } catch (error) {
     console.error('Error al cargar documentos:', error);
@@ -315,10 +314,7 @@ export const deleteDocument = async (document: Document, session: any): Promise<
   });
 
   try {
-    console.log('Eliminando documento:', document.path);
-
     // Primero eliminamos el registro de la base de datos
-    console.log('Eliminando registro de la base de datos...');
     const { error: dbError } = await authClient.from('documents_contracts').delete().eq('id', document.id);
 
     if (dbError) {
@@ -326,18 +322,13 @@ export const deleteDocument = async (document: Document, session: any): Promise<
       throw new Error(`Error al eliminar el registro: ${dbError.message}`);
     }
 
-    console.log('Registro eliminado correctamente');
-
     // Luego eliminamos el archivo del storage
-    console.log('Eliminando archivo del storage...');
     const { error: storageError } = await authClient.storage.from('contract-documents').remove([document.path]);
 
     if (storageError) {
       console.error('Error al eliminar el archivo del storage:', storageError);
       // No lanzamos error aquí para no interrumpir el flujo ya que el registro ya fue eliminado
       console.warn('El registro fue eliminado pero hubo un error al eliminar el archivo físico');
-    } else {
-      console.log('Archivo eliminado correctamente del storage');
     }
   } catch (error) {
     console.error('Error en deleteDocument:', error);
