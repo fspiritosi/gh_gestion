@@ -1,4 +1,3 @@
-
 import {
   fetchAllDocumentTypes,
   fetchAllEmployeesWithRelations,
@@ -26,6 +25,7 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
 
   const empleadosCargados = await fetchAllEmployeesWithRelations();
   const equiposCargados = await fetchAllEquipmentWithRelations();
+  const document_types = await fetchAllDocumentTypes();
   const role = await getRole();
 
   const viewData = {
@@ -105,9 +105,7 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
               vehicleMockValues={VehicleOptionsData}
               employees={empleadosCargados}
               vehicles={equiposCargados}
-
               document_types={document_types}
-
             />
           ),
         },
