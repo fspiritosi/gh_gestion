@@ -83,8 +83,8 @@ function SectorTable({
   const cookies = Cookies.get('areaTable');
   const savedVisibility = cookies ? JSON.parse(cookies) : {};
 
-  const names = createFilterOptions(sectors, (sector) => sector.name);
-  const clients = createFilterOptions(sectors, (sector) => sector.sector_customer[0]?.customers?.name || '');
+  const names = createFilterOptions(contractorSectors, (sector) => sector.sectors?.name);
+  const clients = createFilterOptions(contractorSectors, (sector) => sector.customers?.name);
 
   return (
     <div className="p-4 pt-0">
