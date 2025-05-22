@@ -33,6 +33,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import { Input } from './ui/input';
 require('dotenv').config();
 // import { useToast } from './ui/use-toast'
+import Cookies from 'js-cookie';
 import QRCode from 'react-qr-code';
 import AddTypeModal from './AddTypeModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -86,7 +87,10 @@ export default function VehiclesForm2({
   const searchParams = useSearchParams();
   // const id = params
   const [accion, setAccion] = useState(searchParams.get('action'));
-  const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+
+  // const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+  const actualCompany = Cookies.get('actualComp');
+
   // const role = useLoggedUserStore((state) => state.roleActualCompany);
   const [type, setType] = useState('');
 
@@ -305,7 +309,7 @@ export default function VehiclesForm2({
   }, [fetchContractors, subscribeToCustomersChanges]);
 
   const contractorCompanies = useCountriesStore((state) =>
-    state.customers?.filter((company: any) => company.company_id.toString() === actualCompany?.id && company.is_active)
+    state.customers?.filter((company: any) => company.company_id.toString() === actualCompany && company.is_active)
   );
 
   const types = data.tipe_of_vehicles?.map((e) => e.name);
@@ -360,7 +364,7 @@ export default function VehiclesForm2({
                 brand: brand_vehicles?.find((e) => e.name === brand)?.id,
                 model: data.models.find((e) => e.name === model)?.id,
                 type: vehicleType.find((e) => e.name === values.type)?.id,
-                company_id: actualCompany?.id,
+                company_id: actualCompany,
                 condition: 'operativo',
                 kilometer: values.kilometer || 0,
                 cost_center_id: values.cost_center_id || null,
@@ -415,7 +419,7 @@ export default function VehiclesForm2({
                   .from('vehicles')
                   .update({ picture: vehicleImage })
                   .eq('id', id)
-                  .eq('company_id', actualCompany?.id);
+                  .eq('company_id', actualCompany);
               } catch (error) {}
             } catch (error: any) {
               throw new Error(handleSupabaseError(error.message));
@@ -533,7 +537,7 @@ export default function VehiclesForm2({
             .from('vehicles')
             .update(updatedFields)
             .eq('id', vehicle?.id)
-            .eq('company_id', actualCompany?.id);
+            .eq('company_id', actualCompany);
 
           console.log(updatedERROR, 'updatedERROR');
 
@@ -554,7 +558,7 @@ export default function VehiclesForm2({
                   .from('vehicles')
                   .update({ picture: vehicleImage })
                   .eq('id', id)
-                  .eq('company_id', actualCompany?.id);
+                  .eq('company_id', actualCompany);
               } catch (error) {}
             } catch (error: any) {
               throw new Error('Error al subir la imagen');
@@ -1039,7 +1043,7 @@ export default function VehiclesForm2({
                               className="h-9"
                             />
                             <CommandEmpty className="p-1">
-                              <AddTypeModal company_id={actualCompany?.id ?? ''} value={type ?? ''} />
+                              <AddTypeModal company_id={actualCompany ?? ''} value={type ?? ''} />
                             </CommandEmpty>
                             <CommandGroup>
                               {vehicleType?.map((option) => (

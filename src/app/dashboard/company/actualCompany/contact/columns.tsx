@@ -63,13 +63,20 @@ const formSchema = z.object({
 });
 
 type Colum = {
-  contact_name: string;
-  constact_email: string;
-  contact_phone: number;
-  contact_charge: string;
-  customer_id: { id: string; name: string };
+  id: string;
+  contact_name: string | null;
+  constact_email: string | null;
+  contact_phone: number | null;
+  contact_charge: string | null;
+  customer_id: string | null;
+  customers: { id: string; name: string } | null;
   showInactive: boolean;
   status: string;
+  company_id: string | null;
+  created_at: string;
+  is_active: boolean | null;
+  reason_for_termination: string | null;
+  termination_date: string | null;
 };
 
 export const contactColumns: ColumnDef<Colum>[] = [

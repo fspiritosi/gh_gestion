@@ -1,11 +1,3 @@
-import { fetchAllSectors } from '@/features/Empresa/Clientes/actions/create';
-import { supabaseServer } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { fetchAreasWithProvinces } from '../../actions/create';
-import { fetchCustomers } from '../../actions/customer';
-import { fetchServiceItems } from '../../actions/items';
-import { fetchMeasureUnits } from '../../actions/meassure';
-import { fetchServices } from '../../actions/service';
 import ServiceTable from './ServiceTable';
 
 interface measure_unit {
@@ -29,34 +21,31 @@ interface customer {
 }
 interface ServiceComponentProps {
   id?: string;
+  customers: Customer[];
+  areas: any[];
+  sectors: any[];
+  measure_units: any[];
+  services: any[];
+  items: any[];
+  itemsList: any[];
+  measureUnitsList: any[];
+  company_id: string;
 }
 
-export default async function ServiceComponent({ id }: ServiceComponentProps) {
-  const URL = process.env.NEXT_PUBLIC_BASE_URL;
+export default function ServiceComponent({
+  id,
+  customers: filterCustomers,
+  areas,
+  sectors,
+  measure_units,
+  services,
+  items,
+  company_id,
+}: ServiceComponentProps) {
+  // const URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-  const supabase = supabaseServer();
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  const cookiesStore = cookies();
-  const company_id = cookiesStore.get('actualComp')?.value || '';
-
-  const customers = await fetchCustomers(company_id);
-  const filterCustomers = customers?.filter(
-    (client: customer) => client.is_active === true || client.is_active === null
-  );
-
-  const services = await fetchServices(company_id);
   const service = services?.find((s: any) => s.id === id);
 
-  const items = await fetchServiceItems(id || '');
-
-  const measure_units = await fetchMeasureUnits();
-
-  const areas = await fetchAreasWithProvinces();
-  const sectors = await fetchAllSectors();
   return (
     <div>
       {services ? (
@@ -67,8 +56,9 @@ export default async function ServiceComponent({ id }: ServiceComponentProps) {
           areas={areas}
           sectors={sectors}
           id={id}
-          measure_units={measure_units}
-          items={items}
+          measureUnitsList={measure_units}
+          itemsList={items}
+          hideCreateButton={true}
         />
       ) : (
         <div>No hay servicios</div>

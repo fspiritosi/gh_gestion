@@ -6,6 +6,7 @@ import {
 } from '@/app/server/GET/actions';
 import EmployeeComponent from '@/components/EmployeeComponent';
 import { Card, CardFooter } from '@/components/ui/card';
+import { fetchCustomers } from '@/features/Empresa/Clientes/actions/customer';
 import { fetchAllContractTypes } from '@/features/Empresa/RRHH/actions/actions';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cn } from '@/lib/utils';
@@ -140,7 +141,8 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   const diagrams_types2 = await fetchDiagramsTypes();
   const contract_types = await fetchAllContractTypes();
   const allCompanyPositions = await fetchAllCompanyPositon();
-  console.log(formattedEmployee, 'formattedEmployee');
+  const contractorCompanies = await fetchCustomers(company_id || '');
+
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
       <Card className={cn('col-span-8 flex flex-col justify-between overflow-hidden')}>
@@ -157,6 +159,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
           historyData={historyData}
           contract_types={contract_types}
           company_positions={allCompanyPositions}
+          contractorCompanies={contractorCompanies}
           employeeAptitudes={formattedEmployee?.empleado_aptitudes || []}
         >
           <DocumentTable role={role} employee_id={formattedEmployee?.id || ''} />

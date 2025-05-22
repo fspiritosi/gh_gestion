@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -11,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { createEquipmentCustomer, updateEquipmentCustomer } from '@/features/Empresa/Clientes/actions/create';
+import { Customer, Equipment } from '@/features/Empresa/Clientes/types/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -34,19 +37,19 @@ function customerEquipmentForm({
   selectedEquipment,
   setSelectedEquipment,
 }: {
-  customers: any[];
-  equipments: any[];
+  customers: Customer[];
+  equipments: Equipment[];
   mode: 'create' | 'edit';
   setMode: (mode: 'create' | 'edit') => void;
-  selectedEquipment: any | null;
-  setSelectedEquipment: (equipment: any | null) => void;
+  selectedEquipment: Equipment | null;
+  setSelectedEquipment: (equipment: Equipment | null) => void;
 }) {
   const form = useForm<EquipmentCustomerSchema>({
     resolver: zodResolver(EquipmentCustomerSchema),
     defaultValues: {
-      name: '',
-      customer_id: '',
-      type: 'Perforador',
+      name: selectedEquipment?.name || '',
+      customer_id: selectedEquipment?.customer_id || '',
+      type: selectedEquipment?.type || 'Perforador',
     },
   });
 
