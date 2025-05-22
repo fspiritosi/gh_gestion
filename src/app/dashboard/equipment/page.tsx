@@ -1,8 +1,10 @@
+
 import {
   fetchAllDocumentTypes,
   fetchAllEmployeesWithRelations,
   fetchAllEquipmentWithRelations,
 } from '@/app/server/GET/actions';
+
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
 import RepairTypes from '@/components/Tipos_de_reparaciones/RepairTypes';
 import Viewcomponent from '@/components/ViewComponent';
@@ -23,7 +25,7 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
 
   const empleadosCargados = await fetchAllEmployeesWithRelations();
   const equiposCargados = await fetchAllEquipmentWithRelations();
-  const document_types = await fetchAllDocumentTypes();
+
   const role = await getRole();
   const viewData = {
     defaultValue: searchParams?.tab || 'equipos',
@@ -89,7 +91,9 @@ export default async function Equipment({ searchParams }: { searchParams: { tab:
               vehicleMockValues={VehicleOptionsData}
               employees={empleadosCargados}
               vehicles={equiposCargados}
+
               document_types={document_types}
+
             />
           ),
         },

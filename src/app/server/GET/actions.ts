@@ -11,6 +11,7 @@ export const setNewCompanyUserMetadata = async (company_id: string) => {
     data: { user },
   } = await supabase.auth.getUser();
 
+
   if (user?.app_metadata?.company !== company_id && company_id) {
     const { data, error } = await supabase.auth.admin.updateUserById(user?.id || '', {
       app_metadata: {
@@ -22,6 +23,7 @@ export const setNewCompanyUserMetadata = async (company_id: string) => {
       console.error('Error updating user metadata:', error);
       return;
     }
+
   }
 
   return;
@@ -79,6 +81,7 @@ export const fetchAllEmployeesWithRelationsById = async (id: string) => {
   const company_id = cookiesStore.get('actualComp')?.value;
   const user = await fetchCurrentUser();
   if (!company_id) return [];
+
 
   let { data, error } = await supabase
     .from('employees')
@@ -138,6 +141,9 @@ export const fetchAllEquipmentWithRelationsById = async (id: string) => {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
+
+
+  
   const { data, error } = await supabase
     .from('vehicles')
     .select('*,brand(*),model(*),type(*),types_of_vehicles(*),contractor_equipment(*,contractor_id(*))')

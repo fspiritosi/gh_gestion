@@ -23,6 +23,7 @@ interface DocumentsTableProps {
   vehicles: VehicleWithBrand[];
 }
 
+
 export function getDocumentColumns(
   employeeMockValues: Record<string, string[] | []>,
   vehicleMockValues: Record<string, string[] | []>,
@@ -130,6 +131,7 @@ export function getDocumentColumns(
   ];
 }
 
+
 const DocumentsTable = ({
   data,
   filters,
@@ -138,6 +140,7 @@ const DocumentsTable = ({
   vehicleMockValues,
   employees,
   vehicles,
+
 }: DocumentsTableProps) => {
   const multiresourceOptions = createFilterOptions(data, (doc) => (doc.multiresource ? 'Si' : 'No'));
 
@@ -202,5 +205,6 @@ const DocumentsTable = ({
     </>
   );
 };
+
 
 export default DocumentsTable;
