@@ -8,11 +8,16 @@ export async function fetchContacts() {
   const cookieStore = cookies();
   const actualCompany = cookieStore.get('actualComp')?.value;
 
+  if (!actualCompany) {
+    console.warn('fetchContacts: company_id no está definido');
+    return [];
+  }
+
   try {
     const { data, error } = await supabase
       .from('contacts')
       .select('*, customers(id, name)')
-      .eq('company_id', actualCompany || '');
+      .eq('company_id', actualCompany);
 
     if (error) {
       console.error('Error fetching contacts:', error);
@@ -21,7 +26,7 @@ export async function fetchContacts() {
 
     return data;
   } catch (error) {
-    console.error('Error in fetchContacts:', error);
+    console.error('Error en fetchContacts:', error);
     throw error;
   }
 }
