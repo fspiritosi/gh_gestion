@@ -1,9 +1,16 @@
 'use client';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { VisibilityState } from '@tanstack/react-table';
 import { useState } from 'react';
 import CostCenterForm from './CostCenterForm';
 import CostCenterTable from './CostCenterTable';
-function CostCenterTab({ costCenters }: { costCenters: CostCenter[] }) {
+function CostCenterTab({
+  costCenters,
+  savedVisibility,
+}: {
+  costCenters: CostCenter[];
+  savedVisibility: VisibilityState;
+}) {
   const [costCenter, setCostCenter] = useState<CostCenter | null>(null);
   return (
     <div className="w-full">
@@ -14,7 +21,7 @@ function CostCenterTab({ costCenters }: { costCenters: CostCenter[] }) {
         <ResizableHandle withHandle />
 
         <ResizablePanel defaultSize={60}>
-          <CostCenterTable costCenters={costCenters} onEdit={setCostCenter} />
+          <CostCenterTable savedVisibility={savedVisibility} costCenters={costCenters} onEdit={setCostCenter} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

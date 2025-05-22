@@ -1,17 +1,97 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { VerActivosButton } from '@/features/Empresa/RRHH/components/rrhh/verActivosButton';
 import { useEffect, useState } from 'react';
 import { DiagramNewTypeForm } from './DiagramNewTypeForm';
 
-import BtnXlsDownload from '../BtnXlsDownload';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
+import { DataTableExportExcel } from '@/shared/components/data-table/base/data-table-export-excel';
+import { ColumnDef, VisibilityState } from '@tanstack/react-table';
+import { Badge } from '../ui/badge';
 
-function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[] }) {
+export function getDiagramColumns(onEdit: (diagram: DiagramType) => void): ColumnDef<DiagramType>[] {
+  return [
+    {
+      accessorKey: 'name',
+      id: 'Nombre',
+      // header: () => <span className="w-[200px]">Nombre</span>,
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+      cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'color',
+      id: 'Color',
+      header: 'Color',
+      cell: ({ row }) => (
+        <div
+          className="w-10 h-10 flex justify-center items-center rounded-full border"
+          style={{ backgroundColor: row.original.color }}
+        ></div>
+      ),
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'short_description',
+      id: 'Descripción corta',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción corta" />,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'vista_previa',
+      id: 'Vista previa',
+      header: 'Vista previa',
+      cell: ({ row }) => (
+        <div className="w-10 h-10 flex justify-center items-center" style={{ backgroundColor: row.original.color }}>
+          {row.original.short_description}
+        </div>
+      ),
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'work_active',
+      id: 'Lab. Activa',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Lab. Activa" />,
+      cell: ({ row }) => (
+        <Badge variant={row.original.work_active ? 'success' : 'default'}>
+          {row.original.work_active ? 'Trabajando' : 'No trabajando'}
+        </Badge>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Acciones',
+      cell: ({ row }) => (
+        <Button size="sm" variant="link" className="hover:text-blue-400" onClick={() => onEdit(row.original)}>
+          Editar
+        </Button>
+      ),
+      enableSorting: false,
+    },
+  ];
+}
+
+function DiagramTypeComponent({
+  diagrams_types,
+  savedVisibility,
+}: {
+  diagrams_types: DiagramType[];
+  savedVisibility: VisibilityState;
+}) {
   const [selectDiagramType, setSelectDiagramType] = useState<{}>({});
   const [diagramToEdit, setDiagramToEdit] = useState(false);
-  const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [filteredData, setFilteredData] = useState<DiagramType[]>([]);
 
   function setDiagram(data: any) {
     setSelectDiagramType(data);
@@ -35,6 +115,9 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
     }
   }, [selectDiagramType]);
 
+  const names = createFilterOptions(filteredData, (document) => document.name);
+  const descriptionShort = createFilterOptions(filteredData, (document) => document.short_description);
+
   return (
     <ResizablePanelGroup direction="horizontal" className="">
       <ResizablePanel>
@@ -50,51 +133,30 @@ function DiagramTypeComponent({ diagrams_types }: { diagrams_types: DiagramType[
           <h2 className="text-xl font-bold">Tipos de Novedades</h2>
           <VerActivosButton data={diagrams_types} filterKey="is_active" onFilteredChange={setFilteredData} />
         </div>
-        <Table>
-          <TableCaption>Lista de novedades de diagrama</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre de la Novedad</TableHead>
-              <TableHead className="w-[100px]">Color</TableHead>
-              <TableHead>Descripción Corta</TableHead>
-              <TableHead>Vista Previa</TableHead>
-              <TableHead>Lab. Activa</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData?.map((diagramType: any) => (
-              <TableRow key={diagramType.name}>
-                <TableCell>{diagramType.name}</TableCell>
 
-                <TableCell>
-                  <div className={`rounded-full w-5 h-5 border`} style={{ backgroundColor: diagramType.color }}></div>
-                </TableCell>
-                <TableCell>{diagramType.short_description}</TableCell>
-                <TableCell>
-                  <div
-                    className="w-10 h-10 flex justify-center items-center"
-                    style={{ backgroundColor: diagramType.color }}
-                  >
-                    {diagramType.short_description}
-                  </div>
-                </TableCell>
-                <TableCell>{diagramType.work_active ? 'Si' : 'No'}</TableCell>
-                <TableCell>
-                  <Button
-                    size={'sm'}
-                    variant={'link'}
-                    className="hover:text-blue-400"
-                    onClick={() => setDiagram(diagramType)}
-                  >
-                    Editar
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <BtnXlsDownload fn={createDataToDownload} dataToDownload={diagrams_types} nameFile={'Tipos_de_Diagrama'} />
+        <BaseDataTable
+          className="mt-4"
+          columns={getDiagramColumns(setDiagram)}
+          data={filteredData}
+          savedVisibility={savedVisibility}
+          tableId="novelty-types-table-empresa"
+          toolbarOptions={{
+            filterableColumns: [
+              {
+                columnId: 'Nombre',
+                title: 'Nombre',
+                options: names,
+              },
+              {
+                columnId: 'Descripción corta',
+                title: 'Descripción corta',
+                options: descriptionShort,
+              },
+            ],
+            extraActions: (table) => <DataTableExportExcel table={table} />,
+          }}
+        />
+        {/* <BtnXlsDownload fn={createDataToDownload} dataToDownload={diagrams_types} nameFile={'Tipos_de_Diagrama'} /> */}
       </ResizablePanel>
     </ResizablePanelGroup>
   );

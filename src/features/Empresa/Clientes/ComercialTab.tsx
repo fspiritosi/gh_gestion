@@ -1,17 +1,22 @@
 import { fetchAllProvinces } from '@/app/server/GET/actions';
 import ViewcomponentInternal from '@/components/ViewComponentInternal';
 import { buttonVariants } from '@/components/ui/button';
+import { formatEmployeesForTable } from '@/features/Employees/Empleados/components/utils/utils';
 import ServiceComponent from '@/features/Empresa/Clientes/components/Services/ServiceComponent';
 import Contacts from '@/features/Empresa/Clientes/components/contacts/Contact';
 import CustomerTab from '@/features/Empresa/Clientes/components/customerTab';
-import { DataCustomers } from '@/features/Empresa/Clientes/components/data-customer';
 import CustomerEquipmentTab from '@/features/Empresa/Clientes/components/equipos/customerEquipmentTab';
 import SectorTabs from '@/features/Empresa/Clientes/components/sector_clientes/sectorTabs';
+import { fetchAllEmployees } from '@/shared/actions/employees.actions';
+import { fetchAllEquipment } from '@/shared/actions/equipment.actions';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { supabase } from '../../../../supabase/supabase';
 import { fechAllCustomers, fetchAllSectors, fetchAreasWithProvinces, fetchEquipmentsCustomers } from './actions/create';
-import { columns } from './components/columns';
+import { fetchServiceItems } from './actions/items';
+import { fetchMeasureUnits } from './actions/meassure';
+import { fetchServices } from './actions/service';
+import { columnsCustomers } from './components/columns';
+import { DataCustomers } from './components/data-customer';
 
 async function ComercialTab({
   tabValue,
@@ -24,18 +29,25 @@ async function ComercialTab({
 }) {
   const coockiesStore = cookies();
   const actualCompany = coockiesStore.get('actualComp')?.value;
-  const { data: customers2, error } = await supabase.from('customers').select('*');
-
-  if (error) {
-    console.error('Error al obtener los contratistas:', error);
-  }
-  const contractorCompanies = customers2?.filter((company: any) => company.company_id.toString() === actualCompany);
-
-  const { customers } = await fechAllCustomers();
+  const customers = await fechAllCustomers();
+  const contractorCompanies = customers?.filter((company) => company.company_id.toString() === actualCompany);
   const provinces = await fetchAllProvinces();
   const areas = await fetchAreasWithProvinces();
   const sectors = await fetchAllSectors();
-  const { equipments } = await fetchEquipmentsCustomers();
+  const contractorSectors =
+    sectors?.filter((sector) =>
+      sector.sector_customer.some((customer) => customer.customers?.company_id === actualCompany)
+    ) || [];
+
+  const services = await fetchServices(actualCompany || '');
+  const serviceItems = await fetchServiceItems('');
+  const measure_units = await fetchMeasureUnits();
+  const equipmentsCustomers = await fetchEquipmentsCustomers();
+
+  const savedCustomers = coockiesStore.get('customers-table')?.value;
+  const employees = await fetchAllEmployees();
+  const formattedEmployees = formatEmployeesForTable(employees);
+  const equipments = await fetchAllEquipment();
   const viewData = {
     defaultValue: subtab || 'customers',
     path: '/dashboard/company/actualCompany',
@@ -49,16 +61,24 @@ async function ComercialTab({
           title: 'Clientes',
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
-          buttonAction: (
-            <Link
-              href={'/dashboard/company/actualCompany/customers/action?action=new'}
-              className={buttonVariants({ variant: 'gh_orange', size: 'sm', className: 'font-semibold' })}
-            >
-              Registrar Cliente
-            </Link>
-          ),
+          buttonAction: '',
           component: (
-            <DataCustomers columns={columns} data={contractorCompanies || []} localStorageName={localStorageName} />
+            <div>
+              <DataCustomers
+                columns={columnsCustomers}
+                data={contractorCompanies || []}
+                company_id={actualCompany || ''}
+                savedCustomers={savedCustomers}
+                employees={formattedEmployees}
+                equipments={equipments}
+                // Nuevas props para servicios
+                services={services || []}
+                areas={areas || []}
+                sectors={contractorSectors || []}
+                itemsList={[]}
+                measureUnitsList={measure_units || []}
+              />
+            </div>
           ),
         },
       },
@@ -72,13 +92,7 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: (
-            <CustomerTab
-              customers2={customers || []}
-              provinces={provinces || []}
-              areas={areas.areasWithProvinces || []}
-            />
-          ),
+          component: <CustomerTab customers={customers || []} provinces={provinces || []} areas={areas || []} />,
         },
       },
       {
@@ -91,7 +105,13 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <CustomerEquipmentTab equipments={equipments || []} customers={contractorCompanies || []} />,
+          component: (
+            <CustomerEquipmentTab
+              equipments={equipmentsCustomers || []}
+              customers={contractorCompanies || []}
+              key={actualCompany}
+            />
+          ),
         },
       },
       {
@@ -104,7 +124,7 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <SectorTabs customers={contractorCompanies || []} sectors={sectors.sectors || []} />,
+          component: <SectorTabs customers={contractorCompanies || []} sectors={contractorSectors} />,
         },
       },
       {
@@ -137,7 +157,20 @@ async function ComercialTab({
           //description: 'Información de la empresa',
           buttonActioRestricted: [''],
           buttonAction: [''],
-          component: <ServiceComponent />,
+          component: (
+            <ServiceComponent
+              // id={id}
+              customers={contractorCompanies || []}
+              areas={areas || []}
+              sectors={contractorSectors}
+              measure_units={measure_units || []}
+              services={services || []}
+              items={serviceItems || []}
+              company_id={actualCompany || ''}
+              itemsList={serviceItems || []}
+              measureUnitsList={measure_units || []}
+            />
+          ),
         },
       },
     ],

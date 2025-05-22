@@ -2,16 +2,17 @@
 
 import { Badge } from '@/components/ui/badge';
 import { CardTitle } from '@/components/ui/card';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { FormattedSolicitudesRepair } from '@/types/types';
 import { ColumnDef } from '@tanstack/react-table';
 import moment from 'moment';
 import { criticidad, labels, statuses } from '../data';
 import RepairModal from './RepairModal';
-import { DataTableColumnHeader } from './data-table-column-header';
 
 export const repairSolicitudesColums: ColumnDef<FormattedSolicitudesRepair[0]>[] = [
   {
     accessorKey: 'title',
+    id: 'Titulo',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Titulo" className="ml-2" />,
     cell: ({ row }) => {
       return (
@@ -20,23 +21,14 @@ export const repairSolicitudesColums: ColumnDef<FormattedSolicitudesRepair[0]>[]
           onlyView
           action={
             <div className="flex space-x-2">
-              <CardTitle className="max-w-[300px] truncate font-medium hover:underline">
-                {row.getValue('title')}
-              </CardTitle>
+              <CardTitle className="max-w-[300px] truncate font-medium hover:underline">{row.original.title}</CardTitle>
             </div>
           }
         />
       );
     },
-    filterFn: (row, columnId, filterValue) => {
-      // console.log(filterValue, 'filterValue');
-      const cellValue = row.getValue(columnId);
-
-      if (typeof cellValue === 'string' && Array.isArray(filterValue)) {
-        return filterValue.some((value) => cellValue.toLowerCase().includes(value.toLowerCase()));
-      }
-
-      return false;
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
@@ -59,6 +51,7 @@ export const repairSolicitudesColums: ColumnDef<FormattedSolicitudesRepair[0]>[]
   // },
   {
     accessorKey: 'state',
+    id: 'Estado',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => {
       const state = statuses.find((status) => status.value === row.original.state);
@@ -80,6 +73,7 @@ export const repairSolicitudesColums: ColumnDef<FormattedSolicitudesRepair[0]>[]
   },
   {
     accessorKey: 'priority',
+    id: 'Criticidad',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Criticidad" />,
     cell: ({ row }) => {
       const priority = criticidad.find((priority) => priority.value === row.getValue('priority'));
@@ -104,14 +98,19 @@ export const repairSolicitudesColums: ColumnDef<FormattedSolicitudesRepair[0]>[]
   },
   {
     accessorKey: 'intern_number',
+    id: 'Numero interno',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Numero interno" />,
     cell: ({ row }) => {
       return <div className="flex items-center">{row.original.intern_number}</div>;
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'domain',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Equipo" />,
+    id: 'Dominio',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Dominio" />,
     cell: ({ row }) => {
       return <div className="flex items-center">{row.original.domain}</div>;
     },

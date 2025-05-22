@@ -5,10 +5,12 @@ import TypesDocumentAction, {
 import DocumentTabComponent from '@/components/DocumentTabComponent';
 import EditCompanyButton from '@/components/EditCompanyButton';
 import { RegisterWithRole } from '@/components/RegisterWithRole';
-import Viewcomponent from '@/components/ViewComponent';
 import CompanyComponent from '@/features/Empresa/General/components/company/CompanyComponent';
 // import DangerZoneComponent from '@/features/Empresa/General/components/company/DangerZoneComponent';
 import { fetchAllEmployeesWithRelations, fetchAllEquipmentWithRelations } from '@/app/server/GET/actions';
+
+import ViewcomponentInternal from '@/components/ViewComponentInternal';
+
 import { getRole } from '@/lib/utils/getRole';
 import { cookies } from 'next/headers';
 import UsersTabComponent from '../Usuarios/UsersTabComponent';
@@ -27,6 +29,10 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
   const empleadosCargados = await fetchAllEmployeesWithRelations();
   const equiposCargados = await fetchAllEquipmentWithRelations();
   const role = await getRole();
+
+  const savedVisibilityCostCenter = coockiesStore.get('cost-center-table')?.value;
+  const savedVisibilityOrganigram = coockiesStore.get('organigram-table')?.value;
+
   const viewData = {
     defaultValue: subtab || 'company',
     path: '/dashboard/company/actualCompany',
@@ -54,7 +60,12 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
           //description: 'Lista de documentos a nombre de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <CostCenterTab costCenters={costCenters} />,
+          component: (
+            <CostCenterTab
+              costCenters={costCenters}
+              savedVisibility={savedVisibilityCostCenter ? JSON.parse(savedVisibilityCostCenter) : {}}
+            />
+          ),
         },
       },
       {
@@ -67,7 +78,12 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
           //description: 'Lista de usuarios de la empresa',
           buttonActioRestricted: [''],
           buttonAction: '',
-          component: <OrganigramTab sectors={sectors} />,
+          component: (
+            <OrganigramTab
+              sectors={sectors}
+              savedVisibility={savedVisibilityOrganigram ? JSON.parse(savedVisibilityOrganigram) : {}}
+            />
+          ),
         },
       },
       {
@@ -115,7 +131,7 @@ async function General({ tabValue, subtab }: { subtab?: string; tabValue: string
 
   return (
     <div className=" ">
-      <Viewcomponent viewData={viewData} />
+      <ViewcomponentInternal viewData={viewData} />
       {/* <Tabs defaultValue="company" className="w-full">
         <TabsList className="mb-2 bg-gh_contrast/50">
           <TabsTrigger className="text-gh_orange font-semibold" value="company">

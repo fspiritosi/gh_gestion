@@ -6,6 +6,7 @@ import {
 } from '@/app/server/GET/actions';
 import EmployeeComponent from '@/components/EmployeeComponent';
 import { Card, CardFooter } from '@/components/ui/card';
+import { fetchCustomers } from '@/features/Empresa/Clientes/actions/customer';
 import { fetchAllContractTypes } from '@/features/Empresa/RRHH/actions/actions';
 import { supabaseServer } from '@/lib/supabase/server';
 import { cn } from '@/lib/utils';
@@ -61,34 +62,22 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
     let { data: employees, error } = await supabase
       .from('employees')
       .select(
-        `*,guild(name), city (
-        name
-      ),
-      province(
-        name
-      ),
-      workflow_diagram(
-        name
-      ),
-      hierarchical_position(
-        name
-      ),
-      birthplace(
-        name
-      ),
-      contractor_employee(
-        customers(
-          *
-        )
-      )`
+        `*,
+        guild(name),
+        city(name),
+        province(name),
+        workflow_diagram(name),
+        hierarchical_position(name),
+        birthplace(name),
+        contractor_employee(customers(*)),
+        empleado_aptitudes(aptitud_id, aptitudes_tecnicas(*)),
+        company_position(id, name)`
       )
       .eq('id', searchParams.employee_id || '');
 
     if (error) {
       console.log(error, 'error');
     }
-
-    console.log(employees);
 
     formattedEmployee = setEmployeesToShow(employees)?.[0];
   }
@@ -152,6 +141,7 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
   const diagrams_types2 = await fetchDiagramsTypes();
   const contract_types = await fetchAllContractTypes();
   const allCompanyPositions = await fetchAllCompanyPositon();
+  const contractorCompanies = await fetchCustomers(company_id || '');
 
   return (
     <section className="grid grid-cols-1 xl:grid-cols-8 gap-3 md:mx-7 py-4">
@@ -169,6 +159,8 @@ export default async function EmployeeFormAction({ searchParams }: { searchParam
           historyData={historyData}
           contract_types={contract_types}
           company_positions={allCompanyPositions}
+          contractorCompanies={contractorCompanies}
+          employeeAptitudes={formattedEmployee?.empleado_aptitudes || []}
         >
           <DocumentTable role={role} employee_id={formattedEmployee?.id || ''} />
         </EmployeeComponent>

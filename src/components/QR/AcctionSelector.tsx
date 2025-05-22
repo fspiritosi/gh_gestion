@@ -5,6 +5,7 @@ import { setVehiclesToShow } from '@/lib/utils/utils';
 import { RepairsSolicituds, TypeOfRepair } from '@/types/types';
 import { LapTimerIcon } from '@radix-ui/react-icons';
 import { User } from '@supabase/supabase-js';
+import { VisibilityState } from '@tanstack/react-table';
 import cookies from 'js-cookie';
 import { ArrowLeft, ClipboardList } from 'lucide-react';
 import Image from 'next/image';
@@ -28,6 +29,7 @@ export default function QrActionSelector({
   pendingRequests,
   checkList,
   equipmentsForComboBox,
+  savedVisibility,
 }: {
   empleado_name: string | undefined;
   user: User | null;
@@ -48,6 +50,7 @@ export default function QrActionSelector({
     brand: string | null;
     intern_number: string;
   }[];
+  savedVisibility: VisibilityState;
 }) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const supabase = supabaseBrowser();
@@ -81,6 +84,7 @@ export default function QrActionSelector({
         onReturn={handleReturn}
         employee_id={employee_id}
         user={user}
+        savedVisibility={savedVisibility}
       />
     );
   }

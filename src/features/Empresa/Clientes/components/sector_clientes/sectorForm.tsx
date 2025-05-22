@@ -11,7 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createSector, updateSector } from '@/features/Empresa/Clientes/actions/create';
+import {
+  createSector,
+  fechAllCustomers,
+  fetchAllSectors,
+  updateSector,
+} from '@/features/Empresa/Clientes/actions/create';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -25,11 +30,6 @@ const SectorSchema = z.object({
   customer_id: z.string().nonempty({ message: 'El cliente es requerido' }),
 });
 
-interface Cliente {
-  id: string;
-  name: string;
-}
-
 // interface Sector {
 //   id: string;
 //   name: string;
@@ -38,23 +38,18 @@ interface Cliente {
 //   sector_customer: Array<{
 //     customer_id: {
 //       id: string;
-//       name: string;
-//     };
-//   }>;
-// }
-
 interface SectorFormProps {
-  sectors: SectorWithCustomers[];
-  customers: Cliente[];
+  customers: Awaited<ReturnType<typeof fechAllCustomers>>;
+  sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
   mode: 'create' | 'edit';
   setMode: (mode: 'create' | 'edit') => void;
-  selectedSector: SectorWithCustomers | null;
-  setSelectedSector: (sector: SectorWithCustomers | null) => void;
+  selectedSector: Awaited<ReturnType<typeof fetchAllSectors>>[number] | null;
+  setSelectedSector: (sector: Awaited<ReturnType<typeof fetchAllSectors>>[number] | null) => void;
 }
 
 type SectorFormValues = z.infer<typeof SectorSchema>;
 
-function SectorForm({ customers, mode, setMode, selectedSector, setSelectedSector }: SectorFormProps) {
+function SectorForm({ customers, sectors, mode, setMode, selectedSector, setSelectedSector }: SectorFormProps) {
   const form = useForm<SectorFormValues>({
     resolver: zodResolver(SectorSchema),
     defaultValues: {
@@ -70,10 +65,11 @@ function SectorForm({ customers, mode, setMode, selectedSector, setSelectedSecto
   // Cargar datos cuando cambia el modo o el área seleccionada
   useEffect(() => {
     if (mode === 'edit' && selectedSector) {
+      console.log(selectedSector, 'selectedSector');
       reset({
         name: selectedSector.name,
         descripcion_corta: selectedSector.descripcion_corta || '',
-        customer_id: selectedSector.sector_customer[0].customer_id.id,
+        customer_id: selectedSector.sector_customer[0].customers?.id,
       });
     } else if (mode === 'create') {
       reset({

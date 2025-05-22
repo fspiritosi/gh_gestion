@@ -470,7 +470,7 @@ export default function NewDocumentType({
             // Para relaciones 1:N el objeto suele estar directamente en la propiedad
             const relatedObj = (emp ? (emp[propConfig.accessor_key as keyof EmployeeDetailed] as any) : null) as any;
             const relatedId = relatedObj?.id ?? relatedObj ?? '';
-            console.log(relatedId, 'relatedId');
+
             return {
               id: relatedId[0]?.customers?.id ? relatedId[0].customers.id : relatedId,
               value,
@@ -481,7 +481,6 @@ export default function NewDocumentType({
         // Añadir metadatos de relación para uso en BD
         const meta = relationMeta[propConfig.accessor_key] || null;
 
-        console.log(reference_values, 'reference_values');
 
         return {
           property_key: propConfig.accessor_key,
@@ -659,7 +658,7 @@ export default function NewDocumentType({
   const addCondition = () => {
     setConditions((prev) => [...prev, { property: '', values: [], id: Date.now().toString() }]);
   };
-  console.log(conditions, 'conditions');
+
 
   return (
     <Form {...form}>

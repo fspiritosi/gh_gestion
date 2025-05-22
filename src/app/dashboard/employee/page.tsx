@@ -1,4 +1,9 @@
-import { fetchAllEmployeesWithRelations, fetchAllEquipmentWithRelations } from '@/app/server/GET/actions';
+import {
+  fetchAllDocumentTypes,
+  fetchAllEmployeesWithRelations,
+  fetchAllEquipmentWithRelations,
+} from '@/app/server/GET/actions';
+
 import EmployesDiagram from '@/components/Diagrams/EmployesDiagram';
 import DocumentNav from '@/components/DocumentNav';
 import PageTableSkeleton from '@/components/Skeletons/PageTableSkeleton';
@@ -20,7 +25,9 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
 
   const empleadosCargados = await fetchAllEmployeesWithRelations();
   const equiposCargados = await fetchAllEquipmentWithRelations();
+  const document_types = await fetchAllDocumentTypes();
   const role = await getRole();
+
   const viewData = {
     defaultValue: searchParams?.tab || 'employees',
     path: '/dashboard/employee',
@@ -33,7 +40,11 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
           title: 'Empleados',
           description: 'Aquí encontrarás todos empleados',
           buttonActioRestricted: ['Invitado'],
-          component: <EmployeeListTabs tabValue="employees" subtab={searchParams?.subtab} actives inactives />,
+          component: (
+            <div>
+              <EmployeeListTabs tabValue="employees" subtab={searchParams?.subtab} actives inactives />
+            </div>
+          ),
         },
       },
       {
@@ -94,6 +105,7 @@ const EmployeePage = async ({ searchParams }: { searchParams: { tab: string; sub
               vehicleMockValues={VehicleOptionsData}
               employees={empleadosCargados}
               vehicles={equiposCargados}
+              document_types={document_types}
             />
           ),
         },

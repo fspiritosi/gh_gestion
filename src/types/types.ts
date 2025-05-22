@@ -712,11 +712,16 @@ export type WorkDiagram = {
   created_at: string;
 };
 export type Position = {
-  id: string;
-  created_at: string;
-  name: string;
-  hierarchical_position_id: string;
-  is_active: boolean;
+  id?: string;
+  created_at?: string;
+  name?: string;
+  hierarchical_position_id?: string[];
+  is_active?: boolean;
+  aptitudes?: {
+    id: string;
+    nombre: string;
+  }[];
+  aptitudes_tecnicas_id?: string[];
 };
 
 // Tipo para la función de salida completa

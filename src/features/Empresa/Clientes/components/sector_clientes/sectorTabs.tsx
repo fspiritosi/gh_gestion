@@ -1,23 +1,27 @@
 'use client';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { useState } from 'react';
+import { fechAllCustomers, fetchAllSectors } from '../../actions/create';
 import SectorForm from './sectorForm';
 import SectorTable from './sectorTable';
 
-function SectorTabs({ customers, sectors }: { customers: any[]; sectors: SectorWithCustomers[] }) {
-  const [SelectedSector, setSelectedSector] = useState<SectorWithCustomers | null>(null);
-  const [mode, setMode] = useState<'create' | 'edit'>('create');
-  // const [sectorsFetched, setSectorsFetched] = useState<Sector[]>([]);
-  // const [isLoading, setIsLoading] = useState(true);
-  // const fetchSectors = async () => {
-  //   const { sectors: Sector } = await fetchAllSectors();
-  //   setSectorsFetched(Sector || []);
-  //   setIsLoading(false);
-  // };
+// Eliminamos la interfaz local y usamos la importada
+// interface Sector {
+//   id: string;
+//   name: string;
+//   // Agrega otros campos que necesites
+// }
 
-  // useEffect(() => {
-  //   fetchSectors();
-  // }, []);
+interface SectorTabsProps {
+  customers: Awaited<ReturnType<typeof fechAllCustomers>>;
+  sectors: Awaited<ReturnType<typeof fetchAllSectors>>;
+}
+
+function SectorTabs({ customers, sectors }: SectorTabsProps) {
+  const [SelectedSector, setSelectedSector] = useState<Awaited<ReturnType<typeof fetchAllSectors>>[number] | null>(
+    null
+  );
+  const [mode, setMode] = useState<'create' | 'edit'>('create');
 
   return (
     <div>

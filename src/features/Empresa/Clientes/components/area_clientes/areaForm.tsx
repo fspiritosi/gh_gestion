@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createArea, updateArea } from '@/features/Empresa/Clientes/actions/create';
+import { createArea, fetchAreasWithProvinces, updateArea } from '@/features/Empresa/Clientes/actions/create';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -37,21 +37,7 @@ interface Provincia {
   name: string;
 }
 
-interface Area {
-  id: string;
-  nombre: string;
-  descripcion_corta: string;
-  customer_id: { id: string; name: string };
-  cliente: string; // ID del cliente
-  area_province: {
-    provinces: {
-      id: number;
-      name: string;
-    };
-  }[];
-  provincias: string[]; // Nombres de las provincias
-}
-
+type Area = Awaited<ReturnType<typeof fetchAreasWithProvinces>>[0];
 interface AreaFormProps {
   customers: Cliente[];
   provinces: Provincia[];
@@ -82,9 +68,9 @@ function AreaForm({ customers, provinces, mode, setMode, selectedArea, setSelect
     if (mode === 'edit' && selectedArea) {
       reset({
         name: selectedArea.nombre,
-        descripcion_corta: selectedArea.descripcion_corta,
-        customer_id: selectedArea.customer_id.id,
-        province_id: selectedArea.area_province.map((prov) => prov.provinces.id),
+        descripcion_corta: selectedArea.descripcion_corta || '',
+        customer_id: selectedArea.customers?.id || '',
+        province_id: selectedArea.area_province.map((prov) => prov.provinces?.id || 0),
       });
     } else if (mode === 'create') {
       reset({
@@ -99,15 +85,29 @@ function AreaForm({ customers, provinces, mode, setMode, selectedArea, setSelect
   const handleSubmit = async (values: AreaFormValues) => {
     try {
       if (mode === 'edit' && selectedArea) {
+        console.log('Actualizando área con valores:', values);
         const response = await updateArea({ ...values, id: selectedArea.id });
-        if (response?.status === 200) {
+        console.log('Respuesta del servidor:', response);
+
+        // Manejar la respuesta según el código de estado
+        if (!response) {
+          toast.error('No se recibió respuesta del servidor');
+          return;
+        }
+
+        if (response.status === 200) {
           toast.success(response.body || 'Área actualizada correctamente');
           reset();
           setSelectedArea(null);
           setMode('create');
           router.refresh();
+        } else if (response.status === 400) {
+          // Mostrar mensaje de error específico para validación
+          toast.error(response.body || 'No se pudo actualizar el área');
         } else {
-          toast.error(response?.body || 'Error al actualizar el área');
+          // Otros errores
+          console.error('Error inesperado:', response);
+          toast.error(response.body || 'Error inesperado al actualizar el área');
         }
       } else {
         const response = await createArea(values);

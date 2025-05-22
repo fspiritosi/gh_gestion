@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { cn } from '@/lib/utils';
 
@@ -15,7 +14,11 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { ReaderIcon } from '@radix-ui/react-icons';
+import { ColumnDef, VisibilityState } from '@tanstack/react-table';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiTool } from 'react-icons/fi';
@@ -39,6 +42,60 @@ type FormValues = {
   vehicle_id: string;
 }[];
 
+export function getRepairEntryColumnsMultiple(
+  tipo_de_mantenimiento: TypeOfRepair,
+  handleDeleteRepair: (vehicle_id: string, repair_id: string) => void
+): ColumnDef<FormValues[0]>[] {
+  return [
+    {
+      accessorKey: 'repair',
+      id: 'Nombre',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" className="w-[300px]" />,
+      cell: ({ row }) => {
+        const repair = tipo_de_mantenimiento.find((e) => e.id === row.original.repair);
+        return <span>{repair?.name}</span>;
+      },
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      accessorKey: 'description',
+      id: 'Descripcion',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Descripcion" className="w-[300px]" />,
+      cell: ({ row }) => {
+        const repair = tipo_de_mantenimiento.find((e) => e.id === row.original.repair);
+        return <span>{repair?.description}</span>;
+      },
+    },
+    {
+      accessorKey: 'domain',
+      id: 'Dominio',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Dominio o Serie" className="w-[300px]" />,
+      cell: ({ row }) => <span>{row.original.domain}</span>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      id: 'actions',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Eliminar" className="flex justify-end pr-14" />
+      ),
+      cell: ({ row }) => (
+        <Button
+          variant={'destructive'}
+          onClick={() => {
+            handleDeleteRepair(row.original.vehicle_id || '', row.original.repair || '');
+          }}
+        >
+          Eliminar
+        </Button>
+      ),
+    },
+  ];
+}
+
 export default function RepairNewEntryMultiple({
   tipo_de_mantenimiento,
   equipment,
@@ -47,6 +104,7 @@ export default function RepairNewEntryMultiple({
   default_equipment_id,
   employee_id,
   onReturn,
+  savedVisibility,
 }: {
   tipo_de_mantenimiento: TypeOfRepair;
   equipment: ReturnType<typeof setVehiclesToShow>;
@@ -55,6 +113,7 @@ export default function RepairNewEntryMultiple({
   default_equipment_id?: string;
   employee_id?: string | undefined;
   onReturn?: () => void;
+  savedVisibility: VisibilityState;
 }) {
   const URL = process.env.NEXT_PUBLIC_BASE_URL;
   const router = useRouter();
@@ -270,6 +329,11 @@ export default function RepairNewEntryMultiple({
   const [open, setOpen] = useState(false);
 
   //console.log(form.formState.errors);
+  const domainOptions = createFilterOptions(
+    allRepairs,
+    (repairIter) => repairIter.domain
+    // FileText // Icono para documentos
+  );
 
   return (
     <ResizablePanelGroup direction="horizontal" className="pt-6 flex flex-wrap sm:flex-nowrap w-full">
@@ -453,44 +517,21 @@ export default function RepairNewEntryMultiple({
       <ResizablePanel className="pl-6 min-w-[600px] hidden sm:flex w-full" defaultSize={70}>
         <div className="flex flex-col gap-4 w-full ">
           <CardTitle>Se registraran las siguientes reparaciones</CardTitle>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[300px]">Nombre</TableHead>
-                <TableHead className="w-[300px]">Descripcion</TableHead>
-                <TableHead className="w-[300px]">Dominio o Serie</TableHead>
-                <TableHead className="w-[300px]">Kilometros</TableHead>
-                <TableHead className="flex justify-end pr-14">Eliminar</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="overflow-x-auto">
-              {allRepairs?.map((field) => {
-                const repair = tipo_de_mantenimiento.find((e) => e.id === field.repair);
-                return (
-                  <TableRow key={crypto.randomUUID()}>
-                    <TableCell>
-                      <div className="flex items-center justify-between gap-3">{repair?.name}</div>
-                    </TableCell>
-                    <TableCell>{repair?.description}</TableCell>
-                    <TableCell>{field.domain}</TableCell>
-                    <TableCell>{equipment.find((equip) => equip.id === field.vehicle_id)?.kilometer || ''}</TableCell>
-                    <TableCell align="right" className="pr-10">
-                      <Button
-                        variant={'destructive'}
-                        onClick={() => {
-                          // console.log('field', field);
-                          // console.log('allRepairs', allRepairs);
-                          handleDeleteRepair(field.vehicle_id, field.repair);
-                        }}
-                      >
-                        Eliminar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          <BaseDataTable
+            columns={getRepairEntryColumnsMultiple(tipo_de_mantenimiento, handleDeleteRepair)}
+            data={allRepairs}
+            tableId="repair-entry-table2"
+            savedVisibility={savedVisibility}
+            toolbarOptions={{
+              filterableColumns: [
+                {
+                  columnId: 'Dominio',
+                  title: 'Dominio',
+                  options: domainOptions,
+                },
+              ],
+            }}
+          />
           {allRepairs?.length > 0 && (
             <Button
               onClick={() => {

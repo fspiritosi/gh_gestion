@@ -1,15 +1,17 @@
 import { fetchEmployeeMonthlyDocuments, fetchEmployeePermanentDocuments } from '@/app/server/GET/actions';
 import DocumentNav from '@/components/DocumentNav';
 import ViewcomponentInternal from '@/components/ViewComponentInternal';
+import MonthlyDocuments from '@/features/Employees/Empleados/DocumentosEmpleados/MonthlyDocuments';
+import PermanentDocuments from '@/features/Employees/Empleados/DocumentosEmpleados/PermanentDocuments';
 import { formatEmployeeDocuments } from '@/lib/utils';
-import { ExpiredColums } from '../../colums';
-import { ColumnsMonthly } from '../../columsMonthly';
-import { ExpiredDataTable } from '../../data-table';
+import { cookies } from 'next/headers';
 
 async function EmployeeDocumentsTabs({ tabValue, subtab, path }: { tabValue: string; subtab?: string; path: string }) {
   const monthlyDocuments = (await fetchEmployeeMonthlyDocuments()).map(formatEmployeeDocuments);
   const permanentDocuments = (await fetchEmployeePermanentDocuments()).map(formatEmployeeDocuments);
-
+  const cookiesStore = cookies();
+  const savedVisibilityMonthly = cookiesStore.get(`monthly-documents-employees`)?.value;
+  const savedVisibilityPermanent = cookiesStore.get(`permanent-documents-employees`)?.value;
   const viewData = {
     defaultValue: subtab || 'permanentes',
     path: path,
@@ -29,14 +31,20 @@ async function EmployeeDocumentsTabs({ tabValue, subtab, path }: { tabValue: str
             </div>
           ),
           component: (
-            <ExpiredDataTable
-              data={permanentDocuments || []}
-              columns={ExpiredColums}
-              pending={true}
-              defaultVisibleColumnsCustom={['resource', 'documentName', 'validity', 'id', 'mandatory', 'state']}
-              localStorageName={'dashboardEmployeesPermanentes'}
-              permanent
-            />
+            <>
+              {/* <ExpiredDataTable
+                data={permanentDocuments || []}
+                columns={ExpiredColums}
+                pending={true}
+                defaultVisibleColumnsCustom={['resource', 'documentName', 'validity', 'id', 'mandatory', 'state']}
+                localStorageName={'dashboardEmployeesPermanentes'}
+                permanent
+              /> */}
+              <PermanentDocuments
+                permanentDocuments={permanentDocuments}
+                savedVisibility={savedVisibilityPermanent ? JSON.parse(savedVisibilityPermanent) : undefined}
+              />
+            </>
           ),
         },
       },
@@ -55,14 +63,20 @@ async function EmployeeDocumentsTabs({ tabValue, subtab, path }: { tabValue: str
             </div>
           ),
           component: (
-            <ExpiredDataTable
-              data={monthlyDocuments || []}
-              columns={ColumnsMonthly}
-              pending={true}
-              defaultVisibleColumnsCustom={['resource', 'documentName', 'validity', 'id', 'mandatory', 'state']}
-              localStorageName={'dashboardEmployeesMensuales'}
-              monthly
-            />
+            <>
+              {/* <ExpiredDataTable
+                data={monthlyDocuments || []}
+                columns={ColumnsMonthly}
+                pending={true}
+                defaultVisibleColumnsCustom={['resource', 'documentName', 'validity', 'id', 'mandatory', 'state']}
+                localStorageName={'dashboardEmployeesMensuales'}
+                monthly
+              /> */}
+              <MonthlyDocuments
+                monthlyDocuments={monthlyDocuments}
+                savedVisibility={savedVisibilityMonthly ? JSON.parse(savedVisibilityMonthly) : undefined}
+              />
+            </>
           ),
         },
       },

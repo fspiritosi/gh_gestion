@@ -1,7 +1,3 @@
-import { fetchAllSectors } from '@/features/Empresa/Clientes/actions/create';
-import { supabaseServer } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { fetchAreasWithProvinces } from '../../actions/create';
 import ServiceTable from './ServiceTable';
 
 interface measure_unit {
@@ -13,75 +9,60 @@ interface measure_unit {
 interface customer {
   id: string;
   name: string;
-  is_active: boolean;
+  is_active: boolean | null;
+  address: string | null;
+  client_email: string | null;
+  client_phone: number | null;
+  company_id: string;
+  created_at: string;
+  cuit: number;
+  reason_for_termination: string | null;
+  termination_date: string | null;
 }
 interface ServiceComponentProps {
   id?: string;
+  customers: Customer[];
+  areas: any[];
+  sectors: any[];
+  measure_units: any[];
+  services: any[];
+  items: any[];
+  itemsList: any[];
+  measureUnitsList: any[];
+  company_id: string;
 }
 
-export default async function ServiceComponent({ id }: ServiceComponentProps) {
-  const URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-  const supabase = supabaseServer();
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  const cookiesStore = cookies();
-  const company_id = cookiesStore.get('actualComp')?.value || '';
-  const { customers } = await fetch(`${URL}/api/company/customers?actual=${company_id}`).then((e) => e.json());
-  const filterCustomers = customers?.filter((client: customer) => client.is_active === true);
-
-  const { services } = await fetch(`${URL}/api/services?actual=${company_id}`).then((e) => e.json());
+export default function ServiceComponent({
+  id,
+  customers: filterCustomers,
+  areas,
+  sectors,
+  measure_units,
+  services,
+  items,
+  company_id,
+}: ServiceComponentProps) {
+  // const URL = process.env.NEXT_PUBLIC_BASE_URL;
 
   const service = services?.find((s: any) => s.id === id);
 
-  // const {measure_units}= await fetch(`${URL}/api/meassure`).then((e) => e.json());
-  // const { items } = await fetch(`${URL}/api/services/items?actual=${company_id}`).then((e) => e.json());
-
-  const { data: measure_units } = await supabase.from('measure_units').select('*');
-
-  const areas = await fetchAreasWithProvinces();
-  const { sectors: Sector } = await fetchAllSectors();
-
   return (
-    // <Tabs defaultValue="services">
-    //   <TabsList className="mb-2 bg-gh_contrast/50">
-    //     <TabsTrigger value="services" className="text-gh_orange font-semibold">
-    //       Contratos
-    //     </TabsTrigger>
-    //     <TabsTrigger value="servicesItems" className="text-gh_orange font-semibold">
-    //       Items
-    //     </TabsTrigger>
-    //   </TabsList>
-    //   <TabsContent value="services">
     <div>
-      <ServiceTable
-        services={services}
-        customers={filterCustomers}
-        company_id={company_id}
-        areas={areas.areasWithProvinces}
-        sectors={Sector}
-        Service={service as any}
-        id={id}
-      />
+      {services ? (
+        <ServiceTable
+          services={services}
+          customers={filterCustomers}
+          company_id={company_id}
+          areas={areas}
+          sectors={sectors}
+          id={id}
+          measureUnitsList={measure_units}
+          itemsList={items}
+          hideCreateButton={true}
+        />
+      ) : (
+        <div>No hay servicios</div>
+      )}
     </div>
-    // </TabsContent>
-    // <TabsContent value="servicesItems">
-    // {services ? (
-    //   <ServiceItemsTable
-    //     measure_units={measure_units as any}
-    //     customers={filterCustomers}
-    //     services={services}
-    //     company_id={company_id}
-    //     items={items}
-
-    //   />
-    // ) : (
-    //   <div>No hay items para mostrar</div>
-    // )}
-    // </TabsContent>
-    // </Tabs>
   );
 }

@@ -1,344 +1,229 @@
 'use client';
 
-import {
-  ColumnDef,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
-
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useLoggedUserStore } from '@/store/loggedUser';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
+import { ColumnDef } from '@tanstack/react-table';
+import { useState } from 'react';
+import { fechAllCustomers } from '../actions/create';
+import { CustomerForm } from './CustomerForm';
+import ServiceTable from './Services/ServiceTable'; // Importación por defecto corregida
+
+import { EquipmentColums } from '@/app/dashboard/equipment/columns';
+import { EquipmentTable } from '@/app/dashboard/equipment/data-equipment';
+import { fetchAllEquipment } from '@/app/server/GET/actions';
+import { EmployeesTableReusable } from '@/features/Employees/Empleados/components/tables/data/employees-table';
+import { fetchAllEmployees } from '@/shared/actions/employees.actions';
+interface Customer {
+  id: string;
+  name: string;
+  cuit: number;
+  client_email: string | null;
+  client_phone: number | null;
+  address: string | null;
+  is_active: boolean | null;
+  company_id: string;
+  reason_for_termination?: string | null;
+  termination_date?: string | null;
+}
 
 interface DataCustomersProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[] | any;
-  data: TData[];
-  // allCompany: any[];
-  // showInactive: boolean;
-  localStorageName: string;
-  // setShowInactive: (showInactive: boolean) => void;
+  data: Awaited<ReturnType<typeof fechAllCustomers>>;
+  savedCustomers?: string;
+  company_id: string;
+  id?: string;
+  employees?: Awaited<ReturnType<typeof fetchAllEmployees>>;
+  equipments?: Awaited<ReturnType<typeof fetchAllEquipment>>;
+  // Nuevas props para servicios
+  services?: any[];
+  areas?: any[];
+  sectors?: any[];
+  itemsList?: any[];
+  measureUnitsList?: any[];
 }
 
-export function DataCustomers<TData, TValue>({
+export function DataCustomers<TData extends Customer, TValue>({
   columns,
   data,
-  // showInactive,
-  // setShowInactive,
-  // allCompany,
-  localStorageName,
+  savedCustomers,
+  company_id,
+  id,
+  employees,
+  equipments,
+  services = [],
+  areas = [],
+  sectors = [],
+  itemsList = [],
+  measureUnitsList = [],
 }: DataCustomersProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const defaultVisibleColumns = ['cuit', 'name', 'client_email', 'client_phone', 'address'];
-  const [showInactive, setShowInactive] = useState(false);
-  const [defaultVisibleColumns1, setDefaultVisibleColumns1] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-      return valorGuardado?.length ? valorGuardado : defaultVisibleColumns;
-    }
-    return defaultVisibleColumns;
-  });
+  const [selectedCustomer, setSelectedCustomer] = useState<TData | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(localStorageName, JSON.stringify(defaultVisibleColumns1));
-    }
-  }, [defaultVisibleColumns1]);
-
-  useEffect(() => {
-    const valorGuardado = JSON.parse(localStorage.getItem(localStorageName) || '[]');
-    if (valorGuardado?.length) {
-      setColumnVisibility(
-        columns?.reduce((acc: any, column: any) => {
-          acc[column.accessorKey] = valorGuardado.includes(column.accessorKey);
-          return acc;
-        }, {})
-      );
-    }
-  }, [columns]);
-
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    columns?.reduce((acc: any, column: any) => {
-      acc[column.accessorKey] = defaultVisibleColumns.includes(column.accessorKey);
-      return acc;
-    }, {})
+  const handleRowClick = (row: TData) => {
+    setSelectedCustomer(row);
+    setShowForm(true);
+    setIsEditing(false);
+  };
+  const names = createFilterOptions(data, (customer) => customer.name);
+  const cuit = createFilterOptions(data, (customer) => customer.cuit);
+  const client_email = createFilterOptions(data, (customer) => customer.client_email);
+  const client_phone = createFilterOptions(data, (customer) => customer.client_phone);
+  const savedVisibility = savedCustomers ? JSON.parse(savedCustomers) : {};
+  const customerEmployees = employees?.filter((employee) =>
+    employee.contractor_employee?.some((contractor: any) => contractor.contractor_id?.id === selectedCustomer?.id)
   );
+  const customerEquipments = equipments?.filter((equipment) => {
+    // Verifica si el equipo está asignado directamente al cliente
+    const isDirectlyAllocated = equipment.allocated_to
+      ? equipment.allocated_to.includes(selectedCustomer?.id || '')
+      : false;
 
-  const loader = useLoggedUserStore((state) => state.isLoading);
+    // Verifica si el equipo está vinculado a través de contractor_equipment
+    const isContractorEquipment = equipment.contractor_equipment?.some(
+      (contractor) => contractor.contractor_id?.id === selectedCustomer?.id
+    );
 
-  const selectHeader = {
-    // name: {
-    //     name: 'name',
-    //     //option: allOptions.name,
-    //     label: 'Nombre',
-    // },
-    // client_email: {
-    //     name: 'client_email',
-    //     //option: allOptions.client_email,
-    //     label: 'Email',
-    // },
-    // client_phone: {
-    //     name: 'client_phone',
-    //     //option: allOptions.client_phone,
-    //     label: 'Teléfono',
-    // },
-    // address: {
-    //     name: 'address',
-    //     //option: allOptions.address,
-    //     label: 'Dirección',
-    // }
-  };
-
-  const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
-    setColumnVisibility((prev) => ({
-      ...prev,
-      [columnId]: isVisible,
-    }));
-    setDefaultVisibleColumns1((prev: any) => {
-      const newVisibleColumns = isVisible ? [...prev, columnId] : prev.filter((id: string) => id !== columnId);
-      localStorage.setItem(localStorageName, JSON.stringify(newVisibleColumns));
-      return newVisibleColumns;
-    });
-  };
-
-  let table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      sorting,
-      columnVisibility,
-    },
+    return isDirectlyAllocated || isContractorEquipment;
   });
 
-  const maxRows = ['20', '40', '60', '80', '100'];
+  // Si estamos viendo/editar un cliente existente (pestañas)
+  if (showForm) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Detalles del Cliente</h2>
+          <Button variant="outline" onClick={() => (id || selectedCustomer) && setShowForm(false)}>
+            Cerrar
+          </Button>
+        </div>
 
+        <Tabs defaultValue="detalle">
+          <TabsList>
+            <TabsTrigger value="detalle">Detalle</TabsTrigger>
+            <TabsTrigger value="empleados">Empleados</TabsTrigger>
+            <TabsTrigger value="equipos">Equipos</TabsTrigger>
+            <TabsTrigger value="contratos">Contratos</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="detalle">
+            <div className="bg-white p-6 rounded-lg border">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold">Información del Cliente</h3>
+                <Button variant="gh_orange" onClick={() => setIsEditing(!isEditing)}>
+                  {isEditing ? 'Deshabilitar edición' : 'Habilitar edición'}
+                </Button>
+              </div>
+              <CustomerForm
+                customer={selectedCustomer}
+                company_id={company_id}
+                readOnly={!isEditing}
+                onSuccess={() => {
+                  setIsEditing(false);
+                }}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="empleados">
+            <div className="bg-white p-6 rounded-lg border">
+              <h3 className="text-xl font-semibold mb-6">Empleados del Cliente</h3>
+              <p className="text-muted-foreground">Módulo de empleados en desarrollo...</p>
+              <EmployeesTableReusable
+                employees={customerEmployees as any}
+                tableId="employees-table"
+                savedVisibility={savedVisibility}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="equipos">
+            <div className="bg-white p-6 rounded-lg border">
+              <h3 className="text-xl font-semibold mb-6">Equipos del Cliente</h3>
+              <p className="text-muted-foreground">Módulo de equipos en desarrollo...</p>
+              <EquipmentTable columns={EquipmentColums || []} data={customerEquipments || []} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="contratos">
+            <div className="bg-white p-6 rounded-lg border">
+              <h3 className="text-xl font-semibold mb-6">Contratos del Cliente</h3>
+              {selectedCustomer ? (
+                <ServiceTable
+                  services={services.filter((service) => service.customer_id === selectedCustomer.id)}
+                  customers={[selectedCustomer]}
+                  company_id={company_id}
+                  areas={areas}
+                  sectors={sectors}
+                  itemsList={itemsList}
+                  measureUnitsList={measureUnitsList}
+                  hideCreateButton={false}
+                />
+              ) : (
+                <p className="text-muted-foreground">Seleccione un cliente para ver sus contratos</p>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  }
+
+  // Si no estamos en modo edición ni hay un ID seleccionado, mostramos la tabla con opción de crear
   return (
     <div>
-      <div>
-        <div className="flex items-center pb-4 flex-wrap gap-y-2 overflow-auto">
-          <Input
-            placeholder="Buscar por nombre"
-            value={(table?.getColumn('name')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-            className="max-w-sm"
-          />
-          <div className=" flex gap-2 ml-2 flex-wrap">
-            <Select onValueChange={(e) => table.setPageSize(Number(e))}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Cantidad de filas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Filas por página</SelectLabel>
-                  {maxRows?.map((option: string) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  Columnas
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="max-h-[50dvh] overflow-y-auto">
-                {table
-                  .getAllColumns()
-                  ?.filter((column) => column.getCanHide())
-                  ?.map((column) => {
-                    if (column.id === 'actions' || typeof column.columnDef.header !== 'string') {
-                      return null;
-                    }
-                    if (column.id === 'showUnavaliableContacts') {
-                      return (
-                        <>
-                          <DropdownMenuCheckboxItem
-                            key={column.id}
-                            className="capitalize  text-red-400"
-                            checked={showInactive}
-                            onClick={() => setShowInactive(!showInactive)}
-                            // onCheckedChange={value =>
-                            //     column.toggleVisibility(true)
-                            // }
-                          >
-                            {column.columnDef.header}
-                          </DropdownMenuCheckboxItem>
-                        </>
-                      );
-                    }
-
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => handleColumnVisibilityChange(column.id, !!value)}
-                      >
-                        {column.columnDef.header}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups()?.map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers?.map((header) => {
-                    return (
-                      <TableHead className="text-center text-balance" key={header.id}>
-                        {flexRender(
-                          header.id in selectHeader ? (
-                            <div className="flex justify-center item-center">
-                              {/* Contenido específico para el header 'name' */}
-                            </div>
-                          ) : (
-                            header.column.columnDef.header
-                          ),
-                          header.getContext()
-                        )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody className="max-w-[50vw] overflow-x-auto">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows?.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                    {row.getVisibleCells()?.map((cell) => {
-                      let is_active = (cell.row.original as any)?.is_active;
-                      return (showInactive && !is_active) || (!showInactive && is_active) ? (
-                        <TableCell
-                          key={cell.id}
-                          className={`text-center whitespace-nowrap ${is_active ? '' : 'text-red-500'}`}
-                        >
-                          {cell.column.id === 'cuit' ? (
-                            <Link
-                              className="w-full hover:underline"
-                              href={`/dashboard/company/actualCompany/customers/action?action=view&id=${(cell.row.original as any)?.id}`}
-                            >
-                              {cell.getValue() as React.ReactNode}
-                            </Link>
-                          ) : (
-                            // cell.column.id === 'picture' ? (
-                            // cell.getValue() !== '' ? (
-                            //   <Link href={cell.getValue() as any} target="_blank">
-                            //   <img src={cell.getValue() as any} alt="Foto" style={{ width: '50px' }} />
-                            //   </Link>
-                            // ) : (
-                            //   'No disponible'
-                            // )
-                            // ) : cell.column.id === 'status' ? (
-                            // <Badge
-                            //   variant={
-                            //   cell.getValue() === 'Completo'
-                            //     ? 'success'
-                            //     : cell.getValue() === 'Completo con doc vencida'
-                            //     ? 'yellow'
-                            //     : 'destructive'
-                            //   }
-                            // >
-                            //   {cell.getValue() as React.ReactNode}
-                            // </Badge>
-                            // ) : cell.column.id === 'domain' ? (
-                            // !cell.getValue() ? (
-                            //   'No posee'
-                            // ) : (
-                            //   (cell.getValue() as React.ReactNode)
-                            // )
-                            // ) : (
-                            flexRender(cell.column.columnDef.cell, cell.getContext())
-                          )}
-                        </TableCell>
-                      ) : null;
-                    })}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns?.length} className="h-24 text-center">
-                    {loader ? (
-                      <div className="flex flex-col gap-3">
-                        <div className="flex justify-between">
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                        </div>
-                        <div className="flex justify-between">
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                          <Skeleton className="h-7 w-[13%]" />
-                        </div>
-                      </div>
-                    ) : (
-                      'No hay Clientes registrados'
-                    )}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Anterior
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-            Siguiente
-          </Button>
-        </div>
+      <div className="mb-4">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="gh_orange">Registrar Cliente</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl">
+            <CustomerForm
+              company_id={company_id}
+              onSuccess={() => {
+                // Cerrar el diálogo después de guardar
+                const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+                if (dialog) dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+              }}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
+
+      <BaseDataTable
+        data={(data as unknown as TData[]) || []}
+        savedVisibility={savedVisibility}
+        columns={columns}
+        tableId="customers-table"
+        onRowClick={handleRowClick}
+        toolbarOptions={{
+          filterableColumns: [
+            {
+              columnId: 'Nombre',
+              title: 'Nombre',
+              options: names,
+            },
+            {
+              columnId: 'Cuit',
+              title: 'Cuit',
+              options: cuit,
+            },
+            {
+              columnId: 'Email',
+              title: 'Email',
+              options: client_email,
+            },
+            {
+              columnId: 'Telefono',
+              title: 'Telefono',
+              options: client_phone,
+            },
+          ],
+        }}
+      />
     </div>
   );
 }

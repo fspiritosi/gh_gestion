@@ -39,13 +39,15 @@ import { useEdgeFunctions } from '@/hooks/useEdgeFunctions';
 import { handleSupabaseError } from '@/lib/errorHandler';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { cn } from '@/lib/utils';
+import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
 import { useLoggedUserStore } from '@/store/loggedUser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
 import { addMonths, format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { ArrowUpDown, CalendarIcon } from 'lucide-react';
+import Cookies from 'js-cookie';
+import { CalendarIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -62,16 +64,23 @@ const formSchema = z.object({
 });
 
 type Colum = {
-  contact_name: string;
-  constact_email: string;
-  contact_phone: number;
-  contact_charge: string;
-  customer_id: { id: string; name: string };
+  id: string;
+  contact_name: string | null;
+  constact_email: string | null;
+  contact_phone: number | null;
+  contact_charge: string | null;
+  customer_id: string | null;
+  customers: { id: string; name: string } | null;
   showInactive: boolean;
   status: string;
+  company_id: string | null;
+  created_at: string;
+  is_active: boolean | null;
+  reason_for_termination: string | null;
+  termination_date: string | null;
 };
 
-export const columns: ColumnDef<Colum>[] = [
+export const contactColumns: ColumnDef<Colum>[] = [
   {
     id: 'actions',
     cell: ({ row }: { row: any }) => {
@@ -94,7 +103,8 @@ export const columns: ColumnDef<Colum>[] = [
         setId(id);
         setShowModal(!showModal);
       };
-      const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+      // const actualCompany = useLoggedUserStore((state) => state.actualCompany);
+      const actualCompany = Cookies.get('actualComp');
 
       const fetchInactiveContacts = async () => {
         try {
@@ -102,7 +112,7 @@ export const columns: ColumnDef<Colum>[] = [
             .from('contacts')
             .select('*')
             //.eq('is_active', false)
-            .eq('company_id', actualCompany?.id)
+            .eq('company_id', actualCompany)
             .select();
 
           if (error) {
@@ -172,6 +182,10 @@ export const columns: ColumnDef<Colum>[] = [
             };
 
             const supabase = supabaseBrowser();
+            if (!actualCompany) {
+              console.error('No se ha encontrado la empresa actual');
+              return;
+            }
             const { error } = await supabase
               .from('contacts')
               .update({
@@ -180,7 +194,7 @@ export const columns: ColumnDef<Colum>[] = [
                 reason_for_termination: data.reason_for_termination,
               })
               .eq('id', contacts.id)
-              .eq('company_id', actualCompany?.id || '')
+              .eq('company_id', actualCompany)
               .select();
 
             setShowModal(!showModal);
@@ -387,13 +401,19 @@ export const columns: ColumnDef<Colum>[] = [
               Copiar email
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link className="w-full" href={`/dashboard/company/actualCompany/contact/action?action=view&id=${contacts?.id}`}>
+              <Link
+                className="w-full"
+                href={`/dashboard/company/actualCompany/contact/action?action=view&id=${contacts?.id}`}
+              >
                 Ver Contacto
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               {role !== 'Invitado' && (
-                <Link className="w-full" href={`/dashboard/company/actualCompany/contact/action?action=edit&id=${contacts?.id}`}>
+                <Link
+                  className="w-full"
+                  href={`/dashboard/company/actualCompany/contact/action?action=edit&id=${contacts?.id}`}
+                >
                   Editar Contacto
                 </Link>
               )}
@@ -420,35 +440,49 @@ export const columns: ColumnDef<Colum>[] = [
   },
   {
     accessorKey: 'contact_name',
-    header: ({ column }: { column: any }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="p-0">
-          Nombre
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+    id: 'Nombre',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
 
   {
     accessorKey: 'constact_email',
-    header: 'Email',
+    id: 'Email',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'contact_phone',
-    header: 'Teléfono',
+    id: 'Teléfono',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'contact_charge',
-    header: 'Cargo',
+    id: 'Cargo',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Cargo" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: 'customers.name',
-    header: 'Cliente',
+    id: 'Cliente',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Cliente" />,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
 
   {
     accessorKey: 'showUnavaliableContacts',
-    header: 'Ver contactos dados de baja',
+    id: 'Ver contactos dados de baja',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Ver contactos dados de baja" />,
   },
 ];

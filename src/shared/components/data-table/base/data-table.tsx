@@ -1,5 +1,6 @@
 'use client';
 
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,8 +16,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DataTableToolbarBase } from '../toolbars/data-table-toolbar-base';
 import { DataTablePagination } from './data-table-pagination';
 
@@ -29,6 +28,12 @@ interface FilterableColumn<TData> {
     value: string;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
+  // Soporte para filtros de rango de fechas
+  type?: 'date-range';
+  showFrom?: boolean;
+  showTo?: boolean;
+  fromPlaceholder?: string;
+  toPlaceholder?: string;
 }
 
 interface SearchableColumn {
@@ -36,11 +41,14 @@ interface SearchableColumn {
   placeholder?: string;
 }
 
+import { cn } from '@/lib/utils';
+import type { Table as TableType } from '@tanstack/react-table';
+
 interface ToolbarOptions<TData> {
   filterableColumns?: FilterableColumn<TData>[];
   searchableColumns?: SearchableColumn[];
   showViewOptions?: boolean;
-  extraActions?: React.ReactNode;
+  extraActions?: React.ReactNode | ((table: TableType<TData>) => React.ReactNode);
 }
 
 interface DataTableProps<TData, TValue> {
@@ -52,19 +60,8 @@ interface DataTableProps<TData, TValue> {
   className?: string;
   tableId?: string; // ID para persistencia
   initialColumnVisibility?: VisibilityState; // Estado inicial de columnas
-}
-
-// Función para obtener la visibilidad guardada
-function getSavedVisibility(tableId: string): VisibilityState | null {
-  if (typeof window === 'undefined') return null;
-
-  try {
-    const saved = localStorage.getItem(`table-columns-${tableId}`);
-    return saved ? JSON.parse(saved) : null;
-  } catch (e) {
-    console.error('Error al leer la configuración guardada:', e);
-    return null;
-  }
+  savedVisibility: VisibilityState;
+  row_classname?: string;
 }
 
 export function BaseDataTable<TData, TValue>({
@@ -76,18 +73,18 @@ export function BaseDataTable<TData, TValue>({
   className = '',
   tableId,
   initialColumnVisibility,
+  savedVisibility,
+  row_classname,
 }: DataTableProps<TData, TValue>) {
   // Intentar cargar la visibilidad guardada antes del renderizado inicial si hay tableId
-  const savedVisibility = tableId ? getSavedVisibility(tableId) : null;
+  // const savedVisibility = savedColumns
 
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   // Usar la visibilidad guardada, o la inicial si se proporciona, o un objeto vacío
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(
-    savedVisibility || initialColumnVisibility || {}
-  );
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(savedVisibility || {});
 
   const table = useReactTable({
     data,
@@ -105,10 +102,13 @@ export function BaseDataTable<TData, TValue>({
     onColumnVisibilityChange: (visibility) => {
       setColumnVisibility(visibility);
 
+      // console.log(visibility, 'visibility');
       // Guardar las preferencias en localStorage cuando cambian
-      if (tableId && typeof window !== 'undefined') {
-        localStorage.setItem(`table-columns-${tableId}`, JSON.stringify(visibility));
-      }
+      // console.log(visibility, 'visibility');
+      // cookiejs.set(`table-columns-${tableId}`, JSON.stringify(visibility));
+      // if (tableId && typeof window !== 'undefined') {
+      // localStorage.setItem(`table-columns-${tableId}`, JSON.stringify(visibility));
+      // }
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -119,14 +119,18 @@ export function BaseDataTable<TData, TValue>({
   });
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className} w-full grid grid-cols-1`}>
       {toolbarOptions && (
         <DataTableToolbarBase
           table={table}
           filterableColumns={toolbarOptions.filterableColumns}
           searchableColumns={toolbarOptions.searchableColumns}
           showViewOptions={toolbarOptions.showViewOptions}
-          extraActions={toolbarOptions.extraActions}
+          extraActions={
+            typeof toolbarOptions.extraActions === 'function'
+              ? toolbarOptions.extraActions(table)
+              : toolbarOptions.extraActions
+          }
           tableId={tableId}
         />
       )}
@@ -149,7 +153,7 @@ export function BaseDataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  className={onRowClick ? 'hover:cursor-pointer' : ''}
+                  className={onRowClick ? cn(row_classname, 'hover:cursor-pointer') : row_classname}
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                   onClick={() => onRowClick && onRowClick(row.original)}
@@ -161,7 +165,7 @@ export function BaseDataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns?.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   Sin resultados
                 </TableCell>
               </TableRow>

@@ -13,45 +13,32 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { supabaseBrowser } from '@/lib/supabase/browser';
-import { createClient } from '@supabase/supabase-js';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Download, Eye, FileSpreadsheet, FileText, ImageIcon, Loader2, Trash2, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 
-// Importar los componentes de tabla de shadcn/ui
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-// Definir tipos
-interface Document {
-  id: string;
-  name: string;
-  type: string;
-  date: string;
-  size: string;
-  url: string;
-  path: string;
-  contract_id: string;
-  description: string;
-}
+import type { Document } from '@/features/Empresa/Clientes/actions/documentsContracts';
+import {
+  deleteDocument as deleteDocumentApi,
+  downloadDocument,
+  fetchContract,
+  fetchDocuments,
+  uploadDocument,
+} from '@/features/Empresa/Clientes/actions/documentsContracts';
 
 interface DocumentManagementProps {
   id: string;
 }
 
-// Inicializar cliente de Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export default function contractDocuments({ id }: DocumentManagementProps) {
-  // const params = useParams();
-  // const id = params?.id as string;
+export default function ContractDocuments({ id }: DocumentManagementProps) {
   const [contract, setContract] = useState<any>(null);
-  // Referencias y estados
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const supabase = createClientComponentClient();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedFile, setSelectedFile] = useState<Document | null>(null);
   const [docType, setDocType] = useState<string>('Contrato');
@@ -63,71 +50,38 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const { toast } = useToast();
-
-  useEffect(() => {
-    fetchDocuments();
-  }, [id]);
-
   const router = useRouter();
 
-  const fetchDocuments = async () => {
-    try {
-      setIsLoading(true);
-      const { data: documentMetadata, error: metadataError } = await supabase
-        .from('documents_contracts' as any)
-        .select('*')
-        .eq('contract_id', id);
-
-      if (metadataError) {
-        throw metadataError;
-      }
-
-      const documentsWithUrls = await Promise.all(
-        documentMetadata.map(async (doc) => {
-          const { data: urlData } = await supabase.storage
-            .from('contract-documents')
-            .createSignedUrl(doc.path, 60 * 60); // URL válida por 1 hora
-
-          return {
-            ...doc,
-            url: urlData?.signedUrl || '',
-          };
-        })
-      );
-
-      setDocuments(documentsWithUrls as any);
-    } catch (error) {
-      console.error('Error al cargar documentos:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los documentos. Intenta de nuevo.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const supabase = supabaseBrowser();
-
   useEffect(() => {
-    if (!id) return;
+    const loadData = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('No hay sesión activa');
+        }
 
-    const fetchContract = async () => {
-      const { data, error } = await supabase
-        .from('customer_services')
-        .select('*, customer_id(name), area_id(nombre), sector_id(name), company_id(company_name)')
-        .eq('id', id)
-        .single();
+        const [contractData, docs] = await Promise.all([fetchContract(id, session), fetchDocuments(id, session)]);
 
-      if (error) {
-        console.error('Error fetching contract:', error);
-      } else {
-        setContract(data);
+        setContract(contractData);
+        setDocuments(docs);
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los datos. Intenta de nuevo.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchContract();
-  }, [id, supabase]);
+    if (id) {
+      loadData();
+    }
+  }, [id, toast]);
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -176,10 +130,10 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
       return;
     }
 
-    if (!contract || !contract.customer_id) {
+    if (!contract) {
       toast({
         title: 'Error',
-        description: 'No se pudo obtener la información del cliente o contrato.',
+        description: 'No se pudo obtener la información del contrato.',
         variant: 'destructive',
       });
       return;
@@ -188,78 +142,39 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
     try {
       setIsUploading(true);
 
-      const companyName = contract.company_id.company_name || 'company_desconocida';
-      const customerName = contract.customer_id.name || 'cliente_desconocido';
-      const contractTitle = contract.service_name || 'contrato_sin_titulo';
-      const companyFolderName = createSafeFolderName(companyName);
-      const customerFolderName = createSafeFolderName(customerName);
-      const contractFolderName = createSafeFolderName(contractTitle);
-
-      for (const file of selectedFiles) {
-        let type = 'otro';
-        if (file.type.includes('pdf')) type = 'pdf';
-        else if (file.type.includes('image')) type = 'image';
-        else if (
-          file.type.includes('excel') ||
-          file.type.includes('spreadsheet') ||
-          file.name.endsWith('.xlsx') ||
-          file.name.endsWith('.xls')
-        )
-          type = 'excel';
-
-        const sizeInKB = file.size / 1024;
-        let size = '';
-        if (sizeInKB < 1024) {
-          size = `${sizeInKB.toFixed(1)} KB`;
-        } else {
-          size = `${(sizeInKB / 1024).toFixed(1)} MB`;
-        }
-
-        const timestamp = Date.now();
-        const filePath = `${companyFolderName}/${customerFolderName}/${contractFolderName}/${timestamp}-${file.name}`;
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('contract-documents')
-          .upload(filePath, file);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const { data: documentData, error: documentError } = await supabase
-          .from('documents_contracts' as any)
-          .insert([
-            {
-              name: file.name,
-              type,
-              date: new Date().toISOString(),
-              size,
-              path: filePath,
-              contract_id: contract?.id,
-              description: docDescription,
-            },
-          ])
-          .select();
-
-        if (documentError) {
-          throw documentError;
-        }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No hay sesión activa');
       }
 
-      await fetchDocuments();
+      for (const file of selectedFiles) {
+        await uploadDocument({
+          file,
+          contractId: id,
+          contract,
+          docType,
+          docDescription: docDescription || docType,
+          session,
+        });
+      }
+
       setSelectedFiles([]);
-      setDocType('Contrato');
       setDocDescription('');
+      setDocType('Contrato');
+      const updatedDocuments = await fetchDocuments(id, session);
+      setDocuments(updatedDocuments);
 
       toast({
-        title: 'Archivos subidos',
-        description: `Se han subido ${selectedFiles.length} archivo(s) correctamente.`,
+        title: '¡Éxito!',
+        description: 'Los documentos se han subido correctamente.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al subir documentos:', error);
       toast({
         title: 'Error',
-        description: 'No se pudieron subir los documentos. Intenta de nuevo.',
+        description: error.message || 'Ocurrió un error al subir los documentos. Intenta de nuevo.',
         variant: 'destructive',
       });
     } finally {
@@ -292,74 +207,48 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
   };
 
   const confirmDelete = async () => {
-    if (documentToDelete) {
-      try {
-        const { error: storageError } = await supabase.storage
-          .from('contract-documents')
-          .remove([documentToDelete.path]);
+    if (!documentToDelete) return;
 
-        if (storageError) {
-          throw storageError;
-        }
-
-        const { error: dbError } = await supabase
-          .from('documents_contracts' as any)
-          .delete()
-          .eq('id', documentToDelete.id);
-
-        if (dbError) {
-          throw dbError;
-        }
-
-        setDocuments((prev) => prev.filter((doc) => doc.id !== documentToDelete.id));
-
-        if (selectedFile && selectedFile.id === documentToDelete.id) {
-          setSelectedFile(null);
-        }
-
-        toast({
-          title: 'Documento eliminado',
-          description: `Se ha eliminado "${documentToDelete.name}" correctamente.`,
-        });
-      } catch (error) {
-        console.error('Error al eliminar documento:', error);
-        toast({
-          title: 'Error',
-          description: 'No se pudo eliminar el documento. Intenta de nuevo.',
-          variant: 'destructive',
-        });
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No hay sesión activa');
       }
+
+      await deleteDocumentApi(documentToDelete, session);
+
+      setDocuments((prev) => prev.filter((doc) => doc.id !== documentToDelete.id));
+
+      toast({
+        title: 'Documento eliminado',
+        description: 'El documento se ha eliminado correctamente.',
+      });
+    } catch (error: any) {
+      console.error('Error al eliminar documento:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudo eliminar el documento. Intenta de nuevo.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleteConfirmOpen(false);
+      setDocumentToDelete(null);
     }
-    setDeleteConfirmOpen(false);
-    setDocumentToDelete(null);
   };
 
   const handleDownload = async (doc: Document) => {
     try {
-      if (doc.url) {
-        window.open(doc.url, '_blank');
-        return;
+      const url = await downloadDocument(doc);
+      if (url) {
+        window.open(url, '_blank');
       }
-
-      const { data, error } = await supabase.storage.from('contract-documents').createSignedUrl(doc.path, 60 * 60);
-
-      if (error) {
-        throw error;
-      }
-
-      if (data?.signedUrl) {
-        window.open(data.signedUrl, '_blank');
-
-        toast({
-          title: 'Descarga iniciada',
-          description: `Descargando "${doc.name}"`,
-        });
-      }
-    } catch (error) {
-      console.error('Error al descargar documento:', error);
+    } catch (error: any) {
+      console.error('Error al descargar el documento:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo descargar el documento. Intenta de nuevo.',
+        description: error.message || 'No se pudo descargar el documento. Intenta de nuevo.',
         variant: 'destructive',
       });
     }
@@ -371,14 +260,14 @@ export default function contractDocuments({ id }: DocumentManagementProps) {
       doc.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
   return (
-    <div className="max-w-5xl">
+    <div className="max-w-full">
       <div className="flex justify-end md:mb-4 mb-2">
         {/* <Link href="/dashboard/company/actualCompany?tab=comerce&subtab=service">
           <Button>Volver</Button>
         </Link> */}
       </div>
-      <Card>
-        <CardContent className="p-4">
+      <Card className="w-full">
+        <CardContent className="w-full p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1 border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Subir Documento</h3>

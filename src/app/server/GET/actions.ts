@@ -11,7 +11,6 @@ export const setNewCompanyUserMetadata = async (company_id: string) => {
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log('user', user);
 
   if (user?.app_metadata?.company !== company_id && company_id) {
     const { data, error } = await supabase.auth.admin.updateUserById(user?.id || '', {
@@ -25,7 +24,6 @@ export const setNewCompanyUserMetadata = async (company_id: string) => {
       return;
     }
 
-    console.log('User metadata updated successfully:', data);
   }
 
   return;
@@ -83,6 +81,7 @@ export const fetchAllEmployeesWithRelationsById = async (id: string) => {
   const company_id = cookiesStore.get('actualComp')?.value;
   const user = await fetchCurrentUser();
   if (!company_id) return [];
+
 
   let { data, error } = await supabase
     .from('employees')
@@ -142,6 +141,9 @@ export const fetchAllEquipmentWithRelationsById = async (id: string) => {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
+
+
+  
   const { data, error } = await supabase
     .from('vehicles')
     .select('*,brand(*),model(*),type(*),types_of_vehicles(*),contractor_equipment(*,contractor_id(*))')
@@ -184,7 +186,6 @@ export const findEmployeeByFullName = async (fullName: string) => {
       .returns<Employee[]>();
 
     if (error) {
-      console.log('Query params:', { fullName, company_id });
       console.error('Error al buscar empleado por nombre completo:', error);
       return null;
     }
@@ -224,8 +225,6 @@ export const fetchSingEmployee = async (employeesId: string) => {
   }
 
   const data2 = supabase.storage.from('document-files').getPublicUrl(employeeSingDocument?.[0]?.document_path || '');
-
-  console.log('data', data2);
 
   return data2.data.publicUrl || null;
 };
@@ -420,8 +419,6 @@ export const fetchEmployeePermanentDocumentsByEmployeeId = async (employeeId: st
   } = await supabase.auth.getUser();
   const role = await getActualRole(company_id as string, user?.id as string);
 
-  console.log(role);
-
   if (role === 'Invitado') {
     const { data, error } = await supabase
       .from('documents_employees')
@@ -536,12 +533,9 @@ export const getNextMonthExpiringDocumentsEmployees = async () => {
   const { data, error } = await supabase
     .from('documents_employees')
     .select('*,id_document_types(*),applies(*,contractor_employee(*, customers(*)))')
-    .eq('applies.company_id', company_id)
-    .eq('applies.is_active', true)
-    // .not('id_document_types.is_it_montlhy', 'is', false)
-    .neq('id_document_types.is_it_montlhy', true) // Solo traer documentos que no sean mensuales
+    // .eq('applies.is_active', true)
+    .not('id_document_types.is_it_montlhy', 'is', true)
     .or(`validity.lte.${today.toISOString()},validity.lte.${nextMonth.toISOString()}`)
-    .not('applies', 'is', null)
     .not('validity', 'is', null)
     .order('validity', { ascending: true }) // Ordenar por fecha de validez en orden ascendente
     .returns<EmployeeDocumentWithContractors[]>();
@@ -1296,16 +1290,11 @@ export const fetchDiagramsTypes = async () => {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
-  console.log(company_id, 'company_id');
   if (!company_id) return [];
   const { data, error } = await supabase
     .from('diagram_type')
     .select('*')
     .eq('company_id', company_id || '');
-
-  console.log(data, 'data');
-
-  console.log(error, 'error');
 
   if (error) {
     console.error('Error fetching diagrams types:', error);
@@ -1329,3 +1318,107 @@ export const fetchAllProvinces = async () => {
     return [];
   }
 };
+
+export const fetchServiceItems = async (company_id: string, user_id: string, customer_service_id: string) => {
+  const supabase = supabaseServer();
+
+  try {
+    if (!company_id || !customer_service_id) {
+      console.error('Missing required parameters:', { company_id, customer_service_id });
+      return [];
+    }
+
+    const { data: items, error } = await supabase
+      .from('service_items')
+      .select(
+        `
+        *,
+        item_measure_units (
+          id,
+          unit
+        ),
+        customer_service_id (
+          id,
+          customers!customer_services_customer_id_fkey (
+            id,
+            name
+          )
+        )
+      `
+      )
+      .eq('company_id', company_id)
+      .eq('customer_service_id', customer_service_id);
+
+    if (error) {
+      console.error('Error fetching service items:', error);
+      throw new Error(JSON.stringify(error));
+    }
+
+    return items || [];
+  } catch (error) {
+    console.error('Error in fetchServiceItems:', error);
+    throw error;
+  }
+};
+
+export async function fetchEmployeesByCompany() {
+  try {
+    const supabase = supabaseServer();
+    const cookiesStore = cookies();
+    const company_id = cookiesStore.get('actualComp')?.value;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!company_id) {
+      throw new Error('company_id is required');
+    }
+
+    let { data: employees, error } = await supabase.from('employees').select('*').eq('company_id', company_id);
+
+    if (error) {
+      throw error;
+    }
+
+    return employees || [];
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    throw error;
+  }
+}
+
+export async function fetchEmployeeDiagrams(employeeId?: string) {
+  try {
+    const supabase = supabaseServer();
+
+    if (employeeId) {
+      const { data: employeeDiagrams, error } = await supabase
+        .from('employees_diagram')
+        .select('*, diagram_type(*)')
+        .eq('employee_id', employeeId);
+
+      if (error) {
+        throw error;
+      }
+
+      return employeeDiagrams || [];
+    }
+
+    // Si no hay employeeId, obtener todos los diagramas con relaciones
+    const { data: allDiagrams, error } = await supabase.from('employees_diagram').select(`
+        *,
+        employee_id,
+        employees(*),
+        diagram_type(*)
+      `);
+
+    if (error) {
+      throw error;
+    }
+
+    return allDiagrams || [];
+  } catch (error) {
+    console.error('Error fetching employee diagrams:', error);
+    throw error;
+  }
+}

@@ -3,8 +3,21 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import { customersSchema } from '@/zodSchemas/schemas';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+// Función para verificar si un área está siendo usada en contratos
+async function isAreaUsedInContracts(areaId: string) {
+  const supabase = supabaseServer();
+  const { data, error } = await supabase.from('customer_services').select('id').eq('area_id', areaId).limit(1);
+
+  if (error) {
+    console.error('Error esta area ya esta siendo utilizada en un contrato', error);
+    throw error;
+  }
+
+  return data && data.length > 0;
+}
 
 export async function createdCustomer(formData: FormData) {
   const supabase = supabaseServer();
@@ -114,35 +127,43 @@ export async function updateCustomer(formData: FormData) {
 
   try {
     // Guardar datos en la tabla 'customer'
-
     const editClient = await supabase
       .from('customers')
       .update([clientData] as any)
       .eq('id', id || '')
       .select();
 
-    return { status: 200, body: 'Cliente actualizado satisfactoriamente' };
+    return {
+      status: 303,
+      redirect: '/dashboard/company/actualCompany',
+      body: 'Cliente actualizado satisfactoriamente',
+    };
   } catch (error) {
     console.error(error);
     return { status: 500, body: 'Internal Server Error' };
   }
-
-  redirect('/dashboard/company/actualCompany');
 }
 
 export async function fechAllCustomers() {
   const supabase = supabaseServer();
+  const coockiesStore = cookies();
+  const actualCompany = coockiesStore.get('actualComp')?.value;
   try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('is_active', true)
+      .eq('company_id', actualCompany || '');
 
-    const { data: customers, error } = await supabase.from('customers').select('*').eq('is_active', true);
+    if (error) {
+      console.error(error);
+      return [];
+    }
 
-    return { customers, error };
+    return data;
   } catch (error) {
     console.error(error);
-    return { customers: [], error: 'Error al obtener los clientes' };
+    return [];
   }
 }
 
@@ -194,6 +215,36 @@ export async function createArea(values: any) {
 export async function updateArea(values: any) {
   const supabase = supabaseServer();
   try {
+    // Primero obtenemos el área actual para comparar
+    const { data: currentArea, error: fetchError } = await supabase
+      .from('areas_cliente')
+      .select('customer_id')
+      .eq('id', values.id)
+      .single();
+
+    if (fetchError) {
+      return { status: 500, body: 'Error al obtener los datos del área' };
+    }
+
+    // Verificar si se está intentando cambiar el cliente
+    if (currentArea.customer_id !== values.customer_id) {
+      try {
+        // Verificar si el área está siendo usada en contratos
+        const isUsed = await isAreaUsedInContracts(values.id);
+        if (isUsed) {
+          console.log('Área en uso, no se puede cambiar el cliente');
+          return {
+            status: 400,
+            body: 'No se puede cambiar el cliente de un área que está siendo utilizada en contratos existentes',
+          };
+        }
+      } catch (error) {
+        console.error('Error esta area ya esta siendo utilizada en un contrato', error);
+        return { status: 500, body: 'Error esta area ya esta siendo utilizada en un contrato' };
+      }
+    }
+
+    // Si todo está bien, proceder con la actualización
     const { data: area, error: areaError } = await supabase
       .from('areas_cliente' as any)
       .update({
@@ -205,7 +256,7 @@ export async function updateArea(values: any) {
       .select('*');
 
     if (areaError) {
-      return { status: 500, body: 'Internal Server Error' };
+      return { status: 500, body: 'Error al actualizar el área' };
     }
 
     const provinceId = values.province_id as number[];
@@ -241,47 +292,55 @@ export async function updateArea(values: any) {
 
 export async function fetchAreasWithProvinces() {
   const supabase = supabaseServer();
+  const coockiesStore = cookies();
+  const actualCompany = coockiesStore.get('actualComp')?.value;
+  console.log('actualCompany', actualCompany);
+
   try {
-    const { data: areasWithProvinces, error } = await supabase
-      .from('areas_cliente' as any)
+    const { data, error } = await supabase
+      .from('areas_cliente')
       .select(
         `
         id,
         nombre,
         descripcion_corta,
-        customer_id(id, name),
+        customers!inner (
+          id,
+          name,
+          company_id
+        ),
         area_province (
           provinces ( id, name )
         )
       `
       )
+      .eq('customers.company_id', actualCompany || '')
       .not('area_province.province_id', 'is', null);
-    // .eq('is_active', true);
 
     if (error) {
       console.error(error);
-      return { areasWithProvinces: [], error: 'Error al obtener las areas con sus provincias' };
+      return [];
     }
 
-    return { areasWithProvinces, error };
+    return data;
   } catch (error) {
     console.error(error);
-    return { areasWithProvinces: [], error: 'Error al obtener las areas con sus provincias' };
+    return [];
   }
 }
 
 export async function fetchEquipmentsCustomers() {
   const supabase = supabaseServer();
   try {
-    const { data: equipments, error } = await supabase.from('equipos_clientes').select('*');
+    const { data: equipments, error } = await supabase.from('equipos_clientes').select('*,customers(*)');
     if (error) {
       console.error(error);
-      return { equipments: [], error: 'Error al obtener los equipos' };
+      return [];
     }
-    return { equipments, error };
+    return equipments;
   } catch (error) {
     console.error(error);
-    return { equipments: [], error: 'Error al obtener los equipos' };
+    return [];
   }
 }
 
@@ -341,19 +400,17 @@ export async function updateEquipmentCustomer(values: any) {
 export async function fetchAllSectors() {
   const supabase = supabaseServer();
   try {
-    const { data: sectors, error } = await supabase
-      .from('sectors' as any)
-      .select('*,sector_customer(sector_id(id,name), customer_id(id,name))')
-      .returns<SectorWithCustomers[]>();
+    const { data: sectors, error } = await supabase.from('sectors').select('*,sector_customer(*, customers(*))');
+    // .returns<SectorWithCustomers[]>();
 
     if (error) {
       console.error(error);
-      return { sectors: [], error: 'Error al obtener los sectores' };
+      return [];
     }
-    return { sectors, error: null };
+    return sectors;
   } catch (error) {
     console.error(error);
-    return { sectors: [], error: 'Error al obtener los sectores' };
+    return [];
   }
 }
 
