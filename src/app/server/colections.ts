@@ -48,7 +48,7 @@ declare global {
   type EmployeeDocument = DB['public']['Tables']['documents_employees']['Row']; // Anteriormente: DocumentEmployees
   type Employee = DB['public']['Tables']['employees']['Row']; // Anteriormente: Employees
   type EquipmentDocument = DB['public']['Tables']['documents_equipment']['Row']; // Anteriormente: DocumentEquipment
-  type Diagram = DB['public']['Tables']['work-diagram']['Row']; // Anteriormente: Diagram
+  type Diagram = DB['public']['Tables']['work_diagram']['Row']; // Anteriormente: Diagram
   type ContractorEmployee = DB['public']['Tables']['contractor_employee']['Row']; // Anteriormente: ContractorEmployee
   type Customer = DB['public']['Tables']['customers']['Row']; // Anteriormente: Customers
   type VehicleModel = DB['public']['Tables']['model_vehicles']['Row']; // Anteriormente: Model
@@ -65,7 +65,7 @@ declare global {
   type City = DB['public']['Tables']['cities']['Row']; // Anteriormente: City
   type Sector = DB['public']['Tables']['sectors']['Row']; // Anteriormente: Sector
   type Province = DB['public']['Tables']['provinces']['Row']; // Anteriormente: Province
-  type WorkflowDiagram = DB['public']['Tables']['work-diagram']['Row']; // Anteriormente: WorkflowDiagram
+  type WorkflowDiagram = DB['public']['Tables']['work_diagram']['Row']; // Anteriormente: WorkflowDiagram
   type HierarchicalPosition = DB['public']['Tables']['hierarchy']['Row']; // Anteriormente: HierarchicalPosition
   type ServiceItem = DB['public']['Tables']['service_items']['Row']; // Anteriormente: ServiceItems
   type MeasureUnit = DB['public']['Tables']['measure_units']['Row']; // Anteriormente: ItemMensureUnits

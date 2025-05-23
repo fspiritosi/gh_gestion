@@ -151,6 +151,7 @@ export default function EmployeeComponent({
           ...user,
           company_position: user.company_position, // Usar el nombre del puesto
           contractor_employee: user.contractor_employee,
+          picture: user.picture || '', // Asegurar que picture siempre sea una cadena
         }
       : {
           lastname: '',
@@ -837,28 +838,31 @@ export default function EmployeeComponent({
   const handleUpload = async () => {
     const document_number = form.getValues('document_number');
 
-    const fileExtension = imageFile?.name.split('.').pop();
-    if (imageFile) {
-      try {
-        const renamedFile = new File([imageFile], `${document_number}.${fileExtension}`, {
-          type: `image/${fileExtension?.replace(/\s/g, '')}`,
-        });
-        await uploadImage(renamedFile, 'employee_photos');
-        const employeeImage = `${url}/employee_photos/${document_number}.${fileExtension}?timestamp=${Date.now()}`
-          .trim()
-          .replace(/\s/g, '');
-        const { data, error } = await supabase
-          .from('employees')
-          .update({ picture: employeeImage })
-          .eq('document_number', document_number);
-      } catch (error: any) {
-        // toast({
-        //   variant: 'destructive',
-        //   title: 'Error al subir la imagen',
-        //   description:
-        //     'No pudimos registrar la imagen, pero el ususario fue registrado correctamente',
-        // })
-      }
+    // Si no hay archivo de imagen, no intentar subir nada
+    if (!imageFile) {
+      return;
+    }
+
+    const fileExtension = imageFile.name.split('.').pop();
+    try {
+      const renamedFile = new File([imageFile], `${document_number}.${fileExtension}`, {
+        type: `image/${fileExtension?.replace(/\s/g, '')}`,
+      });
+      await uploadImage(renamedFile, 'employee_photos');
+      const employeeImage = `${url}/employee_photos/${document_number}.${fileExtension}?timestamp=${Date.now()}`
+        .trim()
+        .replace(/\s/g, '');
+      const { data, error } = await supabase
+        .from('employees')
+        .update({ picture: employeeImage })
+        .eq('document_number', document_number);
+    } catch (error: any) {
+      // toast({
+      //   variant: 'destructive',
+      //   title: 'Error al subir la imagen',
+      //   description:
+      //     'No pudimos registrar la imagen, pero el ususario fue registrado correctamente',
+      // })
     }
   };
   const today = new Date();

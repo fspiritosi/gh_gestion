@@ -43,11 +43,6 @@ export function DataTableViewOptions<TData>({ table, tableId }: DataTableViewOpt
       path: '/', // Disponible en toda la aplicación
       sameSite: 'strict',
     });
-
-    console.log('Estado de visibilidad guardado en cookies:', columnVisibility);
-    if (columnId) {
-      console.log(`Columna "${columnId}" actualizada a: ${isVisible}`);
-    }
   };
 
   // Verificar el estado actual de visibilidad al montar el componente
@@ -115,8 +110,6 @@ export function DataTableViewOptions<TData>({ table, tableId }: DataTableViewOpt
                         // Pasar el ID de la columna y su nuevo estado a la función
                         saveVisibilityState(column.id, !!checked);
                       }
-
-                      console.log(`Columna "${column.id}" cambiada a: ${!!checked}`);
                     }}
                   />
                   <label htmlFor={`column-${column.id}`} className="flex-grow text-sm capitalize cursor-pointer">

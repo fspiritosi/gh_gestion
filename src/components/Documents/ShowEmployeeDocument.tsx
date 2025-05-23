@@ -213,7 +213,7 @@ function ShowEmployeeDocument({
                                 {' '}
                                 <Avatar className="size-24">
                                   <AvatarImage
-                                    src={documents_employees?.[0]?.applies?.picture}
+                                    src={documents_employees?.[0]?.applies?.picture || ''}
                                     className="rounded-full object-cover"
                                     alt="Imagen del recurso"
                                   />

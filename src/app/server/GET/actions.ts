@@ -697,7 +697,7 @@ export const fetchWorkDiagrams = async () => {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
-  const { data, error } = await supabase.from('work-diagram').select('*');
+  const { data, error } = await supabase.from('work_diagram').select('*');
 
   if (error) {
     console.error('Error fetching work diagrams:', error);
