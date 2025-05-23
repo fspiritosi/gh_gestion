@@ -49,7 +49,7 @@ export type Database = {
             foreignKeyName: 'aptitudes_tecnicas_puestos_puesto_id_fkey';
             columns: ['puesto_id'];
             isOneToOne: false;
-            referencedRelation: 'company_position';
+            referencedRelation: 'company_positions';
             referencedColumns: ['id'];
           },
         ];
@@ -396,7 +396,7 @@ export type Database = {
           },
         ];
       };
-      company_position: {
+      company_positions: {
         Row: {
           created_at: string;
           hierarchical_position_id: string[] | null;
@@ -462,17 +462,17 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: 'contacts_customer_id_fkey';
+            columns: ['customer_id'];
+            isOneToOne: false;
+            referencedRelation: 'customers';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'public_contacts_company_id_fkey';
             columns: ['company_id'];
             isOneToOne: false;
             referencedRelation: 'company';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'public_contacts_customer_id_fkey';
-            columns: ['customer_id'];
-            isOneToOne: false;
-            referencedRelation: 'customers';
             referencedColumns: ['id'];
           },
         ];
@@ -1589,7 +1589,7 @@ export type Database = {
           birthplace: string;
           born_date: string | null;
           category_id: string | null;
-          city: number;
+          city: number | null;
           company_id: string | null;
           company_position: string | null;
           cost_center_id: string | null;
@@ -1613,7 +1613,7 @@ export type Database = {
           nationality: Database['public']['Enums']['nationality_enum'];
           normal_hours: string | null;
           phone: string;
-          picture: string;
+          picture: string | null;
           postal_code: string | null;
           province: number;
           reason_for_termination: Database['public']['Enums']['reason_for_termination_enum'] | null;
@@ -1630,7 +1630,7 @@ export type Database = {
           birthplace: string;
           born_date?: string | null;
           category_id?: string | null;
-          city: number;
+          city?: number | null;
           company_id?: string | null;
           company_position?: string | null;
           cost_center_id?: string | null;
@@ -1654,7 +1654,7 @@ export type Database = {
           nationality: Database['public']['Enums']['nationality_enum'];
           normal_hours?: string | null;
           phone: string;
-          picture: string;
+          picture?: string | null;
           postal_code?: string | null;
           province: number;
           reason_for_termination?: Database['public']['Enums']['reason_for_termination_enum'] | null;
@@ -1671,7 +1671,7 @@ export type Database = {
           birthplace?: string;
           born_date?: string | null;
           category_id?: string | null;
-          city?: number;
+          city?: number | null;
           company_id?: string | null;
           company_position?: string | null;
           cost_center_id?: string | null;
@@ -1695,7 +1695,7 @@ export type Database = {
           nationality?: Database['public']['Enums']['nationality_enum'];
           normal_hours?: string | null;
           phone?: string;
-          picture?: string;
+          picture?: string | null;
           postal_code?: string | null;
           province?: number;
           reason_for_termination?: Database['public']['Enums']['reason_for_termination_enum'] | null;
@@ -1739,7 +1739,7 @@ export type Database = {
             foreignKeyName: 'employees_company_position_fkey';
             columns: ['company_position'];
             isOneToOne: false;
-            referencedRelation: 'company_position';
+            referencedRelation: 'company_positions';
             referencedColumns: ['id'];
           },
           {
@@ -1788,7 +1788,7 @@ export type Database = {
             foreignKeyName: 'employees_workflow_diagram_fkey';
             columns: ['workflow_diagram'];
             isOneToOne: false;
-            referencedRelation: 'work-diagram';
+            referencedRelation: 'work_diagram';
             referencedColumns: ['id'];
           },
         ];
@@ -1823,17 +1823,17 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: 'employees_diagram_employee_id_fkey';
+            columns: ['employee_id'];
+            isOneToOne: false;
+            referencedRelation: 'employees';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'public_employees_diagram_diagram_type_fkey';
             columns: ['diagram_type'];
             isOneToOne: false;
             referencedRelation: 'diagram_type';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'public_employees_diagram_employee_id_fkey';
-            columns: ['employee_id'];
-            isOneToOne: false;
-            referencedRelation: 'employees';
             referencedColumns: ['id'];
           },
         ];
@@ -2518,17 +2518,17 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'public_service_items_costumer_service_id_fkey';
-            columns: ['customer_service_id'];
-            isOneToOne: false;
-            referencedRelation: 'customer_services';
-            referencedColumns: ['id'];
-          },
-          {
             foreignKeyName: 'public_service_items_item_measure_units_fkey';
             columns: ['item_measure_units'];
             isOneToOne: false;
             referencedRelation: 'measure_units';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'service_items_customer_service_id_fkey';
+            columns: ['customer_service_id'];
+            isOneToOne: false;
+            referencedRelation: 'customer_services';
             referencedColumns: ['id'];
           },
         ];
@@ -2788,7 +2788,7 @@ export type Database = {
       vehicles: {
         Row: {
           allocated_to: string[] | null;
-          brand: number;
+          brand: number | null;
           chassis: string | null;
           company_id: string | null;
           condition: Database['public']['Enums']['condition_enum'] | null;
@@ -2800,8 +2800,8 @@ export type Database = {
           intern_number: string;
           is_active: boolean | null;
           kilometer: string | null;
-          model: number;
-          picture: string;
+          model: number | null;
+          picture: string | null;
           reason_for_termination: string | null;
           serie: string | null;
           status: Database['public']['Enums']['status_type'] | null;
@@ -2813,7 +2813,7 @@ export type Database = {
         };
         Insert: {
           allocated_to?: string[] | null;
-          brand: number;
+          brand?: number | null;
           chassis?: string | null;
           company_id?: string | null;
           condition?: Database['public']['Enums']['condition_enum'] | null;
@@ -2825,8 +2825,8 @@ export type Database = {
           intern_number: string;
           is_active?: boolean | null;
           kilometer?: string | null;
-          model: number;
-          picture: string;
+          model?: number | null;
+          picture?: string | null;
           reason_for_termination?: string | null;
           serie?: string | null;
           status?: Database['public']['Enums']['status_type'] | null;
@@ -2838,7 +2838,7 @@ export type Database = {
         };
         Update: {
           allocated_to?: string[] | null;
-          brand?: number;
+          brand?: number | null;
           chassis?: string | null;
           company_id?: string | null;
           condition?: Database['public']['Enums']['condition_enum'] | null;
@@ -2850,8 +2850,8 @@ export type Database = {
           intern_number?: string;
           is_active?: boolean | null;
           kilometer?: string | null;
-          model?: number;
-          picture?: string;
+          model?: number | null;
+          picture?: string | null;
           reason_for_termination?: string | null;
           serie?: string | null;
           status?: Database['public']['Enums']['status_type'] | null;
@@ -2913,7 +2913,7 @@ export type Database = {
           },
         ];
       };
-      'work-diagram': {
+      work_diagram: {
         Row: {
           active_novelty: string | null;
           active_working_days: number | null;
@@ -3016,7 +3016,7 @@ export type Database = {
           birthplace: string;
           born_date: string | null;
           category_id: string | null;
-          city: number;
+          city: number | null;
           company_id: string | null;
           company_position: string | null;
           cost_center_id: string | null;
@@ -3040,7 +3040,7 @@ export type Database = {
           nationality: Database['public']['Enums']['nationality_enum'];
           normal_hours: string | null;
           phone: string;
-          picture: string;
+          picture: string | null;
           postal_code: string | null;
           province: number;
           reason_for_termination: Database['public']['Enums']['reason_for_termination_enum'] | null;
@@ -3122,7 +3122,7 @@ export type Database = {
       document_type_enum: 'DNI' | 'LE' | 'LC' | 'PASAPORTE';
       gender_enum: 'Masculino' | 'Femenino' | 'No Declarado';
       level_of_education_enum: 'Primario' | 'Secundario' | 'Terciario' | 'Universitario' | 'PosGrado';
-      marital_status_enum: 'Casado' | 'Soltero' | 'Divorciado' | 'Viudo' | 'Separado';
+      marital_status_enum: 'Casado' | 'Soltero' | 'Divorciado' | 'Viudo' | 'Separado' | 'Union de hecho';
       modulos:
         | 'empresa'
         | 'empleados'
@@ -3270,7 +3270,7 @@ export const Constants = {
       document_type_enum: ['DNI', 'LE', 'LC', 'PASAPORTE'],
       gender_enum: ['Masculino', 'Femenino', 'No Declarado'],
       level_of_education_enum: ['Primario', 'Secundario', 'Terciario', 'Universitario', 'PosGrado'],
-      marital_status_enum: ['Casado', 'Soltero', 'Divorciado', 'Viudo', 'Separado'],
+      marital_status_enum: ['Casado', 'Soltero', 'Divorciado', 'Viudo', 'Separado', 'Union de hecho'],
       modulos: [
         'empresa',
         'empleados',

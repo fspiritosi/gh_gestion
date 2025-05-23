@@ -110,7 +110,7 @@ export function DataCustomers<TData extends Customer, TValue>({
           </TabsList>
 
           <TabsContent value="detalle">
-            <div className="bg-white p-6 rounded-lg border">
+            <div className=" p-6 rounded-lg border">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-semibold">Información del Cliente</h3>
                 <Button variant="gh_orange" onClick={() => setIsEditing(!isEditing)}>
@@ -129,7 +129,7 @@ export function DataCustomers<TData extends Customer, TValue>({
           </TabsContent>
 
           <TabsContent value="empleados">
-            <div className="bg-white p-6 rounded-lg border">
+            <div className=" p-6 rounded-lg border">
               <h3 className="text-xl font-semibold mb-6">Empleados del Cliente</h3>
               <p className="text-muted-foreground">Módulo de empleados en desarrollo...</p>
               <EmployeesTableReusable
@@ -141,7 +141,7 @@ export function DataCustomers<TData extends Customer, TValue>({
           </TabsContent>
 
           <TabsContent value="equipos">
-            <div className="bg-white p-6 rounded-lg border">
+            <div className=" p-6 rounded-lg border">
               <h3 className="text-xl font-semibold mb-6">Equipos del Cliente</h3>
               <p className="text-muted-foreground">Módulo de equipos en desarrollo...</p>
               <EquipmentTable columns={EquipmentColums || []} data={customerEquipments || []} />
@@ -149,7 +149,7 @@ export function DataCustomers<TData extends Customer, TValue>({
           </TabsContent>
 
           <TabsContent value="contratos">
-            <div className="bg-white p-6 rounded-lg border">
+            <div className=" p-6 rounded-lg border">
               <h3 className="text-xl font-semibold mb-6">Contratos del Cliente</h3>
               {selectedCustomer ? (
                 <ServiceTable

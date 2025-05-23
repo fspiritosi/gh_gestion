@@ -6,6 +6,7 @@ import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 import * as React from 'react';
 import { BulkActionProps } from '../base/data-table';
+import { DataTableFilterOptions } from '../base/data-table-filter-options';
 import { DataTableViewOptions } from '../base/data-table-view-options';
 import { DataTableDatePicker } from '../filters/data-table-date-picker';
 import { DataTableFacetedFilter } from '../filters/data-table-faceted-filter';
@@ -41,6 +42,8 @@ interface DataTableToolbarProps<TData> {
   filterableColumns?: FilterableColumn<TData>[];
   searchableColumns?: SearchableColumn[];
   showViewOptions?: boolean;
+  showFilterOptions?: boolean; // Opción para mostrar selector de filtros
+  initialVisibleFilters?: string[]; // Filtros inicialmente visibles
   extraActions?: React.ReactNode | ((table: Table<TData>) => React.ReactNode);
   tableId?: string; // Añadimos tableId para persistencia
   bulkAction?: BulkActionProps<TData>;
@@ -51,12 +54,19 @@ export function DataTableToolbarBase<TData>({
   filterableColumns = [],
   searchableColumns = [],
   showViewOptions = true,
+  showFilterOptions = true,
+  initialVisibleFilters,
   extraActions,
   tableId, // Recibimos tableId
   bulkAction,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const columnVisibility = table.getState().columnVisibility;
+
+  // Estado para controlar qué filtros son visibles
+  const [visibleFilters, setVisibleFilters] = React.useState<string[]>(initialVisibleFilters || []);
+
+  console.log(initialVisibleFilters);
 
   // NUEVO: Estado para los filtros de rango de fechas por columna
   const [dateFilters, setDateFilters] = React.useState<{ [columnId: string]: { from: Date | null; to: Date | null } }>(
@@ -121,68 +131,72 @@ export function DataTableToolbarBase<TData>({
             ) : null;
           })}
 
+        {/* No mostrar ningún filtro si visibleFilters está vacío */}
         {filterableColumns.length > 0 &&
-          filterableColumns.map((column) => {
-            const tableColumn = table.getColumn(column.columnId);
-            // Soporte para filtro de rango de fechas
-            if (column.type === 'date-range') {
-              const current = dateFilters[column.columnId] || { from: null, to: null };
-              return (
-                <div key={column.columnId} className="flex items-center space-x-2">
-                  {column.showFrom !== false && (
-                    <DataTableDatePicker
-                      date={current.from}
-                      setDate={(date: Date | null) => {
-                        const newFilter = { ...current, from: date };
-                        setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
-                        tableColumn?.setFilterValue(newFilter);
-                      }}
-                      label={column.fromPlaceholder || 'Desde'}
-                      clearFilter={() => {
-                        const newFilter = { ...current, from: null };
-                        setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
-                        if (!newFilter.from && !newFilter.to) {
-                          tableColumn?.setFilterValue(undefined);
-                        } else {
+          visibleFilters.length > 0 &&
+          filterableColumns
+            .filter((column) => visibleFilters.includes(column.columnId))
+            .map((column) => {
+              const tableColumn = table.getColumn(column.columnId);
+              // Soporte para filtro de rango de fechas
+              if (column.type === 'date-range') {
+                const current = dateFilters[column.columnId] || { from: null, to: null };
+                return (
+                  <div key={column.columnId} className="flex items-center space-x-2">
+                    {column.showFrom !== false && (
+                      <DataTableDatePicker
+                        date={current.from}
+                        setDate={(date: Date | null) => {
+                          const newFilter = { ...current, from: date };
+                          setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
                           tableColumn?.setFilterValue(newFilter);
-                        }
-                      }}
-                    />
-                  )}
-                  {column.showTo !== false && (
-                    <DataTableDatePicker
-                      date={current.to}
-                      setDate={(date: Date | null) => {
-                        const newFilter = { ...current, to: date };
-                        setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
-                        tableColumn?.setFilterValue(newFilter);
-                      }}
-                      label={column.toPlaceholder || 'Hasta'}
-                      clearFilter={() => {
-                        const newFilter = { ...current, to: null };
-                        setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
-                        if (!newFilter.from && !newFilter.to) {
-                          tableColumn?.setFilterValue(undefined);
-                        } else {
+                        }}
+                        label={column.fromPlaceholder || 'Desde'}
+                        clearFilter={() => {
+                          const newFilter = { ...current, from: null };
+                          setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
+                          if (!newFilter.from && !newFilter.to) {
+                            tableColumn?.setFilterValue(undefined);
+                          } else {
+                            tableColumn?.setFilterValue(newFilter);
+                          }
+                        }}
+                      />
+                    )}
+                    {column.showTo !== false && (
+                      <DataTableDatePicker
+                        date={current.to}
+                        setDate={(date: Date | null) => {
+                          const newFilter = { ...current, to: date };
+                          setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
                           tableColumn?.setFilterValue(newFilter);
-                        }
-                      }}
-                    />
-                  )}
-                </div>
-              );
-            }
-            // Filtro tradicional (facetado)
-            // Solo mostrar el filtro si la columna está visible
-            return tableColumn && columnVisibility[column.columnId] !== false ? (
-              <DataTableFacetedFilter
-                key={column.columnId}
-                column={tableColumn}
-                title={column.title}
-                options={column.options || []}
-              />
-            ) : null;
-          })}
+                        }}
+                        label={column.toPlaceholder || 'Hasta'}
+                        clearFilter={() => {
+                          const newFilter = { ...current, to: null };
+                          setDateFilters((prev) => ({ ...prev, [column.columnId]: newFilter }));
+                          if (!newFilter.from && !newFilter.to) {
+                            tableColumn?.setFilterValue(undefined);
+                          } else {
+                            tableColumn?.setFilterValue(newFilter);
+                          }
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              }
+              // Filtro tradicional (facetado)
+              // Solo mostrar el filtro si la columna está visible
+              return tableColumn && columnVisibility[column.columnId] !== false ? (
+                <DataTableFacetedFilter
+                  key={column.columnId}
+                  column={tableColumn}
+                  title={column.title}
+                  options={column.options || []}
+                />
+              ) : null;
+            })}
 
         {isFiltered && (
           <Button
@@ -200,6 +214,15 @@ export function DataTableToolbarBase<TData>({
       </div>
       <div className="flex items-center space-x-2 flex-wrap">
         {typeof extraActions === 'function' ? extraActions(table) : extraActions}
+        {showFilterOptions && filterableColumns.length > 0 && (
+          <DataTableFilterOptions
+            filterableColumns={filterableColumns}
+            visibleFilters={visibleFilters}
+            onVisibilityChange={setVisibleFilters}
+            tableId={tableId}
+            columnVisibility={columnVisibility}
+          />
+        )}
         {showViewOptions && <DataTableViewOptions table={table} tableId={tableId} />}
       </div>
     </div>

@@ -59,6 +59,8 @@ interface ToolbarOptions<TData> {
   filterableColumns?: FilterableColumn<TData>[];
   searchableColumns?: SearchableColumn[];
   showViewOptions?: boolean;
+  showFilterOptions?: boolean; // Nueva opción para mostrar el selector de filtros
+  initialVisibleFilters?: string[]; // Filtros inicialmente visibles
   extraActions?: React.ReactNode | ((table: TableType<TData>) => React.ReactNode);
   bulkAction?: BulkActionProps<TData>;
 }
@@ -140,6 +142,7 @@ export function BaseDataTable<TData, TValue>({
           table={table}
           filterableColumns={toolbarOptions.filterableColumns}
           searchableColumns={toolbarOptions.searchableColumns}
+          initialVisibleFilters={toolbarOptions.initialVisibleFilters}
           showViewOptions={toolbarOptions.showViewOptions}
           bulkAction={toolbarOptions.bulkAction}
           extraActions={
