@@ -11,7 +11,7 @@ export async function fetchAllWorkDiagrams(): Promise<workDiagramWithNovelty[]> 
     if (!company_id) return [];
 
     const { data, error } = await supabase
-      .from('work-diagram')
+      .from('work_diagram')
       .select('*,active_novelty(*),inactive_novelty(*)')
       .returns<workDiagramWithNovelty[]>();
 

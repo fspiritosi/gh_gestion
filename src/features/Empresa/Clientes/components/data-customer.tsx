@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { createFilterOptions, formatEmployeesForTable } from '@/features/Employees/Empleados/components/utils/utils';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
@@ -15,7 +15,6 @@ import { EquipmentColums } from '@/app/dashboard/equipment/columns';
 import { EquipmentTable } from '@/app/dashboard/equipment/data-equipment';
 import { fetchAllEquipment } from '@/app/server/GET/actions';
 import { EmployeesTableReusable } from '@/features/Employees/Empleados/components/tables/data/employees-table';
-import { fetchAllEmployees } from '@/shared/actions/employees.actions';
 interface Customer {
   id: string;
   name: string;
@@ -35,7 +34,7 @@ interface DataCustomersProps<TData, TValue> {
   savedCustomers?: string;
   company_id: string;
   id?: string;
-  employees?: Awaited<ReturnType<typeof fetchAllEmployees>>;
+  employees?: ReturnType<typeof formatEmployeesForTable>;
   equipments?: Awaited<ReturnType<typeof fetchAllEquipment>>;
   // Nuevas props para servicios
   services?: any[];

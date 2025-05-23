@@ -172,7 +172,7 @@ export async function getPositions(): Promise<Position[]> {
 
     // Obtener los puestos activos
     const { data, error } = await supabase
-      .from('company_position')
+      .from('company_positions')
       .select('*')
       .eq('is_active', true)
       .order('name', { ascending: true });

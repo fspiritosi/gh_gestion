@@ -56,30 +56,29 @@ export const fetchAllEmployeesInactives = async (role?: string) => {
 
   // console.log(user, 'user');
 
-  if (role === 'Invitado') {
-    const { data, error } = await supabase
-      .from('share_company_users')
-      .select(
-        `*,customer_id(*,contractor_employee(*,employee_id(*,hierarchical_position(*),city(*),province(*),workflow_diagram(*),birthplace(*))))`
-      )
-      .eq('profile_id', user?.id || '')
-      .eq('company_id', company_id)
-      .eq('customer_id.employee_id.is_active', false)
-      .returns<ShareCompanyUsersWithRelations[]>();
+  // if (role === 'Invitado') {
+  //   const { data, error } = await supabase
+  //     .from('share_company_users')
+  //     .select(
+  //       `*,customer_id(*,contractor_employee(*,employee_id(*,hierarchical_position(*),city(*),province(*),workflow_diagram(*),birthplace(*))))`
+  //     )
+  //     .eq('profile_id', user?.id || '')
+  //     .eq('company_id', company_id)
+  //     .eq('customer_id.employee_id.is_active', false)
+  //     .returns<ShareCompanyUsersWithRelations[]>();
 
-    const employees = data?.[0].customer_id?.contractor_employee as any;
-    const allEmployees = employees?.map((employee: any) => employee.employee_id) as EmployeeDetailed[];
-    return allEmployees || [];
-  }
+  //   const employees = data?.[0].customer_id?.contractor_employee as any;
+  //   const allEmployees = employees?.map((employee: any) => employee.employee_id) as EmployeeDetailed[];
+  //   return allEmployees || [];
+  // }
 
   const { data, error } = await supabase
     .from('employees')
     .select(
-      '*,hierarchical_position(*),city(*),province(*),workflow_diagram(*),birthplace(*),contractor_employee(*,contractor_id(*))'
+      'contractor_employee(*,customers(*)),company_positions(*),hierarchy(*),cities(*),provinces(*),work_diagram(*),countries(*),cost_center(*),*'
     )
     .eq('is_active', false)
-    .eq('company_id', company_id)
-    .returns<EmployeeDetailed[]>();
+    .eq('company_id', company_id);
 
   if (error) {
     console.error('Error fetching employees:', error);
