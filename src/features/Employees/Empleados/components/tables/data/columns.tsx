@@ -43,6 +43,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { addMonths, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
+import moment from 'moment';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, useState } from 'react';
@@ -70,7 +71,6 @@ type Contractor =
 export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTable>[0], unknown>[] = [
   {
     id: 'actions',
-
     cell: ({ row }: { row: any }) => {
       const share = useLoggedUserStore((state) => state.sharedCompanies);
       const profile = useLoggedUserStore((state) => state.credentialUser?.id);
@@ -398,7 +398,6 @@ export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTabl
     },
     enableHiding: false,
   },
-
   {
     accessorKey: 'fullName',
     id: 'Nombre',
@@ -425,27 +424,22 @@ export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTabl
     },
   },
   {
-    accessorKey: 'status',
-    id: 'Estado',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    accessorKey: 'nationality',
+    id: 'Nacionalidad',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nacionalidad" />,
     cell: ({ row }) => {
-      type BadgeVariant = NonNullable<React.ComponentProps<typeof Badge>['variant']>;
-      type StatusType = 'Completo' | 'Incompleto' | 'Completo con doc vencida' | 'default';
-
-      const variantStatus: Record<StatusType, BadgeVariant> = {
-        Completo: 'success',
-        Incompleto: 'destructive',
-        'Completo con doc vencida': 'yellow',
-        default: 'default',
-      };
-      return (
-        <Badge
-          variant={row.original.status ? variantStatus[row.original.status as StatusType] || 'default' : 'default'}
-          className="capitalize"
-        >
-          {row.original.status || 'Sin estado'}
-        </Badge>
-      );
+      return <div>{row.original.nationality || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'born_date',
+    id: 'Nacimiento',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nacimiento" />,
+    cell: ({ row }) => {
+      return <div>{row.original.born_date ? moment(row.original.born_date).format('DD/MM/YYYY') : '-'}</div>;
     },
     filterFn: (row, id, value) => {
       return value.includes(String(row.getValue(id)));
@@ -487,37 +481,107 @@ export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTabl
         </div>
       );
     },
-  },
-  {
-    accessorKey: 'hierarchical_position.name',
-    id: 'Cargo',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Cargo" />,
-    cell: ({ row }) => {
-      return <div>{(row.original.hierarchical_position as any)?.name}</div>;
-    },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      return value.includes(String(row.getValue(id)));
     },
   },
+
   {
-    //Horas normales
-    accessorKey: 'normal_hours',
-    id: 'Horas',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Horas" />,
+    accessorKey: 'gender',
+    id: 'Genero',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Genero" />,
     cell: ({ row }) => {
-      return <div>{row.original.normal_hours}</div>;
+      return <div>{row.original.gender || '-'}</div>;
     },
     filterFn: (row, id, value) => {
       return value.includes(String(row.getValue(id)));
     },
   },
   {
-    //Tipo de contrato
-    accessorKey: 'type_of_contract',
-    id: 'Tipo de Contrato',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Contrato" />,
+    accessorKey: 'marital_status',
+    id: 'Estado Civil',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado Civil" />,
     cell: ({ row }) => {
-      return <div>{row.original.type_of_contract}</div>;
+      return <div>{row.original.marital_status || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'level_of_education',
+    id: 'Nivel de Educacion',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nivel de Educacion" />,
+    cell: ({ row }) => {
+      return <div>{row.original.level_of_education || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+
+  {
+    accessorKey: 'street',
+    id: 'Calle',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Calle" />,
+    cell: ({ row }) => {
+      return <div>{row.original.street || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'street_number',
+    id: 'Altura',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Altura" />,
+    cell: ({ row }) => {
+      return <div>{row.original.street_number || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'province',
+    id: 'Provincia',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Provincia" />,
+    cell: ({ row }) => {
+      return <div>{row.original.province || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+
+  {
+    accessorKey: 'city',
+    id: 'Ciudad',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Ciudad" />,
+    cell: ({ row }) => {
+      return <div>{row.original.city || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'postal_code',
+    id: 'CP',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="CP" />,
+    cell: ({ row }) => {
+      return <div>{row.original.postal_code || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'phone',
+    id: 'Teléfono',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
+    cell: ({ row }) => {
+      return <div>{row.original.phone || '-'}</div>;
     },
     filterFn: (row, id, value) => {
       return value.includes(String(row.getValue(id)));
@@ -530,7 +594,82 @@ export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTabl
     cell: ({ row }) => {
       return <div>{row.original.email || '-'}</div>;
     },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
   },
+  {
+    accessorKey: 'file',
+    id: 'Legajo',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Legajo" />,
+    cell: ({ row }) => {
+      return <div>{row.original.file || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'hierarchical_position',
+    id: 'Sector',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Sector" />,
+    cell: ({ row }) => {
+      return <div>{row.original.hierarchical_position}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    accessorKey: 'company_position',
+    id: 'Puesto',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Puesto" />,
+    cell: ({ row }) => {
+      return <div>{row.original.company_position || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+
+  {
+    accessorKey: 'workflow_diagram',
+    id: 'Diagrama',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Diagrama" />,
+    cell: ({ row }) => {
+      return <div>{row.original.workflow_diagram || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+
+  {
+    //Horas normales
+    accessorKey: 'normal_hours',
+    id: 'Horas',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Horas" />,
+    cell: ({ row }) => {
+      return <div>{row.original.normal_hours}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+
+  {
+    //Tipo de contrato
+    accessorKey: 'type_of_contract',
+    id: 'Tipo de Contrato',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Contrato" />,
+    cell: ({ row }) => {
+      return <div>{row.original.type_of_contract}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+
   {
     accessorKey: 'contractor_employee',
     id: 'Afectaciones',
@@ -545,10 +684,10 @@ export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTabl
 
       // Define the contractor type
       // Get contractor names
-      const contractorNames = (contractors as any[])
+      const contractorNames = contractors
         .map((contractor) => {
           if (typeof contractor === 'string') return contractor;
-          return contractor?.contractor_id?.name || contractor?.name || '';
+          return contractor?.customers?.name || '';
         })
         .filter((name): name is string => Boolean(name));
 
@@ -586,6 +725,9 @@ export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTabl
 
       const contractors = row.original.contractor_employee || [];
 
+      console.log(contractors[0]?.customers);
+      console.log(filterValue);
+
       // Si no hay contratistas, no mostramos la fila
       if (contractors.length === 0) {
         return false;
@@ -593,36 +735,68 @@ export const employeeColumns: ColumnDef<ReturnType<typeof formatEmployeesForTabl
 
       // Comprobamos si algún contratista coincide con el filtro
       return contractors.some((contractor) => {
-        const name = contractor?.contractor_id;
-        return name && filterValue.includes(name);
+        const name = contractor?.customers?.name;
+        return name && filterValue.flat().includes(name);
       });
     },
   },
+
   {
-    accessorKey: 'phone',
-    id: 'Teléfono',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
+    accessorKey: 'date_of_admission',
+    id: 'Fecha de ingreso',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de ingreso" />,
     cell: ({ row }) => {
-      return <div>{row.original.phone || '-'}</div>;
-    },
-  },
-  {
-    accessorKey: 'nationality',
-    id: 'Nacionalidad',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Nacionalidad" />,
-    cell: ({ row }) => {
-      return <div>{row.original.nationality || '-'}</div>;
+      return <div>{row.original.date_of_admission || '-'}</div>;
     },
     filterFn: (row, id, value) => {
       return value.includes(String(row.getValue(id)));
     },
   },
   {
-    accessorKey: 'gender',
-    id: 'Genero',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Genero" />,
+    accessorKey: 'cost_center_name',
+    id: 'Centro de costo',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Centro de costo" />,
     cell: ({ row }) => {
-      return <div>{row.original.gender || '-'}</div>;
+      console.log(row.original);
+      return <div>{row.original.cost_center_name || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'affiliate_status',
+    id: 'Estado de afiliación',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado de afiliación" />,
+    cell: ({ row }) => {
+      return <div>{row.original.affiliate_status || '-'}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+  },
+  {
+    accessorKey: 'status',
+    id: 'Estado',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    cell: ({ row }) => {
+      type BadgeVariant = NonNullable<React.ComponentProps<typeof Badge>['variant']>;
+      type StatusType = 'Completo' | 'Incompleto' | 'Completo con doc vencida' | 'default';
+
+      const variantStatus: Record<StatusType, BadgeVariant> = {
+        Completo: 'success',
+        Incompleto: 'destructive',
+        'Completo con doc vencida': 'yellow',
+        default: 'default',
+      };
+      return (
+        <Badge
+          variant={row.original.status ? variantStatus[row.original.status as StatusType] || 'default' : 'default'}
+          className="capitalize"
+        >
+          {row.original.status || 'Sin estado'}
+        </Badge>
+      );
     },
     filterFn: (row, id, value) => {
       return value.includes(String(row.getValue(id)));

@@ -93,7 +93,7 @@ export async function createWorkDiagram(workDiagram: {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) throw new Error('No company ID found');
 
-  const { data, error } = await supabase.from('work-diagram').insert(workDiagram).returns<WorkDiagram[]>();
+  const { data, error } = await supabase.from('work_diagram').insert(workDiagram).returns<WorkDiagram[]>();
 
   if (error) {
     console.error('Error creating work diagram:', error);
@@ -117,7 +117,7 @@ export async function updateWorkDiagram(workDiagram: {
   if (!company_id) throw new Error('No company ID found');
 
   const { data, error } = await supabase
-    .from('work-diagram')
+    .from('work_diagram')
     .update(workDiagram)
     .eq('id', workDiagram.id)
     .returns<WorkDiagram[]>();
@@ -136,7 +136,7 @@ export async function deleteWorkDiagram(workDiagram: { id: string }) {
   if (!company_id) throw new Error('No company ID found');
 
   const { data, error } = await supabase
-    .from('work-diagram')
+    .from('work_diagram')
     .delete()
     .eq('id', workDiagram.id)
     .returns<WorkDiagram[]>();
@@ -154,7 +154,7 @@ export async function fetchAllPositions() {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
-  const { data, error } = await supabase.from('company_position').select('*');
+  const { data, error } = await supabase.from('company_positions').select('*');
 
   if (error) {
     console.error('Error fetching positions:', error);
@@ -177,7 +177,7 @@ export async function createPosition(position: {
   try {
     // Primero creamos el puesto
     const { data: positionData, error: positionError } = await supabase
-      .from('company_position')
+      .from('company_positions')
       .insert({
         name: position.name,
         is_active: position.is_active,
@@ -235,7 +235,7 @@ export async function updatePosition(position: {
   try {
     // Primero actualizamos el puesto
     const { error: positionError } = await supabase
-      .from('company_position' as any)
+      .from('company_positions')
       .update({
         name: position.name,
         is_active: position.is_active,
@@ -252,7 +252,7 @@ export async function updatePosition(position: {
     if (position.aptitudes_tecnicas_id.length > 0) {
       // Primero eliminamos las relaciones existentes
       const { error: deleteError } = await supabase
-        .from('aptitudes_tecnicas_puestos' as any)
+        .from('aptitudes_tecnicas_puestos')
         .delete()
         .eq('puesto_id', position.id);
 
@@ -267,9 +267,7 @@ export async function updatePosition(position: {
         aptitud_id: aptitudeId,
       }));
 
-      const { error: insertError } = await supabase
-        .from('aptitudes_tecnicas_puestos' as any)
-        .insert(aptitudesRelations);
+      const { error: insertError } = await supabase.from('aptitudes_tecnicas_puestos').insert(aptitudesRelations);
 
       if (insertError) {
         console.error('Error creating new aptitudes relations:', insertError);
@@ -313,7 +311,7 @@ export async function fetchAllAptitudesTecnicas() {
 export async function fetchPositionAptitudes(positionId: string) {
   const supabase = supabaseServer();
   const { data, error } = await supabase
-    .from('aptitudes_tecnicas_puestos' as any)
+    .from('aptitudes_tecnicas_puestos')
     .select('aptitudes_tecnicas:aptitud_id(*)')
     .eq('puesto_id', positionId);
 

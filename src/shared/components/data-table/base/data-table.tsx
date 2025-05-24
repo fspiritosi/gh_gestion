@@ -34,6 +34,11 @@ interface FilterableColumn<TData> {
   showTo?: boolean;
   fromPlaceholder?: string;
   toPlaceholder?: string;
+  // Valores predeterminados para el filtro de fechas
+  defaultValues?: {
+    from: Date | null;
+    to: Date | null;
+  };
 }
 
 interface SearchableColumn {
@@ -42,13 +47,22 @@ interface SearchableColumn {
 }
 
 import { cn } from '@/lib/utils';
-import type { Table as TableType } from '@tanstack/react-table';
+import type { Table as TableType, Updater } from '@tanstack/react-table';
+export interface BulkActionProps<TData> {
+  enabled?: boolean; // Activar/desactivar funcionalidad
+  label?: string; // Etiqueta del botón
+  icon?: React.ReactNode; // Icono opcional
+  onClick: (rows: TData[]) => void; // Función a ejecutar con las filas seleccionadas
+}
 
 interface ToolbarOptions<TData> {
   filterableColumns?: FilterableColumn<TData>[];
   searchableColumns?: SearchableColumn[];
   showViewOptions?: boolean;
+  showFilterOptions?: boolean; // Nueva opción para mostrar el selector de filtros
+  initialVisibleFilters?: string[]; // Filtros inicialmente visibles
   extraActions?: React.ReactNode | ((table: TableType<TData>) => React.ReactNode);
+  bulkAction?: BulkActionProps<TData>;
 }
 
 interface DataTableProps<TData, TValue> {
@@ -61,7 +75,9 @@ interface DataTableProps<TData, TValue> {
   tableId?: string; // ID para persistencia
   initialColumnVisibility?: VisibilityState; // Estado inicial de columnas
   savedVisibility: VisibilityState;
-  row_classname?: string;
+  row_classname?: (row: TData) => string | string;
+  bulkAction?: BulkActionProps<TData>;
+  onColumnFiltersChange?: (filters: Updater<ColumnFiltersState>) => void;
 }
 
 export function BaseDataTable<TData, TValue>({
@@ -72,9 +88,9 @@ export function BaseDataTable<TData, TValue>({
   paginationComponent,
   className = '',
   tableId,
-  initialColumnVisibility,
   savedVisibility,
   row_classname,
+  onColumnFiltersChange,
 }: DataTableProps<TData, TValue>) {
   // Intentar cargar la visibilidad guardada antes del renderizado inicial si hay tableId
   // const savedVisibility = savedColumns
@@ -98,17 +114,18 @@ export function BaseDataTable<TData, TValue>({
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    // En BaseDataTable.tsx, modificar la llamada al callback:
+    onColumnFiltersChange: (updater) => {
+      const newFilters = typeof updater === 'function' ? updater(columnFilters) : updater;
+      setColumnFilters(newFilters);
+
+      // Llamar al callback si existe, pasando el valor final, no el updater
+      if (onColumnFiltersChange) {
+        onColumnFiltersChange(newFilters);
+      }
+    },
     onColumnVisibilityChange: (visibility) => {
       setColumnVisibility(visibility);
-
-      // console.log(visibility, 'visibility');
-      // Guardar las preferencias en localStorage cuando cambian
-      // console.log(visibility, 'visibility');
-      // cookiejs.set(`table-columns-${tableId}`, JSON.stringify(visibility));
-      // if (tableId && typeof window !== 'undefined') {
-      // localStorage.setItem(`table-columns-${tableId}`, JSON.stringify(visibility));
-      // }
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -125,7 +142,9 @@ export function BaseDataTable<TData, TValue>({
           table={table}
           filterableColumns={toolbarOptions.filterableColumns}
           searchableColumns={toolbarOptions.searchableColumns}
+          initialVisibleFilters={toolbarOptions.initialVisibleFilters}
           showViewOptions={toolbarOptions.showViewOptions}
+          bulkAction={toolbarOptions.bulkAction}
           extraActions={
             typeof toolbarOptions.extraActions === 'function'
               ? toolbarOptions.extraActions(table)
@@ -153,7 +172,15 @@ export function BaseDataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  className={onRowClick ? cn(row_classname, 'hover:cursor-pointer') : row_classname}
+                  className={
+                    typeof row_classname === 'string'
+                      ? cn(row_classname, onRowClick && 'hover:cursor-pointer')
+                      : row_classname
+                        ? row_classname(row.original)
+                        : onRowClick
+                          ? 'hover:cursor-pointer'
+                          : ''
+                  }
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                   onClick={() => onRowClick && onRowClick(row.original)}

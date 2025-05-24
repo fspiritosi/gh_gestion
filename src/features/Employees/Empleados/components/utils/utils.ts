@@ -4,6 +4,14 @@ export const formatEmployeesForTable = (employees: Awaited<ReturnType<typeof fet
   return employees?.map((employee) => ({
     ...employee,
     fullName: `${employee.firstname} ${employee.lastname}`,
+    city: employee?.cities?.name,
+    province: employee?.provinces?.name,
+    country: employee?.countries?.name,
+    hierarchical_position: employee?.hierarchy?.name,
+    company_position: employee?.company_positions?.name,
+    workflow_diagram: employee?.work_diagram?.name,
+    contractor_employee: employee?.contractor_employee,
+    cost_center_name: employee?.cost_center?.name,
   }));
 };
 
@@ -14,7 +22,7 @@ export const createFilterOptions = <T extends any>(
   icon?: React.ComponentType<{ className?: string }>
 ) => {
   return Array.from(new Set(data?.map(accessor).filter(Boolean))).map((value) => ({
-    label: value || '',
+    label: typeof value === 'string' ? value.replaceAll('_', ' ') : value || '',
     value: value || '',
     icon,
   }));

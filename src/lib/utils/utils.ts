@@ -93,7 +93,7 @@ export const setEmployeesToShow = (employees: any) => {
       city: employees?.city?.name?.trim(),
       hierrl_position: employees?.hierarchical_position?.name,
       workflow_diagram: employees?.workflow_diagram?.name,
-      contractor_employee: employees?.contractor_employee?.map(({ contractors }: any) => contractors?.id),
+      contractor_employee: employees?.contractor_employee?.map(({ customers }: any) => customers?.id),
       is_active: employees?.is_active,
       reason_for_termination: employees?.reason_for_termination,
       termination_date: employees?.termination_date,

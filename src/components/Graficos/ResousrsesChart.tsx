@@ -41,7 +41,6 @@ export function ResoursesChart() {
   const [data, setData] = useState<ChartData>();
 
   const company_id = cookie.get('actualComp');
-  console.log(company_id);
 
   const dataChart = [
     {

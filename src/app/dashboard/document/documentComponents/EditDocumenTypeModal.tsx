@@ -221,7 +221,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
         // Añadir metadatos de relación para uso en BD
         const meta = relationMeta[propConfig.accessor_key] || null;
 
-
         return {
           property_key: propConfig.accessor_key,
           values: condition.values,
@@ -458,7 +457,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
               document_path: null,
               user_id: user?.data.user?.id,
             }));
-
 
             // Insertamos todas las alertas nuevas en una sola operación
             const { error: insertError } = await supabase
@@ -866,7 +864,6 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
     fetchAndSetupVehicles();
   }, [vehicles, employees]);
 
-
   const addCondition = () => {
     setConditions((prev) => [...prev, { property: '', values: [], id: Date.now().toString() }]);
   };
@@ -1041,9 +1038,7 @@ export function EditModal({ Equipo, employeeMockValues, vehicleMockValues, emplo
                   </TooltipProvider>
                 </div>
                 {form.getValues('special') === true && (
-
                   <div className="mt-4 border rounded-lg p-4 bg-slate-50 dark:bg-slate-950">
-
                     <div className="flex justify-between flex-col items-center mb-4">
                       <h3 className="font-semibold text-lg mb-2">Condiciones Especiales</h3>
                       <div className="flex justify-around w-full">

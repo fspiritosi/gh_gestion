@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
+import { createFilterOptions, formatEmployeesForTable } from '@/features/Employees/Empleados/components/utils/utils';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
@@ -15,7 +15,6 @@ import { EquipmentColums } from '@/app/dashboard/equipment/columns';
 import { EquipmentTable } from '@/app/dashboard/equipment/data-equipment';
 import { fetchAllEquipment } from '@/app/server/GET/actions';
 import { EmployeesTableReusable } from '@/features/Employees/Empleados/components/tables/data/employees-table';
-import { fetchAllEmployees } from '@/shared/actions/employees.actions';
 interface Customer {
   id: string;
   name: string;
@@ -35,7 +34,7 @@ interface DataCustomersProps<TData, TValue> {
   savedCustomers?: string;
   company_id: string;
   id?: string;
-  employees?: Awaited<ReturnType<typeof fetchAllEmployees>>;
+  employees?: ReturnType<typeof formatEmployeesForTable>;
   equipments?: Awaited<ReturnType<typeof fetchAllEquipment>>;
   // Nuevas props para servicios
   services?: any[];
@@ -110,7 +109,7 @@ export function DataCustomers<TData extends Customer, TValue>({
           </TabsList>
 
           <TabsContent value="detalle">
-            <div className="bg-white p-6 rounded-lg border">
+            <div className=" p-6 rounded-lg border">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-semibold">Información del Cliente</h3>
                 <Button variant="gh_orange" onClick={() => setIsEditing(!isEditing)}>
@@ -129,7 +128,7 @@ export function DataCustomers<TData extends Customer, TValue>({
           </TabsContent>
 
           <TabsContent value="empleados">
-            <div className="bg-white p-6 rounded-lg border">
+            <div className=" p-6 rounded-lg border">
               <h3 className="text-xl font-semibold mb-6">Empleados del Cliente</h3>
               <p className="text-muted-foreground">Módulo de empleados en desarrollo...</p>
               <EmployeesTableReusable
@@ -141,7 +140,7 @@ export function DataCustomers<TData extends Customer, TValue>({
           </TabsContent>
 
           <TabsContent value="equipos">
-            <div className="bg-white p-6 rounded-lg border">
+            <div className=" p-6 rounded-lg border">
               <h3 className="text-xl font-semibold mb-6">Equipos del Cliente</h3>
               <p className="text-muted-foreground">Módulo de equipos en desarrollo...</p>
               <EquipmentTable columns={EquipmentColums || []} data={customerEquipments || []} />
@@ -149,7 +148,7 @@ export function DataCustomers<TData extends Customer, TValue>({
           </TabsContent>
 
           <TabsContent value="contratos">
-            <div className="bg-white p-6 rounded-lg border">
+            <div className=" p-6 rounded-lg border">
               <h3 className="text-xl font-semibold mb-6">Contratos del Cliente</h3>
               {selectedCustomer ? (
                 <ServiceTable

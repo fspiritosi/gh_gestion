@@ -9,7 +9,7 @@ import { cookies } from 'next/headers';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getRole } from '@/lib/utils/getRole';
 import VehiclesForm, { generic } from '../../../../components/VehiclesForm';
-import { fetchAllCostCenter } from '../../employee/action/actions/actions';
+import { fetchAllCostCenter, fetchContractorCompanies } from '../../employee/action/actions/actions';
 
 export default async function EquipmentFormAction({ searchParams }: { searchParams: any }) {
   const supabase = supabaseServer();
@@ -31,18 +31,19 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
     //const newVehicle = await fetchEquipmentById(searchParams.id);
     const { data: vehicleData, error } = await supabase
       .from('vehicles')
-      .select('*, brand_vehicles(name), model_vehicles(name),types_of_vehicles(name),type(name)')
+      .select('*, brand_vehicles(name),model_vehicles(name),types_of_vehicles(name),type(name),contractor_equipment(*)')
       .eq('id', searchParams.id);
     // .eq('company_id', actualCompany?.value);
 
     if (error) console.log('eroor', error);
 
-    vehicle = vehicleData?.map((item: any) => ({
+    vehicle = vehicleData?.map((item) => ({
       ...item,
-      type_of_vehicle: item.types_of_vehicles.name,
-      brand: item.brand_vehicles.name,
-      model: item.model_vehicles.name,
-      type: item.type.name,
+      type_of_vehicle: item.types_of_vehicles?.name,
+      brand: item.brand_vehicles?.name,
+      model: item.model_vehicles?.name,
+      type: item.type?.name,
+      allocated_to: item.contractor_equipment?.map((e) => e.contractor_id),
     }));
     //console.log('vehicle-new-fetch', newVehicle);
   }
@@ -58,6 +59,7 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
     .or(`company_id.eq.${company_id?.value},company_id.is.null`);
 
   const allCostCenter = await fetchAllCostCenter();
+  const contractorCompanies = await fetchContractorCompanies();
 
   const role = await getRole();
   return (
@@ -74,9 +76,10 @@ export default async function EquipmentFormAction({ searchParams }: { searchPara
           types={types as generic[]}
           brand_vehicles={brand_vehicles}
           allCostCenter={allCostCenter}
+          contractorCompanies={contractorCompanies}
         >
           <TabsContent value="documents">
-            <DocumentEquipmentComponent id={vehicle?.[0]?.id} role={role as string} />
+            <DocumentEquipmentComponent id={vehicle?.[0]?.id || ''} role={role as string} />
           </TabsContent>
           <TabsContent value="repairs" className="px-3 py-2">
             <RepairTypes

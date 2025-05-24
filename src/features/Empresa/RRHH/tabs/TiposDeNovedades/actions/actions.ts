@@ -39,7 +39,6 @@ export async function createDiagramType({ name, color, short_description, work_a
       .from('diagram_type')
       .insert({ name, company_id, color, short_description, work_active, is_active });
 
-    console.log(data, 'data');
     console.log(error, 'error');
 
     if (!error) {

@@ -1,14 +1,16 @@
 'use client';
+import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { createFilterOptions } from '@/features/Employees/Empleados/components/utils/utils';
 import { BaseDataTable } from '@/shared/components/data-table/base/data-table';
 import { DataTableColumnHeader } from '@/shared/components/data-table/base/data-table-column-header';
-import { ColumnDef, FilterFn, Row, VisibilityState } from '@tanstack/react-table';
+import { ColumnDef, ColumnFiltersState, FilterFn, Row, Updater, VisibilityState } from '@tanstack/react-table';
+import { endOfMonth, format, startOfMonth } from 'date-fns';
 import moment from 'moment';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { getDailyReports, updateDailyReportStatus } from './actions/actions';
+import { useCallback, useEffect, useState } from 'react';
+import { fetchDailyReportsWithFilters, getDailyReports, getDailyReportsForCurrentMonth } from './actions/actions';
+import { dailyReportStatus } from './utils/utils';
 
 const dateRangeFilter: FilterFn<Awaited<ReturnType<typeof getDailyReports>>[number]> = (
   row: Row<Awaited<ReturnType<typeof getDailyReports>>[number]>,
@@ -18,9 +20,9 @@ const dateRangeFilter: FilterFn<Awaited<ReturnType<typeof getDailyReports>>[numb
 ) => {
   const validityRaw = row.original.date;
   const { from, to } = filterValue || {};
-  // console.log('[dateRangeFilter] row:', row);
-  // console.log('[dateRangeFilter] columnId:', columnId);
-  // console.log('[dateRangeFilter] filterValue:', filterValue);
+  console.log('[dateRangeFilter] row:', row);
+  console.log('[dateRangeFilter] columnId:', columnId);
+  console.log('[dateRangeFilter] filterValue:', filterValue);
   if (!validityRaw) {
     // console.log('[dateRangeFilter] No validity value, return false');
     return false;
@@ -75,39 +77,44 @@ export const reportColumnas: ColumnDef<Awaited<ReturnType<typeof getDailyReports
     id: 'Estado',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => {
-      const router = useRouter();
-
+      return <Badge variant={dailyReportStatus[row.original.status]}>{row.original.status.replaceAll('_', ' ')}</Badge>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    id: 'Sin Recursos',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Sin Recursos" />,
+    cell: ({ row }) => {
       return (
-        <Select
-          value={row.original.status ? 'abierto' : 'cerrado'}
-          onValueChange={async (value) => {
-            toast.promise(
-              async () => {
-                const newStatus = value === 'abierto';
-                await updateDailyReportStatus(row.original.id, newStatus);
-                router.refresh();
-              },
-              {
-                loading: 'Actualizando estado...',
-                success: 'Estado actualizado correctamente',
-                error: 'Error al actualizar estado',
-              }
-            );
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Seleccionar estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="abierto">Abierto</SelectItem>
-            <SelectItem value="cerrado">Cerrado</SelectItem>
-          </SelectContent>
-        </Select>
+        <Badge variant={'warning'}>
+          {row.original.dailyreportrows.filter((row) => row.status === 'sin_recursos_asignados').length}
+        </Badge>
       );
     },
     filterFn: (row, id, value) => {
-      const statusValue = row.original.status ? 'abierto' : 'cerrado';
-      return value.includes(statusValue);
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    id: 'Pendientes',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Pendientes" />,
+    cell: ({ row }) => {
+      return <Badge>{row.original.dailyreportrows.filter((row) => row.status === 'pendiente').length}</Badge>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    id: 'Total',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Total" />,
+    cell: ({ row }) => {
+      return <Badge>{row.original.dailyreportrows.length}</Badge>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
@@ -127,37 +134,144 @@ function DailyReportTable({
   dailyReports,
 }: {
   savedVisibility: VisibilityState;
-  dailyReports: Awaited<ReturnType<typeof getDailyReports>>;
+  dailyReports: Awaited<ReturnType<typeof getDailyReportsForCurrentMonth>>;
 }) {
-  const statusOptions = [
-    { value: 'abierto', label: 'Abierto' },
-    { value: 'cerrado', label: 'Cerrado' },
-  ];
+  const statusOptions = createFilterOptions(dailyReports, (dailyReport) => dailyReport.status);
+  // Estado para los datos mostrados actualmente
+  const [dailyRows, setDailyRows] = useState<Awaited<ReturnType<typeof getDailyReportsForCurrentMonth>>>(dailyReports);
+
+  // Estado para seguir los filtros actuales
+  const [currentFilters, setCurrentFilters] = useState<{
+    dateFrom: Date | null;
+    dateTo: Date | null;
+    status: string[] | null;
+  }>({
+    dateFrom: startOfMonth(new Date()), // Primer día del mes actual
+    dateTo: endOfMonth(new Date()), // Último día del mes actual
+    status: null,
+  });
+
+  // Estado para indicar carga
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Función para cargar datos basados en filtros
+  const fetchFilteredData = useCallback(async () => {
+    try {
+      // Verificar si hay filtros activos
+      const hasFiltros =
+        currentFilters.dateFrom !== null ||
+        currentFilters.dateTo !== null ||
+        (currentFilters.status !== null && currentFilters.status.length > 0);
+
+      // Si no hay filtros activos, restaurar los datos originales
+      if (!hasFiltros) {
+        // setDailyRows(dailyReports);
+        return;
+      }
+      setIsLoading(true);
+
+      // Formatear fechas para la API
+      const fromDate = currentFilters.dateFrom ? format(currentFilters.dateFrom, 'yyyy-MM-dd') : undefined;
+      const toDate = currentFilters.dateTo ? format(currentFilters.dateTo, 'yyyy-MM-dd') : undefined;
+
+      // Llamada a la API con parámetros de filtro
+      const response = await fetchDailyReportsWithFilters({
+        fromDate,
+        toDate,
+        status: currentFilters.status,
+      });
+
+      // Si obtenemos datos, actualizar el estado
+      if (response && response.length > 0) {
+        setDailyRows(response);
+      } else {
+        // Si no hay resultados con los filtros aplicados, mostrar mensaje
+        // toast.info('No se encontraron registros con los filtros aplicados');
+      }
+    } catch (error) {
+      console.error('Error al cargar los datos filtrados:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentFilters, dailyReports]);
+
+  // Efecto para cargar datos al inicio o cuando cambian los filtros
+  useEffect(() => {
+    fetchFilteredData();
+  }, [currentFilters]);
+
+  // Manejador para cambios en los filtros de columna
+  const handleColumnFiltersChange = useCallback((updatedFilters: Updater<ColumnFiltersState>) => {
+    // Convertir Updater<ColumnFiltersState> a ColumnFiltersState
+    const newFilters =
+      typeof updatedFilters === 'function'
+        ? updatedFilters([]) // Si es una función, pasarle un array vacío (simplificado)
+        : updatedFilters; // Si es un valor directo, usarlo como está
+    // Extraer filtro de fecha
+    const dateFilter = newFilters.find((f) => f.id === 'Fecha')?.value as
+      | { from: Date | null; to: Date | null }
+      | undefined;
+    // Extraer filtro de estado
+    const statusFilter = newFilters.find((f) => f.id === 'Estado')?.value as string[] | undefined;
+    if (!dateFilter && !statusFilter) {
+      setCurrentFilters({
+        dateFrom: startOfMonth(new Date()),
+        dateTo: endOfMonth(new Date()),
+        status: null,
+      });
+      setDailyRows(dailyReports);
+    }
+    // Actualizar el estado de filtros actuales
+    setCurrentFilters((prev) => ({
+      dateFrom: dateFilter?.from ?? prev.dateFrom,
+      dateTo: dateFilter?.to ?? prev.dateTo,
+      status: statusFilter ?? prev.status,
+    }));
+  }, []);
+
   return (
-    <BaseDataTable
-      tableId="dailyReportTable"
-      columns={reportColumnas}
-      data={dailyReports}
-      savedVisibility={savedVisibility}
-      toolbarOptions={{
-        filterableColumns: [
-          {
-            columnId: 'Fecha',
-            title: 'Fecha',
-            type: 'date-range',
-            fromPlaceholder: 'Desde (Fecha)',
-            toPlaceholder: 'Hasta (Fecha)',
-            showFrom: true,
-            showTo: true,
-          },
-          {
-            columnId: 'Estado',
-            title: 'Estado',
-            options: statusOptions,
-          },
-        ],
-      }}
-    />
+    <div className="relative">
+      {isLoading && (
+        <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 flex items-center justify-center z-10">
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 p-2 rounded-md shadow-md">
+            <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
+            <span className="text-sm font-medium">Cargando...</span>
+          </div>
+        </div>
+      )}
+
+      <BaseDataTable
+        tableId="dailyReportTable"
+        columns={reportColumnas}
+        data={dailyRows}
+        row_classname={(row) => (row.status === 'cerrado_incompleto' ? 'bg-red-400/30' : '')}
+        savedVisibility={savedVisibility}
+        onColumnFiltersChange={(data) => handleColumnFiltersChange(data)}
+        toolbarOptions={{
+          filterableColumns: [
+            {
+              columnId: 'Fecha',
+              title: 'Fecha',
+              type: 'date-range',
+              fromPlaceholder: 'Desde (Fecha)',
+              toPlaceholder: 'Hasta (Fecha)',
+              showFrom: true,
+              showTo: true,
+              // Valores iniciales para los datepickers
+              // defaultValues: {
+              //   from: currentFilters.dateFrom,
+              //   to: currentFilters.dateTo,
+              // },
+            },
+            {
+              columnId: 'Estado',
+              title: 'Estado',
+              options: statusOptions,
+            },
+          ],
+        }}
+      />
+    </div>
   );
 }
 

@@ -1,5 +1,37 @@
 import type { Database as DB } from '../../../database.types';
+export interface DailyReportRowHistoryRecord {
+  id: string;
+  action_type: 'CREATE' | 'UPDATE' | 'DELETE' | 'LINK' | 'UNLINK';
+  created_at: string;
+  changed_by: {
+    id: string;
+    email: string;
+    raw_user_meta_data?: {
+      full_name?: string;
+    };
+  } | null;
+  changed_fields?: Record<string, { old: any; new: any }>;
+  related_table: string;
+  related_id: string;
+  changed_data?: any;
+}
 
+// También definimos un tipo para el historial procesado que retornamos
+export interface ProcessedHistoryEntry {
+  id: string;
+  actionType: string;
+  timestamp: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  } | null;
+  changes: Array<any>;
+  relatedTable: string;
+  relatedId: string;
+  message: string;
+  displayTime: string;
+}
 // EXPORTAR TIPOS GLOBALES
 declare global {
   // Tipos de tablas
@@ -10,11 +42,13 @@ declare global {
   type Vehicle = DB['public']['Tables']['vehicles']['Row']; // Anteriormente: Vehicles
   type VehicleBrand = DB['public']['Tables']['brand_vehicles']['Row']; // Anteriormente: Brand
   type DocumentTypes = DB['public']['Tables']['document_types']['Row']; // Anteriormente: TypeOfDocuments
+  type DailyReportStatus = DB['public']['Enums']['daily_report_header_status_new'];
+  type DailyReportRowStatus = DB['public']['Enums']['daily_report_status'];
   type Company = DB['public']['Tables']['company']['Row']; // Anteriormente: Company
   type EmployeeDocument = DB['public']['Tables']['documents_employees']['Row']; // Anteriormente: DocumentEmployees
   type Employee = DB['public']['Tables']['employees']['Row']; // Anteriormente: Employees
   type EquipmentDocument = DB['public']['Tables']['documents_equipment']['Row']; // Anteriormente: DocumentEquipment
-  type Diagram = DB['public']['Tables']['work-diagram']['Row']; // Anteriormente: Diagram
+  type Diagram = DB['public']['Tables']['work_diagram']['Row']; // Anteriormente: Diagram
   type ContractorEmployee = DB['public']['Tables']['contractor_employee']['Row']; // Anteriormente: ContractorEmployee
   type Customer = DB['public']['Tables']['customers']['Row']; // Anteriormente: Customers
   type VehicleModel = DB['public']['Tables']['model_vehicles']['Row']; // Anteriormente: Model
@@ -31,7 +65,7 @@ declare global {
   type City = DB['public']['Tables']['cities']['Row']; // Anteriormente: City
   type Sector = DB['public']['Tables']['sectors']['Row']; // Anteriormente: Sector
   type Province = DB['public']['Tables']['provinces']['Row']; // Anteriormente: Province
-  type WorkflowDiagram = DB['public']['Tables']['work-diagram']['Row']; // Anteriormente: WorkflowDiagram
+  type WorkflowDiagram = DB['public']['Tables']['work_diagram']['Row']; // Anteriormente: WorkflowDiagram
   type HierarchicalPosition = DB['public']['Tables']['hierarchy']['Row']; // Anteriormente: HierarchicalPosition
   type ServiceItem = DB['public']['Tables']['service_items']['Row']; // Anteriormente: ServiceItems
   type MeasureUnit = DB['public']['Tables']['measure_units']['Row']; // Anteriormente: ItemMensureUnits

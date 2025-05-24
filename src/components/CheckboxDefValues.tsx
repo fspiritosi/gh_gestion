@@ -20,10 +20,10 @@ type Props = {
   required?: boolean;
 };
 
-export function CheckboxDefaultValues({ options, field, placeholder, disabled, required }: Props) {
+export function CheckboxDefaultValues({ options, field, placeholder, disabled, required, defaultValues }: Props) {
   function SelectValue() {
     // Obtén el valor actual del select de alguna manera
-    const value = `${field?.value?.length || 0} elementos seleccionados`;
+    const value = `${field?.value?.length || defaultValues?.length || 0} elementos seleccionados`;
 
     // Si no hay ningún valor seleccionado, muestra el placeholder
     if (!value) {
@@ -52,8 +52,8 @@ export function CheckboxDefaultValues({ options, field, placeholder, disabled, r
               <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0">
                 <FormControl>
                   <Checkbox
+                    defaultChecked={defaultValues?.includes(String(item.id)) || field?.value?.includes(String(item.id))}
                     disabled={disabled}
-                    checked={field?.value?.includes(String(item.id))}
                     onCheckedChange={(checked) => {
                       const updatedValue = field?.value || []; // Initialize as an empty array if field.value is undefined
                       return checked

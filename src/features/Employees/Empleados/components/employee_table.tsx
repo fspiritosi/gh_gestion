@@ -9,6 +9,7 @@ async function EmployeeTable() {
   const formattedEmployees = formatEmployeesForTable(employees);
   const cookiesStore = cookies();
   const savedVisibility = cookiesStore.get(`employees-table`)?.value;
+  const savedFilters = cookiesStore.get(`employees-table-filters`)?.value;
 
   // console.log(savedVisibility, 'savedVisibility');
 
@@ -18,6 +19,7 @@ async function EmployeeTable() {
         employees={formattedEmployees}
         tableId="employees-table"
         savedVisibility={JSON.parse(savedVisibility || '{}') as VisibilityState}
+        savedFilters={JSON.parse(savedFilters || '[]')}
       />
     </div>
   );

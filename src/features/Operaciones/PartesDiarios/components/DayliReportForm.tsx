@@ -16,6 +16,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { es } from 'date-fns/locale';
+import moment from 'moment';
 
 const FormSchema = z.object({
   date: z.date({
@@ -33,13 +34,13 @@ export default function DayliReportForm() {
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     toast.promise(
       async () => {
-        const exists = await checkDailyReportExists(format(data.date, 'yyyy-MM-dd'));
+        const exists = await checkDailyReportExists([format(data.date, 'yyyy-MM-dd')]);
 
-        if (exists) {
+        if (exists.length > 0) {
           throw new Error('Ya existe un parte diario para esta fecha.');
         }
 
-        const created = await createDailyReport(format(data.date, 'yyyy-MM-dd'));
+        const created = await createDailyReport([format(data.date, 'yyyy-MM-dd')]);
         if (created?.[0].id) {
           router.push(`/dashboard/operations/${created[0].id}`);
         }
@@ -79,10 +80,10 @@ export default function DayliReportForm() {
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
+                      disabled={(date) => moment(date).isBefore(moment().subtract(1, 'days'))}
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date > new Date()}
                       initialFocus
                     />
                   </PopoverContent>

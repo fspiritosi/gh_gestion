@@ -11,7 +11,6 @@ export const setNewCompanyUserMetadata = async (company_id: string) => {
     data: { user },
   } = await supabase.auth.getUser();
 
-
   if (user?.app_metadata?.company !== company_id && company_id) {
     const { data, error } = await supabase.auth.admin.updateUserById(user?.id || '', {
       app_metadata: {
@@ -23,7 +22,6 @@ export const setNewCompanyUserMetadata = async (company_id: string) => {
       console.error('Error updating user metadata:', error);
       return;
     }
-
   }
 
   return;
@@ -81,7 +79,6 @@ export const fetchAllEmployeesWithRelationsById = async (id: string) => {
   const company_id = cookiesStore.get('actualComp')?.value;
   const user = await fetchCurrentUser();
   if (!company_id) return [];
-
 
   let { data, error } = await supabase
     .from('employees')
@@ -141,9 +138,6 @@ export const fetchAllEquipmentWithRelationsById = async (id: string) => {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
-
-
-  
   const { data, error } = await supabase
     .from('vehicles')
     .select('*,brand(*),model(*),type(*),types_of_vehicles(*),contractor_equipment(*,contractor_id(*))')
@@ -525,6 +519,9 @@ export const getNextMonthExpiringDocumentsEmployees = async () => {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!company_id) return [];
 
   const today = moment().startOf('day');
@@ -532,11 +529,12 @@ export const getNextMonthExpiringDocumentsEmployees = async () => {
 
   const { data, error } = await supabase
     .from('documents_employees')
-    .select('*,id_document_types(*),applies(*,contractor_employee(*, customers(*)))')
+    .select('*,id_document_types(*),applies!inner(*,contractor_employee(*, customers(*)))')
     // .eq('applies.is_active', true)
     .not('id_document_types.is_it_montlhy', 'is', true)
     .or(`validity.lte.${today.toISOString()},validity.lte.${nextMonth.toISOString()}`)
     .not('validity', 'is', null)
+    .eq('applies.company_id', company_id || user?.app_metadata?.company_id || '')
     .order('validity', { ascending: true }) // Ordenar por fecha de validez en orden ascendente
     .returns<EmployeeDocumentWithContractors[]>();
 
@@ -550,6 +548,9 @@ export const getNextMonthExpiringDocumentsVehicles = async () => {
   const cookiesStore = cookies();
   const supabase = supabaseServer();
   const company_id = cookiesStore.get('actualComp')?.value;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!company_id) return [];
 
   const today = moment().startOf('day');
@@ -557,8 +558,8 @@ export const getNextMonthExpiringDocumentsVehicles = async () => {
 
   const { data, error } = await supabase
     .from('documents_equipment')
-    .select('*,id_document_types(*),applies(*,type(*),brand(*),model(*))')
-    .eq('applies.company_id', company_id)
+    .select('*,id_document_types(*),applies!inner(*,type(*),brand(*),model(*))')
+    .eq('applies.company_id', company_id || user?.app_metadata?.company_id || '')
     .not('id_document_types.is_it_montlhy', 'is', true)
     .not('id_document_types', 'is', null)
     .or(`validity.lte.${today.toISOString()},validity.lte.${nextMonth.toISOString()}`)
@@ -696,7 +697,7 @@ export const fetchWorkDiagrams = async () => {
   const company_id = cookiesStore.get('actualComp')?.value;
   if (!company_id) return [];
 
-  const { data, error } = await supabase.from('work-diagram').select('*');
+  const { data, error } = await supabase.from('work_diagram').select('*');
 
   if (error) {
     console.error('Error fetching work diagrams:', error);

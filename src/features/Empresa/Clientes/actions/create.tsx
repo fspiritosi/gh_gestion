@@ -232,7 +232,6 @@ export async function updateArea(values: any) {
         // Verificar si el área está siendo usada en contratos
         const isUsed = await isAreaUsedInContracts(values.id);
         if (isUsed) {
-          console.log('Área en uso, no se puede cambiar el cliente');
           return {
             status: 400,
             body: 'No se puede cambiar el cliente de un área que está siendo utilizada en contratos existentes',
@@ -401,6 +400,25 @@ export async function fetchAllSectors() {
   const supabase = supabaseServer();
   try {
     const { data: sectors, error } = await supabase.from('sectors').select('*,sector_customer(*, customers(*))');
+    // .returns<SectorWithCustomers[]>();
+
+    if (error) {
+      console.error(error);
+      return [];
+    }
+    return sectors;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+export async function fetchAllContractorSectorBySectorIds(sectorIds: string[]) {
+  const supabase = supabaseServer();
+  try {
+    const { data: sectors, error } = await supabase
+      .from('sector_customer')
+      .select('*,sectors(*),customers(*)')
+      .in('sector_id', sectorIds);
     // .returns<SectorWithCustomers[]>();
 
     if (error) {

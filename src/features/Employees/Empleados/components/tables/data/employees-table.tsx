@@ -16,6 +16,7 @@ interface EmployeesTableProps {
   tableId?: string;
   savedVisibility: VisibilityState;
   row_classname?: string;
+  savedFilters?: string[];
 }
 
 // Función especial para propiedades anidadas complejas como las afectaciones
@@ -47,24 +48,24 @@ export function EmployeesTableReusable({
   tableId = 'employees-table',
   savedVisibility,
   row_classname,
+  savedFilters,
 }: EmployeesTableProps) {
   const router = useRouter();
 
   // Generar todas las opciones de filtro utilizando las funciones utilitarias
   const positions = createFilterOptions(
     employees,
-    (employee) => (employee?.hierarchical_position as any)?.name,
+    (employee) => employee?.hierarchy?.name,
     Briefcase // Icono de maletín para cargos/posiciones
   );
 
   const afectacionesOpciones = createNestedFilterOptions(
-    employees,
-    (employee) =>
-      (employee as any)?.contractor_employee
-        ?.map((contractor: any) => contractor?.contractor_id?.name)
-        .filter(Boolean) || [],
+    employees?.filter((employee) => employee?.contractor_employee?.length > 0),
+    (employee) => employee?.contractor_employee.map((contractor) => contractor?.customers?.name).filter(Boolean) || [],
     Building // Icono de edificio para afectaciones/contratistas
   );
+
+  console.log(employees, 'employees');
 
   const contractTypes = createFilterOptions(
     employees,
@@ -101,7 +102,25 @@ export function EmployeesTableReusable({
     (employee) => employee?.gender,
     FileText // Icono para género
   );
+  const documenNumber = createFilterOptions(employees, (employee) => employee?.document_number);
+  const maritalStatus = createFilterOptions(employees, (employee) => employee?.marital_status);
+  const levelOfEducation = createFilterOptions(employees, (employee) => employee?.level_of_education);
+  const street = createFilterOptions(employees, (employee) => employee?.street);
+  const streetNumber = createFilterOptions(employees, (employee) => employee?.street_number);
 
+  const city = createFilterOptions(employees, (employee) => employee?.cities?.name);
+  const postalCode = createFilterOptions(employees, (employee) => employee?.postal_code);
+  const phone = createFilterOptions(employees, (employee) => employee?.phone);
+  const email = createFilterOptions(employees, (employee) => employee?.email);
+  const legajo = createFilterOptions(employees, (employee) => employee?.file);
+  const sector = createFilterOptions(employees, (employee) => employee?.hierarchy?.name);
+  const puesto = createFilterOptions(employees, (employee) => employee?.company_positions?.name);
+  const diagram = createFilterOptions(employees, (employee) => employee?.work_diagram?.name);
+  const normalHours = createFilterOptions(employees, (employee) => employee?.normal_hours);
+  const costCenter = createFilterOptions(employees, (employee) => employee?.cost_center_name);
+  const affiliateStatus = createFilterOptions(employees, (employee) => employee?.affiliate_status);
+  const status = createFilterOptions(employees, (employee) => employee?.affiliate_status);
+  const nombres = createFilterOptions(employees, (employee) => employee?.firstname + ' ' + employee?.lastname);
   const handleRowClick = (employee: EmployeeTableData) => {
     if (onRowClick) {
       onRowClick(employee);
@@ -116,15 +135,21 @@ export function EmployeesTableReusable({
       data={(employees as any) || []}
       onRowClick={handleRowClick}
       className={className}
-      row_classname={row_classname}
       tableId={tableId}
       savedVisibility={savedVisibility}
       toolbarOptions={{
+        showFilterOptions: true,
+        initialVisibleFilters: savedFilters,
         filterableColumns: [
           {
-            columnId: 'Estado',
-            title: 'Estado',
-            options: statuses,
+            columnId: 'Nombre',
+            title: 'Nombre',
+            options: nombres,
+          },
+          {
+            columnId: 'Nacionalidad',
+            title: 'Nacionalidad',
+            options: nationality,
           },
           {
             columnId: 'Cuil',
@@ -132,13 +157,18 @@ export function EmployeesTableReusable({
             options: cuils,
           },
           {
+            columnId: 'Estado',
+            title: 'Estado',
+            options: statuses,
+          },
+          {
             columnId: 'Tipo de Documento',
             title: 'Tipo de Documento',
             options: tiposDocumento,
           },
           {
-            columnId: 'Cargo',
-            title: 'Cargo',
+            columnId: 'Sector',
+            title: 'Sector',
             options: positions,
           },
           {
@@ -152,18 +182,98 @@ export function EmployeesTableReusable({
             options: afectacionesOpciones,
           },
           {
-            columnId: 'Nacionalidad',
-            title: 'Nacionalidad',
-            options: nationality,
-          },
-          {
             columnId: 'Genero',
             title: 'Genero',
             options: gender,
           },
+          {
+            columnId: 'Documento',
+            title: 'Documento',
+            options: documenNumber,
+          },
+          {
+            columnId: 'Estado Civil',
+            title: 'Estado Civil',
+            options: maritalStatus,
+          },
+          {
+            columnId: 'Nivel de Educacion',
+            title: 'Nivel de Educacion',
+            options: levelOfEducation,
+          },
+          {
+            columnId: 'Calle',
+            title: 'Domicilio',
+            options: street,
+          },
+          {
+            columnId: 'Altura',
+            title: 'Altura',
+            options: streetNumber,
+          },
+          {
+            columnId: 'Ciudad',
+            title: 'Ciudad',
+            options: city,
+          },
+          {
+            columnId: 'CP',
+            title: 'Codigo Postal',
+            options: postalCode,
+          },
+          {
+            columnId: 'Teléfono',
+            title: 'Telefono',
+            options: phone,
+          },
+          {
+            columnId: 'Email',
+            title: 'Email',
+            options: email,
+          },
+          {
+            columnId: 'Legajo',
+            title: 'Legajo',
+            options: legajo,
+          },
+          {
+            columnId: 'Sector',
+            title: 'Sector',
+            options: sector,
+          },
+          {
+            columnId: 'Puesto',
+            title: 'Puesto',
+            options: puesto,
+          },
+          {
+            columnId: 'Diagrama',
+            title: 'Diagrama',
+            options: diagram,
+          },
+          {
+            columnId: 'Horas',
+            title: 'Horas',
+            options: normalHours,
+          },
+          {
+            columnId: 'Centro de costo',
+            title: 'Centro de Costo',
+            options: costCenter,
+          },
+          {
+            columnId: 'Estado',
+            title: 'Estado',
+            options: status,
+          },
+          {
+            columnId: 'Estado de afiliación',
+            title: 'Estado de afiliado',
+            options: affiliateStatus,
+          },
         ],
         extraActions: (table) => <DataTableExportExcel table={table} />,
-        searchableColumns: [{ columnId: 'Nombre', placeholder: 'Buscar empleado...' }],
+        // searchableColumns: [{ columnId: 'Nombre', placeholder: 'Buscar empleado...' }],
         showViewOptions: true,
       }}
     />
